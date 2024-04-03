@@ -23,6 +23,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
+        public IActionResult Check_Details()
+        {
+            return View();
+        }
+
+        public IActionResult Nass_Number()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
