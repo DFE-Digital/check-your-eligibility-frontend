@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34601.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckYourEligibility-FrontEnd", "CheckYourEligibility-FrontEnd\CheckYourEligibility-FrontEnd.csproj", "{D9D97ED8-E597-43F8-8436-0FC02D2D062F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckYourEligibility-FrontEnd", "CheckYourEligibility-FrontEnd\CheckYourEligibility-FrontEnd.csproj", "{D9D97ED8-E597-43F8-8436-0FC02D2D062F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
