@@ -7,4 +7,10 @@
     <RootNamespace>CheckYourEligibility_FrontEnd</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="CheckYourEligibility.Domain">
+      <HintPath>..\..\check-your-eligibility\CheckYourEligibility.Domain\bin\Debug\net8.0\CheckYourEligibility.Domain.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

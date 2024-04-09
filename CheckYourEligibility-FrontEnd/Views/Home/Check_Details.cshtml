@@ -1,6 +1,10 @@
-﻿@{
+﻿@using CheckYourEligibility.Domain.Requests
+@model CheckEligibilityRequestDataFsm
+
+@{
     ViewData["Title"] = "Check Details";
     ViewData["ServiceName"] = "Check a family's eligibility";
+    
 }
 
 <h1 class="govuk-heading-l">Enter your details</h1>
@@ -20,6 +24,7 @@
         <div class="govuk-form-group">
             <label class="govuk-label" for="surname">
                 Parent's last name
+                @Html.DisplayNameFor(model => model.LastName)
             </label>
             <input class="govuk-input govuk-!-width-two-thirds" id="surname" name="surname" type="text">
         </div>
