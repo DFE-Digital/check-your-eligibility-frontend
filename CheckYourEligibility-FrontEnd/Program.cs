@@ -1,7 +1,13 @@
+using CheckYourEligibility_FrontEnd.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient<IEcsService, EcsService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["EcsBaseUrl"]);
+});
 
 var app = builder.Build();
 

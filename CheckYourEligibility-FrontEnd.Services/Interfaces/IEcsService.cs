@@ -1,8 +1,10 @@
-﻿namespace CheckYourEligibility_FrontEnd.Services
+﻿using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility.Domain.Responses;
+
+namespace CheckYourEligibility_FrontEnd.Services
 {
     public interface IEcsService
     {
-        //Task<string> PostCheck(CheckEligibilityRequestDataFsm data);
-        
+        Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody);
     }
 }
