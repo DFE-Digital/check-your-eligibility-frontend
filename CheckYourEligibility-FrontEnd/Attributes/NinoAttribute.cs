@@ -6,11 +6,11 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 {
     public class NinoAttribute : ValidationAttribute
     {
-        private static readonly string FirstLetterPattern = "[A-CEGHJ-NPR-TW-Z]";
-        private static readonly string SecondLetterPattern = "[A-NP-Z]";
-        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TV|ZZ)";
+        private static readonly string FirstLetterPattern = "[ABCEGHJKLMNOPRSTWXYZ]";
+        private static readonly string SecondLetterPattern = "[ABCEGHJKLMNPRSTWXYZ]";
+        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TV|ZZ)"; 
         private static readonly string NumericPattern = "[0-9]{6}";
-        private static readonly string LastLetterPattern = "[A-D]";
+        private static readonly string LastLetterPattern = "[ABCD]";
 
         private static readonly string Pattern = DisallowedPrefixesPattern + FirstLetterPattern + SecondLetterPattern + NumericPattern + LastLetterPattern;
 
@@ -30,7 +30,9 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                 return new ValidationResult("National Insurance Number is required");
             }
 
-            if (!regex.IsMatch(value.ToString()))
+            string nino = value.ToString().ToUpper();
+
+            if (!regex.IsMatch(nino))
             {
                 return new ValidationResult("Invalid National Insurance Number format");
             }

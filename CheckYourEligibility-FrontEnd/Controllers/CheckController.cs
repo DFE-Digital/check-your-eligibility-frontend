@@ -47,7 +47,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new CheckEligibilityRequestDataFsm
                 {
                     LastName = request.LastName,
-                    NationalInsuranceNumber = request.NationalInsuranceNumber,
+                    NationalInsuranceNumber = request.NationalInsuranceNumber.ToUpper(),
                     DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
                 }
             };
