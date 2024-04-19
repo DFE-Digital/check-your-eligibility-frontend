@@ -6,8 +6,10 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
     public class ParentDetailsViewModel
     {
         [Nino]
+        [MaxLength(9)]
         public string? NationalInsuranceNumber { get; set; }
 
+        [MaxLength(10)]
         public string? NationalAsylumSeekerServiceNumber { get; set; }
 
         public bool IsNassSelected { get; set; }

@@ -43,5 +43,30 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             return null;
         }
+
+        public async Task<StatusResponse> GetStatus(CheckEligibilityResponse responseBody)
+        {
+            var request = $"{responseBody.Links.Get_EligibilityCheck}/Status";
+            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+            try
+            {
+                var response = await _httpClient.GetAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = JsonConvert.DeserializeObject<StatusResponse>(response.Content.ReadAsStringAsync().Result);
+                    return responseData;
+                }
+
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    var ErrorResponseData = JsonConvert.DeserializeObject<MessageResponse>(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Get Check failed: uri:-{_httpClient.BaseAddress}{request} content-{JsonConvert.SerializeObject(responseBody)}");
+            }
+            return null;
+        }
     }
 }
