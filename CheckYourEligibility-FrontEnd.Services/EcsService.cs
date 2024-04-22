@@ -1,19 +1,21 @@
 ﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Services
 {
-    public class EcsService : IEcsService
+    public class EcsService : BaseService,  IEcsService
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly string _FsmUrl;
 
-        public EcsService(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration)
+        public EcsService(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
@@ -22,49 +24,28 @@ namespace CheckYourEligibility_FrontEnd.Services
 
         public async Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody)
         {
-            var uri = $"{_FsmUrl}";
-            var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
             try
             {
-                var response = await _httpClient.PostAsync(uri, content);
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = JsonConvert.DeserializeObject<CheckEligibilityResponse>(response.Content.ReadAsStringAsync().Result);
-                    return responseData;
-                }
-                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    var ErrorResponseData = JsonConvert.DeserializeObject<MessageResponse>(response.Content.ReadAsStringAsync().Result);
-                }
+                var result = await ApiDataPostAsynch(_FsmUrl, requestBody, new CheckEligibilityResponse());
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{uri} content:-{JsonConvert.SerializeObject(requestBody)}");
+                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{_FsmUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
             }
             return null;
         }
-
+       
         public async Task<StatusResponse> GetStatus(CheckEligibilityResponse responseBody)
         {
-            var request = $"{responseBody.Links.Get_EligibilityCheck}/Status";
-            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
             try
             {
-                var response = await _httpClient.GetAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = JsonConvert.DeserializeObject<StatusResponse>(response.Content.ReadAsStringAsync().Result);
-                    return responseData;
-                }
-
-                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    var ErrorResponseData = JsonConvert.DeserializeObject<MessageResponse>(response.Content.ReadAsStringAsync().Result);
-                }
+                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/Status", new StatusResponse());
+                return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Get Check failed: uri:-{_httpClient.BaseAddress}{request} content-{JsonConvert.SerializeObject(responseBody)}");
+                _logger.LogError(ex, $"Get Status failed. uri:-{_httpClient.BaseAddress}{responseBody.Links.Get_EligibilityCheck}/Status");
             }
             return null;
         }
