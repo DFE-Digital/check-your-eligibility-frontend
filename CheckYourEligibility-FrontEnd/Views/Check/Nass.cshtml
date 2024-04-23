@@ -26,7 +26,6 @@
             <input type="hidden" asp-for="Day" value="@parentDetailsViewModel.Day" />
             <input type="hidden" asp-for="Month" value="@parentDetailsViewModel.Month" />
             <input type="hidden" asp-for="Year" value="@parentDetailsViewModel.Year" />
-            <input type="hidden" asp-for="IsNassSelected" value="@true" />
 
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" aria-describedby="nass-number-hint">
@@ -42,7 +41,7 @@
 
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="nass-number" name="nass-number" type="radio" value="yes~/current/parent-soft-check/outcome-not-entitled" data-aria-controls="conditional-nass-number">
+                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true" data-aria-controls="conditional-nass-number" aria-expanded="false">
                             <label class="govuk-label govuk-radios__label" for="nass-number">
                                 Yes
                             </label>
@@ -64,7 +63,7 @@
                         </div>
 
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="nass-number-2" name="nass-number" type="radio" value="no~/current/parent-soft-check/outcome-could-not-check">
+                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false">
                             <label class="govuk-label govuk-radios__label" for="nass-number-2">
                                 No, I do not have one
                             </label>

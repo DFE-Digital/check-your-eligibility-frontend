@@ -37,8 +37,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NassAsync(ParentDetailsViewModel request)
+        public async Task<IActionResult> Nass(ParentDetailsViewModel request)
         {
+            ModelState.Remove("NationalInsuranceNumber");
+
+            TempData["Request"] = JsonConvert.SerializeObject(request);
+
             if (!ModelState.IsValid)
             {
                 return View("Nass");
@@ -71,6 +75,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Enter_Details(ParentDetailsViewModel request)
         {
+            if (request.IsNassSelected == true)
+            {
+                ModelState.Remove("NationalAsylumSeekerServiceNumber");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View("Enter_Details", request);
@@ -130,7 +139,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
                 else
                 {
-                    if ((DateTime.UtcNow - startTime).TotalMinutes > 0.5)
+                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
                     {
                         break;
                     }

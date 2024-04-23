@@ -9,6 +9,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
         [MaxLength(9)]
         public string? NationalInsuranceNumber { get; set; }
 
+        [Nass]
         [MaxLength(10)]
         public string? NationalAsylumSeekerServiceNumber { get; set; }
 
