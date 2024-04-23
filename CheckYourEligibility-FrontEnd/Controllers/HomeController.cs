@@ -1,3 +1,4 @@
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -10,6 +11,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public HomeController(ILogger<HomeController> logger)
         {
+            
             _logger = logger;
         }
 

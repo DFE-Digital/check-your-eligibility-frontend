@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,5 +6,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CheckYourEligibility_FrontEnd</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Attributes\NinoAttribute.cs" />
+    <Content Include="Attributes\NameAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CheckYourEligibility.Domain">
+      <HintPath>CheckYourEligibility.Domain.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
