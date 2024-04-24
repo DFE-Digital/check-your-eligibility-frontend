@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckYourEligibility-FrontE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckYourEligibility-FrontEnd.Services", "CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj", "{18982F19-258E-4787-A353-843A90F681B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckYourEligibility-FrontEnd.Tests", "CheckYourEligibility-FrontEnd.Tests\CheckYourEligibility-FrontEnd.Tests.csproj", "{A493C5C0-3360-4F82-8E6A-2A9E1D4168B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{18982F19-258E-4787-A353-843A90F681B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18982F19-258E-4787-A353-843A90F681B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18982F19-258E-4787-A353-843A90F681B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A493C5C0-3360-4F82-8E6A-2A9E1D4168B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A493C5C0-3360-4F82-8E6A-2A9E1D4168B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A493C5C0-3360-4F82-8E6A-2A9E1D4168B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A493C5C0-3360-4F82-8E6A-2A9E1D4168B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
-﻿using Microsoft.Net.Http.Headers;
+﻿using CheckYourEligibility_FrontEnd.ViewModels;
+using Microsoft.Net.Http.Headers;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -13,15 +14,25 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value == null || value == "")
+            var model = (ParentDetailsViewModel)validationContext.ObjectInstance;
+
+            if (model.FirstName == value)
             {
-                return ValidationResult.Success;
+                if (value == null || value == "")
+                    return new ValidationResult("First Name is required");
+
+                if (!regex.IsMatch(value.ToString()))
+                    return new ValidationResult("First Name field contains an invalid character");
             }
 
-            if (!regex.IsMatch(value.ToString()))
+            if (model.LastName == value)
             {
-                return new ValidationResult("Name field contains an invalid character");
-            }
+                if (value == null || value == "")
+                    return new ValidationResult("Last Name is required");
+
+                if (!regex.IsMatch(value.ToString()))
+                    return new ValidationResult("Last Name field contains an invalid character");
+            }       
 
             return ValidationResult.Success;
         }
