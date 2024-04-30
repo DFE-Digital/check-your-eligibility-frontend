@@ -1,0 +1,52 @@
+﻿@model CheckYourEligibility_FrontEnd.ViewModels.ParentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Application Sent";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Application Sent";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+<div class="moj-banner moj-banner--success" role="region" aria-label="Success">
+
+    <svg class="moj-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25">
+        <path d="M25,6.2L8.7,23.2L0,14.1l4-4.2l4.7,4.9L21,2L25,6.2z"></path>
+    </svg>
+
+    <div class="moj-banner__message">
+        <h2 class="govuk-heading-m">We have sent your details to Bramhope Primary School</h2>
+        <p>Your reference number is 1234567.</p>
+    </div>
+
+</div>
+
+
+
+
+
+<div class="govuk-grid-row">
+
+
+    <div class="govuk-grid-column-one-half">
+
+
+
+        <h2 class="govuk-heading-l">What happens next</h2>
+
+
+        <p>  The school will email you when they have registered your details, and will arrange for your children's free school meals to start. </p>
+
+        <p>If you do not receive an update in 5 working days talk to the school administrator.</p>
+
+        <p><a href="account/signin-or-create">Sign out</a></p>
+
+    </div>
+
+</div>
+
+
+<script src="/js/validationSummary.js"></script>
