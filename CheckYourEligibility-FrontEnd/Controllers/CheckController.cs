@@ -5,6 +5,7 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility.Domain.Enums;
 using Newtonsoft.Json;
+using CheckYourEligibility_FrontEnd.Models;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -19,61 +20,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _service = ecsService;
         }
 
-        public IActionResult Loader()
-        {
-            return View();
-        }
-
         public IActionResult Enter_Details()
         {
             return View();
         }
 
-        public IActionResult Nass()
-        {
-            var parentDetailsViewModel = new ParentDetailsViewModel();
-
-            return View(parentDetailsViewModel);
-        }
-
         [HttpPost]
-        public async Task<IActionResult> Nass(ParentDetailsViewModel request)
-        {
-            ModelState.Remove("NationalInsuranceNumber");
-
-            TempData["Request"] = JsonConvert.SerializeObject(request);
-
-            if (!ModelState.IsValid)
-            {
-                return View("Nass");
-            }
-
-            if (request.NationalAsylumSeekerServiceNumber == null)
-            {
-                return View("Outcome/Could_Not_Check");
-            }
-            else
-            {
-                var checkEligibilityRequest = new CheckEligibilityRequest()
-                {
-                    Data = new CheckEligibilityRequestDataFsm
-                    {
-                        LastName = request.LastName,
-                        NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
-                    }
-                };
-
-                var response = await _service.PostCheck(checkEligibilityRequest);
-
-                _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
-                return RedirectToAction("Loader");
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Enter_Details(ParentDetailsViewModel request)
+        public async Task<IActionResult> Enter_Details(Parent request)
         {
             if (request.IsNassSelected == true)
             {
@@ -108,6 +61,54 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
 
             return RedirectToAction("Loader");
+        }
+
+        public IActionResult Nass()
+        {
+            var parent = new Parent();
+
+            return View(parent);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Nass(Parent request)
+        {
+            ModelState.Remove("NationalInsuranceNumber");
+
+            TempData["Request"] = JsonConvert.SerializeObject(request);
+
+            if (!ModelState.IsValid)
+            {
+                return View("Nass");
+            }
+
+            if (request.NationalAsylumSeekerServiceNumber == null)
+            {
+                return View("Outcome/Could_Not_Check");
+            }
+            else
+            {
+                var checkEligibilityRequest = new CheckEligibilityRequest()
+                {
+                    Data = new CheckEligibilityRequestDataFsm
+                    {
+                        LastName = request.LastName,
+                        NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
+                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
+                    }
+                };
+
+                var response = await _service.PostCheck(checkEligibilityRequest);
+
+                _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
+
+                return RedirectToAction("Loader");
+            }
+        }
+
+        public IActionResult Loader()
+        {
+            return View();
         }
 
         public async Task<IActionResult> Poll_Status()
@@ -147,6 +148,32 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
             return View("Outcome/Default");
+        }
+
+        public IActionResult Enter_Child_Details()
+        {
+            var children = new Children()
+            {
+                ChildList = new List<Child>()
+                {
+                    new Child()
+                }
+            };
+
+            return View(children);
+        }
+
+        [HttpPost]
+        public IActionResult Enter_Child_Details(Child request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Enter_Child_Details", request);
+            }
+
+            // store request in application object for full application summary page..
+
+            return View(request);
         }
     }
 }

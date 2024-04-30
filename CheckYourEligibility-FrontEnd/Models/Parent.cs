@@ -1,9 +1,9 @@
 ﻿using CheckYourEligibility_FrontEnd.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace CheckYourEligibility_FrontEnd.ViewModels
+namespace CheckYourEligibility_FrontEnd.Models
 {
-    public class ParentDetailsViewModel
+    public class Parent
     {
         [Nino]
         [MaxLength(9)]
@@ -23,6 +23,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
         [Required(ErrorMessage = "Last Name is required")]
         public string? LastName { get; set; }
 
+        [Dob]
         [Required(ErrorMessage = "Day is required")]
         [Range(1, 31, ErrorMessage = "Invalid Day")]
         public int? Day { get; set; }
