@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility.Domain.Requests;
-using CheckYourEligibility_FrontEnd.ViewModels;
 using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility.Domain.Enums;
@@ -152,28 +151,99 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Enter_Child_Details()
         {
-            var children = new Children()
+            // Check if this is a redirect
+            if (TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"])
             {
-                ChildList = new List<Child>()
-                {
-                    new Child()
-                }
-            };
+                // Clear the model state to skip validation
+                ModelState.Clear();
 
-            return View(children);
+                // Retrieve the updated list from TempData
+                var childListJson = TempData["ChildList"] as string;
+                var childList = JsonConvert.DeserializeObject<List<Child>>(childListJson);
+
+                var children = new Children { ChildList = childList };
+
+                return View(children);
+            }
+            else
+            {
+                var children = new Children()
+                {
+                    ChildList = [new Child()]
+                };
+                
+                return View(children);
+            }
         }
 
         [HttpPost]
-        public IActionResult Enter_Child_Details(Child request)
+        public IActionResult Enter_Child_Details(Children request)
         {
             if (!ModelState.IsValid)
             {
                 return View("Enter_Child_Details", request);
             }
 
-            // store request in application object for full application summary page..
+            for (int i = 0; i <= request.ChildList.Count - 1; i++)
+            {
+                Console.WriteLine(request.ChildList[i].FirstName);
+                Console.WriteLine(request.ChildList[i].LastName);
+                Console.WriteLine(request.ChildList[i].Day);
+                Console.WriteLine(request.ChildList[i].Month);
+                Console.WriteLine(request.ChildList[i].Year);
+                Console.WriteLine(request.ChildList[i].School.Name);
+                Console.WriteLine(request.ChildList[i].School.LA);
+                Console.WriteLine(request.ChildList[i].School.Postcode);
+                Console.WriteLine(request.ChildList[i].School.URN);
+            }
+
+            // request stores children data, parent retrieved and combined to make application
+            Parent parent = null;
+            
+            FsmApplication fsmApplication = new FsmApplication(parent, request);
 
             return View(request);
+        }
+
+        public IActionResult Add_Child(Children request)
+        {
+            TempData["IsRedirect"] = true;
+
+            if (request.ChildList.Count > 99)
+            {
+                return RedirectToAction("Enter_Child_Details", request);
+            }
+
+            request.ChildList.Add(new Child());
+
+            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+
+            return RedirectToAction("Enter_Child_Details", request);
+        }
+
+        [HttpPost]
+        public IActionResult Remove_Child(Children request, int index)
+        {
+            var child = request.ChildList[index];
+            request.ChildList.Remove(child);
+
+            TempData["IsRedirect"] = true;
+            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+
+            return RedirectToAction("Enter_Child_Details");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSchoolDetails(string query)
+        {
+            if (string.IsNullOrEmpty(query) || query.Length < 3)
+            {
+                return BadRequest("Query must be at least 3 characters long.");
+            }
+
+            var results = await _service.GetSchool(query);
+
+            return Json(results.Data.ToList());
         }
     }
 }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace CheckYourEligibility_FrontEnd.Models
 {
     public class Child
-    {
+    { 
         [Name]
         [Required(ErrorMessage = "First name is required")]
         public string? FirstName { get; set; }
@@ -26,6 +26,6 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Required(ErrorMessage = "Year is required")]
         public int? Year { get; set; }
 
-        public School school { get; set; }
+        public School School { get; set; }
     }
 }

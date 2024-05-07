@@ -11,112 +11,134 @@
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <div>
-            <h1 class="govuk-heading-l" tabindex="-1">Provide details of your children</h1>
-            <fieldset class="govuk-fieldset moj-add-another__item">
-                <legend class="govuk-fieldset__legend moj-add-another__title govuk-fieldset__legend--m">
-                    Child
-                </legend>
-            </fieldset>
+<h1 class="govuk-heading-l" tabindex="-1">
+    Provide details of your children
+</h1>
 
-            <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
-                @for (int i = 0; i < Model.ChildList.Count; i++)
-                {
+<form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
+    @for (int i = 0; i < Model.ChildList.Count; i++)
+    {
+        <div id="childNumber@(@i)">
+        <fieldset class="govuk-fieldset moj-add-another__item">
+            <legend class="govuk-fieldset__legend moj-add-another__title govuk-fieldset__legend--m">
+                Child @(@i + 1) details
+            </legend>
 
-                    <fieldset class="govuk-fieldset moj-add-another__item">
-                        <legend class="govuk-fieldset__legend moj-add-another__title govuk-fieldset__legend--m">
-                            Child 1 details
-                        </legend>
+            @if (i > 0){
+            <button asp-controller="Check" asp-action="Remove_Child" asp-route-index="@i" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4 delete-button" data-module="govuk-button">
+                Remove Child @(i + 1)
+            </button button>
+            }
 
-                        <div class="govuk-form-group">
-                            <label class="govuk-label govuk-!-font-weight-bold" for="ch1-first-name">
-                                First name
-                            </label>
-                            <input asp-for="ChildList[i].FirstName" class="govuk-input" name="ch1-first-name" type="text">
-                        </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-!-font-weight-bold" for="ch1-first-name">
+                    First name
+                </label>
+                <p class="govuk-error-message">
+                    <span asp-validation-for="ChildList[i].FirstName"></span>
+                </p>
 
-                        <div class="govuk-form-group">
-                            <label class="govuk-label govuk-!-font-weight-bold" for="ch1-surname">
-                                Last name
-                            </label>
-                            <input asp-for="ChildList[i].LastName" class="govuk-input" id="ch1-surname" name="ch1-surname" type="text">
-                        </div>
+                <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text">
+            </div>
 
-                        <div class="govuk-form-group">
-                            <div class="govuk-form-group">
-                                <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
-                                    School
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-!-font-weight-bold">
+                    Last name
+                </label>
+                <p class="govuk-error-message">
+                    <span asp-validation-for="ChildList[i].LastName"></span>
+                </p>
+                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text">
+            </div>
+
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
+                    School
+                </label>
+
+                <div id="school-picker-hint" class="govuk-hint">
+                    Type to search
+                </div>
+                <p class="govuk-error-message">
+                    <span asp-validation-for="ChildList[i].School.Name"></span>
+                </p>
+                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds autocomplete__input autocomplete__input--default" type="text" oninput="searchSchool(this.value, @i)">
+                <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" value="" />
+                <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" value="" />
+                <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" value=""  />
+                <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds autocomplete__menu autocomplete__menu--inline"></ul>
+            </div>
+
+            <div class="govuk-form-group" data-type="dob-form-group">
+                <fieldset class="govuk-fieldset" role="group">
+
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        Date of birth
+                    </legend>
+
+                    <div id="dob-hint" class="govuk-hint">
+                        For example, 27 3 2007
+                    </div>
+
+                    <div class="govuk-date-input" id="dob">
+
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group" data-type="dob-input">
+                                <label class="govuk-label govuk-date-input__label" for="ch1-day">
+                                    Day
                                 </label>
-
-                                <div id="school-picker-hint" class="govuk-hint">
-                                    Type to search
-                                </div>
-                                <input asp-for="ChildList[i].school.Name" aria-expanded="false" aria-owns="school-picker__listbox" aria-autocomplete="both" autocomplete="off" class="autocomplete__input autocomplete__input--default" id="school-picker" type="text" role="combobox" aria-describedby="school-picker__assistiveHint">
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ChildList[i].Day"></span>
+                                </p>
+                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric">
                             </div>
                         </div>
 
-                        <div class="govuk-form-group">
-                            <fieldset class="govuk-fieldset" role="group" aria-describedby="ch1-date-of-birth-hint">
-                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                                    Date of birth
-                                </legend>
-
-                                <div id="ch1-date-of-birth-hint" class="govuk-hint">
-                                    For example, 27 3 2007
-                                </div>
-
-                                <div class="govuk-date-input" id="ch1-date-of-birth">
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ch1-day">
-                                                Day
-                                            </label>
-                                            <input asp-for="ChildList[i].Day" class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric">
-                                        </div>
-                                    </div>
-
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ch1-month">
-                                                Month
-                                            </label>
-                                            <input asp-for="ChildList[i].Month" class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric">
-                                        </div>
-                                    </div>
-
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ch1-year">
-                                                Year
-                                            </label>
-                                            <input asp-for="ChildList[i].Year" class="govuk-input govuk-date-input__input govuk-input--width-4" type="text" inputmode="numeric">
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group" data-type="dob-input">
+                                <label class="govuk-label govuk-date-input__label" for="ch1-month">
+                                    Month
+                                </label>
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ChildList[i].Month"></span>
+                                </p>
+                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric">
+                            </div>
                         </div>
-                    </fieldset>
-                }
 
-        <div class="add-button-container">
-            <div class="moj-button-action">
-                <button id="addChild" type="submit" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4" data-module="govuk-button">
-                    Add another child
-                </button>
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group" data-type="dob-input">
+                                <label class="govuk-label govuk-date-input__label" for="ch1-year">
+                                    Year
+                                </label>
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ChildList[i].Year"></span>
+                                </p>
+                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4" type="text" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
+        </fieldset>
         </div>
+    }
 
+    <div class="add-button-container">
         <div class="moj-button-action">
-            <a href="check-answers" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-                Save and continue
-            </a>
+            <button asp-controller="Check" asp-action="Add_Child" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4" data-module="govuk-button">
+                Add another child
+            </button>
         </div>
-        </form>
     </div>
-</div>
-</div>
 
-<script src="/js/addChildren.js"></script>
+    <div class="moj-button-action">
+        <button class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
+            Save and continue
+        </button>
+    </div>
+</form>
+
+
 <script src="/js/validationSummary.js"></script>
+<script src="/js/schoolSearch.js"></script>

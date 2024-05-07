@@ -60,6 +60,8 @@ namespace CheckYourEligibility_FrontEnd.Services
 
         protected async Task<T> ApiDataGetAsynch<T>(string address, T result)
         {
+            // add bearer token temp
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlY3NVaVVzZXIiLCJlbWFpbCI6ImVjc1VpQGVkdWNhdGlvbi5nb3YudWsiLCJFY3NBcGkiOiJhcGlDdXN0b21DbGFpbSIsImp0aSI6IjBiMmZiZTBmLWM2OGUtNDI0MC05YjY3LTExMzczMGQ4N2EzNiIsImV4cCI6MTcxNTA5NTgyOSwiaXNzIjoiZWNzLmNvbSIsImF1ZCI6ImVjcy5jb20ifQ.A6tt0L-HhlywWoEq-RefHZrhgC0qzKATpcRAHEiloiE");
             string uri = address;
 
             var task = await _httpClient.GetAsync(uri);

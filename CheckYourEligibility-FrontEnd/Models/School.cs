@@ -7,10 +7,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Required(ErrorMessage = "School is required")]
         public string Name { get; set; }
 
-        public string URN { get; set; }
+        public string? URN { get; set; }
 
-        public string LA { get; set; }
+        public string? LA { get; set; }
 
-        public string Postcode { get; set; }
+        public string? Postcode { get; set; }
     }
 }

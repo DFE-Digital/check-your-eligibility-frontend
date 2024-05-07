@@ -2,10 +2,13 @@
 {
     public class FsmApplication
     {
+        private Parent _parent { get; set; }
         private Children _children { get; set; }
-        public FsmApplication()
+
+        public FsmApplication(Parent parent, Children children)
         {
-            
+            _parent = parent;
+            _children = children;
         }
     }
 }

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34601.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckYourEligibility-FrontEnd", "CheckYourEligibility-FrontEnd\CheckYourEligibility-FrontEnd.csproj", "{D9D97ED8-E597-43F8-8436-0FC02D2D062F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckYourEligibility-FrontEnd.Services", "CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj", "{18982F19-258E-4787-A353-843A90F681B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckYourEligibility-FrontEnd.Services", "CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj", "{18982F19-258E-4787-A353-843A90F681B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
