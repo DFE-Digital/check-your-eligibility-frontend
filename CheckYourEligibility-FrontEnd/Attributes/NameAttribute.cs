@@ -14,21 +14,24 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var model = (ParentDetailsViewModel)validationContext.ObjectInstance;
+            var model = validationContext.ObjectInstance;
 
-            if (model.FirstName == value)
+            var firstName = model.GetType().GetProperty("FirstName").GetValue(model);
+            var lastName = model.GetType().GetProperty("LastName").GetValue(model);
+
+            if (firstName == value)
             {
                 if (value == null || value == "")
-                    return new ValidationResult("First Name is required");
+                    return ValidationResult.Success;
 
                 if (!regex.IsMatch(value.ToString()))
                     return new ValidationResult("First Name field contains an invalid character");
             }
 
-            if (model.LastName == value)
+            if (lastName == value)
             {
                 if (value == null || value == "")
-                    return new ValidationResult("Last Name is required");
+                    return ValidationResult.Success;
 
                 if (!regex.IsMatch(value.ToString()))
                     return new ValidationResult("Last Name field contains an invalid character");

@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility_FrontEnd.Tests.Attributes.Derived;
+﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Tests.Attributes.Derived;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,34 +7,31 @@ namespace CheckYourEligibility_FrontEnd.Tests.Attributes
 {
     public class NameAttributeTests
     {
-        const string FirstNameMissingErrorMessage = "First Name is required";
         const string FirstNameFormatErrorMessage = "First Name field contains an invalid character";
-
-        const string LastNameMissingErrorMessage = "Last Name is required";
         const string LastNameFormatErrorMessage = "Last Name field contains an invalid character";
 
         private TestableNameAttribute _nameAttribute { get; set; }
         private ValidationContext _validationContext { get; set; }
-        private ParentDetailsViewModel _parentDetailsViewModel { get; set; }
+        private Parent _parent { get; set; }
+        private Child _child { get; set; }
 
 
         [SetUp]
         public void Setup()
         {
-            _parentDetailsViewModel = new ParentDetailsViewModel();
+            _parent = new Parent();
+            _child = new Child();
             _nameAttribute = new TestableNameAttribute();
         }
 
-        [TestCase(null, FirstNameMissingErrorMessage)]
-        [TestCase("", FirstNameMissingErrorMessage)]
         [TestCase("Homer1", FirstNameFormatErrorMessage)]
         [TestCase("Ned2", FirstNameFormatErrorMessage)]
         [TestCase("Seymour!", FirstNameFormatErrorMessage)]
         public void CheckInvalidFirstNames(string? name, string? errorMessage)
         {
-            _parentDetailsViewModel.FirstName = name;
-            _parentDetailsViewModel.LastName = "SomeLastName";
-            _validationContext = new ValidationContext(_parentDetailsViewModel);
+            _parent.FirstName = name;
+            _parent.LastName = "SomeLastName";
+            _validationContext = new ValidationContext(_parent);
 
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
@@ -45,25 +43,23 @@ namespace CheckYourEligibility_FrontEnd.Tests.Attributes
         [TestCase("Seymour")]
         public void CheckValidFirstNames(string? name)
         {
-            _parentDetailsViewModel.FirstName = name;
-            _parentDetailsViewModel.LastName = "SomeLastName";
-            _validationContext = new ValidationContext(_parentDetailsViewModel);
+            _parent.FirstName = name;
+            _parent.LastName = "SomeLastName";
+            _validationContext = new ValidationContext(_parent);
 
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
             Assert.AreEqual(result, null);
         }
 
-        [TestCase(null, LastNameMissingErrorMessage)]
-        [TestCase("", LastNameMissingErrorMessage)]
         [TestCase("Simpson1", LastNameFormatErrorMessage)]
         [TestCase("Flanders2", LastNameFormatErrorMessage)]
         [TestCase("Skinner!", LastNameFormatErrorMessage)]
         public void CheckInvalidLastNames(string? name, string? errorMessage)
         {
-            _parentDetailsViewModel.FirstName = "SomeFirstName";
-            _parentDetailsViewModel.LastName = name;
-            _validationContext = new ValidationContext(_parentDetailsViewModel);
+            _parent.FirstName = "SomeFirstName";
+            _parent.LastName = name;
+            _validationContext = new ValidationContext(_parent);
 
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
@@ -75,9 +71,9 @@ namespace CheckYourEligibility_FrontEnd.Tests.Attributes
         [TestCase("Skinner")]
         public void CheckValidLastNames(string? name)
         {
-            _parentDetailsViewModel.FirstName = "SomeFirstName";
-            _parentDetailsViewModel.LastName = name;
-            _validationContext = new ValidationContext(_parentDetailsViewModel);
+            _parent.FirstName = "SomeFirstName";
+            _parent.LastName = name;
+            _validationContext = new ValidationContext(_parent);
 
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
