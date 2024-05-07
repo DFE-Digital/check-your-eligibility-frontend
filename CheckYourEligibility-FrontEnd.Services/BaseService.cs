@@ -1,9 +1,14 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using CheckYourEligibility.Domain;
+using CheckYourEligibility.Domain.Responses;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection.PortableExecutable;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CheckYourEligibility_FrontEnd.Services
 {
@@ -12,12 +17,36 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly TelemetryClient _telemetry;
+        protected readonly IConfiguration _configuration;
+
         public BaseService(string serviceName, ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
         {
             _logger = logger.CreateLogger(serviceName);
             _httpClient = httpClient;
             _telemetry = new TelemetryClient();
-    }
+            _configuration = configuration;
+        }
+
+        public async void Authorise()
+        {
+            var url = _configuration["EcsAuthorisationUrl"];
+            var requestBody = new UserModel { 
+                Username = _configuration["EcsAuthorisationUsername"],
+                EmailAddress = _configuration["EcsAuthorisationEmail"],
+                Password = _configuration["EcsAuthorisationPassword"]
+            };
+            try
+            {
+                var result = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
+                _httpClient.DefaultRequestHeaders
+                .Add("Authorization", "Bearer " + result.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{url} content:-{JsonConvert.SerializeObject(requestBody)}");
+            }
+           
+        }
 
         protected async Task<T2> ApiDataPostAsynch<T1, T2>(string address, T1 data, T2 result)
         {
@@ -25,6 +54,9 @@ namespace CheckYourEligibility_FrontEnd.Services
             string json = JsonConvert.SerializeObject(data);
             HttpContent content = new StringContent(json);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+           
+            
+
             var task = await _httpClient.PostAsync(uri, content);
             if (task.IsSuccessStatusCode)
             {
