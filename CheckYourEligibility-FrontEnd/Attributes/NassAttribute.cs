@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility_FrontEnd.ViewModels;
+﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -11,7 +12,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var model = (ParentDetailsViewModel)validationContext.ObjectInstance;
+            var model = (Parent)validationContext.ObjectInstance;
 
             if (model.IsNassSelected == true)
             {

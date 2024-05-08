@@ -14,13 +14,17 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly string _FsmUrl;
+        private readonly string _schoolUrl;
 
-        public EcsService(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
+        public  EcsService(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
             _FsmUrl = configuration["EcsFsmControllerUrl"];
+            _schoolUrl = configuration["EcsFsmSchoolUrl"];
         }
+
+       
 
         public async Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody)
         {
@@ -47,6 +51,22 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
                 _logger.LogError(ex, $"Get Status failed. uri:-{_httpClient.BaseAddress}{responseBody.Links.Get_EligibilityCheck}/Status");
             }
+            return null;
+        }
+
+        public async Task<SchoolSearchResponse> GetSchool(string name)
+        {
+            try
+            {
+                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}", new SchoolSearchResponse());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}");
+
+            }
+
             return null;
         }
     }

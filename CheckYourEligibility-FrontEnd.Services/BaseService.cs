@@ -1,4 +1,5 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using CheckYourEligibility.Domain;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -12,12 +13,38 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly TelemetryClient _telemetry;
+        protected readonly IConfiguration _configuration;
         public BaseService(string serviceName, ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
         {
             _logger = logger.CreateLogger(serviceName);
             _httpClient = httpClient;
             _telemetry = new TelemetryClient();
-    }
+            _configuration = configuration;
+
+            Task.Run(Authorise).Wait();
+        }
+
+        public async Task Authorise()
+        {
+            var url = _configuration["EcsAuthorisationUrl"];
+            var requestBody = new UserModel { 
+                Username = _configuration["EcsAuthorisationUsername"],
+                EmailAddress = _configuration["EcsAuthorisationEmail"],
+                Password = _configuration["EcsAuthorisationPassword"]
+            };
+            try
+            {
+                var result = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
+
+                _httpClient.DefaultRequestHeaders
+                .Add("Authorization", "Bearer " + result.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{url} content:-{JsonConvert.SerializeObject(requestBody)}");
+            }
+           
+        }
 
         protected async Task<T2> ApiDataPostAsynch<T1, T2>(string address, T1 data, T2 result)
         {
@@ -25,6 +52,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             string json = JsonConvert.SerializeObject(data);
             HttpContent content = new StringContent(json);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
             var task = await _httpClient.PostAsync(uri, content);
             if (task.IsSuccessStatusCode)
             {
@@ -35,6 +63,10 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
                 var method = "POST";
                 await LogApiError(task, method, uri, json);
+                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
 
             return result;
@@ -54,6 +86,10 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
                 var method = "DELETE";
                 await LogApiError(task, method, uri);
+                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             return result;
         }
@@ -63,6 +99,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             string uri = address;
 
             var task = await _httpClient.GetAsync(uri);
+
             if (task.IsSuccessStatusCode)
             {
                 var jsonString = await task.Content.ReadAsStringAsync();
@@ -70,12 +107,13 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             else
             {
+               
+                var method = "GET";
+                await LogApiError(task, method, uri);
                 if (task.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     throw new UnauthorizedAccessException();
                 }
-                var method = "GET";
-                await LogApiError(task, method, uri);
             }
 
             return result;

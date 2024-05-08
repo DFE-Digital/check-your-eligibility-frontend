@@ -1,31 +1,32 @@
-﻿using CheckYourEligibility_FrontEnd.ViewModels;
+﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 namespace CheckYourEligibility_FrontEnd.Tests.Attributes
 {
     public class RequiredAttributeTests
     {
-        private ParentDetailsViewModel _parentDetailsViewModel { get; set; }
+        private Parent _parent { get; set; }
         private ValidationContext _validationContext { get; set; }
         private List<ValidationResult> _validationResults { get; set; }
 
         [SetUp]
         public void Setup()
         {
-            _parentDetailsViewModel = new ParentDetailsViewModel();
-            _validationContext = new ValidationContext(_parentDetailsViewModel);
+            _parent = new Parent();
+            _validationContext = new ValidationContext(_parent);
             _validationResults = new List<ValidationResult>();
         }
 
         [TestCase(null, null, null, null, null)]
         public void RequiredAttributesFunctionCorrectly(string? firstName, string? lastName, int? day, int? month, int? year)
         {
-            _parentDetailsViewModel.FirstName = firstName;
-            _parentDetailsViewModel.LastName = lastName;
-            _parentDetailsViewModel.Day = day;
-            _parentDetailsViewModel.Month = month;
-            _parentDetailsViewModel.Year = year;
+            _parent.FirstName = firstName;
+            _parent.LastName = lastName;
+            _parent.Day = day;
+            _parent.Month = month;
+            _parent.Year = year;
 
-            Validator.TryValidateObject(_parentDetailsViewModel, _validationContext, _validationResults);
+            Validator.TryValidateObject(_parent, _validationContext, _validationResults);
 
             Assert.True(_validationResults[0].ErrorMessage == "First Name is required");
             Assert.True(_validationResults[1].ErrorMessage == "Last Name is required");
