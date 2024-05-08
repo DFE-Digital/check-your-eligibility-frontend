@@ -179,13 +179,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Enter_Child_Details(Children request)
         {
+            // ensure model validation occurs correctly
             if (!ModelState.IsValid)
             {
                 return View("Enter_Child_Details", request);
             }
 
+            // test - code
             for (int i = 0; i <= request.ChildList.Count - 1; i++)
             {
+
                 Console.WriteLine(request.ChildList[i].FirstName);
                 Console.WriteLine(request.ChildList[i].LastName);
                 Console.WriteLine(request.ChildList[i].Day);
@@ -197,12 +200,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Console.WriteLine(request.ChildList[i].School.URN);
             }
 
-            // request stores children data, parent retrieved and combined to make application
+            // retrieve parent data from tempData?
             Parent parent = null;
-
+            // use children request data to build fsmApplication
             FsmApplication fsmApplication = new FsmApplication(parent, request);
-
-            return View(request);
+            // send as prepared model to check_answers page
+            return View("Check_Answers", fsmApplication);
         }
 
         public IActionResult Add_Child(Children request)
