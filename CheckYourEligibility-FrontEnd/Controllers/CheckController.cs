@@ -171,7 +171,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     ChildList = [new Child()]
                 };
-                
+
                 return View(children);
             }
         }
@@ -199,7 +199,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             // request stores children data, parent retrieved and combined to make application
             Parent parent = null;
-            
+
             FsmApplication fsmApplication = new FsmApplication(parent, request);
 
             return View(request);
@@ -242,8 +242,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
 
             var results = await _service.GetSchool(query);
-
-            return Json(results.Data.ToList());
+            if (results != null)
+            {
+                return Json(results.Data.ToList());
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
