@@ -22,7 +22,6 @@ namespace CheckYourEligibility_FrontEnd.Services
             _httpClient = httpClient;
             _FsmUrl = configuration["EcsFsmControllerUrl"];
             _schoolUrl = configuration["EcsFsmSchoolUrl"];
-            Authorise();
         }
 
        
@@ -65,8 +64,9 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}");
-                
+
             }
+
             return null;
         }
     }
