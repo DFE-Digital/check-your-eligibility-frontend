@@ -13,12 +13,20 @@
             href = links[i].getAttribute("href");
             hrefs[i] = href;
 
-            element = document.querySelector(href);
+            try {
+                element = document.querySelector(href)
+            } catch {
+                if (element == null) {
+                    var hrefwithoutHash = href.replace("#", "")
+                    element = document.getElementById(hrefwithoutHash)
+                }
+            }
 
-            // 
             let dobElement = element.closest('.govuk-form-group[data-type="dob-input"]');
 
             parent = dobElement ? dobElement.closest('.govuk-form-group[data-type="dob-form-group"]') : element.closest('.govuk-form-group');
+
+            element = null;
 
             if (!parent) {
                 parent = element.parentElement;

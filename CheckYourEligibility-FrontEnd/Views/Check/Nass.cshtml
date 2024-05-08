@@ -1,13 +1,13 @@
-﻿@using CheckYourEligibility_FrontEnd.ViewModels
+﻿@using CheckYourEligibility_FrontEnd.Models
 @using Newtonsoft.Json
-@model CheckYourEligibility_FrontEnd.ViewModels.ParentDetailsViewModel
+@model CheckYourEligibility_FrontEnd.Models.Parent
 
 @{
     ViewData["Title"] = "Nass Number";
     ViewData["ServiceName"] = "Check a family's eligibility";
 
     var request = TempData["Request"] as string;
-    var parentDetailsViewModel = JsonConvert.DeserializeObject<ParentDetailsViewModel>(request);
+    var parent = JsonConvert.DeserializeObject<Parent>(request);
 }
 
 @if (!ViewData.ModelState.IsValid)
@@ -20,12 +20,12 @@
     <div class="govuk-grid-column-two-thirds">
         <form asp-controller="Check" asp-action="Nass" method="post" novalidate>
 
-            <input type="hidden" asp-for="NationalInsuranceNumber" value="@parentDetailsViewModel.NationalInsuranceNumber" />
-            <input type="hidden" asp-for="FirstName" value="@parentDetailsViewModel.FirstName" />
-            <input type="hidden" asp-for="LastName" value="@parentDetailsViewModel.LastName" />
-            <input type="hidden" asp-for="Day" value="@parentDetailsViewModel.Day" />
-            <input type="hidden" asp-for="Month" value="@parentDetailsViewModel.Month" />
-            <input type="hidden" asp-for="Year" value="@parentDetailsViewModel.Year" />
+            <input type="hidden" asp-for="NationalInsuranceNumber" value="@parent.NationalInsuranceNumber" />
+            <input type="hidden" asp-for="FirstName" value="@parent.FirstName" />
+            <input type="hidden" asp-for="LastName" value="@parent.LastName" />
+            <input type="hidden" asp-for="Day" value="@parent.Day" />
+            <input type="hidden" asp-for="Month" value="@parent.Month" />
+            <input type="hidden" asp-for="Year" value="@parent.Year" />
 
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" aria-describedby="nass-number-hint">

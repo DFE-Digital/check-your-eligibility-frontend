@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility_FrontEnd.Tests.Attributes.Derived;
+﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Tests.Attributes.Derived;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,14 @@ namespace CheckYourEligibility_FrontEnd.Tests.Attributes
         const string YearFormatErrorMessage = "Invalid Year";
         private TestableYearAttribute _yearAttribute { get; set; }
         private ValidationContext _validationContext { get; set; }
-        private ParentDetailsViewModel _parentDetailsViewModel { get; set; }
+        private Parent _parent { get; set; }
 
         [SetUp]
         public void Setup()
         {
-            _parentDetailsViewModel = new ParentDetailsViewModel();
+            _parent = new Parent();
             _yearAttribute = new TestableYearAttribute();
-            _validationContext = new ValidationContext(_parentDetailsViewModel);
+            _validationContext = new ValidationContext(_parent);
         }
 
         [TestCase(null, YearMissingErrorMessage)]
