@@ -248,5 +248,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return null;
             }
         }
+
+        public IActionResult Check_Answers()
+        {
+            return View();
+        }
+
+
+        public IActionResult Application_Sent()
+        {
+            return View();
+        }
     }
 }
