@@ -20,9 +20,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _FsmUrl = configuration["EcsFsmControllerUrl"];
-            _schoolUrl = configuration["EcsFsmSchoolUrl"];
+            _FsmUrl = "/FreeSchoolMeals";
+            _schoolUrl = "/Schools";
         }
-
     }
 }
