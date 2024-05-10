@@ -1,14 +1,10 @@
 ﻿using CheckYourEligibility.Domain;
-using CheckYourEligibility.Domain.Responses;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace CheckYourEligibility_FrontEnd.Services
 {
@@ -18,16 +14,17 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly HttpClient _httpClient;
         private readonly TelemetryClient _telemetry;
         protected readonly IConfiguration _configuration;
-
         public BaseService(string serviceName, ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
         {
             _logger = logger.CreateLogger(serviceName);
             _httpClient = httpClient;
             _telemetry = new TelemetryClient();
             _configuration = configuration;
+
+            Task.Run(Authorise).Wait();
         }
 
-        public async void Authorise()
+        public async Task Authorise()
         {
             var url = _configuration["EcsAuthorisationUrl"];
             var requestBody = new UserModel { 
@@ -38,6 +35,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             try
             {
                 var result = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
+
                 _httpClient.DefaultRequestHeaders
                 .Add("Authorization", "Bearer " + result.Token);
             }
@@ -54,8 +52,6 @@ namespace CheckYourEligibility_FrontEnd.Services
             string json = JsonConvert.SerializeObject(data);
             HttpContent content = new StringContent(json);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-           
-            
 
             var task = await _httpClient.PostAsync(uri, content);
             if (task.IsSuccessStatusCode)
@@ -67,6 +63,10 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
                 var method = "POST";
                 await LogApiError(task, method, uri, json);
+                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
 
             return result;
@@ -86,6 +86,10 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
                 var method = "DELETE";
                 await LogApiError(task, method, uri);
+                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             return result;
         }
@@ -95,6 +99,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             string uri = address;
 
             var task = await _httpClient.GetAsync(uri);
+
             if (task.IsSuccessStatusCode)
             {
                 var jsonString = await task.Content.ReadAsStringAsync();
@@ -102,12 +107,13 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             else
             {
+               
+                var method = "GET";
+                await LogApiError(task, method, uri);
                 if (task.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     throw new UnauthorizedAccessException();
                 }
-                var method = "GET";
-                await LogApiError(task, method, uri);
             }
 
             return result;
