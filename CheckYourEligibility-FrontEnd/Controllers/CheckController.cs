@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
-using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility.Domain.Responses;
-using CheckYourEligibility.Domain.Enums;
-using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Services;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -28,14 +28,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Enter_Details(Parent request)
         {
             if (request.IsNassSelected == true)
-            {
                 ModelState.Remove("NationalAsylumSeekerServiceNumber");
-            }
 
             if (!ModelState.IsValid)
-            {
                 return View("Enter_Details", request);
-            }
+
             var checkEligibilityRequest = new CheckEligibilityRequest()
             {
                 Data = new CheckEligibilityRequestDataFsm
@@ -46,15 +43,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             };
 
-            if (request.IsNassSelected == true)
-            {
-                TempData["Request"] = JsonConvert.SerializeObject(request);
+            TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
 
+            if (request.IsNassSelected == true)
                 return RedirectToAction("Nass");
-            }
 
             var response = await _service.PostCheck(checkEligibilityRequest);
-
             TempData["Response"] = JsonConvert.SerializeObject(response);
 
             _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
@@ -73,7 +67,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Nass(Parent request)
         {
             ModelState.Remove("NationalInsuranceNumber");
-
             TempData["Request"] = JsonConvert.SerializeObject(request);
 
             if (!ModelState.IsValid)
@@ -96,6 +89,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
                     }
                 };
+
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
 
                 var response = await _service.PostCheck(checkEligibilityRequest);
 
@@ -179,95 +174,94 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Enter_Child_Details(Children request)
         {
-            // ensure model validation occurs correctly
             if (!ModelState.IsValid)
             {
                 return View("Enter_Child_Details", request);
             }
 
-            // test - code
-            for (int i = 0; i <= request.ChildList.Count - 1; i++)
-            {
+            var parent = TempData["ParentDetails"] as Parent;
 
-                Console.WriteLine(request.ChildList[i].FirstName);
-                Console.WriteLine(request.ChildList[i].LastName);
-                Console.WriteLine(request.ChildList[i].Day);
-                Console.WriteLine(request.ChildList[i].Month);
-                Console.WriteLine(request.ChildList[i].Year);
-                Console.WriteLine(request.ChildList[i].School.Name);
-                Console.WriteLine(request.ChildList[i].School.LA);
-                Console.WriteLine(request.ChildList[i].School.Postcode);
-                Console.WriteLine(request.ChildList[i].School.URN);
+            var fsmApplications = new List<ApplicationRequest>();
+            var fsmApplicationRequest = new ApplicationRequest();
+            foreach (var child in request.ChildList)
+            {
+                fsmApplicationRequest.Data = new ApplicationRequestData()
+                {
+                    // parent
+                    ParentFirstName = parent.FirstName,
+                    ParentLastName = parent.LastName,
+                    ParentDateOfBirth = new DateOnly(parent.Year.Value, parent.Month.Value, parent.Day.Value).ToString("dd/MM/yyyy"),
+                    ParentNationalInsuranceNumber = parent.NationalInsuranceNumber ?? null,
+                    ParentNationalAsylumSeekerServiceNumber = parent.NationalAsylumSeekerServiceNumber ?? null,
+                    // child
+                    ChildFirstName = child.FirstName,
+                    ChildLastName = child.LastName,
+                    ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                    // school
+                    School = int.Parse(child.School.URN)  // school id?
+                };
+
+                fsmApplications.Add(fsmApplicationRequest);
             }
 
-            // retrieve parent data from tempData?
-            Parent parent = null;
-            // use children request data to build fsmApplication
-            FsmApplication fsmApplication = new FsmApplication(parent, request);
-
-            // persist data to DB
-            // get key to db record to load on check details page
-
-            // send as prepared model to check_answers page
-            return View("Check_Answers", fsmApplication);
+            return View("Check_Answers", fsmApplicationRequest);
         }
 
-        public IActionResult Add_Child(Children request)
+    public IActionResult Add_Child(Children request)
+    {
+        TempData["IsRedirect"] = true;
+
+        if (request.ChildList.Count > 99)
         {
-            TempData["IsRedirect"] = true;
-
-            if (request.ChildList.Count > 99)
-            {
-                return RedirectToAction("Enter_Child_Details", request);
-            }
-
-            request.ChildList.Add(new Child());
-
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
-
             return RedirectToAction("Enter_Child_Details", request);
         }
 
-        [HttpPost]
-        public IActionResult Remove_Child(Children request, int index)
+        request.ChildList.Add(new Child());
+
+        TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+
+        return RedirectToAction("Enter_Child_Details", request);
+    }
+
+    [HttpPost]
+    public IActionResult Remove_Child(Children request, int index)
+    {
+        var child = request.ChildList[index];
+        request.ChildList.Remove(child);
+
+        TempData["IsRedirect"] = true;
+        TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+
+        return RedirectToAction("Enter_Child_Details");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetSchoolDetails(string query)
+    {
+        if (string.IsNullOrEmpty(query) || query.Length < 3)
         {
-            var child = request.ChildList[index];
-            request.ChildList.Remove(child);
-
-            TempData["IsRedirect"] = true;
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
-
-            return RedirectToAction("Enter_Child_Details");
+            return BadRequest("Query must be at least 3 characters long.");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetSchoolDetails(string query)
+        var results = await _service.GetSchool(query);
+        if (results != null)
         {
-            if (string.IsNullOrEmpty(query) || query.Length < 3)
-            {
-                return BadRequest("Query must be at least 3 characters long.");
-            }
-
-            var results = await _service.GetSchool(query);
-            if (results != null)
-            {
-                return Json(results.Data.ToList());
-            }
-            else
-            {
-                return null;
-            }
+            return Json(results.Data.ToList());
         }
-
-        public IActionResult Check_Answers()
+        else
         {
-            return View();
-        }
-
-
-        public IActionResult Application_Sent()
-        {
-            return View();
+            return null;
         }
     }
+
+    public IActionResult Check_Answers()
+    {
+        return View();
+    }
+
+    public IActionResult Application_Sent()
+    {
+        return View();
+    }
+}
 }
