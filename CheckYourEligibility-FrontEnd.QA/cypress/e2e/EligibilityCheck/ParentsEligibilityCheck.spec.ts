@@ -10,7 +10,6 @@ describe('Parent with NI number can submit successful application - without logi
         //Enter Date
         cy.typeTextByLabel("Day", '01');
         cy.typeTextByLabel("Month", '01');
-        cy.wait(5000);
         cy.typeTextByLabel("Year", '2010');
     });
   });
