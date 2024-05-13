@@ -26,11 +26,11 @@ namespace CheckYourEligibility_FrontEnd.Services
 
         public async Task Authorise()
         {
-            var url = _configuration["EcsAuthorisationUrl"];
-            var requestBody = new UserModel { 
-                Username = _configuration["EcsAuthorisationUsername"],
-                EmailAddress = _configuration["EcsAuthorisationEmail"],
-                Password = _configuration["EcsAuthorisationPassword"]
+            var url = _configuration["Api:AuthorisationUrl"];
+            var requestBody = new UserModel {
+                Username = _configuration["Api:AuthorisationUsername"],
+                EmailAddress = _configuration["Api:AuthorisationEmail"],
+                Password = _configuration["Api:AuthorisationPassword"]
             };
             try
             {
