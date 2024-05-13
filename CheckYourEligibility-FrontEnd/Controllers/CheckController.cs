@@ -204,6 +204,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             Parent parent = null;
             // use children request data to build fsmApplication
             FsmApplication fsmApplication = new FsmApplication(parent, request);
+
+            // persist data to DB
+            // get key to db record to load on check details page
+
             // send as prepared model to check_answers page
             return View("Check_Answers", fsmApplication);
         }
