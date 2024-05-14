@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace CheckYourEligibility_FrontEnd.Models
+﻿namespace CheckYourEligibility_FrontEnd.Models
 {
     public class FsmApplication
     {
