@@ -399,3 +399,5 @@ FodyWeavers.xsd
 /CheckYourEligibility.WebApp/appsettings.Development.json
 /CheckYourEligibility.WebApp/appsettings.Development.json
 /.gitignore
+/CheckYourEligibility-Parent/appsettings.Development.json
+/CheckYourEligibility-Admin/appsettings.Development.json

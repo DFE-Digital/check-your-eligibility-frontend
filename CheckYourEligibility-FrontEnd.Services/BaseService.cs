@@ -14,6 +14,9 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly HttpClient _httpClient;
         private readonly TelemetryClient _telemetry;
         protected readonly IConfiguration _configuration;
+
+        private static JwtAuthResponse _jwtAuthResponse;
+
         public BaseService(string serviceName, ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
         {
             _logger = logger.CreateLogger(serviceName);
@@ -27,23 +30,28 @@ namespace CheckYourEligibility_FrontEnd.Services
         public async Task Authorise()
         {
             var url = _configuration["Api:AuthorisationUrl"];
-            var requestBody = new UserModel {
+            var requestBody = new UserModel
+            {
                 Username = _configuration["Api:AuthorisationUsername"],
                 EmailAddress = _configuration["Api:AuthorisationEmail"],
                 Password = _configuration["Api:AuthorisationPassword"]
             };
             try
             {
-                var result = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
+                if (_jwtAuthResponse == null || _jwtAuthResponse.Expires < DateTime.UtcNow)
+                {
+                    _jwtAuthResponse = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
+                }
 
                 _httpClient.DefaultRequestHeaders
-                .Add("Authorization", "Bearer " + result.Token);
+                .Add("Authorization", "Bearer " + _jwtAuthResponse.Token);
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{url} content:-{JsonConvert.SerializeObject(requestBody)}");
             }
-           
+
         }
 
         protected async Task<T2> ApiDataPostAsynch<T1, T2>(string address, T1 data, T2 result)
