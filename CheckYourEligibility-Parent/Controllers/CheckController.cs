@@ -2,6 +2,7 @@
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility.Domain.Requests;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -33,9 +34,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 return View("Enter_Details", request);
             }
-            var checkEligibilityRequest = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequest()
+            var checkEligibilityRequest = new CheckEligibilityRequest()
             {
-                Data = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequestDataFsm
+                Data = new CheckEligibilityRequestDataFsm
                 {
                     LastName = request.LastName,
                     NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
