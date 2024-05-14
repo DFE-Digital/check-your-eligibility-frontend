@@ -1,6 +1,5 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Tests.Attributes.Derived;
-using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_FrontEnd.Tests.Attributes

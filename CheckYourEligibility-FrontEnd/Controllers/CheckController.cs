@@ -171,34 +171,31 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Enter_Child_Details()
         {
+            // Initialize a new Children object
+            var children = new Children();
+
             // Check if this is a redirect
             if (TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
-                // skip validation
+                // Skip validation
                 ModelState.Clear();
 
                 // Retrieve updated list from TempData (child could have been added or removed)
                 var childListJson = TempData["ChildList"] as string;
 
-                // transform list to fit model
-                var children = new Children {
-                    ChildList = JsonConvert.DeserializeObject<List<Child>>(childListJson)
-                };
-
-                // return view and populate with upto child list
-                return View(children);
+                // Transform list to fit model
+                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childListJson);
             }
             else
             {
-            // if its a new page load, populate the view an empty model
-                var children = new Children()
-                {
-                    ChildList = [new Child()]
-                };
-
-                return View(children);
+                // If it's a new page load, populate the ChildList with a new Child
+                children.ChildList = new List<Child> { new Child() };
             }
+
+            // Return view and populate with up-to-date child list
+            return View(children);
         }
+
 
         [HttpPost]
         public IActionResult Enter_Child_Details(Children request)
@@ -220,6 +217,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("Check_Answers", fsmApplication);
         }
 
+        [HttpPost]
         public IActionResult Add_Child(Children request)
         {
             // set initial tempdata
@@ -228,15 +226,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // don't allow the model to contain more than 99 items
             if (request.ChildList.Count > 99)
             {
-                return RedirectToAction("Enter_Child_Details", request);
+                return RedirectToAction("Enter_Child_Details");
             }
 
             request.ChildList.Add(new Child());
 
             TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
-            return RedirectToAction("Enter_Child_Details", request);
+            return RedirectToAction("Enter_Child_Details");
         }
+
 
         [HttpPost]
         public IActionResult Remove_Child(Children request, int index)
