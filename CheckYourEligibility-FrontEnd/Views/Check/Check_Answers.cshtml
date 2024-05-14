@@ -28,7 +28,7 @@
                     Parent or guardian name
                 </dt>
                 <dd class="govuk-summary-list__value">
-
+                  @Model.ParentFirstName @Model.ParentLastName
                 </dd>
 
             </div>
@@ -37,20 +37,34 @@
                     Parent or guardian date of birth
                 </dt>
                 <dd class="govuk-summary-list__value">
-
+                    @Model.ParentDateOfBirth
                 </dd>
 
             </div>
 
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Asylum support reference number
-                </dt>
-                <dd class="govuk-summary-list__value">
+            @if (Model.ParentNino == null){
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Asylum support reference number
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.ParentNass
+                    </dd>
 
-                </dd>
+                </div>
+            }
+            else
+            {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        National insurance number
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.ParentNino
+                    </dd>
 
-            </div>
+                </div>
+            }
 
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
@@ -65,58 +79,58 @@
     </div>
 </div>
 
+<!-- iterate child list and display data -->
+@for (var i = 0; i < Model.Children.ChildList.Count; i++)
+{
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+                Child @(@i + 1)
+            </h2>
+            <ul class="govuk-summary-card__actions">
+                <li class="govuk-summary-card__action">
+                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Child details</span></a>
+                </li>
 
-<div class="govuk-summary-card">
-    <div class="govuk-summary-card__title-wrapper">
-        <h2 class="govuk-summary-card__title">
-            Child 1
-        </h2>
-        <ul class="govuk-summary-card__actions">
-            <li class="govuk-summary-card__action">
-                <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Child details</span></a>
-            </li>
+            </ul>
+        </div>
 
-        </ul>
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Child's name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Children.ChildList[i].FirstName @Model.Children.ChildList[i].LastName
+                    </dd>
+
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        School
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Children.ChildList[i].School.Name
+                    </dd>
+
+                </div>
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Child's date of birth
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @(new DateOnly((int)Model.Children.ChildList[i].Year, (int)Model.Children.ChildList[i].Month, (int)Model.Children.ChildList[i].Day).ToString("dd/MM/yyyy"))
+                    </dd>
+                </div>
+            </dl>
+        </div>
     </div>
+}
 
-    <div class="govuk-summary-card__content">
-        <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-            </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Child's name
-                </dt>
-                <dd class="govuk-summary-list__value">
-
-                </dd>
-
-            </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    School
-                </dt>
-                <dd class="govuk-summary-list__value">
-
-                </dd>
-
-            </div>
-
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Child's date of birth
-                </dt>
-                <dd class="govuk-summary-list__value">
-
-                </dd>
-
-            </div>
-
-
-
-        </dl>
-    </div>
-</div>
 
 
 
