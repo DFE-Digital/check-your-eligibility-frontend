@@ -1,15 +1,19 @@
-import {StartNowPage}  from '../../support/PageObjects';
+import EnterYourDetailsPage from '../../support/PageObjects/EnterYourDetailsPage'
 
 describe('Parent with NI number can submit successful application - without login', () => {
-    it('Complete Parent Eligibility Check using NI', () => {
-      const startNow = new StartNowPage();   
-        cy.visit('/')
-        cy.clickButtonByText('Start Now');
-        cy.typeTextByLabel("Parent's first name", 'John');
-        cy.typeTextByLabel("Parent's last name", 'Doe');
-        //Enter Date
-        cy.typeTextByLabel("Day", '01');
-        cy.typeTextByLabel("Month", '01');
-        cy.typeTextByLabel("Year", '2010');
-    });
+  const enterYourDetailsPage = new EnterYourDetailsPage();
+
+  it('Complete Parent Eligibility Check using NI number', () => {
+    cy.visit('/');
+    cy.clickButtonByRole('Start Now');
+    enterYourDetailsPage.enterParentsInfo("Parent's first name", "John");
+    enterYourDetailsPage.enterParentsInfo("Parent's last name", "Doe");
+    enterYourDetailsPage.enterDateOfBirth('12', '08', '1985');
+    enterYourDetailsPage.selectYesNoOption('Yes')
+    enterYourDetailsPage.verifyField("Parent's National Insurance number");
+    enterYourDetailsPage.enterParentsInfo("Parent's National Insurance number", "AB123456C")
+    cy.clickButton('Save and continue');
+   // 
   });
+});
+

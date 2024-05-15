@@ -9,7 +9,7 @@ export default defineConfig({
       
       
     },
-    baseUrl: 'https://ecs-test-as-frontend.azurewebsites.net/', 
+    baseUrl: 'https://ecs-dev-as-frontend.azurewebsites.net/', 
     viewportWidth: 1600,
     viewportHeight: 1800,
   },
