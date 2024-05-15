@@ -400,3 +400,6 @@ FodyWeavers.xsd
 /CheckYourEligibility.WebApp/appsettings.Development.json
 /.gitignore
 /CheckYourEligibility-FrontEnd/appsettings.json
+/CheckYourEligibility-Parent/appsettings.Development.json
+/CheckYourEligibility-Admin/appsettings.Development.json
+*.json
