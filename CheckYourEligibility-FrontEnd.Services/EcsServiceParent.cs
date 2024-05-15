@@ -20,8 +20,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _FsmUrl = "/FreeSchoolMeals";
-            _schoolUrl = "/Schools";
+            _FsmUrl = "FreeSchoolMeals";
+            _schoolUrl = "Schools";
         }
 
        
@@ -40,11 +40,11 @@ namespace CheckYourEligibility_FrontEnd.Services
             return null;
         }
        
-        public async Task<StatusResponse> GetStatus(CheckEligibilityResponse responseBody)
+        public async Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody)
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/Status", new StatusResponse());
+                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/Status", new CheckEligibilityStatusResponse());
                 return response;
             }
             catch (Exception ex)
