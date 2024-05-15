@@ -45,7 +45,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'checkYourEligibilityFrontend'
+              artifactName: 'checkYourEligibility-Parent'
 
   - stage: DeployAppDev
     displayName: Deploy App Dev
@@ -66,7 +66,7 @@ stages:
               azureSubscription: 's203d.azdo.deployment'
               appType: 'webApp'
               WebAppName: 'ecs-dev-as-frontend'
-              packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontend/CheckYourEligibility-FrontEnd.zip'
+              packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
   - stage: DeployAppTest
     displayName: Deploy App Test
     jobs:
@@ -86,4 +86,4 @@ stages:
               azureSubscription: 's203t.azdo.deployment'
               appType: 'webApp'
               WebAppName: 'ecs-test-as-frontend'
-              packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontend/CheckYourEligibility-FrontEnd.zip'
+              packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
