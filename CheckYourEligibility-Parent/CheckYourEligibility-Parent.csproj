@@ -26,6 +26,7 @@
   <ItemGroup>
     <Reference Include="CheckYourEligibility.Domain">
       <HintPath>..\CheckYourEligibility-Parent\CheckYourEligibility.Domain.dll</HintPath>
+      <HintPath>..\CheckYourEligibility-Admin\CheckYourEligibility.Domain.dll</HintPath>
     </Reference>
   </ItemGroup>
 

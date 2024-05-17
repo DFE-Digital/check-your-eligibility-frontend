@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility.Domain.Requests;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {

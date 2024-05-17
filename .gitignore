@@ -403,3 +403,4 @@ FodyWeavers.xsd
 /CheckYourEligibility-Parent/appsettings.Development.json
 /CheckYourEligibility-Admin/appsettings.Development.json
 *.json
+/CheckYourEligibility-Parent/appsettings.json
