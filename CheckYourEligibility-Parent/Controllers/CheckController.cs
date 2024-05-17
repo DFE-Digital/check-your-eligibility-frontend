@@ -41,8 +41,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
 
-
-
             return View(request);
         }
 

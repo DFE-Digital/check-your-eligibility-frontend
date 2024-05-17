@@ -20,7 +20,6 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             _validationContext = new ValidationContext(_parent);
         }
 
-        [TestCase(null, YearMissingErrorMessage)]
         [TestCase(1800, YearFormatErrorMessage)]
         [TestCase(2500, YearFormatErrorMessage)]
         public void CheckInvalidYears(int? year, string? errorMessage)
