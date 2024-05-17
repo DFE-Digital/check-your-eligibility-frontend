@@ -30,17 +30,18 @@ namespace CheckYourEligibility_FrontEnd.Services
 
         public async Task Authorise()
         {
+            var url = $"{_httpClient.BaseAddress}api/Login";
+            var requestBody = new UserModel
+            {
+                Username = _configuration["Api:AuthorisationUsername"],
+                EmailAddress = _configuration["Api:AuthorisationEmail"],
+                Password = _configuration["Api:AuthorisationPassword"]
+            };
+
             try
             {
                 if (_jwtAuthResponse == null || _jwtAuthResponse.Expires < DateTime.UtcNow)
                 {
-                    var url = $"{_httpClient.BaseAddress}api/Login";
-                    var requestBody = new UserModel
-                    {
-                        Username = _configuration["Api:AuthorisationUsername"],
-                        EmailAddress = _configuration["Api:AuthorisationEmail"],
-                        Password = _configuration["Api:AuthorisationPassword"]
-                    };
                     _jwtAuthResponse = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
                 }
 

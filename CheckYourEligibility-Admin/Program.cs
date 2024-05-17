@@ -14,6 +14,7 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -31,7 +32,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
+app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

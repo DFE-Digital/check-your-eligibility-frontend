@@ -4,6 +4,13 @@ using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 {
     var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
@@ -27,7 +34,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();

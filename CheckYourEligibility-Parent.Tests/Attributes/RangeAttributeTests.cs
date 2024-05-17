@@ -1,5 +1,4 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes

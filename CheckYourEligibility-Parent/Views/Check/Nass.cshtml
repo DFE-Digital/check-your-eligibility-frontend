@@ -6,7 +6,7 @@
     ViewData["Title"] = "Nass Number";
     ViewData["ServiceName"] = "Check a family's eligibility";
 
-    var request = TempData["Request"] as string;
+    var request = TempData["ParentDetails"] as string;
     var parent = JsonConvert.DeserializeObject<Parent>(request);
 }
 
