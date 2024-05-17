@@ -17,10 +17,35 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _service = ecsService;
         }
 
+
+        [HttpGet]
         public IActionResult Enter_Details()
         {
-            return View();
+            // start with empty page model
+            Parent request = null;
+
+            // if this page is loaded again after a POST then get the request and update the page with any errors
+            if (TempData["ParentDetails"] != null)
+            {
+                request = JsonConvert.DeserializeObject<Parent>(TempData["ParentDetails"].ToString());
+            }
+            if (TempData["Errors"] != null)
+            {
+                var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
+                foreach (var kvp in errors)
+                {
+                    foreach (var error in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, error);
+                    }
+                }
+            }
+
+
+
+            return View(request);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Enter_Details(Parent request)
@@ -31,7 +56,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             // do want to validate everything else
             if (!ModelState.IsValid)
-                return View("Enter_Details", request);
+            {
+                // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                TempData["Errors"] = JsonConvert.SerializeObject(errors);
+                return RedirectToAction("Enter_Details");
+            }
 
             // build object for api soft-check
             var checkEligibilityRequest = new CheckEligibilityRequest()
