@@ -1,0 +1,126 @@
+﻿@model CheckYourEligibility_FrontEnd.Models.ParentGuardian
+
+@{
+    ViewData["Title"] = "Check Details";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Error: Check Details";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+<h1 class="govuk-heading-l">Enter parent or guardian details</h1>
+
+<form asp-controller="School" asp-action="Enter_Details" method="post">
+    <fieldset class="govuk-fieldset">
+        <div class="govuk-form-group">
+            <label class="govuk-label" for="first-name">
+                Parent or guardian first name
+            </label>
+            <p class="govuk-error-message">
+                <span asp-validation-for="FirstName"></span>
+            </p>
+            <input class="govuk-input govuk-input--width-20" asp-for="FirstName" type="text">
+        </div>
+
+        <div class="govuk-form-group">
+            <label class="govuk-label" for="surname">
+                Parent or guardian first name
+            </label>
+            <p class="govuk-error-message">
+                <span asp-validation-for="LastName"></span>
+            </p>
+            <input class="govuk-input govuk-input--width-20" asp-for="LastName" type="text">
+        </div>
+
+        <div class="govuk-form-group">
+            <label class="govuk-label" for="email">
+                Parent or guardian email address
+            </label>
+            <p class="govuk-error-message">
+                <span asp-validation-for="EmailAddress"></span>
+            </p>
+            <input class="govuk-input govuk-input--width-20" asp-for="EmailAddress" type="text">
+        </div>
+
+        <div class="govuk-form-group">
+            <label class="govuk-label" for="ni-number-entered">
+                Parent or guardian National Insurance number
+            </label>
+            <p class="govuk-error-message">
+                <span asp-validation-for="NationalInsuranceNumber"></span>
+            </p>
+            <input class="govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text">
+
+            <p class="paragraph-add-margin-top">Or</p>
+
+            <label class="govuk-label" for="nass">
+                Parent or guardian asylum support reference number
+            </label>
+            <p class="govuk-error-message">
+                <span asp-validation-for="NationalAsylumSeekerServiceNumber"></span>
+            </p>
+            <input class="govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text">
+
+        </div>
+
+        <div class="govuk-form-group" data-type="dob-form-group">
+            <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
+
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    Parent or Guardian date of birth
+                </legend>
+
+                <div id="dob-hint" class="govuk-hint">
+                    For example, 27 3 1980
+                </div>
+
+                <div class="govuk-date-input" id="dob">
+
+                    <div class="govuk-date-input__item">
+                        <div class="govuk-form-group" data-type="dob-input">
+                            <label class="govuk-label govuk-date-input__label" for="dob-day">
+                                Day
+                            </label>
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="Day"></span>
+                            </p>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" type="text" inputmode="numeric" maxlength="2" data-type="dob" />
+                        </div>
+                    </div>
+
+                    <div class="govuk-date-input__item">
+                        <div class="govuk-form-group" data-type="dob-input">
+                            <label class="govuk-label govuk-date-input__label" for="dob-month">
+                                Month
+                            </label>
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="Month"></span>
+                            </p>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" type="text" inputmode="numeric" maxlength="2" data-type="dob" />
+                        </div>
+                    </div>
+
+                    <div class="govuk-date-input__item">
+                        <div class="govuk-form-group" data-type="dob-input">
+                            <label class="govuk-label govuk-date-input__label" for="dob-year">
+                                Year
+                            </label>
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="Year"></span>
+                            </p>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <button class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
+            Perform check
+        </button>
+</form>
+
+<script src="/js/validationSummary.js"></script>

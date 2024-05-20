@@ -4,7 +4,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
 {
     public class ApplicationDetailsViewModel
     {
-        public Parent parentDetails { get; set; }
+        public ParentGuardian parentDetails { get; set; }
 
         public Child[] children { get; set; }
     }

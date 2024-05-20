@@ -1,13 +1,13 @@
 ﻿@using CheckYourEligibility_FrontEnd.Models
 @using Newtonsoft.Json
-@model CheckYourEligibility_FrontEnd.Models.Parent
+@model CheckYourEligibility_FrontEnd.Models.ParentGuardian
 
 @{
     ViewData["Title"] = "Nass Number";
     ViewData["ServiceName"] = "Check a family's eligibility";
 
     var request = TempData["Request"] as string;
-    var parent = JsonConvert.DeserializeObject<Parent>(request);
+    var parent = JsonConvert.DeserializeObject<ParentGuardian>(request);
 }
 
 @if (!ViewData.ModelState.IsValid)

@@ -19,7 +19,13 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var model = (Parent)validationContext.ObjectInstance;
+            var model = (ParentGuardian)validationContext.ObjectInstance;
+
+            if (model.NationalAsylumSeekerServiceNumber != null)
+            {
+                model.IsNassSelected = true;
+            }
+
 
             if (model.IsNassSelected == true)
             {
@@ -28,16 +34,18 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (value == null)
             {
-                return new ValidationResult("National Insurance Number is required");
+                return new ValidationResult("National Insurance Number or National Asylum Seeker Service Number is required");
             }
 
-            string nino = value.ToString().ToUpper();
-
-            if (!regex.IsMatch(nino))
+            if (value != null)
             {
-                return new ValidationResult("Invalid National Insurance Number format");
-            }
+                string nino = value.ToString().ToUpper();
 
+                if (!regex.IsMatch(nino))
+                {
+                    return new ValidationResult("Invalid National Insurance Number format");
+                }
+            }
             return ValidationResult.Success;
         }
     }
