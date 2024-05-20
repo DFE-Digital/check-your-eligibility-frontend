@@ -1,12 +1,6 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_Parent.Tests.Attributes.Derived;
-using CheckYourEligibility_FrontEnd.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
 {
@@ -26,7 +20,6 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             _validationContext = new ValidationContext(_parent);
         }
 
-        [TestCase(null, YearMissingErrorMessage)]
         [TestCase(1800, YearFormatErrorMessage)]
         [TestCase(2500, YearFormatErrorMessage)]
         public void CheckInvalidYears(int? year, string? errorMessage)

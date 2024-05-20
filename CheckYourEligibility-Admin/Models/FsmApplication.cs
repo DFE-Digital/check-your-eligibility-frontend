@@ -2,13 +2,16 @@
 {
     public class FsmApplication
     {
-        private ParentGuardian _parent { get; set; }
-        private Children _children { get; set; }
+        public string ParentFirstName {  get; set; }
+        public string ParentLastName { get; set; }
+        public string ParentDateOfBirth { get; set; }
+        public string ParentNino {  get; set; }
+        public string ParentNass {  get; set; }
+        public Children Children { get; set; }
 
-        public FsmApplication(ParentGuardian parent, Children children)
+        public FsmApplication()
         {
-            _parent = parent;
-            _children = children;
+                
         }
     }
 }

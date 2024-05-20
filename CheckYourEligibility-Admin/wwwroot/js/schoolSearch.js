@@ -5,7 +5,8 @@ function searchSchool(query, index) {
         fetch('/Check/GetSchoolDetails?query=' + query)
             .then(response => response.json())
             .then(data => {
-                document.getElementById(`schoolList${index}`).innerHTML = '';
+                var list = document.getElementById(`schoolList${index}`);
+                list.innerHTML = '';
                 let counter = 0;
 
                 // loop response and add li elements with an onclick event listener to select the school
@@ -16,12 +17,39 @@ function searchSchool(query, index) {
                     // Check if the counter is even, if so add the 'autocomplete__option--odd' class
                     li.setAttribute('class', counter % 2 === 0 ? 'autocomplete__option' : 'autocomplete__option autocomplete__option--odd')
                     li.innerHTML = `${value.name}, ${value.id}, ${value.postcode}, ${value.la}`;
+                    li.tabIndex = 0;
+
                     li.addEventListener('click', function () {
                         selectSchool(`${value.name}`, value.id, value.la, value.postcode, index);
                     });
 
-                    document.getElementById(`schoolList${index}`).appendChild(li);
+                    list.appendChild(li);
                     counter++;
+                });
+
+                // Add keyboard navigation
+                let items = list.getElementsByTagName('li');
+                let keyIndex = 0;
+
+                list.addEventListener('keydown', function (e) {
+                    // Get the key code of the pressed key
+                    let key = e.which || e.keyCode;
+
+                    switch (key) {
+                        case 38: // Up arrow
+                            if (keyIndex > 0) {
+                                keyIndex--;
+                            }
+                            break;
+                        case 40: // Down arrow
+                            if (keyIndex < items.length - 1) {
+                                keyIndex++;
+                            }
+                            break;
+                    }
+
+                    // Focus the new item
+                    items[keyIndex].focus();
                 });
             });
     } else {

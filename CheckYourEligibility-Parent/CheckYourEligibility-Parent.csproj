@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.11.2" />
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
@@ -24,7 +25,8 @@
 
   <ItemGroup>
     <Reference Include="CheckYourEligibility.Domain">
-      <HintPath>..\CheckYourEligibility.Domain.dll</HintPath>
+      <HintPath>..\CheckYourEligibility-Parent\CheckYourEligibility.Domain.dll</HintPath>
+      <HintPath>..\CheckYourEligibility-Admin\CheckYourEligibility.Domain.dll</HintPath>
     </Reference>
   </ItemGroup>
 

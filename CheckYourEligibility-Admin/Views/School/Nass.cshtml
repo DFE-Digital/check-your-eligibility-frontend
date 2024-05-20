@@ -6,6 +6,7 @@
     ViewData["Title"] = "Nass Number";
     ViewData["ServiceName"] = "Check a family's eligibility";
 
+    // using tempdata from enter_details page to populate the incomplete-model
     var request = TempData["Request"] as string;
     var parent = JsonConvert.DeserializeObject<ParentGuardian>(request);
 }

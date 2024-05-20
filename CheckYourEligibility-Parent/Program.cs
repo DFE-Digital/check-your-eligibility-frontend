@@ -1,7 +1,23 @@
 using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
+if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
+{
+    var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
+    var kvUri = $"https://{keyVaultName}.vault.azure.net";
+
+    builder.Configuration.AddAzureKeyVault(new Uri(kvUri), new DefaultAzureCredential());
+}
 
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
@@ -18,7 +34,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
