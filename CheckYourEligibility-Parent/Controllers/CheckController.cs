@@ -340,9 +340,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
 
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
-            return View("Application_Sent");
+            return RedirectToAction("Application_Sent");
         }
 
+        [HttpGet]
         public IActionResult Application_Sent()
         {
             // Skip validation
