@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility.Domain.Responses;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -311,33 +312,34 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            var fsmApplication = new ApplicationRequest
-            {
-                Data = new ApplicationRequestData()
-                {
-
-                }
-            };
+            var responses = new List<ApplicationSaveItemResponse>();
 
             foreach (var child in request.Children.ChildList)
             {
-                fsmApplication.Data.ParentFirstName = request.ParentFirstName;
-                fsmApplication.Data.ParentLastName = request.ParentLastName;
-                fsmApplication.Data.ParentDateOfBirth = request.ParentDateOfBirth;
-                fsmApplication.Data.ParentNationalInsuranceNumber = request.ParentNino;
-                fsmApplication.Data.ParentNationalAsylumSeekerServiceNumber = request.ParentNass;
-                fsmApplication.Data.ChildFirstName = child.FirstName;
-                fsmApplication.Data.ChildLastName = child.LastName;
-                fsmApplication.Data.ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy");
-                fsmApplication.Data.School = int.Parse(child.School.URN);
-                fsmApplication.Data.UserId = null; // get from gov.uk onelogin??
-                // if submitted app --> back page should not exist??? as that would create a new application. 
+                var fsmApplication = new ApplicationRequest
+                {
+                    Data = new ApplicationRequestData()
+                    {
+                        // Set the properties for each child
+                        ParentFirstName = request.ParentFirstName,
+                        ParentLastName = request.ParentLastName,
+                        ParentDateOfBirth = request.ParentDateOfBirth,
+                        ParentNationalInsuranceNumber = request.ParentNino,
+                        ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
+                        ChildFirstName = child.FirstName,
+                        ChildLastName = child.LastName,
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        School = int.Parse(child.School.URN),
+                        UserId = null // get from gov.uk onelogin??
+                    }
+                };
+
+                // Send each application as an individual check
+                var response = await _service.PostApplication(fsmApplication);
+                responses.Add(response);
             }
 
-            // send each application as individual check
-            var check = await _service.PostApplication(fsmApplication);
-            
-       
+            TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
             return View("Application_Sent");
         }
 
