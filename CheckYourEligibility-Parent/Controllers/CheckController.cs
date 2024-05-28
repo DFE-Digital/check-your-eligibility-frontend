@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility.Domain.Requests;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -56,7 +55,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // do want to validate everything else
             if (!ModelState.IsValid)
             {
-                // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
+                // Use PRG pattern so that after this POST... the page retrieves informaton from tempdata and then goes onto performs a GET to avoid browser resubmit confirm error
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
@@ -80,7 +79,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             HttpContext.Session.SetString("ParentFirstName", request.FirstName);
             HttpContext.Session.SetString("ParentLastName", request.LastName);
             HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
-          
+
             // if user selected to input nass, save incomplete-model to tempdata and redirect to nass page
             if (request.IsNassSelected == true)
             {
@@ -310,13 +309,43 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult Check_Answers(ApplicationRequest request)
+        public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
+            var fsmApplication = new ApplicationRequest
+            {
+                Data = new ApplicationRequestData()
+                {
+
+                }
+            };
+
+            foreach (var child in request.Children.ChildList)
+            {
+                fsmApplication.Data.ParentFirstName = request.ParentFirstName;
+                fsmApplication.Data.ParentLastName = request.ParentLastName;
+                fsmApplication.Data.ParentDateOfBirth = request.ParentDateOfBirth;
+                fsmApplication.Data.ParentNationalInsuranceNumber = request.ParentNino;
+                fsmApplication.Data.ParentNationalAsylumSeekerServiceNumber = request.ParentNass;
+                fsmApplication.Data.ChildFirstName = child.FirstName;
+                fsmApplication.Data.ChildLastName = child.LastName;
+                fsmApplication.Data.ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy");
+                fsmApplication.Data.School = int.Parse(child.School.URN);
+                fsmApplication.Data.UserId = null; // get from gov.uk onelogin??
+                // if submitted app --> back page should not exist??? as that would create a new application. 
+            }
+
+            // send each application as individual check
+            var check = await _service.PostApplication(fsmApplication);
+            
+       
             return View("Application_Sent");
         }
 
         public IActionResult Application_Sent()
         {
+            // Skip validation
+            ModelState.Clear();
+
             return View();
         }
     }

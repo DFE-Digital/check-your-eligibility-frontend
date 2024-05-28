@@ -8,5 +8,6 @@ namespace CheckYourEligibility_FrontEnd.Services
         Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody);
         Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);
         Task<SchoolSearchResponse> GetSchool(string name);
+        Task<ApplicationSaveItemResponse> PostApplication(ApplicationRequest requestBody);
     }
 }

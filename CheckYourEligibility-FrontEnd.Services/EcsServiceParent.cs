@@ -1,11 +1,8 @@
 ﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using Microsoft.ApplicationInsights.Channel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Services
 {
@@ -23,8 +20,6 @@ namespace CheckYourEligibility_FrontEnd.Services
             _FsmUrl = "FreeSchoolMeals";
             _schoolUrl = "Schools";
         }
-
-       
 
         public async Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody)
         {
@@ -65,6 +60,21 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
                 _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}");
 
+            }
+
+            return null;
+        }
+
+        public async Task<ApplicationSaveItemResponse> PostApplication(ApplicationRequest requestBody)
+        {
+            try
+            {
+                var response = await ApiDataPostAsynch($"{_FsmUrl}/Application", requestBody, new ApplicationSaveItemResponse());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Post Application failed. uri-{_httpClient.BaseAddress}{_FsmUrl}/Application");
             }
 
             return null;
