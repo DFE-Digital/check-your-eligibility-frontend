@@ -45,7 +45,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(request);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Enter_Details(Parent request)
         {
@@ -201,28 +200,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Enter_Child_Details()
         {
-            // Initialize a new Children object
-            var children = new Children();
+            var children = new Children() { ChildList = [new()] };
 
-            // Check if this is a redirect
-            if (TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
+            // Check if this is a redirect after add or remove child
+            if (TempData["IsChildAddOrRemove"] != null && (bool)TempData["IsChildAddOrRemove"] == true)
             {
-                // Skip validation
                 ModelState.Clear();
 
-                // Retrieve updated list from TempData (child could have been added or removed)
-                var childListJson = TempData["ChildList"] as string;
-
-                // Transform list to fit model
-                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childListJson);
-            }
-            else
-            {
-                // If it's a new page load, populate the ChildList with a new Child
-                children.ChildList = new List<Child> { new Child() };
+                // Retrieve Children from TempData
+                var childDetails = TempData["ChildList"] as string;
+                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
             }
 
-            // Return view and populate with up-to-date child list
             return View(children);
         }
 
@@ -230,19 +219,27 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Enter_Child_Details(Children request)
         {
-            if (!ModelState.IsValid)
+            if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
-                return View("Enter_Child_Details", request);
+                return View(request);
             }
 
-            // create check_answers model, access parent details from session storage and child from pages form
-            var fsmApplication = new FsmApplication();
-            fsmApplication.ParentFirstName = HttpContext.Session.GetString("ParentFirstName");
-            fsmApplication.ParentLastName = HttpContext.Session.GetString("ParentLastName");
-            fsmApplication.ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB");
-            fsmApplication.ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null;
-            fsmApplication.ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null;
-            fsmApplication.Children = request;
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var fsmApplication = new FsmApplication
+            {
+                ParentFirstName = HttpContext.Session.GetString("ParentFirstName"),
+                ParentLastName = HttpContext.Session.GetString("ParentLastName"),
+                ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
+                ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
+                ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
+                Children = request
+            };
+
+            TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
 
             return View("Check_Answers", fsmApplication);
         }
@@ -251,7 +248,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public IActionResult Add_Child(Children request)
         {
             // set initial tempdata
-            TempData["IsRedirect"] = true;
+            TempData["IsChildAddOrRemove"] = true;
 
             // don't allow the model to contain more than 99 items
             if (request.ChildList.Count > 99)
@@ -266,7 +263,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Enter_Child_Details");
         }
 
-
         [HttpPost]
         public IActionResult Remove_Child(Children request, int index)
         {
@@ -275,7 +271,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             request.ChildList.Remove(child);
 
             // set up tempdata so page can be correctly rendered
-            TempData["IsRedirect"] = true;
+            TempData["IsChildAddOrRemove"] = true;
             TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
             return RedirectToAction("Enter_Child_Details");
@@ -350,6 +346,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ModelState.Clear();
 
             return View();
+        }
+
+        public IActionResult ChangeChildDetails()
+        {
+            // set up tempdata and access existing temp data object
+            TempData["IsRedirect"] = true;
+            var responseJson = TempData["FsmApplication"] as string;
+            // deserialize
+            var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
+            // get children details
+            var children = responses.Children;
+            // populate enter_child_details page with children model
+            return View("Enter_Child_Details", children);
         }
     }
 }

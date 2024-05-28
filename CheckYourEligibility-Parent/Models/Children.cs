@@ -6,10 +6,7 @@
 
         public Children()
         {
-            ChildList = new List<Child>()
-            {
-                new Child()
-            };
+
         }
     }
 }
