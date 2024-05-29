@@ -11,11 +11,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     {
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _service;
+        private readonly IConfiguration _config;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
             _logger = logger;
             _service = ecsService;
+            _config = configuration;
         }
 
 
@@ -175,8 +177,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
                 {
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-                        return View("Outcome/Eligible");
+                    if (check.Data.Status ==
+                        CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+                    {
+                        string url = _config["OneLogin:Host"];
+                        url += "/authorize?ui_locales=en&response_type=code&scope=openid,email";
+                        url += "&client_id="+_config["OneLogin:ClientId"];
+                        url += "&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio";
+                        url += "&redirect_uri="+_config["Host"]+"/Check/Enter_Child_Details";
+                        return View("Outcome/Eligible", url);
+                    }
 
                     if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
                         return View("Outcome/Not_Eligible");
