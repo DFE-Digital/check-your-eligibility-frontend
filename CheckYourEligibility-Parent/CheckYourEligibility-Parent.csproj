@@ -8,8 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="appsettings.development.json" />
+    <Content Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Attributes\NinoAttribute.cs" />
     <Content Include="Attributes\NameAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.development.json" />
+    <None Include="appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
