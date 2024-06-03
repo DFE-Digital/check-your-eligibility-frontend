@@ -1,5 +1,4 @@
-﻿using Azure;
-using CheckYourEligibility.Domain.Requests;
+﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
@@ -7,12 +6,11 @@ using CheckYourEligibility_FrontEnd.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using childSchool = CheckYourEligibility_FrontEnd.Models.School;
+using ChildsSchool = CheckYourEligibility_FrontEnd.Models.School;
 using School = CheckYourEligibility.Domain.Responses.School;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
@@ -31,7 +29,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private ApplicationSaveItemResponse _applicationSaveItemResponse;
 
         private FsmApplication _fsmApplication;
-        private childSchool[] _schools;
+        private ChildsSchool[] _schools;
         private Parent _parent;
         private Children _children;
 
@@ -40,47 +38,56 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [SetUp]
         public void SetUp()
         {
-            _schools = [
-                new childSchool()
+            SetUpTestData();
+            SetUpInitialMocks();
+            SetUpTempData();
+            SetUpSessionData();
+            SetUpHTTPContext();
+            SetUpServiceMocks();
+
+            void SetUpTestData()
+            {
+                _schools = [
+                    new ChildsSchool()
                 {
                     Name = "Springfield Elementary",
                     LA = "Springfield",
                     Postcode = "SP1 3LE",
                     URN = "10002"
                 },
-                new childSchool()
+                new ChildsSchool()
                 {
                     Name = "Springfield Nursery",
                     LA = "Springfield",
                     Postcode = "SP1 3NU",
                     URN = "10001"
                 }
-            ];
+                ];
 
-            _parent = new Parent()
-            {
-                FirstName = "Homer",
-                LastName = "Simpson",
-                Day = 1,
-                Month = 1,
-                Year = 1990,
-                NationalInsuranceNumber = "AB123456C",
-                NationalAsylumSeekerServiceNumber = null,
-                IsNassSelected = false
-            };
+                _parent = new Parent()
+                {
+                    FirstName = "Homer",
+                    LastName = "Simpson",
+                    Day = 1,
+                    Month = 1,
+                    Year = 1990,
+                    NationalInsuranceNumber = "AB123456C",
+                    NationalAsylumSeekerServiceNumber = null,
+                    IsNassSelected = false
+                };
 
-            _children = new Children()
-            {
-                ChildList =
-                [
-                    new Child()
+                _children = new Children()
+                {
+                    ChildList =
+                    [
+                        new Child()
                     {
                         FirstName = "Bart",
                         LastName = "Simpson",
                         Day = 1,
                         Month = 1,
                         Year = 2015,
-                        School = _schools[0].As<childSchool>()
+                        School = _schools[0]
                     },
                     new Child()
                     {
@@ -89,7 +96,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         Day = 1,
                         Month = 1,
                         Year = 2018,
-                        School = _schools[0].As<childSchool>()
+                        School = _schools[0]
                     },
                     new Child()
                     {
@@ -98,48 +105,48 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         Day = 1,
                         Month = 1,
                         Year = 2020,
-                        School = _schools[1].As<childSchool>()
+                        School = _schools[1]
                     }
-                ]
-            };
+                    ]
+                };
 
-            _fsmApplication = new FsmApplication()
-            {
-                ParentFirstName = _parent.FirstName,
-                ParentLastName = _parent.LastName,
-                ParentDateOfBirth = "01/01/1990",
-                ParentNino = _parent.NationalInsuranceNumber,
-                ParentNass = _parent.NationalAsylumSeekerServiceNumber,
-                Children = _children
-            };
-
-            _eligibilityResponse = new CheckEligibilityResponse()
-            {
-                Data = new StatusValue
+                _fsmApplication = new FsmApplication()
                 {
-                    // Set the properties of the CheckEligibilityResponseData object
-                    Status = "queuedForProcessing"
-                },
-                Links = new CheckEligibilityResponseLinks
-                {
-                    // Set the properties of the CheckEligibilityResponseLinks object
-                    Get_EligibilityCheck = "",
-                    Get_EligibilityCheckStatus = "",
-                    Put_EligibilityCheckProcess = ""
-                }
-            };
+                    ParentFirstName = _parent.FirstName,
+                    ParentLastName = _parent.LastName,
+                    ParentDateOfBirth = "01/01/1990",
+                    ParentNino = _parent.NationalInsuranceNumber,
+                    ParentNass = _parent.NationalAsylumSeekerServiceNumber,
+                    Children = _children
+                };
 
-            _eligibilityStatusResponse = new CheckEligibilityStatusResponse()
-            {
-                Data = new StatusValue
+                _eligibilityResponse = new CheckEligibilityResponse()
                 {
-                    Status = "eligible"
-                }
-            };
+                    Data = new StatusValue
+                    {
+                        // Set the properties of the CheckEligibilityResponseData object
+                        Status = "queuedForProcessing"
+                    },
+                    Links = new CheckEligibilityResponseLinks
+                    {
+                        // Set the properties of the CheckEligibilityResponseLinks object
+                        Get_EligibilityCheck = "",
+                        Get_EligibilityCheckStatus = "",
+                        Put_EligibilityCheckProcess = ""
+                    }
+                };
 
-            _schoolSearchResponse = new SchoolSearchResponse()
-            {
-                Data = [new School()
+                _eligibilityStatusResponse = new CheckEligibilityStatusResponse()
+                {
+                    Data = new StatusValue
+                    {
+                        Status = "eligible"
+                    }
+                };
+
+                _schoolSearchResponse = new SchoolSearchResponse()
+                {
+                    Data = [new School()
                 {
                     Id = 100,
                     County = "Test County",
@@ -151,78 +158,85 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     Street = "Test Street",
                     Town = "Test Town"
                 }]
-            };
+                };
 
-            _applicationSaveItemResponse = new ApplicationSaveItemResponse()
+                _applicationSaveItemResponse = new ApplicationSaveItemResponse()
+                {
+                    Data = new ApplicationSave()
+                    {
+                        ParentFirstName = _fsmApplication.ParentFirstName,
+                        ParentLastName = _fsmApplication.ParentLastName,
+                        ParentDateOfBirth = _fsmApplication.ParentDateOfBirth,
+                        ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
+                        ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
+                        ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
+                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
+                        ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
+                        Id = "",
+                        LocalAuthority = 10002,
+                        Reference = "",
+                        School = 10002
+                    },
+                    Links = new ApplicationResponseLinks()
+                    {
+                        get_Application = ""
+                    }
+                };
+            }
+
+            void SetUpTempData()
             {
-                Data = new ApplicationSave()
-                {
-                    ParentFirstName = _fsmApplication.ParentFirstName,
-                    ParentLastName = _fsmApplication.ParentLastName,
-                    ParentDateOfBirth = _fsmApplication.ParentDateOfBirth,
-                    ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
-                    ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
-                    ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
-                    ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
-                    ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
-                    Id = "",
-                    LocalAuthority = 10002,
-                    Reference = "",
-                    School = 10002
-                },
-                Links = new ApplicationResponseLinks()
-                {
-                    get_Application = ""
-                }
-            };
+                ITempDataProvider tempDataProvider = Mock.Of<ITempDataProvider>();
+                TempDataDictionaryFactory tempDataDictionaryFactory = new TempDataDictionaryFactory(tempDataProvider);
+                ITempDataDictionary tempData = tempDataDictionaryFactory.GetTempData(new DefaultHttpContext());
+                _sut.TempData = tempData;
+            }
 
+            void SetUpInitialMocks()
+            {
+                _serviceMock = new Mock<IEcsServiceParent>();
+                _loggerMock = Mock.Of<ILogger<CheckController>>();
+                _sut = new CheckController(_loggerMock, _serviceMock.Object);
+            }
 
-            // Controller mocks
-            _serviceMock = new Mock<IEcsServiceParent>();
-            _loggerMock = Mock.Of<ILogger<CheckController>>();
-            _sut = new CheckController(_loggerMock, _serviceMock.Object);
+            void SetUpSessionData()
+            {
+                _sessionMock = new Mock<ISession>();
+                var sessionStorage = new Dictionary<string, byte[]>();
 
-            // TempData mock
-            ITempDataProvider tempDataProvider = Mock.Of<ITempDataProvider>();
-            TempDataDictionaryFactory tempDataDictionaryFactory = new TempDataDictionaryFactory(tempDataProvider);
-            ITempDataDictionary tempData = tempDataDictionaryFactory.GetTempData(new DefaultHttpContext());
-            _sut.TempData = tempData;
+                _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
 
-            // Session mock
-            _sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>();
+                _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                            .Returns((string key, out byte[] value) =>
+                            {
+                                var result = sessionStorage.TryGetValue(key, out var storedValue);
+                                value = storedValue;
+                                return result;
+                            });
+            }
 
-            _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                            .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+            void SetUpHTTPContext()
+            {
+                _httpContext = new Mock<HttpContext>();
+                _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+                _sut.ControllerContext.HttpContext = _httpContext.Object;
+            }
 
-            _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                        .Returns((string key, out byte[] value) =>
-                        {
-                            var result = sessionStorage.TryGetValue(key, out var storedValue);
-                            value = storedValue;
-                            return result;
-                        });
+            void SetUpServiceMocks()
+            {
+                _serviceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                    .ReturnsAsync(_eligibilityStatusResponse);
 
+                _serviceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest>()))
+                            .ReturnsAsync(_eligibilityResponse);
 
-            // HttpContext mock
-            _httpContext = new Mock<HttpContext>();
-            _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+                _serviceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
+                            .ReturnsAsync(_schoolSearchResponse);
 
-            _sut.ControllerContext.HttpContext = _httpContext.Object;
-
-            // Ensure that services return a valid response
-            _serviceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(_eligibilityStatusResponse);
-
-            _serviceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest>()))
-                        .ReturnsAsync(_eligibilityResponse);
-
-            _serviceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
-                        .ReturnsAsync(_schoolSearchResponse);
-
-            _serviceMock.Setup(s => s.PostApplication(It.IsAny<ApplicationRequest>()))
-                        .ReturnsAsync(_applicationSaveItemResponse);
-
+                _serviceMock.Setup(s => s.PostApplication(It.IsAny<ApplicationRequest>()))
+                            .ReturnsAsync(_applicationSaveItemResponse);
+            }
         }
 
         [TearDown]
@@ -251,9 +265,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task LoadTheEnterDetailsPage()
         {
-            // Arrange
-            //_sut.TempData["ParentDetails"] = null;
-
             // Act
             var result = _sut.Enter_Details();
 
