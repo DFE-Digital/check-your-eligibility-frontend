@@ -10,6 +10,5 @@ export default defineConfig({
     viewportHeight: 1800,
     specPattern:'cypress/e2e/**/*.spec.{js,jsx,ts,tsx}'
 
-  },  
-  
+  },
 });
