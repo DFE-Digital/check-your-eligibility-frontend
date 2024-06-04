@@ -32,7 +32,7 @@ stages:
          script: |
           cd tests
           cat package.json
-          export CYPRESS_API_HOST="$(CYPRESS_API_HOST)"
+          export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL)"
           export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
           export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
           npm run e2e:chrome
