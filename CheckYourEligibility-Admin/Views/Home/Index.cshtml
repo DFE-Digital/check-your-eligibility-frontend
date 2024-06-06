@@ -1,137 +1,66 @@
 ﻿@{
-    Layout = "~/Views/Shared/_Layout_StartNow.cshtml";
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Check Details";
+    ViewData["ServiceName"] = "Check a family's eligibility";
 }
 
-<div class="govuk-width-container ">
-    <main class="govuk-main-wrapper " id="main-content" role="main">
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Error: Check Details";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">
+            Bramhope Primary School Portal
+        </h1>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">
-                    Check if your children can get free school meals
-                </h1>
-                <p>Here you can:</p>
-
-                <ul class="govuk-list--bullet">
-                    <li> enter information to find out if your children can get free school meals </li>
-                    <li> send the decision on to your children’s school, nursery or childcare setting</li>
-
-                </ul>
-                <p>It should take about 5 minutes to complete.</p>
-
-
-                <h2 class="govuk-heading-l">
-                    Guidance
-                </h2>
-
-                <p>Read guidance about who can get free school meals by choosing from the following sections.</p>
-
-                <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
-
-
-                    <div class="govuk-accordion__section">
-                        <div class="govuk-accordion__section-header">
-                            <h2 class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-default-heading-1">
-                                    Infant free school meals
-                                </span>
+            <div class="govuk-grid-column-full">
+                <div class="dfe-grid-container">
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Enter_Details", "School")">Check free school meals - single student</a>
                             </h2>
-
-                        </div>
-                        <div id="accordion-default-content-1" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-1">
-
-
-                            <p class="govuk-body">Your children will be able to get free school meals if they’re in a government-funded school and in:</p>
-                            <ul>
-                                <li>  reception class </li>
-                                <li>year 1</li>
-                                <li>year 2</li>
-
-                            </ul>
-                            <p class="govuk-body">They must be attending both before and after the lunchtime period.</p>
-                            <p class="govuk-body">Tell <a href="https://www.gov.uk/find-local-council">your local authority</a> if you also get any of the qualifying benefits listed in the 'Pupils aged 4 to 16' section. Your children’s school can get extra funding if you do. </p>
-
+                            <p>Find out if individual pupils can get free school meals.</p>
                         </div>
                     </div>
-
-
-
-                    <div class="govuk-accordion__section">
-                        <div class="govuk-accordion__section-header">
-                            <h2 class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-default-heading-2">
-                                    Pupils aged 4 to 16
-                                </span>
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Batch_Check", "School")">Check free school meals - multiple students</a>
                             </h2>
-
-                        </div>
-                        <div id="accordion-default-content-2" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-2">
-
-                            <p class="govuk-body">Your children may be able to get free school meals if you, or they, get any of these benefits:</p>
-                            <ul>
-                                <li>Universal Credit - if you apply on or after 1 April 2018 your household income must be less than £7,400 a year (after tax and not including any benefits you get)</li>
-                                <li>Income Support </li>
-                                <li>income-based Jobseeker’s Allowance </li>
-                                <li>income-related Employment and Support Allowance </li>
-                                <li>support under Part VI of the Immigration and Asylum Act 1999 </li>
-                                <li>the guaranteed element of Pension Credit </li>
-                                <li>Child Tax Credit (provided you’re not also entitled to Working Tax Credit and have an annual gross income of no more than £16,190) </li>
-                                <li>Working Tax Credit run-on - paid for 4 weeks after you stop qualifying for Working Tax Credit </li>
-
-
-                            </ul>
-                            <p>Your children may also be entitled if you get any of these benefits and your children are: </p>
-                            <ul>
-                                <li>younger than the compulsory age for starting school </li>
-                                <li>in full-time education</li>
-
-                            </ul>
-
-
+                            <p>Find out if multiple pupils can get free school meals by uploading a csv template.</p>
                         </div>
                     </div>
-
-
-
-                    <div class="govuk-accordion__section">
-                        <div class="govuk-accordion__section-header">
-                            <h2 class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-default-heading-3">
-                                    Students in full time education
-                                </span>
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Process_Appeals", "School")">Process appeals</a>
                             </h2>
-
-                        </div>
-                        <div id="accordion-default-content-3" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-3">
-
-                            <p class="govuk-body">The 1996 Education Act requires further education (FE) funded institutions to provide free meals to disadvantaged students. </p>
-                            <p>You can check the guidance on eligibility for free meals in education.</p>
-
+                            <p>Check the status of applications being appealed, and declare those ready for local authority review.</p>
                         </div>
                     </div>
-
-
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="applications">Finalise applications</a>
+                            </h2>
+                            <p>Finalise applications for free school meals.</p>
+                        </div>
+                    </div>
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="search">Search all records</a>
+                            </h2>
+                            <p>Search all pupil free school meal records and export results.</p>
+                        </div>
+                    </div>
                 </div>
-
-                <h2 class="govuk-heading-l">What you’ll need</h2>
-                <p>While using this service, you will need: </p>
-
-                <ul class="govuk-list--bullet">
-                    <li>to create or sign in to a OneGov account</li>
-                    <li>a National Insurance number or asylum support reference number (previously NASS reference number)</li>
-                    <li>to tell us details about any children you want to get free school meals, including the name of their school</li>
-                </ul>
-
-                <a asp-controller="School" asp-action="Enter_Details" role="button" class="govuk-button govuk-button--start" data-module="govuk-button">Start Now
-                    <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"></path>
-                    </svg>
-                </a>
-                   
-
-                <h2 class="govuk-heading-l">Other ways to apply</h2>
-                <p>If you cannot apply online, you can fill in <a href="fsm-print-version">the 'Free school meals entitlement checker' form</a> and give it to your children's school. </p>
             </div>
         </div>
-    </main>
+    </div>
 </div>
+
+<script src="/js/validationSummary.js"></script>

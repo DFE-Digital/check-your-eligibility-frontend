@@ -3,6 +3,7 @@ using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility.Domain.Responses;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -15,6 +16,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             _logger = logger;
             _service = ecsService;
+        }
+
+        public IActionResult Dashboard()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -68,7 +74,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy"),
+                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd"),
                     }
                 };
 
@@ -112,7 +118,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
+                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd")
                     }
                 };
 
@@ -324,17 +330,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Enter_Child_Details");
         }
 
+        /// this method is called by AJAX
         [HttpGet]
         public async Task<IActionResult> GetSchoolDetails(string query)
         {
+            // limit api requests to start after 3 chars given
             if (string.IsNullOrEmpty(query) || query.Length < 3)
             {
                 return BadRequest("Query must be at least 3 characters long.");
             }
 
+            // make api query
             var results = await _service.GetSchool(query);
             if (results != null)
             {
+                // return the results in a list of json
                 return Json(results.Data.ToList());
             }
             else
@@ -349,12 +359,115 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult Check_Answers(ApplicationRequest request)
+        public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            return View("Application_Sent");
+            var responses = new List<ApplicationSaveItemResponse>();
+
+            foreach (var child in request.Children.ChildList)
+            {
+                var fsmApplication = new ApplicationRequest
+                {
+                    Data = new ApplicationRequestData()
+                    {
+                        // Set the properties for each child
+                        ParentFirstName = request.ParentFirstName,
+                        ParentLastName = request.ParentLastName,
+                        ParentDateOfBirth = request.ParentDateOfBirth,
+                        ParentNationalInsuranceNumber = request.ParentNino,
+                        ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
+                        ChildFirstName = child.FirstName,
+                        ChildLastName = child.LastName,
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        School = int.Parse(child.School.URN),
+                        UserId = null // get from gov.uk onelogin??
+                    }
+                };
+
+                // Send each application as an individual check
+                var response = await _service.PostApplication(fsmApplication);
+                responses.Add(response);
+            }
+
+            TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
+            return RedirectToAction("Application_Sent");
         }
 
+        [HttpGet]
         public IActionResult Application_Sent()
+        {
+            // Skip validation
+            ModelState.Clear();
+
+            return View();
+        }
+
+        public IActionResult ChangeChildDetails()
+        {
+            // set up tempdata and access existing temp data object
+            TempData["IsRedirect"] = true;
+            var responseJson = TempData["FsmApplication"] as string;
+            // deserialize
+            var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
+            // get children details
+            var children = responses.Children;
+            // populate enter_child_details page with children model
+            return View("Enter_Child_Details", children);
+        }
+
+        public IActionResult Batch_Check()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Batch_Check(ParentGuardian request)
+        {
+            TempData["Response"] = "data_issue";
+
+            return RedirectToAction("Batch_Loader");
+        }
+
+        public IActionResult Batch_Loader()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Batch_Poll_Status()
+        {
+            var startTime = DateTime.UtcNow;
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
+
+            var response = TempData["Response"] as string;
+            
+            while (await timer.WaitForNextTickAsync())
+            {
+
+                if (response != "queuedForProcessing")
+                {
+                    if (response == "success")
+                        return View("BatchOutcome/Success");
+
+                    if (response == "not_accepted")
+                        return View("BatchOutcome/Error_Not_Accepted");
+
+                    if (response == "data_issue")
+                        return View("BatchOutcome/Error_Data_Issue");
+
+                    break;
+                }
+                else
+                {
+                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
+                    {
+                        break;
+                    }
+                    continue;
+                }
+            }
+            return View("BatchOutcome/Default");
+        }
+
+        public IActionResult Process_Appeals()
         {
             return View();
         }

@@ -27,7 +27,7 @@
                     </legend>
 
                     @if (i > 0){
-                    <button asp-controller="SchoolController" asp-action="Remove_Child" asp-route-index="@i" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4 delete-button" data-module="govuk-button">
+                    <button asp-controller="School" asp-action="Remove_Child" asp-route-index="@i" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4 delete-button" data-module="govuk-button">
                         Remove Child @(i + 1)
                     </button button>
                     }
@@ -146,3 +146,4 @@
 
 <script src="/js/validationSummary.js"></script>
 <script src="/js/schoolSearch.js"></script>
+<script src="/js/focusChildNameInput.js"></script>
