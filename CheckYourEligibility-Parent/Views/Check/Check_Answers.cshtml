@@ -159,17 +159,31 @@
 
 
 
-        <form action="application-sent" method="post" novalidate="">
+<form asp-action="Check_Answers" asp-controller="Check" method="post" novalidate="">
+    <!-- Parent Details -->
+    <input type="hidden" asp-for="ParentFirstName" value="@Model.ParentFirstName" />
+    <input type="hidden" asp-for="ParentLastName" value="@Model.ParentLastName" />
+    <input type="hidden" asp-for="ParentNino" value="@Model.ParentNino" />
+    <input type="hidden" asp-for="ParentNass" value="@Model.ParentNass" />
+    <input type="hidden" asp-for="ParentDateOfBirth" value="@Model.ParentDateOfBirth" />
+    
+    <!-- Child details -->
+    @for (var i = 0; i < Model.Children.ChildList.Count; i++)
+    {
+        <input type="hidden" asp-for="Children.ChildList[i].FirstName" />
+        <input type="hidden" asp-for="Children.ChildList[i].LastName" />
+        <input type="hidden" asp-for="Children.ChildList[i].Day" />
+        <input type="hidden" asp-for="Children.ChildList[i].Month" />
+        <input type="hidden" asp-for="Children.ChildList[i].Year" />
+        <input type="hidden" asp-for="Children.ChildList[i].School.URN" />
+        <input type="hidden" asp-for="Children.ChildList[i].School.Name" />
+        <input type="hidden" asp-for="Children.ChildList[i].School.LA" />
+    }
 
-            <input type="hidden" name="answers-checked" value="true">
 
+    <button type="submit" class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
+        Register details
+    </button>
+</form>
 
-            <button class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
-                Register details
-            </button>
-
-
-        </form>
-        <script src="/js/validationSummary.js"></script>
-    </div>
-</div>
+<script src="/js/validationSummary.js"></script>

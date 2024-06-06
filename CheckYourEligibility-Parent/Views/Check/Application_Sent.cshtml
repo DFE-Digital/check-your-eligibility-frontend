@@ -1,0 +1,52 @@
+﻿@using Newtonsoft.Json
+@model CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse
+
+@{
+    Layout = "~/Views/Shared/_LayoutNoBackButton.cshtml";
+    ViewData["Title"] = "Application Sent";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+
+    var responseJson = TempData["FsmApplicationResponses"] as string;
+    var responses = JsonConvert.DeserializeObject<List<CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse>>(responseJson);
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Application Sent";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+<h1 class="govuk-heading-xl">Children Details Added</h1>
+
+<p>We have sent details for: </p>
+<table>
+    <thead>
+        <tr>
+            <th>Reference</th>
+            <th>Child Name</th>
+            <th>Child School</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var response in responses)
+        {
+            <tr>
+                <td>@response.Data.Reference</td>
+                <td>@response.Data.ChildFirstName @response.Data.ChildLastName</td>
+                <td>@response.Data.School</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-l">What happens next</h2>
+        <p>The school will email you when they have registered your details, and will arrange for your children's free school meals to start.</p>
+    </div>
+</div>
+
+
+<script src="/js/validationSummary.js"></script>
