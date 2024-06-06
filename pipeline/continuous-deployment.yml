@@ -1,5 +1,7 @@
 trigger:
   - main
+    
+pr: none
 
 pool:
   name: Azure Pipelines
