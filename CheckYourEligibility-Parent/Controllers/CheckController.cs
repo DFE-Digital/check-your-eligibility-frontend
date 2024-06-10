@@ -11,9 +11,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     {
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _service;
+        private readonly IConfiguration _config;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
+            _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _service = ecsService ?? throw new ArgumentNullException(nameof(ecsService));
         }
@@ -71,7 +73,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     LastName = request.LastName,
                     NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
-                    DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
+                    DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd")
                 }
             };
 
@@ -178,8 +180,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
                 {
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-                        return View("Outcome/Eligible");
+                    if (check.Data.Status ==
+                        CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+                    {
+                        string url = _config["OneLogin:Host"];
+                        url += "/authorize?ui_locales=en&response_type=code&scope=openid,email";
+                        url += "&client_id="+_config["OneLogin:ClientId"];
+                        url += "&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio";
+                        url += "&redirect_uri="+_config["Host"]+"/Check/Enter_Child_Details";
+                        return View("Outcome/Eligible", url);
+                    }
 
                     if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
                         return View("Outcome/Not_Eligible");
