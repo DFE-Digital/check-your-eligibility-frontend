@@ -12,6 +12,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _service;
         private readonly IConfiguration _config;
+        private ILogger<CheckController> _loggerMock;
+        private IEcsServiceParent _object;
 
         public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
@@ -19,7 +21,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _service = ecsService ?? throw new ArgumentNullException(nameof(ecsService));
         }
-
 
         [HttpGet]
         public IActionResult Enter_Details()

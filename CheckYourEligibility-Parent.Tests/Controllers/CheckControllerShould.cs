@@ -12,6 +12,7 @@ using Moq;
 using Newtonsoft.Json;
 using ChildsSchool = CheckYourEligibility_FrontEnd.Models.School;
 using School = CheckYourEligibility.Domain.Responses.School;
+using Microsoft.Extensions.Configuration;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -23,6 +24,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IEcsServiceParent> _serviceMock;
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
+        private Mock<IConfiguration> _configMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -198,9 +200,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             void SetUpInitialMocks()
             {
+                _configMock = new Mock<IConfiguration>();
                 _serviceMock = new Mock<IEcsServiceParent>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _sut = new CheckController(_loggerMock, _serviceMock.Object);
+                _sut = new CheckController(_loggerMock, _serviceMock.Object, _configMock.Object);
             }
 
             void SetUpSessionData()
@@ -294,7 +297,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task SetSessionData_GivenValidData()
         {
             // Arrange
-            var expectedDob = new DateOnly(1990, 01, 01).ToString();
+            var expectedDob = new DateOnly(1990, 01, 01).ToString("yyyy-MM-dd");
 
             // Act
             _ = await _sut.Enter_Details(_parent);
