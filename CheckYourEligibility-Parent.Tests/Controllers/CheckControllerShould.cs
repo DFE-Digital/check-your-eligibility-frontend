@@ -18,21 +18,25 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
     [TestFixture]
     public class CheckControllerShould
     {
+        // mocks
         private ILogger<CheckController> _loggerMock;
         private Mock<IEcsServiceParent> _serviceMock;
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
 
+        // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
         private CheckEligibilityStatusResponse _eligibilityStatusResponse;
         private SchoolSearchResponse _schoolSearchResponse;
         private ApplicationSaveItemResponse _applicationSaveItemResponse;
 
+        // test data entities
         private FsmApplication _fsmApplication;
         private ChildsSchool[] _schools;
         private Parent _parent;
         private Children _children;
 
+        // system under test
         private CheckController _sut;
 
         [SetUp]

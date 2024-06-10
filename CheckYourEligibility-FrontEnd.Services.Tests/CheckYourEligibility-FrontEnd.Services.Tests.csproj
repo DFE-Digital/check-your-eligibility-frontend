@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="NUnit" Version="3.14.0" />
@@ -21,7 +22,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
+    <ProjectReference Include="..\CheckYourEligibility-Parent\CheckYourEligibility-Parent.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="CheckYourEligibility.Domain">
+      <HintPath>..\CheckYourEligibility-Parent\CheckYourEligibility.Domain.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 
   <ItemGroup>
     <Using Include="NUnit.Framework" />

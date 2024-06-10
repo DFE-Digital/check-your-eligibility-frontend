@@ -117,7 +117,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             else
             {
-               
+
                 var method = "GET";
                 await LogApiError(task, method, uri);
                 if (task.StatusCode == HttpStatusCode.Unauthorized)
@@ -150,7 +150,17 @@ namespace CheckYourEligibility_FrontEnd.Services
             return result;
         }
 
-        private async Task LogApiError(HttpResponseMessage task, string method, string uri, string data)
+        internal async Task LogApiError(HttpResponseMessage task, string method, string uri, string data)
+        {
+            await LogApiErrorInternal(task, method, uri, data);
+        }
+
+        internal async Task LogApiError(HttpResponseMessage task, string method, string uri)
+        {
+            await LogApiErrorInternal(task, method, uri);
+        }
+
+        protected virtual async Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri, string data)
         {
             var guid = Guid.NewGuid().ToString();
             if (task.Content != null)
@@ -159,11 +169,11 @@ namespace CheckYourEligibility_FrontEnd.Services
                 _telemetry.TrackEvent($"API {method} failure",
                     new Dictionary<string, string>
                     {
-                        {"LogId", guid},
-                         {"Response Code", task.StatusCode.ToString()},
-                        {"Address", uri},
-                         {"Request Data", data},
-                         {"Response Data", jsonString}
+                    {"LogId", guid},
+                    {"Response Code", task.StatusCode.ToString()},
+                    {"Address", uri},
+                    {"Request Data", data},
+                    {"Response Data", jsonString}
                     });
             }
             else
@@ -174,21 +184,19 @@ namespace CheckYourEligibility_FrontEnd.Services
             throw new Exception($"API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
         }
 
-        private async Task LogApiError(HttpResponseMessage task, string method, string uri)
+        protected virtual async Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri)
         {
             var guid = Guid.NewGuid().ToString();
-
-
             if (task.Content != null)
             {
                 var jsonString = await task.Content.ReadAsStringAsync();
                 _telemetry.TrackEvent($"API {method} failure",
                     new Dictionary<string, string>
                     {
-                        {"LogId", guid},
-                        {"Address", uri},
-                        {"Response Code", task.StatusCode.ToString()},
-                        {"Data", jsonString}
+                    {"LogId", guid},
+                    {"Address", uri},
+                    {"Response Code", task.StatusCode.ToString()},
+                    {"Data", jsonString}
                     });
             }
             else
@@ -196,6 +204,7 @@ namespace CheckYourEligibility_FrontEnd.Services
                 _telemetry.TrackEvent($"API {method} failure",
                     new Dictionary<string, string> { { "LogId", guid }, { "Address", uri } });
             }
+            throw new Exception($"API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
         }
     }
 }
