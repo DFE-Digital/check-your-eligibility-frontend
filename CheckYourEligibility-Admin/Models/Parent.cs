@@ -6,7 +6,7 @@ namespace CheckYourEligibility_FrontEnd.Models
     public class Parent
     {
         [Nino]
-        [MaxLength(9)]
+        [MaxLength(13)]
         public string? NationalInsuranceNumber { get; set; }
 
         [Nass]
