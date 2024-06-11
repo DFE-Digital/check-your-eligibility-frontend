@@ -12,6 +12,7 @@ declare namespace Cypress {
         clickButton(text: string): Chainable<void>;
         verifyH1Text(expectedText: string): Chainable<void>;
         selectYesNoOption(selector: string, isYes: boolean): Chainable<Element>;
+        
     }
 }
 
@@ -52,7 +53,9 @@ Cypress.Commands.add('clickButton', (text: string) => {
 });
 
 Cypress.Commands.add('verifyH1Text', (expectedText: string) => {
-    cy.get('h1').should('have.text', expectedText);
+    cy.get('h1').invoke('text').then((actualText: string) => {
+        expect(actualText.trim()).to.eq(expectedText);
+    });
 });
 
 Cypress.Commands.add('selectYesNoOption', (baseSelector: string, isYes: boolean) => {
