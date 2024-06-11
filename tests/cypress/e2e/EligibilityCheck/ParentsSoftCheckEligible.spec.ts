@@ -23,56 +23,15 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
     cy.clickButton('Save and continue');
     cy.get('h1').should('have.text', 'Your children are entitled to free school meals');
 
-    const authorizationHeader = 'Basic aW50ZWdyYXRpb24tdXNlcjp3aW50ZXIyMDIx';
+    cy.contains("Go to OneGov").click();
 
-    // Function to handle redirect requests
-    function handleRedirect(url: string, headers: { Authorization: string }): Cypress.Chainable<Cypress.Response<any>> {
-      return cy.request({
-        url,
-        followRedirect: false,
-        headers
-      }).then((response) => {
-        const redirectUrl = response.redirectedToUrl;
-        if (redirectUrl) {
-          return handleRedirect(redirectUrl, headers);
-        }
-        return cy.wrap(response);
-      });
-    }
-
-    cy.request({
-      url: 'https://oidc.integration.account.gov.uk/authorize?ui_locales=en&response_type=code&scope=openid,email&client_id=pBvq8IcdKosgOKzyQ6szmnS0_Yw&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio&redirect_uri=https://ecs-test-as-frontend.azurewebsites.net/Check/Enter_Child_Details',
-      followRedirect: false,
-      headers: {
-        Authorization: authorizationHeader
-      }
-    }).then((initialResponse) => {
-      const redirectUrl = initialResponse.redirectedToUrl;
-      if (redirectUrl) {
-        handleRedirect(redirectUrl, { Authorization: authorizationHeader }).then((finalResponse) => {
-          expect(finalResponse.status).to.eq(200);
-          const finalUrl = finalResponse.redirectedToUrl;
-          if (finalUrl) {
-            cy.visit(finalUrl);
-          }
-        });
-      } else {
-        expect(initialResponse.status).to.eq(200);
-        const initialUrl = initialResponse.redirectedToUrl;
-        if (initialUrl) {
-          cy.visit(initialUrl);
-        }
-      }
+    cy.intercept("https://signin.integration.account.gov.uk/sign-in-or-create", (req) => {
+      req.headers['Authorization'] = 'Basic aW50ZWdyYXRpb24tdXNlcjp3aW50ZXIyMDIx'
     });
 
-    //cy.wait(4000);
-    cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', { auth: { username: 'integration-user', password: 'winter2021' } });
-
-    cy.origin('https://signin.integration.account.gov.uk', () => {
-      
-      cy.get('#sign-in-button').click();
-    })
-
+    cy.origin('https://signin.integration.account.gov.uk/**', ()=> {
+      cy.contains('Sign in').click();
+    });
   });
 
 
