@@ -12,7 +12,8 @@ declare namespace Cypress {
         clickButton(text: string): Chainable<void>;
         verifyH1Text(expectedText: string): Chainable<void>;
         selectYesNoOption(selector: string, isYes: boolean): Chainable<Element>;
-        
+        retainAuthOnRedirect(initialUrl: string, authHeader: string, alias: string): Chainable<void>;
+    
     }
 }
 
@@ -62,3 +63,44 @@ Cypress.Commands.add('selectYesNoOption', (baseSelector: string, isYes: boolean)
     const finalSelector = isYes ? `${baseSelector}[value="false"]` : `${baseSelector}[value="true"]`;
     cy.get(finalSelector).click();
 });
+
+
+Cypress.Commands.add('retainAuthOnRedirect', (initialUrl, authHeader, alias) => {
+    let redirectUrl: string;
+  
+    // Intercept the initial request
+    cy.intercept(initialUrl, (req) => {
+      req.continue((res) => {
+        // Capture the redirect location and ensure it is a string
+        const locationHeader = res.headers['location'];
+        if (Array.isArray(locationHeader)) {
+          redirectUrl = locationHeader[0];
+        } else {
+          redirectUrl = locationHeader;
+        }
+      });
+    }).as('initialRequest');
+  
+    // Make the initial request
+    cy.request({
+      url: initialUrl,
+      headers: {
+        'Authorization': authHeader,
+      },
+      followRedirect: false,
+    }).then(() => {
+      // Ensure the redirect URL is captured and is a string
+      expect(redirectUrl).to.exist;
+  
+      // Make the redirected request with the authorization header
+      cy.request({
+        url: redirectUrl,
+        headers: {
+          'Authorization': authHeader,
+        }
+      }).as(alias);
+    });
+  });
+
+
+  
