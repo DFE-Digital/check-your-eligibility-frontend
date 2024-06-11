@@ -43,26 +43,23 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
     cy.intercept('GET', "https://signin.integration.account.gov.uk/**", (req) => {
       req.headers['Authorization'] = authorizationHeader
     }).as('intercept for GET');
-    
+
     cy.contains("Go to OneGov").click();
 
     cy.origin('https://signin.integration.account.gov.uk/*',
-        () => {
-          cy.wait(2000);
-          
-          cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', {
-            auth: {
-              username: 'integration-user',
-              password: 'winter2021',
-            },
-          })
-      
-          cy.contains("Sign in").click();
-          
-          cy.get("input[name=email]").type("marten.wetterberg@madetech.com");
-          
-          cy.contains("Continue").click();
-        }
+      () => {
+        cy.wait(2000);
+        cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', {
+          auth: {
+            username: Cypress.env('AUTH_USERNAME'),
+            password: Cypress.env('AUTH_PASSWORD')
+          },
+        })
+        cy.contains("Sign in").click();
+        cy.get("input[name=email]").type("adnan.arshad@education.gov.uk");
+
+        cy.contains("Continue").click();
+      }
     );
     /*
     
