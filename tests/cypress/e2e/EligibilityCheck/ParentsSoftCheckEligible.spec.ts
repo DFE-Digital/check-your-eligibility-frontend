@@ -1,14 +1,21 @@
 // cypress/e2e/enterYourDetails.cy.ts
-
-import EnterYourDetailsPage from '../../support/PageObjects/EnterYourDetailsPage';
 import DoYouHaveNassNumberPage from '../../support/PageObjects/DoYouHaveNassNumberPage';
 import EnterDetailsPage from '../../support/PageObjects/EnterDetailsPage'
+import { authenticator } from 'otplib';
 
 describe('Parent with valid details can carry out Eligibility Check', () => {
-  const enterYourDetailsPage = new EnterYourDetailsPage();
   const doYouHaveNassNumPage = new DoYouHaveNassNumberPage();
   const enterDetailsPage = new EnterDetailsPage();
 
+
+  // Get the secret key from Cypress environment variables
+  const secret: string | undefined = Cypress.env('AUTH_SECRET');
+  //Ensure the secret key is defined
+  if (!secret) {
+    throw new Error('Authenticator secret key is not defined in Cypress environment variables');
+  }
+  // Generate the OTP code
+  const otp: string = authenticator.generate(secret);
 
   it.only('Complete Parent Eligibility Check using NI number', () => {
     cy.visit('/');
@@ -18,114 +25,43 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's first name"), "Tim");
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's last name"), "Smith");
     cy.enterDate(enterDetailsPage.daySelector, enterDetailsPage.monthSelector, enterDetailsPage.yearSelector, '01', '01', '1990');
-    cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), true);
+    cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), false);
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's National Insurance number"), "AB123456C");
     cy.clickButton('Save and continue');
     cy.get('h1').should('have.text', 'Your children are entitled to free school meals');
 
     const authorizationHeader = 'Basic aW50ZWdyYXRpb24tdXNlcjp3aW50ZXIyMDIx';
-
-    // Function to handle redirect requests
-    function handleRedirect(url: string, headers: { Authorization: string }): Cypress.Chainable<Cypress.Response<any>> {
-      return cy.request({
-        url,
-        followRedirect: false,
-        headers
-      }).then((response) => {
-        const redirectUrl = response.redirectedToUrl;
-        if (redirectUrl) {
-          return handleRedirect(redirectUrl, headers);
-        }
-        return cy.wrap(response);
-      });
-    }
-
     cy.intercept('GET', "https://signin.integration.account.gov.uk/**", (req) => {
-      req.headers['Authorization'] = authorizationHeader
-    }).as('intercept for GET');
+      req.headers['Authorization'] = authorizationHeader;
+    }).as('interceptForGET');
 
     cy.contains("Go to OneGov").click();
-
-    cy.origin('https://signin.integration.account.gov.uk/*',
-      () => {
+    // Use the custom command to generate the OTP
+    cy.generateOtp().then((otp) => {
+      cy.origin('https://signin.integration.account.gov.uk', { args: { otp } }, ({ otp }) => {
         cy.wait(2000);
         cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', {
           auth: {
             username: Cypress.env('AUTH_USERNAME'),
             password: Cypress.env('AUTH_PASSWORD')
           },
-        })
-        cy.contains("Sign in").click();
-        cy.get("input[name=email]").type("adnan.arshad@education.gov.uk");
-
-        cy.contains("Continue").click();
-      }
-    );
-    /*
-    
-        .invoke('attr', 'href')
-        .then(href => {
-          cy.request({
-            url: href,
-            followRedirect: false,
-            headers: {
-              Authorization: authorizationHeader
-            }
-          }).then((initialResponse) => {
-            const redirectUrl = initialResponse.redirectedToUrl;
-            if (redirectUrl) {
-              
-              
-              cy.visit(redirectUrl);
-              
-              cy.origin('https://signin.integration.account.gov.uk/sign-in-or-create', {
-                args: {
-                  redirectUrl,
-                  authorizationHeader
-                }
-              }, ({redirectUrl, authorizationHeader}) => {
-                cy.contains("Sign in").click();
-              });
-            }
-          });
-        });*/
-
-    /*cy.request({
-      url: 'https://oidc.integration.account.gov.uk/authorize?ui_locales=en&response_type=code&scope=openid,email&client_id=pBvq8IcdKosgOKzyQ6szmnS0_Yw&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio&redirect_uri=https://ecs-test-as-frontend.azurewebsites.net/Check/Enter_Child_Details',
-      followRedirect: false,
-      headers: {
-        Authorization: authorizationHeader
-      }
-    }).then((initialResponse) => {
-      const redirectUrl = initialResponse.redirectedToUrl;
-      if (redirectUrl) {
-        handleRedirect(redirectUrl, { Authorization: authorizationHeader }).then((finalResponse) => {
-          expect(finalResponse.status).to.eq(200);
-          const finalUrl = finalResponse.redirectedToUrl;
-          if (finalUrl) {
-            cy.visit(finalUrl);
-          }
         });
-      } else {
-        expect(initialResponse.status).to.eq(200);
-        const initialUrl = initialResponse.redirectedToUrl;
-        if (initialUrl) {
-          cy.visit(initialUrl);
-        }
-      }
+        cy.contains("Sign in").click();
+        cy.get("input[name=email]").type(Cypress.env("ONEGOV_EMAIL"));
+        cy.contains("Continue").click();
+        cy.get("input[name=password]").type(Cypress.env('ONEGOV_PASSWORD'));
+        cy.contains("Continue").click();
+        cy.get('h1').invoke('text').then((actualText: string) => {
+          expect(actualText.trim()).to.eq('Enter the 6 digit security code shown in your authenticator app');
+        });
+        cy.get('input[name=code]').type(otp);
+        cy.contains("Continue").click();
+      });
+
+      cy.verifyH1Text('Provide details of your children');
     });
 
-    //cy.wait(4000);
-    cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', { auth: { username: 'integration-user', password: 'winter2021' } });
-
-    cy.origin('https://signin.integration.account.gov.uk', () => {
-      
-      cy.get('#sign-in-button').click();
-    })*/
-
   });
-
-
 
 
   it('Complete Parent Eligibility Check using Nass number', () => {
