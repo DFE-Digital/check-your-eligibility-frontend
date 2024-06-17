@@ -265,7 +265,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             TempData["IsChildAddOrRemove"] = true;
 
             // don't allow the model to contain more than 99 items
-            if (request.ChildList.Count > 99)
+            if (request.ChildList.Count >= 99)
             {
                 return RedirectToAction("Enter_Child_Details");
             }

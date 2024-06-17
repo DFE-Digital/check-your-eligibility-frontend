@@ -14,7 +14,6 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         private Parent _parent { get; set; }
         private Child _child { get; set; }
 
-
         [SetUp]
         public void Setup()
         {
@@ -26,56 +25,68 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         [TestCase("Homer1", FirstNameFormatErrorMessage)]
         [TestCase("Ned2", FirstNameFormatErrorMessage)]
         [TestCase("Seymour!", FirstNameFormatErrorMessage)]
-        public void CheckInvalidFirstNames(string? name, string? errorMessage)
+        public void Given_FirstName_When_ContainsInvalidCharacters_Should_ReturnErrorMessage(string? name, string? errorMessage)
         {
+            // Arrange
             _parent.FirstName = name;
             _parent.LastName = "SomeLastName";
             _validationContext = new ValidationContext(_parent);
 
+            // Act
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
+            // Assert
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 
         [TestCase("Homer")]
         [TestCase("Ned")]
         [TestCase("Seymour")]
-        public void CheckValidFirstNames(string? name)
+        public void Given_FirstName_When_Valid_Should_ReturnNull(string? name)
         {
+            // Arrange
             _parent.FirstName = name;
             _parent.LastName = "SomeLastName";
             _validationContext = new ValidationContext(_parent);
 
+            // Act
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
+            // Assert
             Assert.AreEqual(result, null);
         }
 
         [TestCase("Simpson1", LastNameFormatErrorMessage)]
         [TestCase("Flanders2", LastNameFormatErrorMessage)]
         [TestCase("Skinner!", LastNameFormatErrorMessage)]
-        public void CheckInvalidLastNames(string? name, string? errorMessage)
+        public void Given_LastName_When_ContainsInvalidCharacters_Should_ReturnErrorMessage(string? name, string? errorMessage)
         {
+            // Arrange
             _parent.FirstName = "SomeFirstName";
             _parent.LastName = name;
             _validationContext = new ValidationContext(_parent);
 
+            // Act
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
+            // Assert
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 
         [TestCase("Simpson")]
         [TestCase("Flanders")]
         [TestCase("Skinner")]
-        public void CheckValidLastNames(string? name)
+        public void Given_LastName_When_Valid_Should_ReturnNull(string? name)
         {
+            // Arrange
             _parent.FirstName = "SomeFirstName";
             _parent.LastName = name;
             _validationContext = new ValidationContext(_parent);
 
+            // Act
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
+            // Assert
             Assert.AreEqual(result, null);
         }
     }

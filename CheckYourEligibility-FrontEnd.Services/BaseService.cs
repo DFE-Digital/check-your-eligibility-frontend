@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Xml.Linq;
@@ -160,6 +161,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             await LogApiErrorInternal(task, method, uri);
         }
 
+        [ExcludeFromCodeCoverage(Justification = "Covered by the LogApiError methods marked as internal which are visible to the Tests project")]
         protected virtual async Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri, string data)
         {
             var guid = Guid.NewGuid().ToString();
@@ -184,6 +186,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             throw new Exception($"API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
         }
 
+        [ExcludeFromCodeCoverage(Justification = "Covered by the LogApiError methods marked as internal which are visible to the Tests project")]
         protected virtual async Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri)
         {
             var guid = Guid.NewGuid().ToString();

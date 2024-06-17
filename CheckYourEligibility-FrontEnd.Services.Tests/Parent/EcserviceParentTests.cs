@@ -10,7 +10,7 @@ using System.Net;
 
 namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
 {
-    public class EcsServiceParentShould
+    public class EcsServiceParentTests
     {
         private Mock<ILoggerFactory> _loggerFactoryMock;
         private Mock<ILogger> _loggerMock;
@@ -47,7 +47,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task GetSchool_ShouldReturnSchoolSearchResponse()
+        public async Task Given_GetSchool_When_CalledWithValidQuery_Should_ReturnSchoolSearchResponse()
         {
             // Arrange
             var query = "Test";
@@ -74,7 +74,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task PostApplication_ShouldReturnApplicationSaveItemResponse()
+        public async Task Given_PostApplication_When_CalledWithValidRequest_Should_ReturnApplicationSaveItemResponse()
         {
             // Arrange
             var requestBody = new ApplicationRequest();
@@ -101,7 +101,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task GetStatus_ShouldReturnCheckEligibilityStatusResponse()
+        public async Task Given_GetStatus_When_CalledWithValidResponse_Should_ReturnCheckEligibilityStatusResponse()
         {
             // Arrange
             var responseBody = new CheckEligibilityResponse
@@ -131,7 +131,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task PostCheck_ShouldReturnCheckEligibilityResponse()
+        public async Task Given_PostCheck_When_CalledWithValidRequest_Should_ReturnCheckEligibilityResponse()
         {
             // Arrange
             var requestBody = new CheckEligibilityRequest();
@@ -158,7 +158,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task GetSchool_ShouldReturnNullAndLogAPIError()
+        public async Task Given_GetSchool_When_ApiReturnsNotFound_Should_ReturnNullAndLogAPIError()
         {
             // Arrange
             var query = "Test";
@@ -185,7 +185,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task PostApplication_ShouldReturnNullAndLogAPIError()
+        public async Task Given_PostApplication_When_ApiReturnsServerError_Should_ReturnNullAndLogAPIError()
         {
             // Arrange
             var requestBody = new ApplicationRequest();
@@ -212,7 +212,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public void GetStatus_ShouldThrowArgumentNullException_OnNullInput()
+        public void Given_GetStatus_When_CalledWithNullInput_Should_ThrowArgumentNullException()
         {
             // Act
             var result = async () => await _sut.GetStatus(null);
@@ -222,7 +222,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task PostCheck_ShouldLogApiErrorAndReturnNullResultOn401Error()
+        public async Task Given_PostCheck_When_ApiReturnsUnauthorized_Should_LogApiErrorAndReturnNullResult()
         {
             // Arrange
             var requestBody = new CheckEligibilityRequest();

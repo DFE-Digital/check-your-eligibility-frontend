@@ -53,22 +53,23 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             void SetUpTestData()
             {
-                _schools = [
+                _schools = new[]
+                {
                     new ChildsSchool()
-                {
-                    Name = "Springfield Elementary",
-                    LA = "Springfield",
-                    Postcode = "SP1 3LE",
-                    URN = "10002"
-                },
-                new ChildsSchool()
-                {
-                    Name = "Springfield Nursery",
-                    LA = "Springfield",
-                    Postcode = "SP1 3NU",
-                    URN = "10001"
-                }
-                ];
+                    {
+                        Name = "Springfield Elementary",
+                        LA = "Springfield",
+                        Postcode = "SP1 3LE",
+                        URN = "10002"
+                    },
+                    new ChildsSchool()
+                    {
+                        Name = "Springfield Nursery",
+                        LA = "Springfield",
+                        Postcode = "SP1 3NU",
+                        URN = "10001"
+                    }
+                };
 
                 _parent = new Parent()
                 {
@@ -84,35 +85,34 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
                 _children = new Children()
                 {
-                    ChildList =
-                    [
+                    ChildList = [
                         new Child()
-                    {
-                        FirstName = "Bart",
-                        LastName = "Simpson",
-                        Day = 1,
-                        Month = 1,
-                        Year = 2015,
-                        School = _schools[0]
-                    },
-                    new Child()
-                    {
-                        FirstName = "Lisa",
-                        LastName = "Simpson",
-                        Day = 1,
-                        Month = 1,
-                        Year = 2018,
-                        School = _schools[0]
-                    },
-                    new Child()
-                    {
-                        FirstName = "Maggie",
-                        LastName = "Simpson",
-                        Day = 1,
-                        Month = 1,
-                        Year = 2020,
-                        School = _schools[1]
-                    }
+                        {
+                            FirstName = "Bart",
+                            LastName = "Simpson",
+                            Day = 1,
+                            Month = 1,
+                            Year = 2015,
+                            School = _schools[0]
+                        },
+                        new Child()
+                        {
+                            FirstName = "Lisa",
+                            LastName = "Simpson",
+                            Day = 1,
+                            Month = 1,
+                            Year = 2018,
+                            School = _schools[0]
+                        },
+                        new Child()
+                        {
+                            FirstName = "Maggie",
+                            LastName = "Simpson",
+                            Day = 1,
+                            Month = 1,
+                            Year = 2020,
+                            School = _schools[1]
+                        }
                     ]
                 };
 
@@ -130,12 +130,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 {
                     Data = new StatusValue
                     {
-                        // Set the properties of the CheckEligibilityResponseData object
                         Status = "queuedForProcessing"
                     },
                     Links = new CheckEligibilityResponseLinks
                     {
-                        // Set the properties of the CheckEligibilityResponseLinks object
                         Get_EligibilityCheck = "",
                         Get_EligibilityCheckStatus = "",
                         Put_EligibilityCheckProcess = ""
@@ -152,18 +150,21 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
                 _schoolSearchResponse = new SchoolSearchResponse()
                 {
-                    Data = [new School()
-                {
-                    Id = 100,
-                    County = "Test County",
-                    Distance = 0.05d,
-                    La = "Test LA",
-                    Locality = "Test Locality",
-                    Name = "Test School",
-                    Postcode = "TE55 5ST",
-                    Street = "Test Street",
-                    Town = "Test Town"
-                }]
+                    Data = new[]
+                    {
+                        new School()
+                        {
+                            Id = 100,
+                            County = "Test County",
+                            Distance = 0.05d,
+                            La = "Test LA",
+                            Locality = "Test Locality",
+                            Name = "Test School",
+                            Postcode = "TE55 5ST",
+                            Street = "Test Street",
+                            Town = "Test Town"
+                        }
+                    }
                 };
 
                 _applicationSaveItemResponse = new ApplicationSaveItemResponse()
@@ -253,7 +254,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task BeAbleToLoadTheEnterDetailsPage_FromTempData()
+        public async Task Given_EnterDetails_When_LoadingPageFromTempData_Should_BeAbleToLoadEnterDetailsPage()
         {
             // Arrange
             _sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(_parent);
@@ -270,7 +271,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task LoadTheEnterDetailsPage()
+        public async Task Given_EnterDetails_When_LoadingPage_Should_LoadEnterDetailsPage()
         {
             // Act
             var result = _sut.Enter_Details();
@@ -282,7 +283,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task RedirectToLoaderPageFromEnterDetailsPage_GivenValidData()
+        public async Task Given_EnterDetails_When_ValidDataProvided_Should_RedirectToLoaderPage()
         {
             // Act
             var result = await _sut.Enter_Details(_parent);
@@ -294,7 +295,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task SetSessionData_GivenValidData()
+        public async Task Given_EnterDetails_When_ValidDataProvided_Should_SetSessionData()
         {
             // Arrange
             var expectedDob = new DateOnly(1990, 01, 01).ToString("yyyy-MM-dd");
@@ -310,7 +311,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task LoadTheNassPage()
+        public async Task Given_Nass_When_LoadingPage_Should_LoadNassPage()
         {
             // Act
             var result = _sut.Nass();
@@ -324,7 +325,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task RedirectToLoaderPage_FromNassPage_GivenValidData()
+        public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToLoaderPage()
         {
             // Arrange
             _parent.IsNassSelected = true;
@@ -342,7 +343,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task BeAbleToRedirectToThe_CouldNotCheckPage_FromNassPage_()
+        public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToCouldNotCheckPage()
         {
             // Arrange
             _parent.IsNassSelected = true;
@@ -359,7 +360,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task LoadTheLoaderPage()
+        public async Task Given_Loader_When_LoadingPage_Should_LoadLoaderPage()
         {
             // Act
             var result = _sut.Loader();
@@ -371,7 +372,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task LoadTheCheckAnswersPage()
+        public async Task Given_CheckAnswers_When_LoadingPage_Should_LoadCheckAnswersPage()
         {
             // Act
             var result = _sut.Check_Answers();
@@ -382,7 +383,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task RedirectToApplicationSentPage_AfterCheckAnswers()
+        public async Task Given_CheckAnswers_When_ValidDataProvided_Should_RedirectToApplicationSentPage()
         {
             // Arrange 
             _sut.TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(_applicationSaveItemResponse);
@@ -399,7 +400,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task LoadTheApplicationSentPage()
+        public async Task Given_ApplicationSent_When_LoadingPage_Should_LoadApplicationSentPage()
         {
             // Act
             var result = _sut.Application_Sent();
@@ -410,7 +411,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task NotReturnSchoolsData_GivenQueryIsLessThan3Chars()
+        public async Task Given_GetSchoolDetails_When_QueryIsLessThan3Chars_Should_NotReturnSchoolsData()
         {
             // Arrange
             var query = "ab";
@@ -424,7 +425,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task ReturnSchoolsData_GivenValidQuery()
+        public async Task Given_GetSchoolDetails_When_ValidQueryProvided_Should_ReturnSchoolsData()
         {
             // Arrange
             var query = "Test";
@@ -446,7 +447,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task NotReturnAnySchoolDetails_WhenNoSchoolExistsFromQuery()
+        public async Task Given_GetSchoolDetails_When_NoSchoolExistsFromQuery_Should_NotReturnAnySchoolDetails()
         {
             // Arrange
             var query = "Not a real school";
@@ -464,7 +465,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [TestCase("parentNotFound", "Outcome/Not_Found")]
         [TestCase("queuedForProcessing", "Outcome/Default")]
         [TestCase("notARealStatus", "Outcome/Default")]
-        public async Task ReturnOutcomePageBasedOnEligibilityResponse_FromPollStatus(string status, string expected)
+        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expected)
         {
             // Arrange
             _eligibilityStatusResponse.Data.Status = status;
@@ -481,7 +482,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task AddNewChildTo_EnterChildDetailsPageModel()
+        public async Task Given_AddChild_When_AddingNewChild_Should_AddNewChildToEnterChildDetailsPageModel()
         {
             // Arrange
             _sut.TempData["IsChildAddOrRemove"] = true;
@@ -500,7 +501,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task RemoveChildByIndexFrom_EnterChildDetailsPageModel()
+        public async Task Given_RemoveChild_When_RemovingChildByIndex_Should_RemoveChildByIndexFromEnterChildDetailsPageModel()
         {
             // Arrange
             _sut.TempData["IsChildAddOrRemove"] = true;
@@ -518,7 +519,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task RedirectToEnterChildDetailsPage_AndPopulateExistingChildrensDetails()
+        public async Task Given_ChangeChildDetails_When_RedirectingToEnterChildDetailsPage_Should_PopulateExistingChildrensDetails()
         {
             // Arrange
             _sut.TempData["IsRedirect"] = true;
@@ -537,5 +538,103 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             children.ChildList[1].FirstName.Should().Be(_children.ChildList[1].FirstName);
             children.ChildList[2].FirstName.Should().Be(_children.ChildList[2].FirstName);
         }
+
+        [Test]
+        public async Task Given_EnterChildDetails_When_LoadingPage_Should_LoadEnterChildDetailsPage()
+        {
+            // Act
+            var result = _sut.Enter_Child_Details();
+
+            // Assert
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<Children>();
+        }
+
+        [Test]
+        public async Task Given_AddChild_When_AddingMoreThan99Children_Should_CannotAddMoreThan99ChildrenToPagesModel()
+        {
+            // Arrange
+            _sut.TempData["IsChildAddOrRemove"] = true;
+
+            // create a list of 99 children (the max)
+            var maxChildren = Enumerable.Range(1, 99).Select(x => new Child
+            {
+                FirstName = "Test",
+                LastName = "Test",
+                Day = 1,
+                Month = 1,
+                Year = 1990,
+                School = _schools[0]
+            }).ToList();
+
+            _children.ChildList = maxChildren;
+            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children);
+
+            // Act
+            var result = _sut.Add_Child(_children);
+
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+            _children.ChildList.Count.Should().Be(99);
+        }
+
+        [Test]
+        public async Task Given_EnterDetails_When_UserHasSelectedToInputANass_Should_RedirectToNassPage()
+        {
+            // Arrange
+            _parent.IsNassSelected = true;
+            _parent.NationalInsuranceNumber = null;
+
+            // Act
+            var result = _sut.Enter_Details(_parent);
+
+            // Assert
+            var redirectResult = result.Result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Nass");
+        }
+
+        [Test]
+        public async Task Given_CheckController_When_LoggerIsNull_Should_ReturnArgumentNullException()
+        {
+            try
+            {
+                _sut = new CheckController(null, _serviceMock.Object, _configMock.Object);
+            }
+            catch (ArgumentNullException ex)
+            {
+                ex.Should().NotBeNull();
+            }
+        }
+
+        [Test]
+        public async Task Given_CheckController_When_ServiceIsNull_Should_ReturnArgumentNullException()
+        {
+            try
+            {
+                _sut = new CheckController(_loggerMock, null, _configMock.Object);
+            }
+            catch (ArgumentNullException ex)
+            {
+                ex.Should().NotBeNull();
+            }
+        }
+
+        [Test]
+        public async Task Given_Nass_When_BadNassSubmitted_Should_ReturnNassPageWithErrors()
+        {
+            // Arrange
+            _sut.ModelState.AddModelError("TestError", "TestErrorMessage");
+
+            // Act
+            var result = _sut.Nass(_parent);
+
+            // Assert
+            _sut.ModelState.IsValid.Should().BeFalse();
+
+            var viewResult = result.Result as ViewResult;
+            viewResult.ViewName = "Nass";
+        }
     }
 }
+

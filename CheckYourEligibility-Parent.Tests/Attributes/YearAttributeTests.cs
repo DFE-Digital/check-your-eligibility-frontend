@@ -22,20 +22,24 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 
         [TestCase(1800, YearFormatErrorMessage)]
         [TestCase(2500, YearFormatErrorMessage)]
-        public void CheckInvalidYears(int? year, string? errorMessage)
+        public void Given_InvalidYear_When_Validated_Should_ReturnErrorMessage(int? year, string? errorMessage)
         {
+            // Act
             var result = _yearAttribute.YearIsValid(year, _validationContext);
 
+            // Assert
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 
         [TestCase(2023)]
         [TestCase(1990)]
         [TestCase(1950)]
-        public void CheckValidYearNumbers(int? year)
+        public void Given_ValidYear_When_Validated_Should_ReturnNull(int? year)
         {
+            // Act
             var result = _yearAttribute.YearIsValid(year, _validationContext);
 
+            // Assert
             Assert.AreEqual(result, null);
         }
     }
