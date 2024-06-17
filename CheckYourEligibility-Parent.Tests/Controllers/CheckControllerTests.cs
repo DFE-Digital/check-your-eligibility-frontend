@@ -17,7 +17,7 @@ using Microsoft.Extensions.Configuration;
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
     [TestFixture]
-    public class CheckControllerShould
+    public class CheckControllerTests
     {
         // mocks
         private ILogger<CheckController> _loggerMock;
