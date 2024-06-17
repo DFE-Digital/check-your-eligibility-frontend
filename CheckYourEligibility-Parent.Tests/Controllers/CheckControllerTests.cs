@@ -311,6 +311,26 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
+        public async Task Given_EnterDetails_When_ModelStateIsInvalid_Should_BeAddedToTempData_And_PageIsRedirected()
+        {
+            // arrange
+
+            // act
+
+            // assert
+        }
+
+        [Test]
+        public async Task Given_EnterDetails_When_ErrorsExistInTempData_Should_BeAddedToTheModelState()
+        {
+            // arrange
+
+            // act
+
+            // assert
+        }
+
+        [Test]
         public async Task Given_Nass_When_LoadingPage_Should_LoadNassPage()
         {
             // Act
@@ -548,6 +568,50 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             // Assert
             var viewResult = result as ViewResult;
             viewResult.Model.Should().BeAssignableTo<Children>();
+        }
+
+        [Test]
+        public async Task Given_EnterChildDetails_When_SubmittedWithData_Should_LoadCheckAnswersPage()
+        {
+            // Arrange
+            _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(_fsmApplication);
+
+            // Act
+            var result = _sut.Enter_Child_Details(_children);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("Check_Answers");
+            ; viewResult.Model.Should().BeAssignableTo<FsmApplication>();
+        }
+
+        [Test]
+        public async Task Given_EnterChildDetails_When_SubmittedWithDataAndIsRedirect_Should_ReturnBackToSamePage()
+        {
+            // arrange
+
+            // act
+
+            // assert
+        }
+
+        [Test]
+        public async Task Given_EnterChildDetails_When_SubmittedWithInvalidData_Should_ReturnBackToSamePage()
+        {
+            // arrange
+
+            // act
+
+            // assert
+        }
+
+        public async Task Given_EnterChildDetails_When_IsChildAddOrRemove_Should_UpdateChildList()
+        {
+            // arrange
+
+            // act
+
+            // assert
         }
 
         [Test]

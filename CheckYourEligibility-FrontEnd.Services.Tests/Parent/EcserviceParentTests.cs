@@ -217,8 +217,35 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
             // Act
             var result = async () => await _sut.GetStatus(null);
 
+
             // Assert
+            var resultAsResponse = result.As<Task<CheckEligibilityStatusResponse>>();
+            resultAsResponse.Should().BeNull();
+
             result.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Test]
+        public async Task Given_GetStatus_When_GivenInAnInvalidValue_ShouldReturnNull()
+        {
+            // Arrange
+
+            // Assert
+            var result = _sut.GetStatus(new CheckEligibilityResponse()
+            {
+                Data = new StatusValue()
+                {
+                    Status = "unknown"
+                },
+                Links = new CheckEligibilityResponseLinks()
+                {
+                    Get_EligibilityCheck = "link"
+                }
+            });
+
+            // Act
+            result.Result.Should().Be(null);
+
         }
 
         [Test]
@@ -245,6 +272,12 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
             // Assert
             result.Result.Should().BeNull();
             _sut.apiErrorCount.Should().Be(1);
+        }
+
+        [Test]
+        public async Task Given_GetStatus_When_ApiReturns()
+        {
+
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_Parent.Tests.Attributes.Derived;
+using FluentAssertions;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
@@ -46,6 +47,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             var result = _nassAttribute.NassIsValid(nass, _validationContext);
 
             // Assert
+            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
             Assert.AreEqual(result, null);
         }
     }

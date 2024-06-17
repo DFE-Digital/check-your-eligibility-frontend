@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_Parent.Tests.Attributes.Derived;
+using FluentAssertions;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
@@ -12,13 +13,11 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         private TestableNameAttribute _nameAttribute { get; set; }
         private ValidationContext _validationContext { get; set; }
         private Parent _parent { get; set; }
-        private Child _child { get; set; }
 
         [SetUp]
         public void Setup()
         {
             _parent = new Parent();
-            _child = new Child();
             _nameAttribute = new TestableNameAttribute();
         }
 
@@ -51,6 +50,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 
             // Act
             var result = _nameAttribute.NameIsValid(name, _validationContext);
+            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
 
             // Assert
             Assert.AreEqual(result, null);
@@ -87,6 +87,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             var result = _nameAttribute.NameIsValid(name, _validationContext);
 
             // Assert
+            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
             Assert.AreEqual(result, null);
         }
     }

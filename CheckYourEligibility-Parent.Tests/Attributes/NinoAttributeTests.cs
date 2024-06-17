@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_Parent.Tests.Attributes.Derived;
+using FluentAssertions;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
@@ -50,6 +51,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             var result = _ninoAttribute.NinoIsValid(nino, _validationContext);
 
             // Assert
+            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 

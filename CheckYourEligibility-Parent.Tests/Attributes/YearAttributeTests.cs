@@ -1,12 +1,12 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_Parent.Tests.Attributes.Derived;
+using FluentAssertions;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
 {
     public class YearAttributeTests
     {
-        const string YearMissingErrorMessage = "Year is required";
         const string YearFormatErrorMessage = "Invalid Year";
         private TestableYearAttribute _yearAttribute { get; set; }
         private ValidationContext _validationContext { get; set; }
@@ -22,24 +22,27 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 
         [TestCase(1800, YearFormatErrorMessage)]
         [TestCase(2500, YearFormatErrorMessage)]
-        public void Given_InvalidYear_When_Validated_Should_ReturnErrorMessage(int? year, string? errorMessage)
+        public void Given_Year_When_ValidatedWithBadData_Should_ReturnErrorMessage(int? year, string? errorMessage)
         {
             // Act
             var result = _yearAttribute.YearIsValid(year, _validationContext);
 
             // Assert
+            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 
         [TestCase(2023)]
         [TestCase(1990)]
         [TestCase(1950)]
-        public void Given_ValidYear_When_Validated_Should_ReturnNull(int? year)
+        public void Given_Year_When_Validated_Should_ReturnNull(int? year)
         {
             // Act
             var result = _yearAttribute.YearIsValid(year, _validationContext);
 
             // Assert
+            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
+            result.ErrorMessage.Should().BeNull();
             Assert.AreEqual(result, null);
         }
     }
