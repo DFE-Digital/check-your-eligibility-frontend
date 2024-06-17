@@ -24,14 +24,17 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                 var day = model.GetType().GetProperty("Day").GetValue(model);
                 var month = model.GetType().GetProperty("Month").GetValue(model);
                 var year = model.GetType().GetProperty("Year").GetValue(model);
-                DateOnly dobAsDate = new DateOnly((int)year,(int)month,(int)day);
-                var dobString = $"{year}-{month}-{day}";
+
+                var desiredDateFormat = $"{year}-{month}-{day}";
+                DateOnly dobAsDate;
+                DateOnly.TryParse(desiredDateFormat, out dobAsDate);
 
                 if (dobAsDate > DateOnly.FromDateTime(DateTime.Now))
                 {
                     return new ValidationResult("Date of Birth cannot be a future date");
                 }
 
+                var dobString = $"{year}-{month}-{day}";
                 if (DateOnly.TryParse(dobString, out dob))
                 {
                     return ValidationResult.Success;
