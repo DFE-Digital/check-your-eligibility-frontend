@@ -32,10 +32,21 @@ namespace CheckYourEligibility_FrontEnd.Attributes
             }
 
             string nino = value.ToString().ToUpper();
+            nino = String.Concat(nino
+                .Where(ch => Char.IsLetterOrDigit(ch)));
+
+            if (nino.Length > 9)
+            {
+                return new ValidationResult("National Insurance Number should contain no more than 9 alphanumeric characters");
+            }
 
             if (!regex.IsMatch(nino))
             {
                 return new ValidationResult("Invalid National Insurance Number format");
+            }
+            else
+            {
+                model.NationalInsuranceNumber = nino;
             }
 
             return ValidationResult.Success;
