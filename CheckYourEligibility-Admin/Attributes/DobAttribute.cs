@@ -24,7 +24,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                 var day = model.GetType().GetProperty("Day").GetValue(model);
                 var month = model.GetType().GetProperty("Month").GetValue(model);
                 var year = model.GetType().GetProperty("Year").GetValue(model);
-                var dobString = $"{day}/{month}/{year}";
+                var dobString = $"{year}-{month}-{day}";
 
                 if (DateOnly.TryParse(dobString, out dob))
                 {
