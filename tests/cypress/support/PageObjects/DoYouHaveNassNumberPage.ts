@@ -15,7 +15,7 @@ class DoYouHaveNassNumberPage {
         }
     }
     public getSelector(): string {
-        return '[id="IsNassSelected"]';
+        return '[id="IsNassSelected"]]';
     }
     
     public (isYes: boolean): string {

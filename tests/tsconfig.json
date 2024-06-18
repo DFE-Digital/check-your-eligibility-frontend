@@ -2,8 +2,14 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "lib": ["es5", "dom"],
-    "types": ["cypress", "node"],
+    "lib": [
+      "es5",
+      "dom"
+    ],
+    "types": [
+      "cypress",
+      "node"
+    ],
     "moduleResolution": "node",
     "strict": true,
     "noImplicitAny": true,
@@ -12,8 +18,13 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "*": ["./node_modules/*"]
+      "*": [
+        "./node_modules/*"
+      ]
     }
   },
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "cypress/support/cypress.d.ts"
+  ] // Ensure this is included],
 }
