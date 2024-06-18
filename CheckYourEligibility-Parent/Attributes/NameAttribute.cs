@@ -8,7 +8,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 {
     public class NameAttribute : ValidationAttribute
     {
-        private static readonly string UnicodeOnlyPattern = @"^\p{L}+$";
+        private static readonly string UnicodeOnlyPattern = @"^[\p{L}\-']+$";
 
         private static readonly Regex regex = new Regex(UnicodeOnlyPattern);
 
