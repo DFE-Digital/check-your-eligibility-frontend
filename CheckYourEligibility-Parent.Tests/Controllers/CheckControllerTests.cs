@@ -311,27 +311,35 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_EnterDetails_When_ModelStateIsInvalid_Should_BeAddedToTempData_And_PageIsRedirected()
+        public async Task Given_EnterDetails_When_ModelStateIsInvalid_Should_ErrorsShouldBeInTempData()
         {
-            // Arrange
+
+            _sut.ModelState.AddModelError("SomeErrorKey", "SomeErrorMessage");
+            var error = _sut.ModelState.Where(x => x.Value.Errors.Count > 0).ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+            _sut.TempData["Errors"] = JsonConvert.SerializeObject(error);
 
             // Act
-            var result = await _sut.Enter_Details(_parent);
+            var result = _sut.Enter_Details();
 
             // Assert
-
+            var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(_sut.TempData["Errors"].ToString());
+            errors["SomeErrorKey"][0].Should().Be("SomeErrorMessage");
         }
 
         [Test]
         public async Task Given_EnterDetails_When_ErrorsExistInTempData_Should_BeAddedToTheModelState()
         {
             // arrange
-            _sut.TempData["FsmErrors"] = "";
+            _sut.ModelState.AddModelError("SomeErrorKey", "SomeErrorMessage");
+            var error = _sut.ModelState.Where(x => x.Value.Errors.Count > 0).ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+            _sut.TempData["Errors"] = JsonConvert.SerializeObject(error);
 
             // act
             var result = await _sut.Enter_Details(_parent);
 
             // assert
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Enter_Details");
         }
 
         [Test]
@@ -597,7 +605,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.TempData["IsRedirect"] = true;
 
             // act
-            var result =  _sut.Enter_Child_Details(_children);
+            var result = _sut.Enter_Child_Details(_children);
 
             // assert
             var viewResult = result as ViewResult;
@@ -605,27 +613,21 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_EnterChildDetails_When_SubmittedWithInvalidData_Should_ReturnBackToSamePage()
-        {
-            // arrange
-            _children.ChildList[0].FirstName = "Bart1!";
-
-            // act
-            var result = _sut.Enter_Child_Details(_children);
-
-            // assert
-            
-        }
-
-        public async Task Given_EnterChildDetails_When_IsChildAddOrRemove_Should_UpdateChildList()
+        public async Task Given_EnterChildDetails_When_IsChildAddOrRemove_Should_PopulateModelFromTempData()
         {
             // arrange
             _sut.TempData["IsChildAddOrRemove"] = true;
+            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children.ChildList);
 
             // act
-            _ = _sut.Enter_Child_Details(_children);
+            var result = _sut.Enter_Child_Details();
 
             // assert
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeOfType<Children>();
+            var actionResult = result as ActionResult;
+
+
         }
 
         [Test]

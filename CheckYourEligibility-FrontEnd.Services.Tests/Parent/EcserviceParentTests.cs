@@ -275,9 +275,33 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task Given_GetStatus_When_ApiReturns()
+        public async Task Given_GetStatus_When_ApiReturnsUnauthorized_Should_LogApiErrorAndThrowExecption()
         {
+            // Arrange
+            var responseBody = new CheckEligibilityResponse
+            {
+                Links = new CheckEligibilityResponseLinks { Get_EligibilityCheck = "EligibilityCheckLink" }
+            };
+            var responseContent = new CheckEligibilityStatusResponse();
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.Unauthorized,
+                Content = new StringContent(JsonConvert.SerializeObject(responseContent))
+            };
 
+            _httpMessageHandlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act
+            var result = _sut.GetStatus(responseBody);
+
+            // Assert
+            result.Result.Should().BeNull();
+            _sut.apiErrorCount.Should().Be(1);
         }
     }
 }

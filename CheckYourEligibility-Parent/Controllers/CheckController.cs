@@ -58,7 +58,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // do want to validate everything else
             if (!ModelState.IsValid)
             {
-                // Use PRG pattern so that after this POST... the page retrieves informaton from tempdata and then goes onto performs a GET to avoid browser resubmit confirm error
+                // Use PRG pattern
+                // POST (this method)
+                // RETRIEVE and store informaton from tempdata then
+                // GET inital page where errors are rendered
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
