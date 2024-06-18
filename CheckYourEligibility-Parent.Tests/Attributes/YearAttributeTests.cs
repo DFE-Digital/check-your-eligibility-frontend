@@ -28,8 +28,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             var result = _yearAttribute.YearIsValid(year, _validationContext);
 
             // Assert
-            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
-            Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
+            result.ErrorMessage.Should().Be(errorMessage);
         }
 
         [TestCase(2023)]
@@ -42,7 +41,6 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 
             // Assert
             result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
-            result.ErrorMessage.Should().BeNull();
             Assert.AreEqual(result, null);
         }
     }

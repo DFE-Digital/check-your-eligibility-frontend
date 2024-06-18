@@ -51,7 +51,6 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             var result = _ninoAttribute.NinoIsValid(nino, _validationContext);
 
             // Assert
-            result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 

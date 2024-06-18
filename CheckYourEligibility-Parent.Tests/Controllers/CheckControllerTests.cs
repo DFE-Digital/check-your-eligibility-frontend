@@ -150,8 +150,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
                 _schoolSearchResponse = new SchoolSearchResponse()
                 {
-                    Data = new[]
-                    {
+                    Data =
+                    [
                         new School()
                         {
                             Id = 100,
@@ -164,7 +164,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                             Street = "Test Street",
                             Town = "Test Town"
                         }
-                    }
+                    ]
                 };
 
                 _applicationSaveItemResponse = new ApplicationSaveItemResponse()
@@ -313,19 +313,23 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_EnterDetails_When_ModelStateIsInvalid_Should_BeAddedToTempData_And_PageIsRedirected()
         {
-            // arrange
+            // Arrange
 
-            // act
+            // Act
+            var result = await _sut.Enter_Details(_parent);
 
-            // assert
+            // Assert
+
         }
 
         [Test]
         public async Task Given_EnterDetails_When_ErrorsExistInTempData_Should_BeAddedToTheModelState()
         {
             // arrange
+            _sut.TempData["FsmErrors"] = "";
 
             // act
+            var result = await _sut.Enter_Details(_parent);
 
             // assert
         }
@@ -586,30 +590,40 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_EnterChildDetails_When_SubmittedWithDataAndIsRedirect_Should_ReturnBackToSamePage()
+        public async Task Given_EnterChildDetails_When_NavigatedFromARedirect_Should_LoadWithChildrenDetailsInModel()
         {
             // arrange
+            _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(_fsmApplication);
+            _sut.TempData["IsRedirect"] = true;
 
             // act
+            var result =  _sut.Enter_Child_Details(_children);
 
             // assert
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().Be(_children);
         }
 
         [Test]
         public async Task Given_EnterChildDetails_When_SubmittedWithInvalidData_Should_ReturnBackToSamePage()
         {
             // arrange
+            _children.ChildList[0].FirstName = "Bart1!";
 
             // act
+            var result = _sut.Enter_Child_Details(_children);
 
             // assert
+            
         }
 
         public async Task Given_EnterChildDetails_When_IsChildAddOrRemove_Should_UpdateChildList()
         {
             // arrange
+            _sut.TempData["IsChildAddOrRemove"] = true;
 
             // act
+            _ = _sut.Enter_Child_Details(_children);
 
             // assert
         }

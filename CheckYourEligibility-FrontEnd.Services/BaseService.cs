@@ -83,6 +83,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             return result;
         }
 
+        [ExcludeFromCodeCoverage(Justification = "Method Not Implemented yet accross the solution")]
         protected async Task<T> ApiDataDeleteAsynch<T>(string address, T result)
         {
 
@@ -130,6 +131,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             return result;
         }
 
+        [ExcludeFromCodeCoverage(Justification = "Method Not Implemented yet accross the solution")]
         protected async Task<T2> ApiDataPutAsynch<T1, T2>(string address, T1 data, T2 result)
         {
             string uri = address;
