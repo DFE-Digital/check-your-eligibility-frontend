@@ -12,14 +12,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _service;
         private readonly IConfiguration _config;
+        private ILogger<CheckController> _loggerMock;
+        private IEcsServiceParent _object;
 
         public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
-            _logger = logger;
-            _service = ecsService;
             _config = configuration;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _service = ecsService ?? throw new ArgumentNullException(nameof(ecsService));
         }
-
 
         [HttpGet]
         public IActionResult Enter_Details()
@@ -57,7 +58,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // do want to validate everything else
             if (!ModelState.IsValid)
             {
-                // Use PRG pattern so that after this POST... the page retrieves informaton from tempdata and then goes onto performs a GET to avoid browser resubmit confirm error
+                // Use PRG pattern
+                // POST (this method)
+                // RETRIEVE and store informaton from tempdata then
+                // GET inital page where errors are rendered
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
@@ -94,7 +98,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             // queue api soft-check
             var response = await _service.PostCheck(checkEligibilityRequest);
-            TempData["Response"] = JsonConvert.SerializeObject(response);
+            TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
 
             _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
 
@@ -261,7 +268,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             TempData["IsChildAddOrRemove"] = true;
 
             // don't allow the model to contain more than 99 items
-            if (request.ChildList.Count > 99)
+            if (request.ChildList.Count >= 99)
             {
                 return RedirectToAction("Enter_Child_Details");
             }

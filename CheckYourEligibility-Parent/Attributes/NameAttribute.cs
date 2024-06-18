@@ -1,7 +1,4 @@
-﻿using CheckYourEligibility_FrontEnd.ViewModels;
-using Microsoft.Net.Http.Headers;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace CheckYourEligibility_FrontEnd.Attributes

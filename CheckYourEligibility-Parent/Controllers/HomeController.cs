@@ -1,9 +1,11 @@
 using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
+    [ExcludeFromCodeCoverage(Justification = "Class not in use for web app parent journey at the moment")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

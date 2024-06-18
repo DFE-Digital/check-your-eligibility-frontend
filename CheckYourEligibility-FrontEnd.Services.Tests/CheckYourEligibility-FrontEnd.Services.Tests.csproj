@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>CheckYourEligibility_Parent.Tests</RootNamespace>
+    <RootNamespace>CheckYourEligibility_FrontEnd.Services.Tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -24,12 +24,13 @@
     <ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
     <ProjectReference Include="..\CheckYourEligibility-Parent\CheckYourEligibility-Parent.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Reference Include="CheckYourEligibility.Domain">
       <HintPath>..\CheckYourEligibility-Parent\CheckYourEligibility.Domain.dll</HintPath>
     </Reference>
   </ItemGroup>
+
 
   <ItemGroup>
     <Using Include="NUnit.Framework" />

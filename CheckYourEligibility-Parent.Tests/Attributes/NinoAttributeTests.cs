@@ -1,12 +1,13 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_Parent.Tests.Attributes.Derived;
+using FluentAssertions;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
 {
     public class NinoAttributeTests
     {
-        const string NINOMIssingErrorMessage = "National Insurance Number is required";
+        const string NINOMissingErrorMessage = "National Insurance Number is required";
         const string NINOFormatErrorMessage = "Invalid National Insurance Number format";
 
         private TestableNinoAttribute _ninoAttribute { get; set; }
@@ -21,8 +22,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             _validationContext = new ValidationContext(_parent);
         }
 
-
-        [TestCase(null, NINOMIssingErrorMessage)]
+        [TestCase(null, NINOMissingErrorMessage)]
         [TestCase("DB123456C", NINOFormatErrorMessage)]
         [TestCase("FB123456C", NINOFormatErrorMessage)]
         [TestCase("IB123456C", NINOFormatErrorMessage)]
@@ -45,10 +45,12 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         [TestCase("ZZ123456C", NINOFormatErrorMessage)]
         [TestCase("ZZ123456C", NINOFormatErrorMessage)]
         [TestCase("AB123456E", NINOFormatErrorMessage)]
-        public void CheckInvalidNINOs(string? nino, string? errorMessage)
+        public void Given_Nino_When_Invalid_Should_ReturnErrorMessage(string? nino, string? errorMessage)
         {
+            // Act
             var result = _ninoAttribute.NinoIsValid(nino, _validationContext);
 
+            // Assert
             Assert.That(result.ErrorMessage, Is.EqualTo(errorMessage));
         }
 
@@ -58,10 +60,12 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         [TestCase("AB123456B")]
         [TestCase("AB123456C")]
         [TestCase("AB123456D")]
-        public void CheckValidNINOs(string? nino)
+        public void Given_Nino_When_Valid_Should_ReturnNull(string? nino)
         {
+            // Act
             var result = _ninoAttribute.NinoIsValid(nino, _validationContext);
 
+            // Assert
             Assert.AreEqual(result, null);
         }
     }
