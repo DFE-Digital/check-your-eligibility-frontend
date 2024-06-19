@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Could not check eligibility";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+        <h2 class="govuk-error-summary__title">
+            Error – File not accepted
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li>
+                    There’s an issue with the file you uploaded. Please try again, making sure any file you upload exactly mirrors the layout of the original batch check template you downloaded, with no extra or missing columns.
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<p><a href="javascript:window.history.back()">Try again</a></p>
+<p><a href="@Url.Action("Index", "Home")">Return to dashboard</a></p>
+<p><a href="#">Sign out</a></p>

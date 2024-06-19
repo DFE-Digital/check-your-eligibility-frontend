@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_FrontEnd.Models
 {
-    public class Parent
+    public class ParentGuardian
     {
         [Nino]
         [MaxLength(13)]
@@ -22,6 +22,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Name]
         [Required(ErrorMessage = "Last Name is required")]
         public string? LastName { get; set; }
+
+        [EmailAddress]
+        [Required(ErrorMessage = "Email is required")]
+        public string? EmailAddress { get; set; }
 
         [Dob]
         [Required(ErrorMessage = "Day is required")]

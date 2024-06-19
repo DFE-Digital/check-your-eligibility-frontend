@@ -9,7 +9,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
     {
         private static readonly string FirstLetterPattern = "[ABCEGHJKLMNOPRSTWXYZ]";
         private static readonly string SecondLetterPattern = "[ABCEGHJKLMNPRSTWXYZ]";
-        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TN|ZZ)"; 
+        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TN|ZZ)";
         private static readonly string NumericPattern = "[0-9]{6}";
         private static readonly string LastLetterPattern = "[ABCD]";
 
@@ -19,7 +19,13 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var model = (Parent)validationContext.ObjectInstance;
+            var model = (ParentGuardian)validationContext.ObjectInstance;
+
+            if (model.NationalAsylumSeekerServiceNumber != null)
+            {
+                model.IsNassSelected = true;
+            }
+
 
             if (model.IsNassSelected == true)
             {
@@ -28,27 +34,34 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (value == null)
             {
-                return new ValidationResult("National Insurance Number is required");
+                return new ValidationResult("National Insurance Number or National Asylum Seeker Service Number is required");
             }
 
-            string nino = value.ToString().ToUpper();
-            nino = String.Concat(nino
-                .Where(ch => Char.IsLetterOrDigit(ch)));
-
-            if (nino.Length > 9)
+            if (value != null)
             {
-                return new ValidationResult("National Insurance Number should contain no more than 9 alphanumeric characters");
-            }
+                string nino = value.ToString().ToUpper();
+                nino = String.Concat(nino
+                    .Where(ch => Char.IsLetterOrDigit(ch)));
 
-            if (!regex.IsMatch(nino))
-            {
-                return new ValidationResult("Invalid National Insurance Number format");
-            }
-            else
-            {
-                model.NationalInsuranceNumber = nino;
-            }
+                if (nino.Length > 9)
+                {
+                    return new ValidationResult("National Insurance Number should contain no more than 9 alphanumeric characters");
+                }
 
+                if (!regex.IsMatch(nino))
+                {
+                    return new ValidationResult("Invalid National Insurance Number format");
+                }
+                else
+                {
+                    model.NationalInsuranceNumber = nino;
+                }
+
+                if (!regex.IsMatch(nino))
+                {
+                    return new ValidationResult("Invalid National Insurance Number format");
+                }
+            }
             return ValidationResult.Success;
         }
     }

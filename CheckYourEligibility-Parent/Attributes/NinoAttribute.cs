@@ -8,7 +8,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
     {
         private static readonly string FirstLetterPattern = "[ABCEGHJKLMNOPRSTWXYZ]";
         private static readonly string SecondLetterPattern = "[ABCEGHJKLMNPRSTWXYZ]";
-        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TN|ZZ)"; 
+        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TN|ZZ)";
         private static readonly string NumericPattern = "[0-9]{6}";
         private static readonly string LastLetterPattern = "[ABCD]";
 
@@ -42,7 +42,8 @@ namespace CheckYourEligibility_FrontEnd.Attributes
             if (!regex.IsMatch(nino))
             {
                 return new ValidationResult("Invalid National Insurance Number format");
-            } else
+            }
+            else
             {
                 model.NationalInsuranceNumber = nino;
             }

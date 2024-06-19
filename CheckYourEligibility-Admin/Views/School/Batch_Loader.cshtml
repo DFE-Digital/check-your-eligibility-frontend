@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Checking Loader";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="flex-container">
+            <div class="container">
+                <h1 class="govuk-heading-l">
+                    Checking
+                </h1>
+                <p class="govuk-body-l">Please wait. This may take a few minutes</p>
+
+                <span id="counter">25</span>
+                <span>
+                    /
+                    <script>
+                        var total_count = Math.floor(Math.random() * 1000);
+                        const intervalId = setInterval(() => {
+                            var countElement = document.getElementById("counter");
+                            var currentCount = parseInt(countElement.textContent);
+                            var newCount = currentCount + 1;
+                            if (newCount >= total_count) {
+                                clearInterval(intervalId);
+                                document.location = '/current/batch-checking/batch-check-success';
+                            } else {
+                                countElement.innerHTML = newCount;
+                            }
+                        }, 100);
+                        document.write(total_count);
+                    </script>459
+                    records processed.
+                </span>
+                <div class="govuk-!-padding-bottom-5"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            $.ajax({
+                url: '@Url.Action("Batch_Poll_Status", "School")',
+                type: 'GET',
+                success: function (data) {
+                    document.open()
+                    document.write(data)
+                    document.close()
+                }
+            });
+        }, 1000); 
+    });
+</script>

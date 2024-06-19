@@ -1,0 +1,243 @@
+﻿@model CheckYourEligibility_FrontEnd.Models.FsmApplication;
+
+@{
+    ViewData["Title"] = "Application Sent";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Application Sent";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+<div class="govuk-grid-row govuk-!-margin-bottom-5">
+    <div class="govuk-grid-column-full">
+
+        <div class="moj-banner moj-banner--success" role="region" aria-label="Success">
+
+            <svg class="moj-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25">
+                <path d="M25,6.2L8.7,23.2L0,14.1l4-4.2l4.7,4.9L21,2L25,6.2z"></path>
+            </svg>
+
+            <div class="moj-banner__message">
+                <h2 class="govuk-heading-l">Sibling added to record</h2>
+
+                <p class="govuk-body govuk-!-margin-bottom-5">
+                    You have added sibling details to this record. This will show immediately.
+                </p>
+                <button class="govuk-button govuk-button--secondary hide">Dismiss this message</button>
+
+            </div>
+
+        </div>
+
+
+        <span class="govuk-hint">Reference: 44455453 (*)</span>
+
+        <div class="moj-page-header-actions">
+
+            <div class="moj-page-header-actions__title">
+                <h1 class="govuk-heading-xl">@Model.ParentFirstName @Model.ParentLastName</h1>
+            </div>
+
+            <div class="moj-page-header-actions__actions">
+
+                <div class="moj-button-menu">
+                    <div class="moj-button-menu__wrapper">
+
+                        <a href="add-sibling" role="button" draggable="false" class="govuk-button moj-button-menu__item govuk-button--secondary moj-page-header-actions__action" data-module="govuk-button">
+                            Add sibling
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<h2 class="govuk-heading-l govuk-!-margin-bottom govuk-!-font-size-36">Overview</h2>
+
+<!-- iterate child list and display data -->
+@for (var i = 0; i < Model.Children.ChildList.Count; i++)
+{
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+
+            <h2 class="govuk-summary-card__title">
+                Child @(@i + 1)
+            </h2>
+
+            <div class="govuk-summary-card__actions">
+                <a class="govuk-link" href="#">Edit details<span class="govuk-visually-hidden"> from application (Child 1)</span></a>
+            </div>
+
+        </div>
+
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Children.ChildList[i].FirstName @Model.Children.ChildList[i].LastName
+                    </dd>
+
+                </div>
+
+
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Date of birth
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @(new DateOnly((int)Model.Children.ChildList[i].Year, (int)Model.Children.ChildList[i].Month, (int)Model.Children.ChildList[i].Day).ToString("dd/MM/yyyy"))
+                    </dd>
+
+                </div>
+
+
+            </dl>
+        </div>
+    </div>
+}
+
+
+<!-- PERSON -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+
+        <h2 class="govuk-summary-card__title">
+            Parent / carer
+        </h2>
+
+
+
+        <div class="govuk-summary-card__actions">
+            <a class="govuk-link" href="#">Edit details<span class="govuk-visually-hidden"> of University of Gloucestershire (Parent / carer)</span></a>
+        </div>
+
+
+    </div>
+
+    <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    @Model.ParentFirstName @Model.ParentLastName
+                </dd>
+
+            </div>
+
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Relationship
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Parent (*)
+                </dd>
+
+            </div>
+
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Nationality
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Eritrean
+                </dd>
+
+            </div>
+
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Date of birth
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    01 September 1988
+                </dd>
+
+            </div>
+
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    National Insurance number
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    n/a
+                </dd>
+
+            </div>
+
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Asylum support reference number
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    Should only be 9 numbers long
+                </dd>
+
+            </div>
+
+
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Email address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    edamcheese@hotmail.com
+                </dd>
+
+            </div>
+
+
+        </dl>
+    </div>
+</div>
+
+<script src="/js/validationSummary.js"></script>

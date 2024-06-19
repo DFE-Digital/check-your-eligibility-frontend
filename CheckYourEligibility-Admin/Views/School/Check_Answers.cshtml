@@ -21,8 +21,8 @@
                 <h2 class="govuk-summary-card__title">
                     Parent or guardian details
                 </h2>
-
             </div>
+
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
 
@@ -33,8 +33,8 @@
                         <dd class="govuk-summary-list__value">
                             @Model.ParentFirstName @Model.ParentLastName
                         </dd>
-
                     </div>
+
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
                             Parent or guardian date of birth
@@ -42,7 +42,6 @@
                         <dd class="govuk-summary-list__value">
                             @Model.ParentDateOfBirth
                         </dd>
-
                     </div>
 
                     @if (Model.ParentNino == null)
@@ -54,7 +53,6 @@
                             <dd class="govuk-summary-list__value">
                                 @Model.ParentNass
                             </dd>
-
                         </div>
                     }
                     else
@@ -66,7 +64,6 @@
                             <dd class="govuk-summary-list__value">
                                 @Model.ParentNino
                             </dd>
-
                         </div>
                     }
 
@@ -75,10 +72,10 @@
                             Email address
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            edamcheese@hitmail.com
+                            @Model.ParentEmail
                         </dd>
-
                     </div>
+
                 </dl>
             </div>
         </div>
@@ -93,9 +90,8 @@
                     </h2>
                     <ul class="govuk-summary-card__actions">
                         <li class="govuk-summary-card__action">
-                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Child details</span></a>
+                            <a class="govuk-link" asp-action="Enter_Child_Details" asp-controller="School">Change<span class="govuk-visually-hidden">Child details</span></a>
                         </li>
-
                     </ul>
                 </div>
 
@@ -110,8 +106,8 @@
                             <dd class="govuk-summary-list__value">
                                 @Model.Children.ChildList[i].FirstName @Model.Children.ChildList[i].LastName
                             </dd>
-
                         </div>
+
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
                                 School
@@ -119,7 +115,6 @@
                             <dd class="govuk-summary-list__value">
                                 @Model.Children.ChildList[i].School.Name
                             </dd>
-
                         </div>
 
                         <div class="govuk-summary-list__row">
@@ -130,60 +125,23 @@
                                 @(new DateOnly((int)Model.Children.ChildList[i].Year, (int)Model.Children.ChildList[i].Month, (int)Model.Children.ChildList[i].Day).ToString("dd/MM/yyyy"))
                             </dd>
                         </div>
+
                     </dl>
                 </div>
             </div>
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         <h2 class="govuk-heading-m">Confirm details and send to the school</h2>
 
         <p class="govuk-body">By sending this information on to the school you confirm that, to the best of your knowledge, it is correct.</p>
         <p>Your details are only used to register and will not be stored.</p>
 
-
-
-
-<form asp-action="Check_Answers" asp-controller="Check" method="post" novalidate="">
-    <!-- Parent Details -->
-    <input type="hidden" asp-for="ParentFirstName" value="@Model.ParentFirstName" />
-    <input type="hidden" asp-for="ParentLastName" value="@Model.ParentLastName" />
-    <input type="hidden" asp-for="ParentNino" value="@Model.ParentNino" />
-    <input type="hidden" asp-for="ParentNass" value="@Model.ParentNass" />
-    <input type="hidden" asp-for="ParentDateOfBirth" value="@Model.ParentDateOfBirth" />
-    
-    <!-- Child details -->
-    @for (var i = 0; i < Model.Children.ChildList.Count; i++)
-    {
-        <input type="hidden" asp-for="Children.ChildList[i].FirstName" />
-        <input type="hidden" asp-for="Children.ChildList[i].LastName" />
-        <input type="hidden" asp-for="Children.ChildList[i].Day" />
-        <input type="hidden" asp-for="Children.ChildList[i].Month" />
-        <input type="hidden" asp-for="Children.ChildList[i].Year" />
-        <input type="hidden" asp-for="Children.ChildList[i].School.URN" />
-        <input type="hidden" asp-for="Children.ChildList[i].School.Name" />
-        <input type="hidden" asp-for="Children.ChildList[i].School.LA" />
-    }
-
-
-    <button type="submit" class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
-        Register details
-    </button>
-</form>
-
+        <form action="Application_Sent" method="post" novalidate="">
+            <input type="hidden" name="answers-checked" value="true">
+            <button class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
+                Register details
+            </button>
+        </form>
+    </div>
+</div>
 <script src="/js/validationSummary.js"></script>
