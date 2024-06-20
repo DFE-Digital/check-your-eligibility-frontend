@@ -33,10 +33,9 @@ namespace CheckYourEligibility_FrontEnd.Services
         public async Task Authorise()
         {
             var url = $"{_httpClient.BaseAddress}api/Login";
-            var requestBody = new UserModel
+            var requestBody = new SystemUser
             {
                 Username = _configuration["Api:AuthorisationUsername"],
-                EmailAddress = _configuration["Api:AuthorisationEmail"],
                 Password = _configuration["Api:AuthorisationPassword"]
             };
 
