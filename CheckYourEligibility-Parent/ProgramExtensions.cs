@@ -14,7 +14,7 @@ namespace CheckYourEligibility_FrontEnd
             {
                 client.BaseAddress = new Uri(configuration["Api:Host"]);
             });
-            
+
             return services;
         }
     }
