@@ -42,6 +42,7 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         options.ClientId = builder.Configuration["OneLogin:ClientId"];
         options.CallbackPath = builder.Configuration["Host"] + "/Check/Enter_Child_Details";
         options.SignedOutCallbackPath = "/onelogin-logout-callback";
+        options.CoreIdentityClaimIssuer = "https://identity.integration.account.gov.uk/";
 
         // Configure the private key used for authentication.
         // See the RSA class' documentation for the various ways to do this.
