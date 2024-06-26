@@ -1,9 +1,11 @@
 using CheckYourEligibility_FrontEnd.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -16,6 +18,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Index()
         {
+            var auth = HttpContext.User.Claims;
             return View();
         }
 
