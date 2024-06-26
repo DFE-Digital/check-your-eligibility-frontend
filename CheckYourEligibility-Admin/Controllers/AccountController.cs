@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 public sealed class AccountController : Controller
 {
@@ -24,6 +25,8 @@ public sealed class AccountController : Controller
         {
             return RedirectToAction("Index", "Home");
         }
+        //#TODO use cookie name from appsettings.json config
+        Response.Cookies.Delete("sa-login");
 
         return SignOut(
             CookieAuthenticationDefaults.AuthenticationScheme,

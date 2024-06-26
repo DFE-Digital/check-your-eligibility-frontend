@@ -48,7 +48,4 @@ public sealed class DfeSignInConfiguration : IDfeSignInConfiguration
 
     /// <inheritdoc/>
     public string SignoutRedirectUrl { get; set; } = null!;
-
-    /// <inheritdoc/>
-    public bool DiscoverRolesWithPublicApi { get; set; } = false;
 }

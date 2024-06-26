@@ -96,13 +96,5 @@ public interface IDfeSignInConfiguration
     /// </remarks>
     string SignoutRedirectUrl { get; }
 
-    /// <summary>
-    /// Gets a value that indicates whether user roles should be discovered by making a
-    /// request to the DfE Sign-in public API.
-    /// </summary>
-    /// <remarks>
-    /// <para>If this is needed then the <see cref="PublicApi.IDfePublicApi"/>
-    /// service needs to be configured.</para>
-    /// </remarks>
-    bool DiscoverRolesWithPublicApi { get; }
+   
 }
