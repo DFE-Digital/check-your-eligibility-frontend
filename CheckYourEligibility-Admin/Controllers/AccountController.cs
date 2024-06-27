@@ -26,7 +26,7 @@ public sealed class AccountController : Controller
             return RedirectToAction("Index", "Home");
         }
         //#TODO use cookie name from appsettings.json config
-        Response.Cookies.Delete("sa-login");
+        //Response.Cookies.Delete("sa-login");
 
         return SignOut(
             CookieAuthenticationDefaults.AuthenticationScheme,
