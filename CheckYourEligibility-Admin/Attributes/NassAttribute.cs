@@ -12,15 +12,15 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var model = (Parent)validationContext.ObjectInstance;
+            var model = (ParentGuardian)validationContext.ObjectInstance;
+
+            if (model.NationalAsylumSeekerServiceNumber != null)
+            {
+                model.IsNassSelected = true;
+            }
 
             if (model.IsNassSelected == true)
             {
-                if (value == null || value == "")
-                {
-                    return new ValidationResult("Nass is required");
-                }
-
                 if (!regex.IsMatch(value.ToString()))
                 {
                     return new ValidationResult("Nass field contains an invalid character");
