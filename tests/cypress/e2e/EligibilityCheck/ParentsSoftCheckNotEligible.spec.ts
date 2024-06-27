@@ -18,7 +18,7 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's first name"), "Tim");
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's last name"), "Bloggs");
     cy.enterDate(enterDetailsPage.daySelector, enterDetailsPage.monthSelector, enterDetailsPage.yearSelector, '01', '01', '1990');
-    cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), true);
+    cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), false);
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's National Insurance number"), "AB123456C");
     cy.clickButton('Save and continue');
     cy.get('h1').should('have.text', 'We could not check your children’s entitlement to free school meals')
@@ -42,7 +42,6 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
   });
 
 });
-
 
 
 describe('Verify validation messages on Enter your details page', () => {

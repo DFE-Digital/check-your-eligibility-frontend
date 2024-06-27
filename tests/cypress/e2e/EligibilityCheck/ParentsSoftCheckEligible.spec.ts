@@ -78,7 +78,7 @@ describe('Parent with ineligble information', () => {
     cy.verifyH1Text('Your children are entitled to free school meals')
   });
 
-  it.only('Verify Parent Eligibility Check using valid NASS number and invalid date of birth', () => {
+  it('Verify Parent Eligibility Check using valid NASS number and invalid date of birth', () => {
     cy.visit('/');
     cy.verifyH1Text('Check if your children can get free school meals');
     cy.clickButtonByRole('Start Now');
@@ -93,12 +93,42 @@ describe('Parent with ineligble information', () => {
     cy.verifyH1Text('Your children are entitled to free school meals')
     cy.get('h1').should('have.text', 'Your children are entitled to free school meals');
   });
+
+  it.only('Verify navigation to We could not check your children’s entitlement to free school meals page when user has not entered NI or NASS Number', () => {
+    cy.visit('/');
+    cy.verifyH1Text('Check if your children can get free school meals');
+    cy.clickButtonByRole('Start Now');
+    cy.verifyH1Text('Enter your details')
+    cy.get('h1').should('have.text', 'Enter your details');
+    cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's first name"), "Tim");
+    cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's last name"), "Simpson");
+    cy.enterDate(enterDetailsPage.daySelector, enterDetailsPage.monthSelector, enterDetailsPage.yearSelector, '01', '05', '2000');
+    cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), false);
+    cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's National Insurance number"), "AB123456C");
+    cy.clickButton('Save and continue');
+    cy.verifyH1Text('We could not check your children’s entitlement to free school meals')
+    
+  });
 })
+
+
+it('Verify navigation to Do you have an asylum support reference number? page', () => {
+  cy.visit('/');
+  cy.verifyH1Text('Check if your children can get free school meals')
+  cy.clickButtonByRole('Start Now');
+  cy.get('h1'.trim()).should('have.text', 'Enter your details')
+  cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's first name"), "Tim");
+  cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's last name"), "Johnson");
+  cy.enterDate(enterDetailsPage.daySelector, enterDetailsPage.monthSelector, enterDetailsPage.yearSelector, '01', '01', '1990');
+  cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), true);
+  cy.clickButton('Save and continue');
+  cy.verifyH1Text('Do you have an asylum support reference number?')
+});
 
 
 describe('Check validation', () => {
 
-  it.only('Verify Parent Eligibility Check using valid NASS number and invalid date of birth', () => {
+  it('Verify Parent Eligibility Check using valid NASS number and invalid date of birth', () => {
     cy.visit('/');
     cy.verifyH1Text('Check if your children can get free school meals');
     cy.clickButtonByRole('Start Now');
