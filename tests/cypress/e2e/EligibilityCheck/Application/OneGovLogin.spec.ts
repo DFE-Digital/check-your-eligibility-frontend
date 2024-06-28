@@ -61,7 +61,7 @@ describe('Verify user can navigate to One Gov login ', () => {
 
     });
 
-    it.only('Verify user cannot login with incorrect OneGov login details', () => {
+    it ('Verify user cannot login with incorrect OneGov login details', () => {
         cy.visit('/');
         cy.verifyH1Text('Check if your children can get free school meals');
         cy.clickButtonByRole('Start Now');
