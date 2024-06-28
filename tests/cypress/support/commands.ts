@@ -35,8 +35,9 @@ Cypress.Commands.add('clickButton', (text: string) => {
 });
 
 Cypress.Commands.add('verifyH1Text', (expectedText: string) => {
+  cy.contains('h1', expectedText).should('be.visible');
   cy.get('h1').invoke('text').then((actualText: string) => {
-    expect(actualText.trim()).to.eq(expectedText);
+    expect(actualText.trim()).to.eq(expectedText); 
   });
 });
 
@@ -87,4 +88,12 @@ Cypress.Commands.add('generateOtp', (): Cypress.Chainable<string> => {
   return cy.wrap(otp);
 });
 
+
+Cypress.Commands.add('waitForElementToDisappear', (selector: string) => {
+  cy.get('body').then($body => {
+    if ($body.find(selector).length > 0) {
+      cy.get(selector, { timeout: 30000 }).should('not.exist');
+    }
+  });
+});
 

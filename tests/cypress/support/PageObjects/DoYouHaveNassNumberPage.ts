@@ -3,19 +3,19 @@ class DoYouHaveNassNumberPage {
   
     doYouHaveNassRadioYesSelector = '[name="IsNassSelected"][value="true"]';  
     doYouHaveNassRadioNoSelector = '[name="IsNassSelected"][value="false"]';
-    nassNumberInputField =  'NationalAsylumSeekerServiceNumber'
+    nassNumberInputField =  '[id=NationalAsylumSeekerServiceNumber]'
 
 
     public getFieldSelector(fieldName: string): string {
         switch (fieldName) {
             case "NASS Number":
-                return this.doYouHaveNassRadioNoSelector;
+                return this.nassNumberInputField;
             default:
                 throw new Error(`Field name '${fieldName}' not recognized`);
         }
     }
     public getSelector(): string {
-        return '[id="IsNassSelected"]]';
+        return '[id="IsNassSelected"]';
     }
     
     public (isYes: boolean): string {

@@ -9,6 +9,7 @@ class EnterDetailsPage {
     doYouHaveNiRadioYesSelector = '[name="IsNassSelected"][value="false"]';
     doYouHaveNiRadioNoSelector = '[name="IsNassSelected"][value="true"]';
     nationalInsuranceFieldSelector = '#NationalInsuranceNumber';
+    
 
     public getFieldSelector(fieldName: string): string {
         switch (fieldName) {
