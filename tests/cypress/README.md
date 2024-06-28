@@ -3,8 +3,17 @@ Introduction
 This guide will walk you through the steps required to install and run Cypress with TypeScript locally.
 Prerequisites
 Before you begin, ensure that you have the following installed:
-•	Node.js (version 12 or higher)
-•	npm (Node Package Manager)
+
+Git Bash : 
+Node.js (version 12 or higher) : https://nodejs.org/en/download/prebuilt-installer
+•	npm (version 10 or higher ) - This is donwloaded as part of Node.js
+
+Check the Node.js is correctly installed by running the following commands
+
+node -v
+npm -v
+
+
 
 Setup Instructions
 
