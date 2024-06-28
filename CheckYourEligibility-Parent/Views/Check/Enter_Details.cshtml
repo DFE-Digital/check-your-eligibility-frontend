@@ -26,7 +26,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="FirstName"></span>
             </p>
-            <input class="govuk-input govuk-!-width-two-thirds" asp-for="FirstName" type="text">
+            <input class="govuk-input govuk-!-width-two-thirds" asp-for="FirstName" type="text" aria-label="Your first name">
         </div>
 
         <div class="govuk-form-group">
@@ -36,7 +36,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="LastName"></span>
             </p>
-            <input class="govuk-input govuk-!-width-two-thirds" asp-for="LastName" type="text">
+            <input class="govuk-input govuk-!-width-two-thirds" asp-for="LastName" type="text" aria-label="Your last name">
         </div>
     </fieldset>
 
@@ -61,7 +61,7 @@
                         <p class="govuk-error-message">
                             <span asp-validation-for="Day"></span>
                         </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" inputmode="numeric" maxlength="2" data-type="dob" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Day" />
                     </div>
                 </div>
 
@@ -73,7 +73,7 @@
                         <p class="govuk-error-message">
                             <span asp-validation-for="Month"></span>
                         </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" inputmode="numeric" maxlength="2" data-type="dob" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Month" />
                     </div>
                 </div>
 
@@ -85,7 +85,7 @@
                         <p class="govuk-error-message">
                             <span asp-validation-for="Year"></span>
                         </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" aria-label="Year" />
                     </div>
                 </div>
             </div>
@@ -104,7 +104,7 @@
 
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false" aria-controls="conditional-ni-number" aria-expanded="false">
+                    <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false" aria-controls="conditional-ni-number" aria-expanded="false" aria-label="Yes">
                     <label class="govuk-label govuk-radios__label" for="ni-number">
                         Yes
                     </label>
@@ -122,11 +122,11 @@
                         <p class="govuk-error-message">
                             <span asp-validation-for="NationalInsuranceNumber"></span>
                         </p>
-                        <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text">
+                        <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text" aria-label="Your National Insurance Number">
                     </div>
                 </div>
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true">
+                    <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true" aria-label="No, I do not have one">
                     <label class="govuk-label govuk-radios__label" for="ni-number-2">
                         No, I do not have one
                     </label>
