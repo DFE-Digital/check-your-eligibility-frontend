@@ -34,30 +34,42 @@ describe('Verify user can navigate to One Gov login ', () => {
         }).as('interceptForGET');
 
         cy.contains("Go to OneGov").click();
+        
+        var otpCode = authenticator.generate(Cypress.env('AUTH_SECRET'));
+        cy.task("", otpCode);
+        
         // Use the custom command to generate the OTP
-        cy.generateOtp().then((otp) => {
-            cy.origin('https://signin.integration.account.gov.uk', { args: { otp } }, ({ otp }) => {
-                cy.wait(2000);
-                cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', {
-                    auth: {
-                        username: Cypress.env('AUTH_USERNAME'),
-                        password: Cypress.env('AUTH_PASSWORD')
-                    },
-                });
-                cy.contains("Sign in").click();
-                cy.get("input[name=email]").type(Cypress.env("ONEGOV_EMAIL"));
-                cy.contains("Continue").click();
-                cy.get("input[name=password]").type(Cypress.env('ONEGOV_PASSWORD'));
-                cy.contains("Continue").click();
-                cy.get('h1').invoke('text').then((actualText: string) => {
-                    expect(actualText.trim()).to.eq('Enter the 6 digit security code shown in your authenticator app');
-                });
-                cy.get('input[name=code]').type(otp);
-                cy.contains("Continue").click();
+        cy.origin('https://signin.integration.account.gov.uk', { args: { otpCode } }, ({otpCode}) => {
+            let urrl = "";
+            var location = cy.url().then((url) => {
+                urrl = url;
             });
+            cy.wait(2000);
 
-            cy.verifyH1Text('Provide details of your children');
+            cy.visit(urrl, {
+                auth: {
+                    username: Cypress.env('AUTH_USERNAME'),
+                    password: Cypress.env('AUTH_PASSWORD')
+                },
+            });
+            
+            cy.contains("Sign in").click();
+            
+            cy.get("input[name=email]").type(Cypress.env("ONEGOV_EMAIL"));
+            cy.contains("Continue").click();
+            
+            cy.get("input[name=password]").type(Cypress.env('ONEGOV_PASSWORD'));
+            cy.contains("Continue").click();
+            
+            cy.get('h1').invoke('text').then((actualText: string) => {
+                expect(actualText.trim()).to.eq('Enter the 6 digit security code shown in your authenticator app');
+            });
+            
+            cy.get('input[name=code]').type(otpCode);
+            cy.contains("Continue").click();
         });
+
+        cy.verifyH1Text('Provide details of your children');
 
     });
 
