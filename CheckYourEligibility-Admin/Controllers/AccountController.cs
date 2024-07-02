@@ -20,15 +20,13 @@ public sealed class AccountController : Controller
     [HttpGet]
     [Route("/account/sign-out")]
     public IActionResult Logout()
+   //    public void Logout()
     {
         if (!(User?.Identity?.IsAuthenticated ?? false))
         {
             return RedirectToAction("Index", "Home");
         }
-        //#TODO use cookie name from appsettings.json config
-        //Response.Cookies.Delete("sa-login");
-
-        return SignOut(
+       return SignOut(
             CookieAuthenticationDefaults.AuthenticationScheme,
             OpenIdConnectDefaults.AuthenticationScheme
         );
