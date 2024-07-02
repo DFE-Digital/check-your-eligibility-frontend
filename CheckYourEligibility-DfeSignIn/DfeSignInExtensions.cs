@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using CheckYourEligibility_DfeSignIn.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Security.Claims;
 
 namespace CheckYourEligibility_DfeSignIn;
 public static class DfeSignInExtensions
@@ -55,5 +58,31 @@ public static class DfeSignInExtensions
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.SlidingExpiration = configuration.SlidingExpiration;
             });
+    }
+
+    public static Organisation? GetOrganisation(IEnumerable<Claim> claims)
+    {
+        if (claims == null)
+        {
+            throw new ArgumentNullException(nameof(claims));
+        }
+
+        var organisationJson = claims.Where(c => c.Type == ClaimConstants.Organisation)
+            .Select(c => c.Value)
+        .FirstOrDefault();
+
+        if (organisationJson == null)
+        {
+            return null;
+        }
+
+        var organisation = JsonHelpers.Deserialize<Organisation>(organisationJson)!;
+
+        if (organisation.Id == Guid.Empty)
+        {
+            return null;
+        }
+
+        return organisation;
     }
 }
