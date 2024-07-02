@@ -25,11 +25,18 @@ Assuming you have NPM installed.
 `
 cd tests
 npm install
-
-export CYPRESS_AUTH_USERNAME="user name here"  CYPRESS_AUTH_PASSWORD="password here" CYPRESS_ONEGOV_EMAIL="one gov email for otp" CYPRESS_ONEGOV_PASSWORD="One gov account password" CYPRESS_AUTH_SECRET=" One Gov account Secret key for Auth "  CYPRESS_BASE_URL= CYPRESS_BASE_URL="https-path to localhost or remote" npm run e2e:chrome
+CYPRESS_BASE_URL="https://ecs-test-as-frontend.azurewebsites.net" npx cypress open
 `
+Inside the cypress directory create a "cypress.env.json" and paste in these:
 
-Note, replace `export` with `set` in the above command for Windows.
+{
+    "AUTHORIZATION_HEADER": "",
+    "AUTH_USERNAME": "",
+    "AUTH_PASSWORD": "",
+    "ONEGOV_EMAIL": "",
+    "ONEGOV_PASSWORD": "",
+    "AUTH_SECRET": ""
+}
 
 ## Ways of working
 ### Releasing code
