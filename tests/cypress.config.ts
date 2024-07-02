@@ -6,6 +6,7 @@ export default defineConfig({
       // implement node event listeners here
     },
     baseUrl: process.env.CYPRESS_BASE_URL,
+    chromeWebSecurity: false,
     viewportWidth: 1600,
     viewportHeight: 1800,
     specPattern: 'cypress/e2e/**/*.spec.{js,jsx,ts,tsx}',
