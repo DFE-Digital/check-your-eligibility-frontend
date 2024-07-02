@@ -1,4 +1,3 @@
-import { authenticator } from 'otplib';
 
 // Custom commands
 Cypress.Commands.add('typeTextByLabel', (labelText: string, text: string) => {
@@ -77,17 +76,6 @@ Cypress.Commands.add('retainAuthOnRedirect', (initialUrl, authHeader, alias) => 
     }).as(alias);
   });
 });
-
-Cypress.Commands.add('generateOtp', (): Cypress.Chainable<string> => {
-  const secret = '224VJ2KRGWSURPLLUNDEJ3KO5PGF32PN';
-  if (!secret) {
-    throw new Error('Authenticator secret key is not defined in Cypress environment variables');
-  }
-
-  const otp: string = authenticator.generate(secret);
-  return cy.wrap(otp);
-});
-
 
 Cypress.Commands.add('waitForElementToDisappear', (selector: string) => {
   cy.get('body').then($body => {
