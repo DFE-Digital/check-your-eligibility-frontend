@@ -2,7 +2,7 @@
     ViewData["Title"] = "Check Details";
     ViewData["ServiceName"] = "Check a family's eligibility";
 }
-@model CheckYourEligibility_DfeSignIn.Models.Organisation;
+@model CheckYourEligibility_DfeSignIn.Models.DfeClaims;
 
 @if (!ViewData.ModelState.IsValid)
 {
@@ -13,7 +13,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
-           @Model.Name
+           @Model.Organisation.Name
         </h1>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

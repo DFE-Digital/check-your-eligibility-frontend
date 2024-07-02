@@ -13,7 +13,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        Organisation? _organisation;
+        DfeClaims? _Claims;
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -24,8 +24,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Index()
         {
-            _organisation = DfeSignInExtensions.GetOrganisation(HttpContext.User.Claims);
-            return View(_organisation);
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            return View(_Claims);
         }
 
        

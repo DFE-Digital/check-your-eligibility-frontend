@@ -60,7 +60,21 @@ public static class DfeSignInExtensions
             });
     }
 
-    public static Organisation? GetOrganisation(IEnumerable<Claim> claims)
+    public static DfeClaims? GetDfeClaims(IEnumerable<Claim> claims)
+    {
+        if (claims == null)
+        {
+            throw new ArgumentNullException(nameof(claims));
+        }
+        var result = new DfeClaims() {
+            Organisation = GetOrganisation(claims),
+            User = GetUser(claims),
+        };
+
+        return result;
+    }
+
+    private static Organisation? GetOrganisation(IEnumerable<Claim> claims)
     {
         if (claims == null)
         {
@@ -84,5 +98,20 @@ public static class DfeSignInExtensions
         }
 
         return organisation;
+    }
+    private static UserInformation GetUser(IEnumerable<Claim> claims)
+    {
+        var userInformation= new UserInformation();
+
+        userInformation.Id = claims.Where(c => c.Type == $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}")
+            .Select(c => c.Value).First();
+        userInformation.Email = claims.Where(c => c.Type == $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+           .Select(c => c.Value).First();
+        userInformation.FirstName = claims.Where(c => c.Type == $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")
+           .Select(c => c.Value).First();
+        userInformation.Surname = claims.Where(c => c.Type == $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname")
+           .Select(c => c.Value).First();
+
+        return userInformation;
     }
 }
