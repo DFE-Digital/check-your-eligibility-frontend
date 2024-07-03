@@ -11,6 +11,7 @@ export default defineConfig({
     viewportHeight: 1800,
     specPattern: 'cypress/e2e/**/*.spec.{js,jsx,ts,tsx}',
     experimentalOriginDependencies: true,  // Add this line to enable the flag
+    projectId: 'cv64me'
   },
   reporter: "junit",
   reporterOptions: {
