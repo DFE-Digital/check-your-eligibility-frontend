@@ -61,6 +61,42 @@ stages:
               targetPath: '$(Build.ArtifactStagingDirectory)'
               artifactName: 'checkYourEligibility-Parent'
 
+
+  - stage: RunCypressTests
+    displayName: Run Cypress Tests
+    jobs:
+    - job: 'SetUpCypress'
+      displayName: 'SetUpTests'
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - task: Bash@3
+        inputs:
+          targetType: inline
+          script: |
+           cd tests
+           npm install
+      - task: Bash@3
+        displayName: 'RunTests'
+        inputs:
+         targetType: inline
+         script: |
+          cd tests
+          export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL)"
+          export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
+          export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
+          export AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
+          export AUTH_SECRET="$(AUTH_SECRET)"
+          export AUTH_USERNAME="$(AUTH_USERNAME)"
+          export AUTH_PASSWORD="$(AUTH_PASSWORD)"
+          export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
+          export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
+          echo "${AUTHORIZATION_HEADER}"
+          npm run e2e:electron
+          echo "${AUTHORIZATION_HEADER}"
+        env:
+          CYPRESS_DEBUG: 1
+
   - stage: DeployAppDev
     displayName: Deploy App Dev
     jobs:
@@ -113,49 +149,51 @@ stages:
                 appType: 'webApp'
                 WebAppName: 'ecs-test-as-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
-  - stage: RunCypressTests
-    displayName: Run Cypress Tests
-    jobs:
-    - job: 'SetUpCypress'
-      displayName: 'SetUpTests'
-      pool:
-        vmImage: ubuntu-latest
-      steps:
-      - task: Bash@3
-        inputs:
-          targetType: inline
-          script: |
-           cd tests
-           npm install
-      - task: Bash@3
-        displayName: 'RunTests'
-        inputs:
-         targetType: inline
-         script: |
-          cd tests
-          export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL)"
-          export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
-          export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
-          export AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
-          export AUTH_SECRET="$(AUTH_SECRET)"
-          export AUTH_USERNAME="$(AUTH_USERNAME)"
-          export AUTH_PASSWORD="$(AUTH_PASSWORD)"
-          export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
-          export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
-          npm run e2e:electron
+  # - stage: RunCypressTests
+  #   displayName: Run Cypress Tests
+  #   jobs:
+  #   - job: 'SetUpCypress'
+  #     displayName: 'SetUpTests'
+  #     pool:
+  #       vmImage: ubuntu-latest
+  #     steps:
+  #     - task: Bash@3
+  #       inputs:
+  #         targetType: inline
+  #         script: |
+  #          cd tests
+  #          npm install
+  #     - task: Bash@3
+  #       displayName: 'RunTests'
+  #       inputs:
+  #        targetType: inline
+  #        script: |
+  #         cd tests
+  #         export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL)"
+  #         export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
+  #         export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
+  #         export AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
+  #         export AUTH_SECRET="$(AUTH_SECRET)"
+  #         export AUTH_USERNAME="$(AUTH_USERNAME)"
+  #         export AUTH_PASSWORD="$(AUTH_PASSWORD)"
+  #         export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
+  #         export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
+  #         echo "${AUTHORIZATION_HEADER}"
+  #         npm run e2e:electron
+  #         echo "${AUTHORIZATION_HEADER}"
 
-      - task: Bash@3
-        condition: always()
-        displayName: 'Generate report'
-        inputs:
-         targetType: inline
-         script: |
-          cd tests
-          npm run combine:reports
+      # - task: Bash@3
+      #   condition: always()
+      #   displayName: 'Generate report'
+      #   inputs:
+      #    targetType: inline
+      #    script: |
+      #     cd tests
+      #     npm run combine:reports
 
-      - task: PublishTestResults@2
-        condition: always()
-        displayName: 'Publish test results'
-        inputs:
-         testResultsFiles: '**/combined-report.xml'
-         searchFolder: 'tests'
+      # - task: PublishTestResults@2
+      #   condition: always()
+      #   displayName: 'Publish test results'
+      #   inputs:
+      #    testResultsFiles: '**/combined-report.xml'
+      #    searchFolder: 'tests'
