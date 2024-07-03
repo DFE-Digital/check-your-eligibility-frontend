@@ -94,6 +94,8 @@ stages:
           echo "${AUTHORIZATION_HEADER}"
           npm run e2e:electron
           echo "${AUTHORIZATION_HEADER}"
+        env:
+          CYPRESS_DEBUG: 1
 
   - stage: DeployAppDev
     displayName: Deploy App Dev
