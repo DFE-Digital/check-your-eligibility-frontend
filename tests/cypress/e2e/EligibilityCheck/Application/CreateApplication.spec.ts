@@ -36,7 +36,6 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
           currentUrl = url;
       });
       cy.wait(2000);
-      cy.wait(2000);
       cy.visit('https://signin.integration.account.gov.uk/sign-in-or-create', {
         auth: {
           username: Cypress.env('AUTH_USERNAME'),
@@ -77,9 +76,10 @@ describe('Parent with valid details can carry out Eligibility Check', () => {
     cy.selectYesNoOption(enterDetailsPage.getRadioSelector(), false);
     cy.typeIntoInput(enterDetailsPage.getFieldSelector("Parent's National Insurance number"), "AB123456C");
     cy.clickButton('Save and continue');
+    cy.wait(2000)
     cy.get('h1').should('have.text', 'Your children are entitled to free school meals');
 
-    const authorizationHeader = 'Basic aW50ZWdyYXRpb24tdXNlcjp3aW50ZXIyMDIx';
+    const authorizationHeader = Cypress.env('AUTHORIZATION_HEADER');
     cy.intercept('GET', "https://signin.integration.account.gov.uk/**", (req) => {
       req.headers['Authorization'] = authorizationHeader;
     }).as('interceptForGET');
