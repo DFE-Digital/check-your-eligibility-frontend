@@ -76,10 +76,6 @@ stages:
           script: |
            cd tests
            npm install
-
-      - task: NodeTool@0
-      # Caches dependencies using npm lock file as key
-      # https://docs.cypress.io/guides/continuous-integration/introduction#Caching
       - task: Bash@3
         displayName: 'RunTests'
         inputs:
@@ -89,16 +85,29 @@ stages:
           export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL)"
           export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
           export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
-          export AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
-          export AUTH_SECRET="$(AUTH_SECRET)"
-          export AUTH_USERNAME="$(AUTH_USERNAME)"
-          export AUTH_PASSWORD="$(AUTH_PASSWORD)"
-          export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
-          export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
-          echo "${AUTHORIZATION_HEADER}"
-          npx cypress run --record --parallel --ci-build-id $BUILD_BUILDNUMBER
-        env:
-          CYPRESS_DEBUG: 1
+          export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
+          export CYPRESS_AUTH_SECRET="$(AUTH_SECRET)"
+          export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
+          export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
+          export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
+          export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
+          npm run e2e:electron
+
+      - task: Bash@3
+        condition: always()
+        displayName: 'Generate report'
+        inputs:
+         targetType: inline
+         script: |
+          cd tests
+          npm run combine:reports
+
+      - task: PublishTestResults@2
+        condition: always()
+        displayName: 'Publish test results'
+        inputs:
+         testResultsFiles: '**/combined-report.xml'
+         searchFolder: 'tests'
 
   - stage: DeployAppDev
     displayName: Deploy App Dev
