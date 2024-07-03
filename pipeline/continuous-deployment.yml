@@ -136,6 +136,12 @@ stages:
           export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL)"
           export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
           export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
+          export AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
+          export AUTH_SECRET="$(AUTH_SECRET)"
+          export AUTH_USERNAME="$(AUTH_USERNAME)"
+          export AUTH_PASSWORD="$(AUTH_PASSWORD)"
+          export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
+          export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
           npm run e2e:chrome
 
       - task: Bash@3
