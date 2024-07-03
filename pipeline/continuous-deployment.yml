@@ -142,7 +142,9 @@ stages:
           export AUTH_PASSWORD="$(AUTH_PASSWORD)"
           export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
           export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
+          echo "${AUTHORIZATION_HEADER}"
           npm run e2e:electron
+          echo "${AUTHORIZATION_HEADER}"
 
       - task: Bash@3
         condition: always()
