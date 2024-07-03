@@ -76,6 +76,20 @@ stages:
           script: |
            cd tests
            npm install
+
+      - task: NodeTool@0
+      # Caches dependencies using npm lock file as key
+      # https://docs.cypress.io/guides/continuous-integration/introduction#Caching
+      - task: CacheBeta@1
+        inputs:
+          key: npm | package-lock.json
+          path: /home/vsts/.npm
+          restoreKeys: npm | package-lock.json
+      - task: CacheBeta@1
+        inputs:
+          key: cy | package-lock.json
+          path: /home/vsts/.cache/Cypress
+          restoreKeys: cy | package-lock.json
       - task: Bash@3
         displayName: 'RunTests'
         inputs:
@@ -92,8 +106,7 @@ stages:
           export ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
           export ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
           echo "${AUTHORIZATION_HEADER}"
-          npm run e2e:electron
-          echo "${AUTHORIZATION_HEADER}"
+          npx cypress run --record --parallel --ci-build-id $BUILD_BUILDNUMBER
         env:
           CYPRESS_DEBUG: 1
 
