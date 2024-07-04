@@ -369,7 +369,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(child.School.URN),
                         UserId = HttpContext.Session.GetString("UserId"),
                     }
