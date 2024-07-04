@@ -216,7 +216,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public IActionResult SignIn()
         {
             var properties = new AuthenticationProperties();
-            properties.SetVectorOfTrust(@"[""Cl.Cm""]");
+            properties.SetVectorOfTrust(@"[""Cl""]");
+            properties.RedirectUri = "/Check/Enter_Child_Details";
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
 
