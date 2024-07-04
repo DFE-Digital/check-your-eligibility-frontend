@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authentication;
+using GovUk.OneLogin.AspNetCore;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
 
@@ -187,11 +189,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (check.Data.Status ==
                         CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
                     {
-                        string url = _config["OneLogin:Host"];
-                        url += "/authorize?ui_locales=en&response_type=code&scope=openid,email";
-                        url += "&client_id="+_config["OneLogin:ClientId"];
-                        url += "&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio";
-                        url += "&redirect_uri="+_config["Host"]+"/Check/Enter_Child_Details";
+                        string url = "/check/signIn";
                         return View("Outcome/Eligible", url);
                     }
 
@@ -213,6 +211,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
             return View("Outcome/Default");
+        }
+
+        public IActionResult SignIn()
+        {
+            var properties = new AuthenticationProperties();
+            properties.SetVectorOfTrust(@"[""Cl.Cm""]");
+            return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
 
         public IActionResult Enter_Child_Details()
