@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CheckYourEligibility.Domain.Requests;
+using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
@@ -11,16 +11,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     {
         private readonly ILogger<SchoolController> _logger;
         private readonly IEcsServiceParent _service;
+        private readonly IConfiguration _config;
+        private ILogger<SchoolController> _loggerMock;
+        private IEcsServiceParent _object;
 
-        public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsService)
+        public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
-            _logger = logger;
-            _service = ecsService;
-        }
-
-        public IActionResult Dashboard()
-        {
-            return View();
+            _config = configuration;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _service = ecsService ?? throw new ArgumentNullException(nameof(ecsService));
         }
 
         [HttpGet]
@@ -140,22 +139,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             }
 
-
-
-
-
-            //if (request.IsNassSelected == true)
-            //{
-            //    TempData["Request"] = JsonConvert.SerializeObject(request);
-
-            //    return RedirectToAction("Nass");
-            //}
-
-
-
-
-
-
             return RedirectToAction("Loader");
         }
 
@@ -169,22 +152,26 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Nass(ParentGuardian request)
         {
+            // don't want to validate nino as that has been declared on previous page as not given
             ModelState.Remove("NationalInsuranceNumber");
 
+            // access tempdata and get request
             TempData["Request"] = JsonConvert.SerializeObject(request);
 
             if (!ModelState.IsValid)
-            {
                 return View("Nass");
-            }
 
+            // if no nass given return couldn't check outcome page
             if (request.NationalAsylumSeekerServiceNumber == null)
-            {
                 return View("Outcome/Could_Not_Check");
-            }
+            // otherwise build object and queue soft-check
             else
             {
-                var checkEligibilityRequest = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequest()
+                // set nass in session storage 
+                HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
+
+                // build object for api soft-check
+                var checkEligibilityRequest = new CheckEligibilityRequest()
                 {
                     Data = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequestDataFsm
                     {
@@ -194,10 +181,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     }
                 };
 
+                //TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+
+                // queue api soft-check
                 var response = await _service.PostCheck(checkEligibilityRequest);
 
                 _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
 
+                // go to loader page which will poll soft-check status
                 return RedirectToAction("Loader");
             }
         }
@@ -207,16 +198,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
+        /// this method is called by AJAX
         public async Task<IActionResult> Poll_Status()
         {
             var startTime = DateTime.UtcNow;
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
+            // gather api response which should either be queuedForProcessing or has a response
             var responseJson = TempData["Response"] as string;
             var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
 
             _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
 
+            // periodically get status and then render appropriate outcome page
             while (await timer.WaitForNextTickAsync())
             {
                 var check = await _service.GetStatus(response);
@@ -251,48 +245,46 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Enter_Child_Details()
         {
-            // Initialize a new Children object
-            var children = new Children();
+            var children = new Children() { ChildList = [new()] };
 
-            // Check if this is a redirect
-            if (TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
+            // Check if this is a redirect after add or remove child
+            if (TempData["IsChildAddOrRemove"] != null && (bool)TempData["IsChildAddOrRemove"] == true)
             {
-                // Skip validation
                 ModelState.Clear();
 
-                // Retrieve updated list from TempData (child could have been added or removed)
-                var childListJson = TempData["ChildList"] as string;
-
-                // Transform list to fit model
-                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childListJson);
-            }
-            else
-            {
-                // If it's a new page load, populate the ChildList with a new Child
-                children.ChildList = new List<Child> { new Child() };
+                // Retrieve Children from TempData
+                var childDetails = TempData["ChildList"] as string;
+                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
             }
 
-            // Return view and populate with up-to-date child list
             return View(children);
         }
 
         [HttpPost]
         public IActionResult Enter_Child_Details(Children request)
         {
-            if (!ModelState.IsValid)
+            if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
-                return View("Enter_Child_Details", request);
+                return View(request);
             }
 
-            // create check_answers model, access parent details from session storage and child from pages form
-            var fsmApplication = new FsmApplication();
-            fsmApplication.ParentFirstName = HttpContext.Session.GetString("ParentFirstName");
-            fsmApplication.ParentLastName = HttpContext.Session.GetString("ParentLastName");
-            fsmApplication.ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB");
-            fsmApplication.ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null;
-            fsmApplication.ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null;
-            fsmApplication.ParentEmail = HttpContext.Session.GetString("ParentEmail");
-            fsmApplication.Children = request;
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var fsmApplication = new FsmApplication
+            {
+                ParentFirstName = HttpContext.Session.GetString("ParentFirstName"),
+                ParentLastName = HttpContext.Session.GetString("ParentLastName"),
+                ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
+                ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
+                ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
+                ParentEmail = HttpContext.Session.GetString("ParentEmail"),
+                Children = request
+            };
+
+            TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
 
             return View("Check_Answers", fsmApplication);
         }
@@ -301,10 +293,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public IActionResult Add_Child(Children request)
         {
             // set initial tempdata
-            TempData["IsRedirect"] = true;
+            TempData["IsChildAddOrRemove"] = true;
 
             // don't allow the model to contain more than 99 items
-            if (request.ChildList.Count > 99)
+            if (request.ChildList.Count >= 99)
             {
                 return RedirectToAction("Enter_Child_Details");
             }
@@ -313,7 +305,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
-            return RedirectToAction("Enter_Child_Details", request);
+            return RedirectToAction("Enter_Child_Details");
         }
 
         [HttpPost]
@@ -324,7 +316,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             request.ChildList.Remove(child);
 
             // set up tempdata so page can be correctly rendered
-            TempData["IsRedirect"] = true;
+            TempData["IsChildAddOrRemove"] = true;
             TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
             return RedirectToAction("Enter_Child_Details");
@@ -438,7 +430,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
             var response = TempData["Response"] as string;
-            
+
             while (await timer.WaitForNextTickAsync())
             {
 
@@ -471,5 +463,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View();
         }
+
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
     }
 }

@@ -136,12 +136,32 @@
         <p class="govuk-body">By sending this information on to the school you confirm that, to the best of your knowledge, it is correct.</p>
         <p>Your details are only used to register and will not be stored.</p>
 
-        <form action="Application_Sent" method="post" novalidate="">
-            <input type="hidden" name="answers-checked" value="true">
-            <button class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
+        <form asp-action="Check_Answers" asp-controller="Check" method="post" novalidate="">
+            <!-- Parent Details -->
+            <input type="hidden" asp-for="ParentFirstName" value="@Model.ParentFirstName" />
+            <input type="hidden" asp-for="ParentLastName" value="@Model.ParentLastName" />
+            <input type="hidden" asp-for="ParentNass" value="@Model.ParentNass" />
+            <input type="hidden" asp-for="ParentNino" value="@Model.ParentNino" />
+            <input type="hidden" asp-for="ParentDateOfBirth" value="@Model.ParentDateOfBirth" />
+            @* <input type="hidden" asp-for="ParentEmail" value="@Model.ParentEmail" /> *@
+
+            <!-- Child details -->
+            @for (var i = 0; i < Model.Children.ChildList.Count; i++)
+            {
+                <input type="hidden" asp-for="Children.ChildList[i].FirstName" />
+                <input type="hidden" asp-for="Children.ChildList[i].LastName" />
+                <input type="hidden" asp-for="Children.ChildList[i].Day" />
+                <input type="hidden" asp-for="Children.ChildList[i].Month" />
+                <input type="hidden" asp-for="Children.ChildList[i].Year" />
+                <input type="hidden" asp-for="Children.ChildList[i].School.URN" />
+                <input type="hidden" asp-for="Children.ChildList[i].School.Name" />
+                <input type="hidden" asp-for="Children.ChildList[i].School.LA" />
+            }
+
+            <button type="submit" class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
                 Register details
             </button>
         </form>
     </div>
 </div>
-<script src="/js/validationSummary.js"></script>
+
