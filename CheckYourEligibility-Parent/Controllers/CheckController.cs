@@ -280,7 +280,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
                 ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
                 ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
-                Children = request
+                Children = request,
+                Email = HttpContext.Session.GetString("Email")
             };
 
             TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
@@ -370,7 +371,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
                         School = int.Parse(child.School.URN),
-                        UserId = null // get from gov.uk onelogin??
+                        UserId = HttpContext.Session.GetString("UserId"),
                     }
                 };
 
