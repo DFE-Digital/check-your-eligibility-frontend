@@ -34,16 +34,16 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
         //configue the endpoints for the One Login environment you're targeting
-        options.MetadataAddress = "https://oidc.integration.account.gov.uk/.well-known/openid-configuration";
-        options.ClientAssertionJwtAudience = "https://oidc.integration.account.gov.uk/token";
+        options.MetadataAddress = builder.Configuration["OneLogin:Host"]+"/.well-known/openid-configuration";
+        options.ClientAssertionJwtAudience = builder.Configuration["OneLogin:Host"]+"/token";
 
         //configure client information
         // CallbackPath and SignedOutCallbackPath must align with the redirect_uris and post_logout_redirect_uris configured in One Login.
 
         options.ClientId = builder.Configuration["OneLogin:ClientId"];
-        options.CallbackPath = builder.Configuration["Host"] + "/Check/Enter_Child_Details";
+        options.CallbackPath = "/signin-oidc";
         options.SignedOutCallbackPath = "/onelogin-logout-callback";
-        options.CoreIdentityClaimIssuer = "https://identity.integration.account.gov.uk/";
+        options.CoreIdentityClaimIssuer = builder.Configuration["OneLogin:Host"].Replace("oidc", "identity");
 
         // Configure the private key used for authentication.
         // See the RSA class' documentation for the various ways to do this.
@@ -61,8 +61,8 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         // See the One Login docs for the various options to use here.
         options.VectorOfTrust = @"[""Cl""]";
         // Override the cookie name prefixes (optional)
-        options.CorrelationCookie.Name = "my-app-onelogin-correlation.";
-        options.NonceCookie.Name = "my-app-onelogin-nonce.";
+        options.CorrelationCookie.Name = "check-your-eligibility-onelogin-correlation.";
+        options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
     });
 
 var app = builder.Build();
