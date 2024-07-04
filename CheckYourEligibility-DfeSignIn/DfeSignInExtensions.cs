@@ -35,8 +35,6 @@ public static class DfeSignInExtensions
                
                 options.Authority = configuration.Authority;
                 options.MetadataAddress = configuration.MetaDataUrl;
-                
-
                 options.CallbackPath = new PathString(configuration.CallbackUrl);
                 options.SignedOutRedirectUri = new PathString(configuration.SignoutRedirectUrl);
                 options.SignedOutCallbackPath = new PathString(configuration.SignoutCallbackUrl);
