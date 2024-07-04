@@ -3,7 +3,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 public sealed class AccountController : Controller
@@ -16,32 +18,10 @@ public sealed class AccountController : Controller
         this.logger = logger;
     }
 
-   
-    [HttpGet]
+    [Authorize]
     [Route("/account/sign-out")]
-    public IActionResult Logout()
-   //    public void Logout()
+    public async Task<IActionResult> SignOut()
     {
-        if (!(User?.Identity?.IsAuthenticated ?? false))
-        {
-            return RedirectToAction("Index", "Home");
-        }
-       return SignOut(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            OpenIdConnectDefaults.AuthenticationScheme
-        );
-    }
-
-    [HttpGet]
-    [Route("/account/signed-out")]
-    public IActionResult SignedOut()
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            return RedirectToAction("Index", "Home");
-        }
-
-        return RedirectToAction("Index", "Home");
-       // return View();
+        return new SignOutResult(new[] { OpenIdConnectDefaults.AuthenticationScheme, CookieAuthenticationDefaults.AuthenticationScheme });
     }
 }
