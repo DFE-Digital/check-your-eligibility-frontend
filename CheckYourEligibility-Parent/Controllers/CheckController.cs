@@ -217,8 +217,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             var properties = new AuthenticationProperties();
             properties.SetVectorOfTrust(@"[""Cl""]");
-            properties.RedirectUri = "/Check/Enter_Child_Details";
+            properties.RedirectUri = "/Check/CreateUser";
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
+        }
+
+        public async Task<IActionResult> CreateUser()
+        {
+            var user = await _service.CreateUser(
+                new UserData()
+                {
+                    Email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First(),
+                    Reference = HttpContext.User.Claims.Where(c => c.Type == "sub").Select(c => c.Value).First()
+                }
+            );
+            
+            return RedirectToAction("Enter_Child_Details");
         }
 
         public IActionResult Enter_Child_Details()
