@@ -223,14 +223,22 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> CreateUser()
         {
+            string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
+            string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sid").Select(c => c.Value).First();
+            
             var user = await _service.CreateUser(
-                new UserData()
+                new UserCreateRequest()
                 {
-                    Email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First(),
-                    Reference = HttpContext.User.Claims.Where(c => c.Type == "sub").Select(c => c.Value).First()
+                    Data = new UserData() {
+                        Email = email,
+                        Reference = uniqueId
+                    }
                 }
             );
             
+            HttpContext.Session.SetString("Email", email);
+            HttpContext.Session.SetString("UserId", user.Data);
+
             return RedirectToAction("Enter_Child_Details");
         }
 
