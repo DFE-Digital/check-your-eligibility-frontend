@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authentication;
+using GovUk.OneLogin.AspNetCore;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
 
@@ -187,11 +189,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (check.Data.Status ==
                         CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
                     {
-                        string url = _config["OneLogin:Host"];
-                        url += "/authorize?ui_locales=en&response_type=code&scope=openid,email";
-                        url += "&client_id="+_config["OneLogin:ClientId"];
-                        url += "&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio";
-                        url += "&redirect_uri="+_config["Host"]+"/Check/Enter_Child_Details";
+                        string url = "/check/signIn";
                         return View("Outcome/Eligible", url);
                     }
 
@@ -213,6 +211,35 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
             return View("Outcome/Default");
+        }
+
+        public IActionResult SignIn()
+        {
+            var properties = new AuthenticationProperties();
+            properties.SetVectorOfTrust(@"[""Cl""]");
+            properties.RedirectUri = "/Check/CreateUser";
+            return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
+        }
+
+        public async Task<IActionResult> CreateUser()
+        {
+            string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
+            string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sid").Select(c => c.Value).First();
+            
+            var user = await _service.CreateUser(
+                new UserCreateRequest()
+                {
+                    Data = new UserData() {
+                        Email = email,
+                        Reference = uniqueId
+                    }
+                }
+            );
+            
+            HttpContext.Session.SetString("Email", email);
+            HttpContext.Session.SetString("UserId", user.Data);
+
+            return RedirectToAction("Enter_Child_Details");
         }
 
         public IActionResult Enter_Child_Details()
@@ -253,7 +280,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
                 ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
                 ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
-                Children = request
+                Children = request,
+                Email = HttpContext.Session.GetString("Email")
             };
 
             TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
@@ -341,9 +369,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(child.School.URN),
-                        UserId = null // get from gov.uk onelogin??
+                        UserId = HttpContext.Session.GetString("UserId"),
                     }
                 };
 

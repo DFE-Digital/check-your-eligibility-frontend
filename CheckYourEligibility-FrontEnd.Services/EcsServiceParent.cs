@@ -79,5 +79,20 @@ namespace CheckYourEligibility_FrontEnd.Services
 
             return null;
         }
+
+        public async Task<UserSaveItemResponse> CreateUser(UserCreateRequest requestBody)
+        {
+            try
+            {
+                var response = await ApiDataPostAsynch("Users", requestBody, new CheckYourEligibility.Domain.Responses.UserSaveItemResponse());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Create User failed. uri-{_httpClient.BaseAddress}Users");
+            }
+
+            return null;
+        }
     }
 }

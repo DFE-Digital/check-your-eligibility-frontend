@@ -9,5 +9,6 @@ namespace CheckYourEligibility_FrontEnd.Services
         Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);
         Task<SchoolSearchResponse> GetSchool(string name);
         Task<ApplicationSaveItemResponse> PostApplication(ApplicationRequest requestBody);
+        Task<UserSaveItemResponse> CreateUser(UserCreateRequest requestBody);
     }
 }
