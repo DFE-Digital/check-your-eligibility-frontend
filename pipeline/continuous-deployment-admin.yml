@@ -71,7 +71,7 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203d.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-dev-as-frontend'
+                WebAppName: 'ecs-dev-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
   - stage: DeployAppTest
     displayName: Deploy App Test
@@ -97,6 +97,6 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-test-as-frontend'
+                WebAppName: 'ecs-test-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
                 
