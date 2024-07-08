@@ -169,7 +169,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
                 _applicationSaveItemResponse = new ApplicationSaveItemResponse()
                 {
-                    Data = new ApplicationSave()
+                    Data = new ApplicationResponse()
                     {
                         ParentFirstName = _fsmApplication.ParentFirstName,
                         ParentLastName = _fsmApplication.ParentLastName,
@@ -177,12 +177,12 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
                         ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
                         ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
-                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, 
+                        _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
                         ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
                         Id = "",
-                        LocalAuthority = 10002,
+                        School = new ApplicationResponse.ApplicationSchool {Id = 10002,LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123} },
                         Reference = "",
-                        School = 10002
                     },
                     Links = new ApplicationResponseLinks()
                     {
