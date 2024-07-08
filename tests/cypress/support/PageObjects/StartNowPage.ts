@@ -1,11 +1,11 @@
 // cypress/pageObjects/StartNowPage.ts
 class StartNowPage {
   elements = {
-    
+    startNowButton: () => cy.contains('Start Now')
 
   }
     clickStartNowBtn() {
-      cy.contains('button', 'Start now').click();
+      this.elements.startNowButton().click();
     }
   }
   
