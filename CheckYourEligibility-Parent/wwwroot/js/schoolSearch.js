@@ -55,10 +55,6 @@ function selectSchool(school, urn, la, postcode, index) {
 window.onload = function () {
     let i = 0;
     while (true) {
-        let schoolName = localStorage.getItem(`schoolName${i}`);
-        let schoolURN = localStorage.getItem(`schoolURN${i}`);
-        let schoolPostcode = localStorage.getItem(`schoolPostcode${i}`);
-        let schoolLA = localStorage.getItem(`schoolLA${i}`);
 
         if (schoolName === null && schoolURN === null && schoolPostcode === null && schoolLA === null) {
             // No more items in localStorage, break the loop
