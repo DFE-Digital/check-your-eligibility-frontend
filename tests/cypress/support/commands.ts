@@ -42,6 +42,7 @@ Cypress.Commands.add('verifyH1Text', (expectedText: string) => {
 
 Cypress.Commands.add('selectYesNoOption', (baseSelector: string, isYes: boolean) => {
   const finalSelector = isYes ? `${baseSelector}[value="true"]` : `${baseSelector}[value="false"]`;
+  cy.log(`selector being used: ${finalSelector}`)
   cy.get(finalSelector).click();
 });
 
