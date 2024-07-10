@@ -110,15 +110,6 @@
 
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                School
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                @Model.Children.ChildList[i].School.Name
-                            </dd>
-                        </div>
-
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
                                 Child's date of birth
                             </dt>
                             <dd class="govuk-summary-list__value">
@@ -143,7 +134,7 @@
             <input type="hidden" asp-for="ParentNass" value="@Model.ParentNass" />
             <input type="hidden" asp-for="ParentNino" value="@Model.ParentNino" />
             <input type="hidden" asp-for="ParentDateOfBirth" value="@Model.ParentDateOfBirth" />
-            @* <input type="hidden" asp-for="ParentEmail" value="@Model.ParentEmail" /> *@
+            <input type="hidden" asp-for="ParentEmail" value="@Model.ParentEmail" />
 
             <!-- Child details -->
             @for (var i = 0; i < Model.Children.ChildList.Count; i++)

@@ -4,6 +4,7 @@ using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility_DfeSignIn.Models;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -14,6 +15,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IConfiguration _config;
         private ILogger<SchoolController> _loggerMock;
         private IEcsServiceParent _object;
+        DfeClaims? _Claims;
 
         public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
@@ -322,29 +324,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Enter_Child_Details");
         }
 
-        /// this method is called by AJAX
-        [HttpGet]
-        public async Task<IActionResult> GetSchoolDetails(string query)
-        {
-            // limit api requests to start after 3 chars given
-            if (string.IsNullOrEmpty(query) || query.Length < 3)
-            {
-                return BadRequest("Query must be at least 3 characters long.");
-            }
-
-            // make api query
-            var results = await _service.GetSchool(query);
-            if (results != null)
-            {
-                // return the results in a list of json
-                return Json(results.Data.ToList());
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public IActionResult Check_Answers()
         {
             return View();
@@ -370,8 +349,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
-                        School = int.Parse(child.School.URN),
-                        UserId = null // get from gov.uk onelogin??
+                        School = int.Parse(_Claims.Organisation.Urn),
+                        UserId = _Claims.User.Id
                     }
                 };
 
