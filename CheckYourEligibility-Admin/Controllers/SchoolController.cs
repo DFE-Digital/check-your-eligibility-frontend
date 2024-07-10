@@ -7,7 +7,7 @@ using CheckYourEligibility.Domain.Responses;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
-    public class SchoolController : Controller
+    public class SchoolController : BaseController
     {
         private readonly ILogger<SchoolController> _logger;
         private readonly IEcsServiceParent _service;
