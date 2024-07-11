@@ -2,6 +2,8 @@
 describe('Parents can enter childs details successfully', () => {
 
     it('Allows a parent to enter their childs details', () => {
+        // import Child Details fixtures
+
         cy.visit('/Check/Enter_Child_Details');
         cy.get('h1').should('include.text', 'Provide details of your children');
 
