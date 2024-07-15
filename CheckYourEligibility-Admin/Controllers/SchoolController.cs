@@ -4,6 +4,17 @@ using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
+using System.Numerics;
+using System.Diagnostics.Eventing.Reader;
+using FeatureManagement.Domain.Validation;
+using CheckYourEligibility.Domain.Constants;
+using CsvHelper.Configuration;
+using CsvHelper;
+using System.Globalization;
+using System.Reflection;
+using System.Text;
+using FluentValidation.Results;
+using System;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -14,6 +25,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IConfiguration _config;
         private ILogger<SchoolController> _loggerMock;
         private IEcsServiceParent _object;
+        const int TotalErrorsToDisplay = 20;
 
         public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
         {
@@ -199,49 +211,49 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         /// this method is called by AJAX
-        public async Task<IActionResult> Poll_Status()
-        {
-            var startTime = DateTime.UtcNow;
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
+        //public async Task<IActionResult> Poll_Status()
+        //{
+        //    var startTime = DateTime.UtcNow;
+        //    var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
-            // gather api response which should either be queuedForProcessing or has a response
-            var responseJson = TempData["Response"] as string;
-            var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
+        //    // gather api response which should either be queuedForProcessing or has a response
+        //    var responseJson = TempData["Response"] as string;
+        //    var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
 
-            _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
+        //    _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
 
-            // periodically get status and then render appropriate outcome page
-            while (await timer.WaitForNextTickAsync())
-            {
-                var check = await _service.GetStatus(response);
+        //    // periodically get status and then render appropriate outcome page
+        //    while (await timer.WaitForNextTickAsync())
+        //    {
+        //        var check = await _service.GetStatus(response);
 
-                if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
-                {
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-                        return View("Outcome/Eligible");
+        //        if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
+        //        {
+        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+        //                return View("Outcome/Eligible");
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
-                        return View("Outcome/Not_Eligible");
+        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
+        //                return View("Outcome/Not_Eligible");
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
-                        return View("Outcome/Not_Found");
+        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
+        //                return View("Outcome/Not_Found");
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
-                        return View("Outcome/Not_Found_Pending");
+        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
+        //                return View("Outcome/Not_Found_Pending");
 
-                    break;
-                }
-                else
-                {
-                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
-                    {
-                        break;
-                    }
-                    continue;
-                }
-            }
-            return View("Outcome/Default");
-        }
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
+        //            {
+        //                break;
+        //            }
+        //            continue;
+        //        }
+        //    }
+        //    return View("Outcome/Default");
+        //}
 
         public IActionResult Enter_Child_Details()
         {
@@ -412,15 +424,171 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Batch_Check(ParentGuardian request)
+        public async Task<IActionResult> Batch_Check(IFormFile fileUpload)
         {
             TempData["Response"] = "data_issue";
+            List<CheckRow> DataLoad;
+            var errorCount = 0;
+            var requestItems = new List<CheckEligibilityRequestDataFsm>();
+            var validationResultsItems = new StringBuilder();
+            if (fileUpload == null || fileUpload.ContentType.ToLower() != "text/csv")
+            {
+                return BadRequest(new MessageResponse { Data = $"{Admin.CsvfileRequired}" });
+            }
+            try
+            {
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HasHeaderRecord = true,
+                    BadDataFound = null,
+                    MissingFieldFound = null
+                };
+                using (var fileStream = fileUpload.OpenReadStream())
 
-            return RedirectToAction("Batch_Loader");
+                using (var csv = new CsvReader(new StreamReader(fileStream), config))
+                {
+                    csv.Context.RegisterClassMap<CheckRowRowMap>();
+                    DataLoad = csv.GetRecords<CheckRow>().ToList();
+
+                    if (DataLoad == null || !DataLoad.Any())
+                    {
+                        throw new InvalidDataException("Invalid file content.");
+                    }
+                }
+                var validator = new CheckEligibilityRequestDataValidator();
+                var sequence = 1;
+               
+                
+                foreach (var item in DataLoad)
+                {
+
+                    var requestItem = new CheckEligibilityRequestDataFsm()
+                    {
+                        LastName = item.LastName,
+                        DateOfBirth = DateTime.TryParse(item.DOB, out var dtval) ? dtval.ToString("yyyy-MM-dd") : string.Empty,
+                        NationalInsuranceNumber = item.Ni.ToUpper(),
+                        NationalAsylumSeekerServiceNumber = item.Nass.ToUpper(),
+
+                    };
+                    var validationResults = validator.Validate(requestItem);
+                    if (!validationResults.IsValid)
+                    {
+                        errorCount = checkIfExists(sequence, validationResultsItems, validationResults,errorCount);
+
+                        //validationResultsItems.AppendLine($"Item:-{sequence}, {validationResults.ToString()}");
+                    }
+                    else
+                    {
+                        requestItems.Add(requestItem);
+
+                    }
+                    sequence++;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("ImportEstablishmentData", ex);
+                validationResultsItems.AppendLine(ex.Message);
+            }
+            if (validationResultsItems.Length > 0)
+            {
+                if ((errorCount - TotalErrorsToDisplay) > 0)
+                {
+                    TempData["BatchParentCheckItemsLineMoreErrors"] = errorCount- TotalErrorsToDisplay;
+                }
+
+                TempData["BatchParentCheckItemsErrors"] = validationResultsItems.ToString();
+                return View("BatchOutcome/Error_Data_Issue");
+            }
+            else
+            {
+                return RedirectToAction("Batch_Loader");
+            }
+        }
+
+        private int checkIfExists(int sequence, StringBuilder validationResultsItems, ValidationResult validationResults, int errorCount)
+        {
+            var message = "";
+            if (errorCount >= TotalErrorsToDisplay) {
+            errorCount ++;
+                return errorCount;
+            }
+
+            foreach (var item in validationResults.Errors)
+            {
+
+                switch (item.ErrorMessage)
+                {
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.LastName                    :
+                    case "'LastName' must not be empty.":
+                        {
+                            message = $"<li>Line {sequence}: Issue with Surname</li>";
+                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
+                        }
+                        break;
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.DOB
+                    :case "'Date Of Birth' must not be empty.":
+                        {
+                            message = $"<li>Line {sequence}: Issue with date of birth</li>";
+                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
+                        }
+                        break;
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI:
+                        {
+                            message = $"<li>Line {sequence}: Issue with National Insurance number</li>";
+                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
+                        }
+                        break;
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_and_NASS:
+                        {
+                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_and_NASS}</li>";
+                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
+                        }
+                        break;
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_or_NASS:
+                        {
+                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_or_NASS}</li>";
+                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
+                        }
+                        break;
+                    default:
+                        message = $"<li>Line {sequence}: Issue {item.ErrorMessage}</li>";
+                        if (!validationResultsItems.ToString().Contains(message))
+                        {
+                            validationResultsItems.AppendLine(message);
+                            errorCount++;
+                        }
+                        break;
+                }
+
+            }
+            return errorCount;
+        }
+
+        private static int AddLineIfNotExist(StringBuilder validationResultsItems, int errorCount, string message)
+        {
+            if (!validationResultsItems.ToString().Contains(message))
+            {
+                validationResultsItems.AppendLine(message);
+                errorCount++;
+            }
+
+            return errorCount;
         }
 
         public IActionResult Batch_Loader()
         {
+           
+
+            // //get currrent results xxxx 
+            // //populate tempdate
+            //// if (currentCount >= totalCount  )
+            // {
+            //     RedirectToAction("success");
+            // }
+            return View("BatchOutcome/Error_Data_Issue");
+            TempData["result"] = "data_issue";
             return View();
         }
 
