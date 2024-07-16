@@ -53,10 +53,3 @@ We don't commit active secrets to this repo. If we do, it is crucial to notify D
 ### Deployment
 ![Deployment](docs/images/frontend-pipeline.png)
 
-## SQL
-delete all data
-
-delete [dbo].[ApplicationStatuses]
-delete [dbo].Applications
-delete EligibilityCheck
-delete EligibilityCheckHashes
