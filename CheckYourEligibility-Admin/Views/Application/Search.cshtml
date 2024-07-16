@@ -1,0 +1,264 @@
+<div class="govuk-grid-row">
+
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">
+            Search all records
+        </h1>
+        <p>Fill in any of the fields on this page to find a free school meal record.</p>
+
+    </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+    <form asp-controller="Application" asp-action="Search" method="post" class="form">
+
+
+        <!-- SEARCH BAR -->
+        <div class="cardDesign">
+
+
+            <div id="PersonName">
+
+                <div class="govuk-grid-row">
+
+
+                    <div class="govuk-grid-column-one-quarter">
+                        <div class="govuk-form-group HO-uk-margin-bottom-3">
+                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                Child last name
+                            </h6>
+
+                            <input id="Name" class="govuk-input" type="text" name="Name" value="" placeholder="Child surname">
+
+                        </div>
+                    </div>
+                    <!--COL 1-->
+
+
+                    <div class="govuk-grid-column-one-quarter">
+                        <div class="govuk-form-group HO-uk-margin-bottom-3">
+                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                Parent or guardian last name
+                            </h6>
+                            <div class="autocomplete">
+                                <input id="deptCountry" class="countryAutocomplete govuk-input" type="text" name="deptCountry" value="" placeholder="Status">
+                            </div>
+
+                        </div>
+                    </div>
+                    <!--COL 2-->
+
+
+                    <!--COL 3-->
+                </div>
+
+                <!-- ROW 2 -->
+
+                <div class="govuk-grid-row">
+
+
+                    <div class="govuk-grid-column-one-quarter">
+                        <div class="govuk-form-group HO-uk-margin-bottom-3">
+                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                Reference number
+                            </h6>
+
+                            <input id="Name" class="govuk-input" type="text" name="Name" value="" placeholder="Reference number">
+
+                        </div>
+                    </div>
+                    <!--COL 1-->
+
+
+                    <div class="govuk-grid-column-one-quarter">
+                        <div class="govuk-form-group HO-uk-margin-bottom-3">
+                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                Status
+                            </h6>
+
+
+                            <div class="govuk-form-group">
+
+
+                                <select class="govuk-select" id="sort" name="sort">
+
+
+                                    <option value="all">All statuses</option>
+
+
+                                    <option value="entitled">Entitled</option>
+
+
+                                    <option value="evidence-needed">Evidence needed</option>
+
+
+                                    <option value="sent-for-review">Sent for review</option>
+
+
+                                    <option value="reviewed-enititled">Reviewed entitled</option>
+
+
+                                    <option value="reviewed-not-entitled">Reviewed not entitled</option>
+
+
+                                    <option value="receiving-entitlement">Receiving entitlement</option>
+
+
+                                </select>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <!--COL 2-->
+
+
+                    <!--COL 3-->
+                </div>
+
+
+                <!-- ROW 3 -->
+
+
+                <div class="govuk-grid-row">
+
+                    <div class="govuk-grid-column-one-quarter">
+
+
+                    </div>
+                </div>
+
+
+                <!-- CHILD -->
+                <div class="govuk-grid-row">
+
+                    <div class="govuk-grid-column-one-quarter">
+
+
+                        <div class="govuk-form-group HO-uk-margin-bottom-3">
+                            <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
+                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                    Child date of birth
+                                </legend>
+                                <!--<div id="passport-issued-hint" class="govuk-hint">
+                                    For example, 12 11 2007
+                                </div> -->
+                                <div class="govuk-date-input" id="dob">
+                                    <div class="govuk-date-input__item">
+                                        <div class="govuk-form-group">
+                                            <label class="govuk-label govuk-date-input__label" for="dob-day">
+                                                Day
+                                            </label>
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-day" name="dob-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        </div>
+
+
+                                    </div>
+                                    <div class="govuk-date-input__item">
+                                        <div class="govuk-form-group">
+                                            <label class="govuk-label govuk-date-input__label" for="dob-month">
+                                                Month
+                                            </label>
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="passport-issued-month" name="passport-issued-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        </div>
+                                    </div>
+                                    <div class="govuk-date-input__item">
+                                        <div class="govuk-form-group">
+                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-year">
+                                                Year
+                                            </label>
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="passport-issued-year" name="passport-issued-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- PARENT -->
+
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-quarter">
+
+
+                        <div class="govuk-form-group">
+                            <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
+                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                    Parent or guardian date of birth
+                                </legend>
+                                <!--<div id="passport-issued-hint" class="govuk-hint">
+                                    For example, 12 11 2007
+                                </div> -->
+                                <div class="govuk-date-input" id="passport-issued">
+                                    <div class="govuk-date-input__item">
+                                        <div class="govuk-form-group">
+                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-day">
+                                                Day
+                                            </label>
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="passport-issued-day" name="passport-issued-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        </div>
+
+                                    </div>
+                                    <div class="govuk-date-input__item">
+                                        <div class="govuk-form-group">
+                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-month">
+                                                Month
+                                            </label>
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="passport-issued-month" name="passport-issued-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        </div>
+                                    </div>
+                                    <div class="govuk-date-input__item">
+                                        <div class="govuk-form-group">
+                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-year">
+                                                Year
+                                            </label>
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="passport-issued-year" name="passport-issued-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <!-- SEX -->
+                <div class="govuk-grid-row">
+
+                    <div class="govuk-grid-column-full">
+
+                        <form action="eligible-list">
+                            <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button">
+                                Generate results
+                            </button>
+
+                        </form>
+
+
+                    </div>
+
+
+                </div>
+
+
+            <!-- EXPLANATIONS REMOVED FOR V2 -->
+
+
+            </div>
+            <!--END SHOW/HIDE -->
+
+
+        </div>
+    </form>
+
+    <!-- END CARD // SEARCH BAR -->
+
+
+    </div>
+</div>

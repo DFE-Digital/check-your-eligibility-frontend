@@ -20,5 +20,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
         }
 
+        [HttpGet]
+        public IActionResult Search()
+        {
+            return View();
+        }
     }
 }
