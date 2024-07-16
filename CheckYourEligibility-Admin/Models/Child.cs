@@ -26,6 +26,6 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Required(ErrorMessage = "Year is required")]
         public int? Year { get; set; }
 
-        public School School { get; set; }
+        public School? School { get; set; }
     }
 }
