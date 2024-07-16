@@ -6,7 +6,7 @@
         public string School { get; set; }
         public string Status { get; set; }
         public string ChildLastName { get; set; }
-        public string ParentName { get; set; }
+        public string ParentLastName { get; set; }
         public int ReferenceNumber { get; set; }
         public string ChildDateOfBirth { get; set; }
         public string ParentDateOfBirth { get; set; }
