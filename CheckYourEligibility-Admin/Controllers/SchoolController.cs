@@ -1,39 +1,39 @@
-﻿using CheckYourEligibility.Domain.Requests;
-using Microsoft.AspNetCore.Mvc;
-using CheckYourEligibility_FrontEnd.Services;
-using Newtonsoft.Json;
-using CheckYourEligibility_FrontEnd.Models;
+﻿using CheckYourEligibility.Domain.Constants;
+using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn.Models;
-using System.Numerics;
-using System.Diagnostics.Eventing.Reader;
-using FeatureManagement.Domain.Validation;
-using CheckYourEligibility.Domain.Constants;
-using CsvHelper.Configuration;
+using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Services;
 using CsvHelper;
-using System.Globalization;
-using System.Reflection;
-using System.Text;
+using CsvHelper.Configuration;
+using FeatureManagement.Domain.Validation;
 using FluentValidation.Results;
-using System;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Globalization;
+using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
     public class SchoolController : BaseController
     {
+        const int TotalErrorsToDisplay = 20;
+
         private readonly ILogger<SchoolController> _logger;
-        private readonly IEcsServiceParent _service;
+        private readonly IEcsServiceParent _parentService;
+        private readonly IEcsServiceAdmin _adminService;
         private readonly IConfiguration _config;
         private ILogger<SchoolController> _loggerMock;
         private IEcsServiceParent _object;
         DfeClaims? _Claims;
-        const int TotalErrorsToDisplay = 20;
-
-        public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
+        
+        public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsServiceParent, IEcsServiceAdmin ecsServiceAdmin, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _service = ecsService ?? throw new ArgumentNullException(nameof(ecsService));
+            _parentService = ecsServiceParent ?? throw new ArgumentNullException(nameof(ecsServiceParent));
+            _adminService = ecsServiceAdmin ?? throw new ArgumentNullException(nameof(ecsServiceAdmin));
         }
 
         [HttpGet]
@@ -101,7 +101,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
 
                 // queue api soft-check
-                var response = await _service.PostCheck(checkEligibilityRequest);
+                var response = await _parentService.PostCheck(checkEligibilityRequest);
 
                 TempData["Response"] = JsonConvert.SerializeObject(response);
 
@@ -145,7 +145,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
 
                 // queue api soft-check
-                var response = await _service.PostCheck(checkEligibilityRequest);
+                var response = await _parentService.PostCheck(checkEligibilityRequest);
 
                 TempData["Response"] = JsonConvert.SerializeObject(response);
 
@@ -198,7 +198,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 //TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
 
                 // queue api soft-check
-                var response = await _service.PostCheck(checkEligibilityRequest);
+                var response = await _parentService.PostCheck(checkEligibilityRequest);
 
                 _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
 
@@ -211,51 +211,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View();
         }
-
-        /// this method is called by AJAX
-        //public async Task<IActionResult> Poll_Status()
-        //{
-        //    var startTime = DateTime.UtcNow;
-        //    var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
-
-        //    // gather api response which should either be queuedForProcessing or has a response
-        //    var responseJson = TempData["Response"] as string;
-        //    var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
-
-        //    _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
-
-        //    // periodically get status and then render appropriate outcome page
-        //    while (await timer.WaitForNextTickAsync())
-        //    {
-        //        var check = await _service.GetStatus(response);
-
-        //        if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
-        //        {
-        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-        //                return View("Outcome/Eligible");
-
-        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
-        //                return View("Outcome/Not_Eligible");
-
-        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
-        //                return View("Outcome/Not_Found");
-
-        //            if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
-        //                return View("Outcome/Not_Found_Pending");
-
-        //            break;
-        //        }
-        //        else
-        //        {
-        //            if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
-        //            {
-        //                break;
-        //            }
-        //            continue;
-        //        }
-        //    }
-        //    return View("Outcome/Default");
-        //}
 
         public IActionResult Enter_Child_Details()
         {
@@ -367,7 +322,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application as an individual check
-                var response = await _service.PostApplication(fsmApplication);
+                var response = await _parentService.PostApplication(fsmApplication);
                 responses.Add(response);
             }
 
@@ -453,8 +408,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (!validationResults.IsValid)
                     {
                         errorCount = checkIfExists(sequence, validationResultsItems, validationResults,errorCount);
-
-                        //validationResultsItems.AppendLine($"Item:-{sequence}, {validationResults.ToString()}");
                     }
                     else
                     {
@@ -482,15 +435,73 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
+                var result = await _adminService.PostBulkCheck(new CheckEligibilityRequestBulk { Data = requestItems});
+                HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
+                HttpContext.Session.SetString("Get_BulkCheck_Results", result.Links.Get_BulkCheck_Results);
                 return RedirectToAction("Batch_Loader");
             }
         }
 
+        public async Task<IActionResult> Batch_Loader()
+        {
+            var result = await _adminService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
+
+            TempData["totalCounter"] = result.Data.Total;
+            TempData["currentCounter"] = result.Data.Complete;
+            if (result.Data.Complete >= result.Data.Total)
+            {
+             return   RedirectToAction("Batch_check_success");
+            }
+
+            return View();
+        }
+
+        public async Task<IActionResult> Batch_check_success()
+        {
+            return View("BatchOutcome/Success");
+        }
+
+        public async Task<IActionResult> Batch_check_download()
+        {
+            var resultData = await _adminService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
+            var exportData = resultData.Data.Select(x=> new BatchFSMExport { LastName = x.LastName,DOB =x.DateOfBirth, NI = x.NationalInsuranceNumber, NASS = x.NationalAsylumSeekerServiceNumber, Outcome = GetStatusDescription(x.Status)});
+
+            var fileName = $"free-school-meal-outcomes-{DateTime.Now.ToString("yyyyMMdd")}.csv";
+
+            var result = WriteCsvToMemory(exportData);
+            var memoryStream = new MemoryStream(result);
+            return new FileStreamResult(memoryStream, "text/csv") { FileDownloadName = fileName };
+        }
+
+        public byte[] WriteCsvToMemory(IEnumerable<BatchFSMExport> records)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var streamWriter = new StreamWriter(memoryStream))
+            using (var csvWriter = new CsvWriter(streamWriter,CultureInfo.InvariantCulture))
+            {
+                csvWriter.WriteRecords(records);
+                streamWriter.Flush();
+                return memoryStream.ToArray();
+            }
+        }
+
+        public IActionResult Process_Appeals()
+        {
+            return View();
+        }
+
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+
         private int checkIfExists(int sequence, StringBuilder validationResultsItems, ValidationResult validationResults, int errorCount)
         {
             var message = "";
-            if (errorCount >= TotalErrorsToDisplay) {
-            errorCount ++;
+            if (errorCount >= TotalErrorsToDisplay)
+            {
+                errorCount++;
                 return errorCount;
             }
 
@@ -499,7 +510,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 switch (item.ErrorMessage)
                 {
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.LastName                    :
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.LastName:
                     case "'LastName' must not be empty.":
                         {
                             message = $"<li>Line {sequence}: Issue with Surname</li>";
@@ -507,7 +518,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         }
                         break;
                     case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.DOB
-                    :case "'Date Of Birth' must not be empty.":
+                    :
+                    case "'Date Of Birth' must not be empty.":
                         {
                             message = $"<li>Line {sequence}: Issue with date of birth</li>";
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
@@ -556,65 +568,27 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return errorCount;
         }
 
-        public IActionResult Batch_Loader()
+        private static string GetStatusDescription(string status)
         {
-           
+            Enum.TryParse(status, out CheckEligibilityStatus statusEnum);
 
-            // //get currrent results xxxx 
-            // //populate tempdate
-            //// if (currentCount >= totalCount  )
-            // {
-            //     RedirectToAction("success");
-            // }
-            return View("BatchOutcome/Error_Data_Issue");
-            TempData["result"] = "data_issue";
-            return View();
-        }
-
-        public async Task<IActionResult> Batch_Poll_Status()
-        {
-            var startTime = DateTime.UtcNow;
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
-
-            var response = TempData["Response"] as string;
-
-            while (await timer.WaitForNextTickAsync())
+            switch (statusEnum)
             {
-
-                if (response != "queuedForProcessing")
-                {
-                    if (response == "success")
-                        return View("BatchOutcome/Success");
-
-                    if (response == "not_accepted")
-                        return View("BatchOutcome/Error_Not_Accepted");
-
-                    if (response == "data_issue")
-                        return View("BatchOutcome/Error_Data_Issue");
-
-                    break;
-                }
-                else
-                {
-                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
-                    {
-                        break;
-                    }
-                    continue;
-                }
+                case CheckEligibilityStatus.parentNotFound:
+                    return "May not be entitled";
+                case CheckEligibilityStatus.eligible:
+                    return "Entitled";
+                case CheckEligibilityStatus.notEligible:
+                    return "Not Entitled";
+                case CheckEligibilityStatus.DwpError:
+                    return "Error";
+                default:
+                    return status.ToString();
             }
-            return View("BatchOutcome/Default");
         }
 
-        public IActionResult Process_Appeals()
-        {
-            return View();
-        }
 
-        public IActionResult Dashboard()
-        {
-            return View();
-        }
+
 
     }
 }

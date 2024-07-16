@@ -21,6 +21,34 @@ namespace CheckYourEligibility_FrontEnd.Services
             _httpClient = httpClient;
         }
 
+        public async Task<CheckEligibilityBulkStatusResponse> GetBulkCheckProgress(string batchCheckUrl)
+        {
+            try
+            {
+                var result = await ApiDataGetAsynch(batchCheckUrl, new CheckEligibilityBulkStatusResponse());
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"get failed. uri:-{_httpClient.BaseAddress}{_FsmbulkUploadUrl}");
+            }
+            return null;
+        }
+
+        public async Task<CheckEligibilityBulkResponse> GetBulkCheckResults(string resultsUrl)
+        {
+            try
+            {
+                var result = await ApiDataGetAsynch(resultsUrl, new CheckEligibilityBulkResponse());
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"get failed. uri:-{_httpClient.BaseAddress}{_FsmbulkUploadUrl}");
+            }
+            return null;
+        }
+
         public async Task<CheckEligibilityResponseBulk> PostBulkCheck(CheckEligibilityRequestBulk requestBody)
         {
             try
