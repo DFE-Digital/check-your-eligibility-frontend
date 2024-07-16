@@ -25,5 +25,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+
+        public async Task<IActionResult> Search(ApplicationSearch request )
+       {
+            //Fetch result and pass it to view
+            var applicationSearch = new ApplicationSearch
+            {
+                ChildName = request.ChildName,
+                PGName = request.PGName,
+                ReferenceNumber = request.ReferenceNumber,
+                Status = request.Status,
+                ChildDateOfBirth = new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd"),
+                ParentOrGuardianDateOfBirth = new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
+            }
+       }
     }
 }

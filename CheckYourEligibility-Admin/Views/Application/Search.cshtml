@@ -1,3 +1,5 @@
+@model CheckYourEligibility_Admin.Models.ApplicationSearch;
+
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-full">
@@ -29,7 +31,7 @@
                                 Child last name
                             </h6>
 
-                            <input id="Name" class="govuk-input" type="text" name="Name" value="" placeholder="Child surname">
+                            <input id="ChildName" class="govuk-input" type="text" name="ChildName" value="" placeholder="Child surname">
 
                         </div>
                     </div>
@@ -42,7 +44,7 @@
                                 Parent or guardian last name
                             </h6>
                             <div class="autocomplete">
-                                <input id="deptCountry" class="countryAutocomplete govuk-input" type="text" name="deptCountry" value="" placeholder="Status">
+                                <input id="PGName" class="countryAutocomplete govuk-input" type="text" name="PGName" value="" placeholder="Status">
                             </div>
 
                         </div>
@@ -64,7 +66,7 @@
                                 Reference number
                             </h6>
 
-                            <input id="Name" class="govuk-input" type="text" name="Name" value="" placeholder="Reference number">
+                            <input id="ReferenceNumber" class="govuk-input" type="text" name="ReferenceNumber" value="" placeholder="Reference number">
 
                         </div>
                     </div>
@@ -81,7 +83,7 @@
                             <div class="govuk-form-group">
 
 
-                                <select class="govuk-select" id="sort" name="sort">
+                                <select class="govuk-select" id="Status" name="Status">
 
 
                                     <option value="all">All statuses</option>
@@ -148,28 +150,28 @@
                                 <div class="govuk-date-input" id="dob">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="dob-day">
+                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBDay">
                                                 Day
                                             </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-day" name="dob-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
 
                                     </div>
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="dob-month">
+                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBMonth">
                                                 Month
                                             </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="passport-issued-month" name="passport-issued-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-year">
+                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBYear">
                                                 Year
                                             </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="passport-issued-year" name="passport-issued-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
                                     </div>
@@ -199,27 +201,27 @@
                                 <div class="govuk-date-input" id="passport-issued">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-day">
+                                            <label class="govuk-label govuk-date-input__label" for="PGDOBDay">
                                                 Day
                                             </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="passport-issued-day" name="passport-issued-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
                                     </div>
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-month">
+                                                <label class="govuk-label govuk-date-input__label" for="PGDOBMonth">
                                                 Month
                                             </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="passport-issued-month" name="passport-issued-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="passport-issued-year">
+                                                <label class="govuk-label govuk-date-input__label" for="PGDOBYear">
                                                 Year
                                             </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="passport-issued-year" name="passport-issued-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
                                 </div>
