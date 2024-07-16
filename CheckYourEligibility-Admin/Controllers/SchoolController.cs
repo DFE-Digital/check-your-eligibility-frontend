@@ -445,14 +445,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Batch_Loader()
         {
             var result = await _adminService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
-
-            TempData["totalCounter"] = result.Data.Total;
-            TempData["currentCounter"] = result.Data.Complete;
-            if (result.Data.Complete >= result.Data.Total)
+            if (result != null)
             {
-             return   RedirectToAction("Batch_check_success");
+                TempData["totalCounter"] = result.Data.Total;
+                TempData["currentCounter"] = result.Data.Complete;
+                if (result.Data.Complete >= result.Data.Total)
+                {
+                    return RedirectToAction("Batch_check_success");
+                }
             }
-
+            
             return View();
         }
 

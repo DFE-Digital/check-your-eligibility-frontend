@@ -52,3 +52,4 @@ We don't commit active secrets to this repo. If we do, it is crucial to notify D
 ## Resources
 ### Deployment
 ![Deployment](docs/images/frontend-pipeline.png)
+
