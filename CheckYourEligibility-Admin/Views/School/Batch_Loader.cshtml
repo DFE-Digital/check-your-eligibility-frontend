@@ -27,9 +27,9 @@
                 url: '@Url.Action("Batch_loader", "School")',
                 type: 'GET',
                 success: function (data) {
-                      var currentCounter = $($.parseHTML(data)).find("#currentCounter");
-                    if (currentCounter) {
-                        document.getElementById("currentCounter").innerHTML = currentCounter.html();
+                    var currentCounter = $(data).find("#currentCounter");
+                    if (currentCounter.length) {
+                        document.getElementById("currentCounter").innerHTML = currentCounter.text();
                     }
                     else {
                         document.location = document.location.href;
