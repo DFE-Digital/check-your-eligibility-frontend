@@ -444,6 +444,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Batch_Loader()
         {
+            
             var result = await _adminService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
             if (result != null)
             {
