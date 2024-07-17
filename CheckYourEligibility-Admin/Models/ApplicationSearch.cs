@@ -1,10 +1,12 @@
-﻿namespace CheckYourEligibility_FrontEnd.Models
+﻿using CheckYourEligibility.Domain.Enums;
+
+namespace CheckYourEligibility_FrontEnd.Models
 {
     public class ApplicationSearch
     {
-        public string LocalAuthority { get; set; }
-        public string School { get; set; }
-        public string Status { get; set; }
+        public int? LocalAuthority { get; set; }
+        public int? School { get; set; }
+        public ApplicationStatus? Status { get; set; }
         public string ChildLastName { get; set; }
         public string ParentLastName { get; set; }
         public int ReferenceNumber { get; set; }
