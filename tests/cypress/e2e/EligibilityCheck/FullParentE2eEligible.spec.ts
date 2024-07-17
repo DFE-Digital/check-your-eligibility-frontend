@@ -1,13 +1,7 @@
-import DoYouHaveNassNumberPage from '../../support/PageObjects/DoYouHaveNassNumberPage';
-import EnterDetailsPage from '../../support/PageObjects/EnterDetailsPage'
-import  StartNowPage from '../../support/PageObjects/StartNowPage';
-import EnterChildDetailsPage from '../../support/PageObjects/EnterChildDetailsPage'
 import { authenticator } from 'otplib';
 
 
 describe('Parent with valid details can complete full Eligibility check and application', () => {
-    const startNowPage = new StartNowPage();
-    const enterDetailsPage = new EnterDetailsPage();
 
     it('Parent can make the full journey using correct details', () => {
         cy.visit('/');
@@ -33,6 +27,8 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('h1').should('include.text', 'Your children are entitled to free school meals');
 
+
+
         const authorizationHeader: string= Cypress.env('AUTHORIZATION_HEADER');
         cy.intercept('GET', 'https://signin.integration.account.gov.uk/**', (req) => {
             req.headers['Authorization'] = authorizationHeader;
@@ -42,7 +38,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         var otpCode = authenticator.generate(Cypress.env('AUTH_SECRET'));
 
-        cy.origin('https://signin.integration.account.gov.uk', { args: { otpCode }}, ({ otpCode }) => {
+        cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";
             cy.url().then((url) => {
                 currentUrl = url;
@@ -64,19 +60,38 @@ describe('Parent with valid details can complete full Eligibility check and appl
             cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
             cy.contains('Continue').click();
 
-
-            cy.get('h1').invoke('text').then((actualText: string) => {
-                expect(actualText.trim()).to.eq('Enter the 6 digit security code shown in your authenticator app');
-            });
-
-            cy.get('h1').should('include.text', 'Enter the 6 digit security code shown in your authenticator app' );
-
-            cy.get('input[name=code]').type(otpCode);
+            cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
             cy.contains('Continue').click();
+
+            // cy.visit('/Check/Enter_Child_Details');
         });
 
-        cy.get('h1').should('include.text', 'Provide details of your children');
+        cy.verifyH1Text('Provide details of your children');
+        cy.url().should('include', '/Check/Enter_Child_Details');
+        // cy.get('h1').should('include.text', 'Provide details of your children');
 
+
+        cy.get('[id="ChildList[0].FirstName"]').type('Tim');
+        cy.get('[id="ChildList[0].LastName"]').type('Smith');
+        cy.get('[id="ChildList[0].School.Name"]').type('Hinde House 2-16 Academy');
+
+        cy.get('#schoolList0')
+            .should('be.visible')
+            .contains('Hinde House 2-16 Academy, 139856, S5 6AG, Sheffield')
+            .click({ force: true})
+
+        cy.get('[id="ChildList[0].Day"]').type('01');
+        cy.get('[id="ChildList[0].Month"]').type('01');
+        cy.get('[id="ChildList[0].Year"]').type('2007');
+
+        cy.contains('Save and continue').click();
+
+        cy.contains('Tim Smith');
+        cy.contains('Hinde House 2-16 Academy');
+        cy.contains('01/01/2007')
+
+        cy.get('h1').should('contain.text', 'Check your answers before registering');
+        cy.contains('Register details').click();
 
 
     });
