@@ -15,6 +15,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly HttpClient _httpClient;
         private readonly string _FsmUrl;
         private readonly string _schoolUrl;
+        private readonly string _ApplicationSearchUrl;
 
         public EcsServiceAdmin(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
         {
@@ -22,6 +23,21 @@ namespace CheckYourEligibility_FrontEnd.Services
             _httpClient = httpClient;
             _FsmUrl = "/FreeSchoolMeals";
             _schoolUrl = "/Schools";
+            _ApplicationSearchUrl = "/FreeSchoolMeals/Application/Search";
+        }
+
+        public async Task<ApplicationSearchResponse> ApplicationSearch(ApplicationRequestSearch requestBody)
+        {
+            try
+            {
+                var result = await ApiDataPostAsynch(_ApplicationSearchUrl, requestBody, new ApplicationSearchResponse());
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
+            }
+            return null;
         }
     }
 }
