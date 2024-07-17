@@ -26,12 +26,12 @@ namespace CheckYourEligibility_FrontEnd.Services
             _ApplicationSearchUrl = "/FreeSchoolMeals/Application/Search";
         }
 
-        public async Task<ApplicationSearchResponse> ApplicationSearch(ApplicationRequestSearch requestBody)
+        public async Task<ApplicationSearchResponse> PostApplicationSearch(ApplicationRequestSearch requestBody)
         {
             try
             {
                 var result = await ApiDataPostAsynch(_ApplicationSearchUrl, requestBody, new ApplicationSearchResponse());
-                return null;
+                return result;
             }
             catch (Exception ex)
             {
