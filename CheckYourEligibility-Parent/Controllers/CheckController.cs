@@ -154,6 +154,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 // queue api soft-check
                 var response = await _service.PostCheck(checkEligibilityRequest);
+                TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
 
                 _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
 
