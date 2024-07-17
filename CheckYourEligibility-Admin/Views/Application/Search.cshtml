@@ -1,4 +1,4 @@
-@model CheckYourEligibility_FrontEnd.Models.ApplicationSearch
+@model CheckYourEligibility_FrontEnd.Models.ApplicationSearch;
 
 <div class="govuk-grid-row">
 
@@ -13,7 +13,7 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-    <form asp-controller="Application" asp-action="Search" method="post" class="form">
+    <form asp-controller="Application" asp-action="Results" method="post" class="form">
 
 
         <!-- SEARCH BAR -->
@@ -96,14 +96,11 @@
 
 
                                     <option value="sent-for-review">Sent for review</option>
+                                      
+                                        <!-- <option value="reviewed-enititled">Reviewed entitled</option> -->
 
-
-                                    <option value="reviewed-enititled">Reviewed entitled</option>
-
-
-                                    <option value="reviewed-not-entitled">Reviewed not entitled</option>
-
-
+                                        <!-- <option value="reviewed-not-entitled">Reviewed not entitled</option> -->
+                                        
                                     <option value="receiving-entitlement">Receiving entitlement</option>
 
 
