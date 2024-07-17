@@ -146,7 +146,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
+                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd")
                     }
                 };
 
