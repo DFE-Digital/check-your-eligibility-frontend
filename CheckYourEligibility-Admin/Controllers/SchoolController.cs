@@ -444,6 +444,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Batch_Loader()
         {
+            
             var result = await _adminService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
             if (result != null)
             {
@@ -466,7 +467,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Batch_check_download()
         {
             var resultData = await _adminService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
-            var exportData = resultData.Data.Select(x=> new BatchFSMExport { LastName = x.LastName,DOB =x.DateOfBirth, NI = x.NationalInsuranceNumber, NASS = x.NationalAsylumSeekerServiceNumber, Outcome = GetStatusDescription(x.Status)});
+            var exportData = resultData.Data.Select(x=> new BatchFSMExport {
+                LastName = x.LastName,
+                DOB =x.DateOfBirth,
+                NI = x.NationalInsuranceNumber,
+                NASS = x.NationalAsylumSeekerServiceNumber,
+                Outcome = x.Status.GetFsmStatusDescription()
+            });
 
             var fileName = $"free-school-meal-outcomes-{DateTime.Now.ToString("yyyyMMdd")}.csv";
 
