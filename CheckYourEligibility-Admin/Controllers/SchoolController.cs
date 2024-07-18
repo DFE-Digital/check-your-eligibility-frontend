@@ -576,28 +576,5 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             return errorCount;
         }
-
-        private static string GetStatusDescription(string status)
-        {
-            Enum.TryParse(status, out CheckEligibilityStatus statusEnum);
-
-            switch (statusEnum)
-            {
-                case CheckEligibilityStatus.parentNotFound:
-                    return "May not be entitled";
-                case CheckEligibilityStatus.eligible:
-                    return "Entitled";
-                case CheckEligibilityStatus.notEligible:
-                    return "Not Entitled";
-                case CheckEligibilityStatus.DwpError:
-                    return "Error";
-                default:
-                    return status.ToString();
-            }
-        }
-
-
-
-
     }
 }
