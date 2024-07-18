@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckYourEligibility-FrontE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1C7C7C2C-C62E-463F-BAF8-DAB3E1E9B4E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckYourEligibility-DfeSignIn", "CheckYourEligibility-DfeSignIn\CheckYourEligibility-DfeSignIn.csproj", "{54AF8449-65CF-4F0D-8A74-F33740F9AB9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckYourEligibility-DfeSignIn", "CheckYourEligibility-DfeSignIn\CheckYourEligibility-DfeSignIn.csproj", "{54AF8449-65CF-4F0D-8A74-F33740F9AB9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BFD693F6-CA39-4A8C-90FB-6861A4BAE707}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

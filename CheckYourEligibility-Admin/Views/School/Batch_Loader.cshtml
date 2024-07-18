@@ -10,27 +10,8 @@
                     Checking
                 </h1>
                 <p class="govuk-body-l">Please wait. This may take a few minutes</p>
-
-                <span id="counter">25</span>
-                <span>
-                    /
-                    <script>
-                        var total_count = Math.floor(Math.random() * 1000);
-                        const intervalId = setInterval(() => {
-                            var countElement = document.getElementById("counter");
-                            var currentCount = parseInt(countElement.textContent);
-                            var newCount = currentCount + 1;
-                            if (newCount >= total_count) {
-                                clearInterval(intervalId);
-                                document.location = '/current/batch-checking/batch-check-success';
-                            } else {
-                                countElement.innerHTML = newCount;
-                            }
-                        }, 100);
-                        document.write(total_count);
-                    </script>459
-                    records processed.
-                </span>
+                <span id="currentCounter">@TempData["currentCounter"]</span>/
+                <span id="totalCounter">@TempData["totalCounter"] records processed.</span>
                 <div class="govuk-!-padding-bottom-5"></div>
             </div>
         </div>
@@ -40,14 +21,19 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        setTimeout(function () {
+        setInterval(function () {
+            
             $.ajax({
-                url: '@Url.Action("Batch_Poll_Status", "School")',
+                url: '@Url.Action("Batch_loader", "School")',
                 type: 'GET',
                 success: function (data) {
-                    document.open()
-                    document.write(data)
-                    document.close()
+                    var currentCounter = $(data).find("#currentCounter");
+                    if (currentCounter.length) {
+                        document.getElementById("currentCounter").innerHTML = currentCounter.text();
+                    }
+                    else {
+                        document.location = document.location.href;
+                    }
                 }
             });
         }, 1000); 

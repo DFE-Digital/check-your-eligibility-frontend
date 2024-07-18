@@ -13,36 +13,16 @@
                 <li>
                     <strong>There are issues with the parent data on the following lines:</strong>
                 </li>
-                <li>
-                    Line 8: Issue with National Insurance number
-                </li>
-                <li>
-                    Line 9: Issue with date of birth
-                </li>
-                <li>
-                    Line 10: Issue with middle name
-                </li>
-                <li>
-                    Line 11: Issue with National Insurance number
-                </li>
-                <li>
-                    Line 12: Issue with date of birth
-                </li>
-                <li>
-                    Line 13: Issue with middle name
-                </li>
-                <li>
-                    Line 14: Issue with National Insurance number
-                </li>
-                <li>
-                    Line 15: Issue with date of birth
-                </li>
-                <li>
-                    Line 16: Issue with middle name
-                </li>
-                <li>
-                    <strong>There are also issues on 5000 more lines</strong>
-                </li>
+                @Html.Raw(@TempData["BatchParentCheckItemsErrors"])
+
+                @if (Convert.ToInt32(@TempData["BatchParentCheckItemsLineMoreErrors"]) > 0)
+                    {
+                    <li>
+                        <strong>There are also issues on @TempData["BatchParentCheckItemsLineMoreErrors"] more lines</strong>
+                    </li>
+                    }
+                    
+                
             </ul>
         </div>
     </div>
