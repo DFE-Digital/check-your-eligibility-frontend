@@ -24,6 +24,11 @@ namespace CheckYourEligibility_FrontEnd.Models
                     return status.ToString();
             }
         }
+
+        public static string GetFsmStatusDescription(this CheckEligibilityStatus status)
+        {
+            return GetFsmStatusDescription(status.ToString()); 
+        }
     }
 
 }
