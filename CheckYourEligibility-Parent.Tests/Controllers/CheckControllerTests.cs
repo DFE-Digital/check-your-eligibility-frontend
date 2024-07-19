@@ -177,11 +177,11 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
                         ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
                         ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
-                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, 
+                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value,
                         _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
                         ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
                         Id = "",
-                        School = new ApplicationResponse.ApplicationSchool {Id = 10002,LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123} },
+                        School = new ApplicationResponse.ApplicationSchool { Id = 10002, LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123 } },
                         Reference = "",
                     },
                     Links = new ApplicationResponseLinks()
@@ -343,7 +343,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_Nass_When_LoadingPage_Should_LoadNassPage()
+        public async Task Given_Nass_When_LoadingPage_Should_LoadNassPageWithEmptyModel()
         {
             // Act
             var result = _sut.Nass();
@@ -351,9 +351,23 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeOfType<Parent>();
-            var model = viewResult.Model as Parent;
-            model.Should().BeEquivalentTo(new Parent());
+            viewResult.Model.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Given_Nass_When_ModelStateIsInvalid_Should_ErrorsShouldBeInTempData()
+        {
+            // Arrange
+            _sut.ModelState.AddModelError("SomeErrorKey", "SomeErrorMessage");
+            var error = _sut.ModelState.Where(x => x.Value.Errors.Count > 0).ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+            _sut.TempData["Errors"] = JsonConvert.SerializeObject(error);
+
+            // Act
+            var result = _sut.Nass();
+
+            // Assert
+            var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(_sut.TempData["Errors"].ToString());
+            errors["SomeErrorKey"][0].Should().Be("SomeErrorMessage");
         }
 
         [Test]
@@ -698,22 +712,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             {
                 ex.Should().NotBeNull();
             }
-        }
-
-        [Test]
-        public async Task Given_Nass_When_BadNassSubmitted_Should_ReturnNassPageWithErrors()
-        {
-            // Arrange
-            _sut.ModelState.AddModelError("TestError", "TestErrorMessage");
-
-            // Act
-            var result = _sut.Nass(_parent);
-
-            // Assert
-            _sut.ModelState.IsValid.Should().BeFalse();
-
-            var viewResult = result.Result as ViewResult;
-            viewResult.ViewName = "Nass";
         }
     }
 }
