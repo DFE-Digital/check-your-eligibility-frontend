@@ -53,7 +53,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var response = await _service.PostApplicationSearch(applicationSearch);
 
             //Fetch result and pass it to view
-            return null;
+            //return null;
+            return View();
         }
     } 
 }
