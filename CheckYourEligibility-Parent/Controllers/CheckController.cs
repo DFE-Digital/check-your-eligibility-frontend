@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using GovUk.OneLogin.AspNetCore;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
+using Azure.Core;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -61,9 +62,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (!ModelState.IsValid)
             {
                 // Use PRG pattern
-                // POST (this method)
-                // RETRIEVE and store informaton from tempdata then
-                // GET inital page where errors are rendered
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
@@ -113,9 +111,26 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Nass()
         {
-            var parent = new Parent();
+            Parent request = null;
 
-            return View(parent);
+            // if this page is loaded again after a POST then get the request and update the page with any errors
+            if (TempData["ParentDetails"] != null)
+            {
+                request = JsonConvert.DeserializeObject<Parent>(TempData["ParentDetails"].ToString());
+            }
+            if (TempData["Errors"] != null)
+            {
+                var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
+                foreach (var kvp in errors)
+                {
+                    foreach (var error in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, error);
+                    }
+                }
+            }
+
+            return View(request);
         }
 
         [HttpPost]
@@ -128,7 +143,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             TempData["Request"] = JsonConvert.SerializeObject(request);
 
             if (!ModelState.IsValid)
-                return View("Nass");
+            {
+                // Use PRG pattern
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                TempData["Errors"] = JsonConvert.SerializeObject(errors);
+
+                return RedirectToAction("Nass");
+            }
 
             // if no nass given return couldn't check outcome page
             if (request.NationalAsylumSeekerServiceNumber == null)
@@ -150,7 +174,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     }
                 };
 
-                //TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
 
                 // queue api soft-check
                 var response = await _service.PostCheck(checkEligibilityRequest);
