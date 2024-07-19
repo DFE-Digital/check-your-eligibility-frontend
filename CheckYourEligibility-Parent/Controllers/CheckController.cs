@@ -217,7 +217,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     continue;
                 }
             }
-            return View("Outcome/Default");
+            return View("Outcome/Technical_Error");
         }
 
         public IActionResult SignIn()
