@@ -203,6 +203,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
                         return View("Outcome/Not_Found");
 
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
+                        return View("Outcome/Technical_Error");
+
                     break;
                 }
                 else
