@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication;
 using GovUk.OneLogin.AspNetCore;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
-using Azure.Core;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
