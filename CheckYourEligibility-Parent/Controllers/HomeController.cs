@@ -41,5 +41,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult fsm_print_version()
+        {
+            return View();
+        }
     }
 }
