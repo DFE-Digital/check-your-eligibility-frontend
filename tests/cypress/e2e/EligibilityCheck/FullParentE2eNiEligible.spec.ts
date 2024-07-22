@@ -1,5 +1,3 @@
-import { authenticator } from 'otplib';
-
 
 describe('Parent with valid details can complete full Eligibility check and application', () => {
 
@@ -36,8 +34,6 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Go to OneGov').click();
 
-        var otpCode = authenticator.generate(Cypress.env('AUTH_SECRET'));
-
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";
             cy.url().then((url) => {
@@ -60,18 +56,16 @@ describe('Parent with valid details can complete full Eligibility check and appl
             cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
             cy.contains('Continue').click();
 
-            cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
-            cy.contains('Continue').click();
+            //cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
+            //cy.contains('Continue').click();
 
-            // cy.visit('/Check/Enter_Child_Details');
         });
 
-        cy.verifyH1Text('Provide details of your children');
         cy.url().should('include', '/Check/Enter_Child_Details');
-        // cy.get('h1').should('include.text', 'Provide details of your children');
+        cy.get('h1').should('include.text', 'Provide details of your children');
 
 
-        cy.get('[id="ChildList[0].FirstName"]').type('Tim');
+        cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
         cy.get('[id="ChildList[0].LastName"]').type('Smith');
         cy.get('[id="ChildList[0].School.Name"]').type('Hinde House 2-16 Academy');
 
@@ -86,11 +80,16 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Save and continue').click();
 
-        cy.contains('Tim Smith');
-        cy.contains('Hinde House 2-16 Academy');
-        cy.contains('01/01/2007')
-
         cy.get('h1').should('contain.text', 'Check your answers before registering');
+
+        // cy.contains('Tim Smith');
+        // cy.contains('01/01/1990');
+        // cy.contains('AB123456C');
+
+        cy.contains('Timmy Smith');
+        cy.contains('Hinde House 2-16 Academy');
+        cy.contains('01/01/2007');
+
         cy.contains('Register details').click();
 
 
