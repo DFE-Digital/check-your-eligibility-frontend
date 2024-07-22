@@ -1,13 +1,62 @@
 
-describe('Parent with valid details can complete full Eligibility check and application', () => {
+describe('After errors have been input initially a Parent with valid details can complete full Eligibility check and application', () => {
 
-    it('Parent can make the full journey using correct details', () => {
+    it('Will show the correct validation errors when user leaves the fields blank', () => {
+
+        cy.visit('/Check/Enter_Child_Details');
+        cy.get('h1').should('contain.text', 'Provide details of your children');
+
+        cy.contains('Save and continue').click();
+
+        cy.get('h2').should('contain.text', 'There is a problem');
+
+        cy.get('li').should('contain.text', 'First name is required');
+        cy.get('li').should('contain.text', 'Last name is required');
+        cy.get('li').should('contain.text', 'School is required');
+        cy.get('li').should('contain.text', 'Day is required');
+        cy.get('li').should('contain.text', 'Month is required');
+        cy.get('li').should('contain.text', 'Year is required');
+    });
+
+    it('returns the correct error message when invalid charaters are used in the first name field', () => {
+
+        cy.get('[id="ChildList[0].FirstName"]').clear().type('123456');
+
+        cy.contains('Save and continue').click();
+
+        cy.get('li').should('contain.text', 'First Name field contains an invalid character');
+    });
+
+    it('returns the correct error message when invalid charaters are used in the last name field', () => {
+
+        cy.get('[id="ChildList[0].LastName"]').type('123456');
+
+        cy.contains('Save and continue').click();
+
+        cy.get('li').should('contain.text', 'Last Name field contains an invalid character');
+    });
+
+    it('returns the correct error message when invalid dates are added to the date fields', () => {
+
+        cy.get('[id="ChildList[0].Day"]').clear().type('32');
+        cy.get('[id="ChildList[0].Month"]').clear().type('13');
+        cy.get('[id="ChildList[0].Year"]').clear().type('2050');
+
+        cy.contains('Save and continue').click();
+
+        cy.get('li').should('contain.text', 'Invalid date entered');
+        cy.get('li').should('contain.text', 'Invalid Day');
+        cy.get('li').should('contain.text', 'Invalid Month');
+        cy.get('li').should('contain.text', 'Invalid Year');
+
+    });
+
+    it('Parent can make the full journey using correct details after correcting issues in child details', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
         cy.contains('Start Now').click()
         cy.url().should('include', '/Check/Enter_Details');
-
         cy.get('h1').should('include.text', 'Enter your details');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
@@ -64,7 +113,20 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.url().should('include', '/Check/Enter_Child_Details');
         cy.get('h1').should('include.text', 'Provide details of your children');
 
+        //  Test invalid inputs and error messages here 
 
+        cy.contains('Save and continue').click();
+
+        cy.get('h2').should('contain.text', 'There is a problem');
+
+        cy.get('li').should('contain.text', 'First name is required');
+        cy.get('li').should('contain.text', 'Last name is required');
+        cy.get('li').should('contain.text', 'School is required');
+        cy.get('li').should('contain.text', 'Day is required');
+        cy.get('li').should('contain.text', 'Month is required');
+        cy.get('li').should('contain.text', 'Year is required');
+
+        //
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
         cy.get('[id="ChildList[0].LastName"]').type('Smith');
         cy.get('[id="ChildList[0].School.Name"]').type('Hinde House 2-16 Academy');
@@ -79,6 +141,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('[id="ChildList[0].Year"]').type('2007');
 
         cy.contains('Save and continue').click();
+        cy.wait(2000);
 
         cy.get('h1').should('contain.text', 'Check your answers before registering');
 
