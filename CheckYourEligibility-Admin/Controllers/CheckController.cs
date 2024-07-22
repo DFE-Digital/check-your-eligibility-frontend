@@ -16,18 +16,17 @@ using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
-    public class SchoolController : BaseController
+    public class CheckController : BaseController
     {
-        const int TotalErrorsToDisplay = 20;
-
-        private readonly ILogger<SchoolController> _logger;
+      
+        private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _parentService;
         private readonly IConfiguration _config;
-        private ILogger<SchoolController> _loggerMock;
+        private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
         DfeClaims? _Claims;
         
-        public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsServiceParent, IConfiguration configuration)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -350,11 +349,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("Enter_Child_Details", children);
         }
 
-
-        public IActionResult Process_Appeals()
-        {
-            return View();
-        }
 
 
     }
