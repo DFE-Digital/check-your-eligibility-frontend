@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\NewFolder\" />
     <Folder Include="wwwroot\documents\" />
   </ItemGroup>
 

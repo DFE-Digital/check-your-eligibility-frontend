@@ -15,6 +15,8 @@
         <h1 class="govuk-heading-l">
            @Model.Organisation.Name
         </h1>
+@if(@Model.Organisation.Category.Name == "Establishment")
+{
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="dfe-grid-container">
@@ -29,7 +31,7 @@
                     <div class="dfe-card-container">
                         <div class="def-card">
                             <h2 class="govuk-heading-m">
-                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Batch_Check", "School")">Check free school meals - multiple students</a>
+                                    <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Batch_Check", "BulkUpload")">Check free school meals - multiple students</a>
                             </h2>
                             <p>Find out if multiple pupils can get free school meals by uploading a csv template.</p>
                         </div>
@@ -61,6 +63,51 @@
                 </div>
             </div>
         </div>
+ }     
+        else if(@Model.Organisation.Category.Name == "Local Authority")
+        {
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="dfe-grid-container">
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Enter_Details", "School")">Check free school meals - single student</a>
+                            </h2>
+                            <p>Find out if individual pupils can get free school meals.</p>
+                        </div>
+                    </div>
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="@Url.Action("Batch_Check", "BulkUpload")">Check free school meals - multiple students</a>
+                            </h2>
+                            <p>Find out if multiple pupils can get free school meals by uploading a csv template.</p>
+                        </div>
+                    </div>
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="applications">Pending applications</a>
+                            </h2>
+                            <p>
+                                Check entitlement for children not found in the system.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="dfe-card-container">
+                        <div class="def-card">
+                            <h2 class="govuk-heading-m">
+                                <a class="govuk-link govuk-link--no-visited-state dfe-card-link--header" href="search">Search all records</a>
+                            </h2>
+                            <p>Search all pupil free school meal records and export results.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+}
     </div>
 </div>
 
