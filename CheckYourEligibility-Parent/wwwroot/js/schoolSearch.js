@@ -52,24 +52,3 @@ function selectSchool(school, urn, la, postcode, index) {
     document.getElementById(`schoolList${index}`).innerHTML = '';
 }
 
-window.onload = function () {
-    let i = 0;
-    while (true) {
-
-        if (schoolName === null && schoolURN === null && schoolPostcode === null && schoolLA === null) {
-            // No more items in localStorage, break the loop
-            break;
-        }
-
-        if (document.getElementById(`ChildList[${i}].School.Name`)) {
-            // If the element exists, populate the fields
-            document.getElementById(`ChildList[${i}].School.Name`).value = localStorage.getItem(`schoolName${i}`) || '';
-            document.getElementById(`ChildList[${i}].School.URN`).value = localStorage.getItem(`schoolURN${i}`) || '';
-            document.getElementById(`ChildList[${i}].School.Postcode`).value = localStorage.getItem(`schoolPostcode${i}`) || '';
-            document.getElementById(`ChildList[${i}].School.LA`).value = localStorage.getItem(`schoolLA${i}`) || '';
-        }
-
-        i++;
-    }
-}
-
