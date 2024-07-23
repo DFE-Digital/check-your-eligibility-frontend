@@ -8,49 +8,6 @@ variables:
   buildConfiguration: 'Release'
 
 stages:
-  - stage: BuildApp
-    displayName: Build App
-    jobs:
-      #- template: templates/app-build.yml@templates
-      - job:
-        pool:
-          name: Azure Pipelines
-          vmImage: 'windows-latest'
-        steps:
-          - task: NuGetToolInstaller@1
-
-          - task: NuGetCommand@2
-            inputs:
-              restoreSolution: '$(solution)'
-
-          - task: VSBuild@1
-            inputs:
-              solution: '$(solution)'
-              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-              platform: '$(buildPlatform)'
-              configuration: '$(buildConfiguration)'
-
-          - task: VSTest@2
-            inputs:
-              platform: '$(buildPlatform)'
-              configuration: '$(buildConfiguration)'
-              runSettingsFile: 'CheckYourEligibility-Parent.Tests/.runsettings'
-              resultsFolder: '$(build.ArtifactStagingDirectory)/Test/Results'
-              otherConsoleOptions: '/collect:"Code Coverage;Format=Cobertura"'  # <<<< this is the important bit
-              codeCoverageEnabled: True
-
-          - task: PublishCodeCoverageResults@1
-            inputs:
-              codeCoverageTool: 'Cobertura'
-              summaryFileLocation: '$(build.ArtifactStagingDirectory)/Test/Results/**/*.xml'
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: True
-              arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-              zipAfterPublish: True
-
   - stage: RunCypressTests
     displayName: Run Cypress Tests
     jobs:
@@ -96,3 +53,45 @@ stages:
         inputs:
          testResultsFiles: '**/combined-report.xml'
          searchFolder: 'tests'
+  - stage: BuildApp
+    displayName: Build App
+    jobs:
+      #- template: templates/app-build.yml@templates
+      - job:
+        pool:
+          name: Azure Pipelines
+          vmImage: 'windows-latest'
+        steps:
+          - task: NuGetToolInstaller@1
+
+          - task: NuGetCommand@2
+            inputs:
+              restoreSolution: '$(solution)'
+
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solution)'
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
+
+          - task: VSTest@2
+            inputs:
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
+              runSettingsFile: 'CheckYourEligibility-Parent.Tests/.runsettings'
+              resultsFolder: '$(build.ArtifactStagingDirectory)/Test/Results'
+              otherConsoleOptions: '/collect:"Code Coverage;Format=Cobertura"'  # <<<< this is the important bit
+              codeCoverageEnabled: True
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(build.ArtifactStagingDirectory)/Test/Results/**/*.xml'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: True
+              arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: True

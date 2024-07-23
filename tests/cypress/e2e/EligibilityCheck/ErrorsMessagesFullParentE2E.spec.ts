@@ -125,7 +125,7 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('li').should('contain.text', 'Month is required');
         cy.get('li').should('contain.text', 'Year is required');
 
-        
+
 
         //
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
@@ -156,6 +156,24 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.contains('Register details').click();
 
+
+    });
+
+    it('will show the correct error message if fields are left blank', () => {
+
+        cy.visit('/Check/Enter_Child_Details');
+        cy.get('h1').should('contain.text', 'Provide details of your children');
+
+        cy.contains('Save and continue').click();
+
+        cy.get('h2').should('contain.text', 'There is a problem');
+
+        cy.get('li').should('contain.text', 'First name is required');
+        cy.get('li').should('contain.text', 'Last name is required');
+        cy.get('li').should('contain.text', 'School is required');
+        cy.get('li').should('contain.text', 'Day is required');
+        cy.get('li').should('contain.text', 'Month is required');
+        cy.get('li').should('contain.text', 'Year is required');
 
     });
 });
