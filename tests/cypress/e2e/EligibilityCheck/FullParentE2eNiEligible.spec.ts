@@ -1,7 +1,7 @@
 
 describe('Parent with valid details can complete full Eligibility check and application', () => {
 
-    it('Parent can make the full journey using correct details', () => {
+    it('Parent can make the full journey', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
@@ -82,9 +82,9 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('h1').should('contain.text', 'Check your answers before registering');
 
-        // cy.contains('Tim Smith');
-        // cy.contains('01/01/1990');
-        // cy.contains('AB123456C');
+        cy.contains('Tim Smith');
+        cy.contains('01/01/1990');
+        cy.contains('AB123456C');
 
         cy.contains('Timmy Smith');
         cy.contains('Hinde House 2-16 Academy');

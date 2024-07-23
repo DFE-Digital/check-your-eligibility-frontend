@@ -21,6 +21,7 @@ describe('Parents journey when not eligible', () => {
         cy.contains('Save and continue').click();
 
         cy.url().should('include', '/Check/Loader');
+        cy.wait(2000);
         cy.get('h1').should('include.text', 'Your children may not be entitled to free school meals');
     });
 
@@ -43,6 +44,7 @@ describe('Parents journey when not eligible', () => {
 
         cy.contains('Save and continue').click();
 
+        cy.wait(2000);
         cy.url().should('include', '/Check/Loader');
         cy.get('h1').should('include.text', "We could not check your children’s entitlement to free school meals");
     });
