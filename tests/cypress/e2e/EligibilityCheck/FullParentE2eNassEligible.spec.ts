@@ -10,10 +10,10 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.get('h1').should('include.text', 'Enter your details');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
-        cy.get('#LastName').should('be.visible').type('Smith');
+        cy.get('#LastName').should('be.visible').type('Johnson');
         cy.get('#Day').should('be.visible').type('01');
         cy.get('#Month').should('be.visible').type('01');
-        cy.get('#Year').should('be.visible').type('1990');
+        cy.get('#Year').should('be.visible').type('2000');
 
         cy.get('input[type="radio"][value="true"]').click();
 
@@ -21,7 +21,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.get('h1').should('include.text', 'Do you have an asylum support reference number?');
         cy.get('#IsNassSelected').click();
-        // cy.get('#NationalAsylumSeekerServiceNumber').type('12345678901')
+        cy.get('#NationalAsylumSeekerServiceNumber').type('1234567890')
 
         //cy.url().should('include', '/Check/Loader');
 

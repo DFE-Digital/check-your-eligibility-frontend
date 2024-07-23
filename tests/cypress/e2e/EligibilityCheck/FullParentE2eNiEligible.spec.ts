@@ -1,7 +1,7 @@
 
 describe('Parent with valid details can complete full Eligibility check and application', () => {
 
-    it('Parent can make the full journey using correct details', () => {
+    it('Parent can make the full journey', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 

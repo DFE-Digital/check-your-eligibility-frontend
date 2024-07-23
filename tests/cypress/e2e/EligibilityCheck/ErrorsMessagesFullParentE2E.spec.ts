@@ -3,24 +3,24 @@ describe('After errors have been input initially a Parent with valid details can
 
     it('Will show the correct validation errors when user leaves the fields blank', () => {
 
-        cy.visit('/Check/Enter_Child_Details');
-        cy.get('h1').should('contain.text', 'Provide details of your children');
+        cy.visit('/Check/Enter_Details');
+        cy.get('h1').should('contain.text', 'Enter your');
 
         cy.contains('Save and continue').click();
 
         cy.get('h2').should('contain.text', 'There is a problem');
 
-        cy.get('li').should('contain.text', 'First name is required');
-        cy.get('li').should('contain.text', 'Last name is required');
-        cy.get('li').should('contain.text', 'School is required');
+        cy.get('li').should('contain.text', 'First Name is required');
+        cy.get('li').should('contain.text', 'Last Name is required');
         cy.get('li').should('contain.text', 'Day is required');
         cy.get('li').should('contain.text', 'Month is required');
         cy.get('li').should('contain.text', 'Year is required');
+        cy.get('li').should('contain.text', 'National Insurance Number is required');
     });
 
     it('returns the correct error message when invalid charaters are used in the first name field', () => {
-
-        cy.get('[id="ChildList[0].FirstName"]').clear().type('123456');
+        cy.visit('/Check/Enter_Details');
+        cy.get('#FirstName').should('be.visible').type('123456');
 
         cy.contains('Save and continue').click();
 
@@ -28,8 +28,8 @@ describe('After errors have been input initially a Parent with valid details can
     });
 
     it('returns the correct error message when invalid charaters are used in the last name field', () => {
-
-        cy.get('[id="ChildList[0].LastName"]').type('123456');
+        cy.visit('/Check/Enter_Details');
+        cy.get('#LastName').should('be.visible').type('123456');
 
         cy.contains('Save and continue').click();
 
@@ -37,10 +37,10 @@ describe('After errors have been input initially a Parent with valid details can
     });
 
     it('returns the correct error message when invalid dates are added to the date fields', () => {
-
-        cy.get('[id="ChildList[0].Day"]').clear().type('32');
-        cy.get('[id="ChildList[0].Month"]').clear().type('13');
-        cy.get('[id="ChildList[0].Year"]').clear().type('2050');
+        cy.visit('/Check/Enter_Details');
+        cy.get('#Day').should('be.visible').type('32');
+        cy.get('#Month').should('be.visible').type('32');
+        cy.get('#Year').should('be.visible').type('4001');
 
         cy.contains('Save and continue').click();
 
@@ -48,7 +48,6 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('li').should('contain.text', 'Invalid Day');
         cy.get('li').should('contain.text', 'Invalid Month');
         cy.get('li').should('contain.text', 'Invalid Year');
-
     });
 
     it('Parent can make the full journey using correct details after correcting issues in child details', () => {
@@ -125,6 +124,8 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('li').should('contain.text', 'Day is required');
         cy.get('li').should('contain.text', 'Month is required');
         cy.get('li').should('contain.text', 'Year is required');
+
+        
 
         //
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
