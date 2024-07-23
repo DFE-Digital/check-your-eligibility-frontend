@@ -28,6 +28,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         }
 
+        public IActionResult Process_Appeals()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Search()
         {

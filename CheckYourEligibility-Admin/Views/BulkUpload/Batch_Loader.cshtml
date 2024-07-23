@@ -24,7 +24,7 @@
         setInterval(function () {
             
             $.ajax({
-                url: '@Url.Action("Batch_loader", "School")',
+                url: '@Url.Action("Batch_loader", "bulkupload")',
                 type: 'GET',
                 success: function (data) {
                     var currentCounter = $(data).find("#currentCounter");
