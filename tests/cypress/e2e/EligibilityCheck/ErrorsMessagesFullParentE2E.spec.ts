@@ -51,6 +51,9 @@ describe('After errors have been input initially a Parent with valid details can
     });
 
     it('will show the correct error message if child details fields are left blank', () => {
+        cy.clearCookies();
+        cy.clearLocalStorage();
+
         cy.visit('/Check/Enter_Child_Details');
         cy.get('h1').should('contain.text', 'Provide details of your children');
 
@@ -69,12 +72,15 @@ describe('After errors have been input initially a Parent with valid details can
 
     it('returns the correct error message when invalid charaters are used in the input fields', () => {
 
+        cy.clearCookies();
+        cy.clearLocalStorage();
+
         cy.visit('/Check/Enter_Child_Details');
 
         cy.get('[id="ChildList[0].FirstName"]').type('123456');
         cy.get('[id="ChildList[0].LastName"]').type('123456');
         cy.get('[id="ChildList[0].School.Name"]').clear();
-        
+
         cy.get('[id="ChildList[0].Day"]').clear().type('32');
         cy.get('[id="ChildList[0].Month"]').clear().type('13');
         cy.get('[id="ChildList[0].Year"]').clear().type('2050');
