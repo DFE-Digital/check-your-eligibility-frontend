@@ -2,6 +2,7 @@
 using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
@@ -209,6 +210,51 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
+        /// this method is called by AJAX
+        public async Task<IActionResult> Poll_Status()
+        {
+            var startTime = DateTime.UtcNow;
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
+
+            // gather api response which should either be queuedForProcessing or has a response
+            var responseJson = TempData["Response"] as string;
+            var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
+
+            _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
+
+            // periodically get status and then render appropriate outcome page
+            while (await timer.WaitForNextTickAsync())
+            {
+                var check = await _parentService.GetStatus(response);
+
+                if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
+                {
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+                        return View("Outcome/Eligible");
+
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
+                        return View("Outcome/Not_Eligible");
+
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
+                        return View("Outcome/Not_Found");
+
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
+                        return View("Outcome/Not_Found_Pending");
+
+                    break;
+                }
+                else
+                {
+                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
+                    {
+                        break;
+                    }
+                    continue;
+                }
+            }
+            return View("Outcome/Default");
+        }
+
         public IActionResult Enter_Child_Details()
         {
             var children = new Children() { ChildList = [new()] };
@@ -296,8 +342,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
             var responses = new List<ApplicationSaveItemResponse>();
-
+            var sentApplications = new FsmApplication()
+            {
+                ParentFirstName = request.ParentFirstName,
+                ParentLastName = request.ParentLastName,
+                ParentDateOfBirth = request.ParentDateOfBirth,
+                ParentEmail = request.ParentEmail,
+                ParentNino = request.ParentNino,
+                ParentNass = request.ParentNass,
+                Children = new Children { ChildList = new List<Child>() }
+            };
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -312,7 +368,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(_Claims.Organisation.Urn),
                         UserId = _Claims.User.Id
                     }
@@ -320,10 +376,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 // Send each application as an individual check
                 var response = await _parentService.PostApplication(fsmApplication);
-                responses.Add(response);
             }
 
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
+            
             return RedirectToAction("Application_Sent");
         }
 
