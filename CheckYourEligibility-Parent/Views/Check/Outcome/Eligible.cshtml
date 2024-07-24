@@ -1,15 +1,45 @@
 ﻿@model string
 
 <div class="govuk-grid-column-full">
+
     <h1 class="govuk-heading-l">Your children are entitled to free school meals</h1>
 
     <h2 class="govuk-heading-m">What to do next</h2>
-    <p>To get free school meals for your children, follow these steps online. This typically takes just a few minutes.</p>
+
+    <p>To get free school meals for your children, follow these steps online. This usually takes a few minutes.</p>
+
     <ol>
-        <li>Create or sign into your OneGov account.</li>
-        <li>Enter the details of your children and their school.</li>
-        <li>These will be sent on to the school, which will arrange free school meals.</li>
+        <li>Sign in or create a Govuk One Login account.</li>
+        <li>Enter the details of all your children and their schools.</li>
+        <li>Submit your application to send it to your school.</li>
+        <li>We'll send you an email to the one you registered with to let you know it has been completed.</li>
+        <li>Your childrens school will arrange the free school meals.</li>
     </ol>
 
-    <a href="@Model" class="govuk-button govuk-!-margin-top-5">Go to OneGov</a>
+    <details class="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                About GOV.UK One Login
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            GOV.UK One Login lets you sign in and prove your identity quickly and easily. You can use the same account for some other government services.
+        </div>
+    </details>
+
+    <a href="@Model" class="govuk-button govuk-!-margin-top-5">Continue to GOV.UK One Login</a>
+
+    <hr class="govuk-section-break govuk-section-break govuk-section-break--l">
+
+    <h2 class="govuk-heading-m">Further guidance and other ways to apply</h2>
+    <p>If you need further support, <a target="_blank" href="/Home/Parental_Guidance">check the more detailed guidance</a>  for parents and guardians.</p>
+    <p>If you cannot apply online, you can fill in <a href="/Home/fsm_print_version">the 'Free school meals entitlement checker' form</a> and give it to your children's school. </p>
+
+    <div class="govuk-inset-text">
+        It takes longer to apply through your school than it does online.
+    </div>
 </div>
+
+
+
+
