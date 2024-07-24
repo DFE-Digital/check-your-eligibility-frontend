@@ -2,6 +2,7 @@
 using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
@@ -16,24 +17,21 @@ using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
-    public class SchoolController : BaseController
+    public class CheckController : BaseController
     {
-        const int TotalErrorsToDisplay = 20;
-
-        private readonly ILogger<SchoolController> _logger;
+      
+        private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _parentService;
-        private readonly IEcsServiceAdmin _adminService;
         private readonly IConfiguration _config;
-        private ILogger<SchoolController> _loggerMock;
+        private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
         DfeClaims? _Claims;
         
-        public SchoolController(ILogger<SchoolController> logger, IEcsServiceParent ecsServiceParent, IEcsServiceAdmin ecsServiceAdmin, IConfiguration configuration)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsServiceParent ?? throw new ArgumentNullException(nameof(ecsServiceParent));
-            _adminService = ecsServiceAdmin ?? throw new ArgumentNullException(nameof(ecsServiceAdmin));
         }
 
         [HttpGet]
@@ -212,6 +210,51 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
+        /// this method is called by AJAX
+        public async Task<IActionResult> Poll_Status()
+        {
+            var startTime = DateTime.UtcNow;
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
+
+            // gather api response which should either be queuedForProcessing or has a response
+            var responseJson = TempData["Response"] as string;
+            var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
+
+            _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
+
+            // periodically get status and then render appropriate outcome page
+            while (await timer.WaitForNextTickAsync())
+            {
+                var check = await _parentService.GetStatus(response);
+
+                if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
+                {
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+                        return View("Outcome/Eligible");
+
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
+                        return View("Outcome/Not_Eligible");
+
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
+                        return View("Outcome/Not_Found");
+
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
+                        return View("Outcome/Not_Found_Pending");
+
+                    break;
+                }
+                else
+                {
+                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
+                    {
+                        break;
+                    }
+                    continue;
+                }
+            }
+            return View("Outcome/Default");
+        }
+
         public IActionResult Enter_Child_Details()
         {
             var children = new Children() { ChildList = [new()] };
@@ -299,8 +342,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
             var responses = new List<ApplicationSaveItemResponse>();
-
+            var sentApplications = new FsmApplication()
+            {
+                ParentFirstName = request.ParentFirstName,
+                ParentLastName = request.ParentLastName,
+                ParentDateOfBirth = request.ParentDateOfBirth,
+                ParentEmail = request.ParentEmail,
+                ParentNino = request.ParentNino,
+                ParentNass = request.ParentNass,
+                Children = new Children { ChildList = new List<Child>() }
+            };
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -315,7 +368,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(_Claims.Organisation.Urn),
                         UserId = _Claims.User.Id
                     }
@@ -323,10 +376,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 // Send each application as an individual check
                 var response = await _parentService.PostApplication(fsmApplication);
-                responses.Add(response);
             }
 
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
+            
             return RedirectToAction("Application_Sent");
         }
 
@@ -352,229 +405,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("Enter_Child_Details", children);
         }
 
-        public IActionResult Batch_Check()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Batch_Check(IFormFile fileUpload)
-        {
-            TempData["Response"] = "data_issue";
-            List<CheckRow> DataLoad;
-            var errorCount = 0;
-            var requestItems = new List<CheckEligibilityRequestDataFsm>();
-            var validationResultsItems = new StringBuilder();
-            if (fileUpload == null || fileUpload.ContentType.ToLower() != "text/csv")
-            {
-                return BadRequest(new MessageResponse { Data = $"{Admin.CsvfileRequired}" });
-            }
-            try
-            {
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                {
-                    HasHeaderRecord = true,
-                    BadDataFound = null,
-                    MissingFieldFound = null
-                };
-                using (var fileStream = fileUpload.OpenReadStream())
-
-                using (var csv = new CsvReader(new StreamReader(fileStream), config))
-                {
-                    csv.Context.RegisterClassMap<CheckRowRowMap>();
-                    DataLoad = csv.GetRecords<CheckRow>().ToList();
-
-                    if (DataLoad == null || !DataLoad.Any())
-                    {
-                        throw new InvalidDataException("Invalid file content.");
-                    }
-                }
-                var validator = new CheckEligibilityRequestDataValidator();
-                var sequence = 1;
-               
-                
-                foreach (var item in DataLoad)
-                {
-
-                    var requestItem = new CheckEligibilityRequestDataFsm()
-                    {
-                        LastName = item.LastName,
-                        DateOfBirth = DateTime.TryParse(item.DOB, out var dtval) ? dtval.ToString("yyyy-MM-dd") : string.Empty,
-                        NationalInsuranceNumber = item.Ni.ToUpper(),
-                        NationalAsylumSeekerServiceNumber = item.Nass.ToUpper(),
-
-                    };
-                    var validationResults = validator.Validate(requestItem);
-                    if (!validationResults.IsValid)
-                    {
-                        errorCount = checkIfExists(sequence, validationResultsItems, validationResults,errorCount);
-                    }
-                    else
-                    {
-                        requestItems.Add(requestItem);
-
-                    }
-                    sequence++;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("ImportEstablishmentData", ex);
-                validationResultsItems.AppendLine(ex.Message);
-            }
-            if (validationResultsItems.Length > 0)
-            {
-                if ((errorCount - TotalErrorsToDisplay) > 0)
-                {
-                    TempData["BatchParentCheckItemsLineMoreErrors"] = errorCount- TotalErrorsToDisplay;
-                }
-
-                TempData["BatchParentCheckItemsErrors"] = validationResultsItems.ToString();
-                return View("BatchOutcome/Error_Data_Issue");
-            }
-            else
-            {
-                var result = await _adminService.PostBulkCheck(new CheckEligibilityRequestBulk { Data = requestItems});
-                HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
-                HttpContext.Session.SetString("Get_BulkCheck_Results", result.Links.Get_BulkCheck_Results);
-                return RedirectToAction("Batch_Loader");
-            }
-        }
-
-        public async Task<IActionResult> Batch_Loader()
-        {
-            
-            var result = await _adminService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
-            if (result != null)
-            {
-                TempData["totalCounter"] = result.Data.Total;
-                TempData["currentCounter"] = result.Data.Complete;
-                if (result.Data.Complete >= result.Data.Total)
-                {
-                    return RedirectToAction("Batch_check_success");
-                }
-            }
-            
-            return View();
-        }
-
-        public async Task<IActionResult> Batch_check_success()
-        {
-            return View("BatchOutcome/Success");
-        }
-
-        public async Task<IActionResult> Batch_check_download()
-        {
-            var resultData = await _adminService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
-            var exportData = resultData.Data.Select(x=> new BatchFSMExport {
-                LastName = x.LastName,
-                DOB =x.DateOfBirth,
-                NI = x.NationalInsuranceNumber,
-                NASS = x.NationalAsylumSeekerServiceNumber,
-                Outcome = x.Status.GetFsmStatusDescription()
-            });
-
-            var fileName = $"free-school-meal-outcomes-{DateTime.Now.ToString("yyyyMMdd")}.csv";
-
-            var result = WriteCsvToMemory(exportData);
-            var memoryStream = new MemoryStream(result);
-            return new FileStreamResult(memoryStream, "text/csv") { FileDownloadName = fileName };
-        }
-
-        public byte[] WriteCsvToMemory(IEnumerable<BatchFSMExport> records)
-        {
-            using (var memoryStream = new MemoryStream())
-            using (var streamWriter = new StreamWriter(memoryStream))
-            using (var csvWriter = new CsvWriter(streamWriter,CultureInfo.InvariantCulture))
-            {
-                csvWriter.WriteRecords(records);
-                streamWriter.Flush();
-                return memoryStream.ToArray();
-            }
-        }
-
-        public IActionResult Process_Appeals()
-        {
-            return View();
-        }
-
-        public IActionResult Dashboard()
-        {
-            return View();
-        }
 
 
-        private int checkIfExists(int sequence, StringBuilder validationResultsItems, ValidationResult validationResults, int errorCount)
-        {
-            var message = "";
-            if (errorCount >= TotalErrorsToDisplay)
-            {
-                errorCount++;
-                return errorCount;
-            }
-
-            foreach (var item in validationResults.Errors)
-            {
-
-                switch (item.ErrorMessage)
-                {
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.LastName:
-                    case "'LastName' must not be empty.":
-                        {
-                            message = $"<li>Line {sequence}: Issue with Surname</li>";
-                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
-                        }
-                        break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.DOB
-                    :
-                    case "'Date Of Birth' must not be empty.":
-                        {
-                            message = $"<li>Line {sequence}: Issue with date of birth</li>";
-                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
-                        }
-                        break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI:
-                        {
-                            message = $"<li>Line {sequence}: Issue with National Insurance number</li>";
-                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
-                        }
-                        break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_and_NASS:
-                        {
-                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_and_NASS}</li>";
-                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
-                        }
-                        break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_or_NASS:
-                        {
-                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_or_NASS}</li>";
-                            errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
-                        }
-                        break;
-                    default:
-                        message = $"<li>Line {sequence}: Issue {item.ErrorMessage}</li>";
-                        if (!validationResultsItems.ToString().Contains(message))
-                        {
-                            validationResultsItems.AppendLine(message);
-                            errorCount++;
-                        }
-                        break;
-                }
-
-            }
-            return errorCount;
-        }
-
-        private static int AddLineIfNotExist(StringBuilder validationResultsItems, int errorCount, string message)
-        {
-            if (!validationResultsItems.ToString().Contains(message))
-            {
-                validationResultsItems.AppendLine(message);
-                errorCount++;
-            }
-
-            return errorCount;
-        }
     }
 }
