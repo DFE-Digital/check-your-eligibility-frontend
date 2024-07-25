@@ -35,5 +35,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Year]
         [Required(ErrorMessage = "Year is required")]
         public int? Year { get; set; }
+
+        public bool NASSRedirect { get; set; }
     }
 }
