@@ -112,11 +112,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
 
             // otherwise set nino and NASS detail in session
-            if (!request.NationalInsuranceNumber.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(request.NationalInsuranceNumber))
             {
                 HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
             }
-            if (!request.NationalAsylumSeekerServiceNumber.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(request.NationalAsylumSeekerServiceNumber))
             {
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
             }
