@@ -1,15 +1,8 @@
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility_DfeSignIn;
-using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics;
-using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -49,8 +42,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
 
-                    localAuthority = _Claims.Organisation.Category.Name == "Local Authority" ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    School = _Claims.Organisation.Category.Name == "Establishment" ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
