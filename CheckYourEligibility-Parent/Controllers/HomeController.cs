@@ -46,5 +46,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View();
         }
+
+        public IActionResult Parental_Guidance()
+        {
+            return View();
+        }
     }
 }
