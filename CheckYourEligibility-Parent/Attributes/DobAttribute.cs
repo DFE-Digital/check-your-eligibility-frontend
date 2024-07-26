@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace CheckYourEligibility_FrontEnd.Attributes
 {
@@ -14,23 +15,20 @@ namespace CheckYourEligibility_FrontEnd.Attributes
             }
             else
             {
-                DateOnly dob;
-                var day = model.GetType().GetProperty("Day").GetValue(model);
-                var month = model.GetType().GetProperty("Month").GetValue(model);
-                var year = model.GetType().GetProperty("Year").GetValue(model);
+                DateTime dob;
+                var day = model.GetType().GetProperty("Day").GetValue(model)?.ToString().PadLeft(2, '0');
+                var month = model.GetType().GetProperty("Month").GetValue(model)?.ToString().PadLeft(2, '0');
+                var year = model.GetType().GetProperty("Year").GetValue(model)?.ToString().PadLeft(2, '0');
 
-                var desiredDateFormat = $"{year}-{month}-{day}";
-                DateOnly dobAsDate;
-                DateOnly.TryParse(desiredDateFormat, out dobAsDate);
-
-                if (dobAsDate > DateOnly.FromDateTime(DateTime.Now))
+                if (DateTime.TryParseExact($"{year}-{month}-{day}", "yyyy-MM-dd",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out dob))
                 {
-                    return new ValidationResult("Date of Birth cannot be a future date");
-                }
-
-                var dobString = $"{year}-{month}-{day}";
-                if (DateOnly.TryParse(dobString, out dob))
-                {
+                    if (dob.Year > DateTime.Now.Year)
+                    {
+                        return new ValidationResult("Date of Birth cannot be a future date");
+                    }
                     return ValidationResult.Success;
                 }
                 else
