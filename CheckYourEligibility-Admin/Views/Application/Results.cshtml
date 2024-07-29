@@ -3,11 +3,21 @@
 @{
     Dictionary<string, string> statusColor = new Dictionary<string, string>
     {
-        {"eligible", "govuk-tag--green"},
-        {"notEligible", "govuk-tag--pink"},
-        {"open", "govuk-tag--turqoise"},
-        {"Open", "govuk-tag--turqoise"}
+        {"Open", "govuk-tag--green"},
+        {"DocumentNeeded", "govuk-tag--light-blue"},
+        {"ReceivingEntitlement", "govuk-tag--pink"},
+        {"PendingApproval", "govuk--tag-blue"}
+        //review not entitled?
     };
+
+    Dictionary<string, string> statusName = new Dictionary<string, string>
+    {
+        {"Open", "Entitled"},
+        {"DocumentNeeded", "Evidence Needed"},
+        {"ReceivingEntitlement", "Receiving"},
+        {"PendingApproval", "Sent for Review"}
+    };
+
 }
 
 
@@ -49,7 +59,7 @@
                        <td class="govuk-table__cell">Eligible from?</td>
                        <td class="govuk-table__cell">
                             <strong class="govuk-tag @statusColor[application.Status]">
-                                @application.Status
+                                @statusName[application.Status]
                             </strong>
                        </td>
                        <td class="govuk-table__cell">Submission date</td>
