@@ -1,12 +1,62 @@
-﻿@model CheckYourEligibility_FrontEnd.Models.ApplicationSearch;
+﻿@model CheckYourEligibility.Domain.Responses.ApplicationSearchResponse;
+
+@{
+    Dictionary<string, string> statusColor = new Dictionary<string, string>
+    {
+        {"eligible", "govuk-tag--green"},
+        {"notEligible", "govuk-tag--pink"},
+        {"open", "govuk-tag--turqoise"},
+        {"Open", "govuk-tag--turqoise"}
+    };
+}
+
 
 <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+
+
 
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
-            Results
+            Search results (@Model.Data.Count())
+            
         </h1>
-        <p>Results page.</p>
+
+       <table class="govuk-table">
+           <thead class="govuk-table__head">
+               <tr class="govuk-table__row">
+                   <th class="govuk-table__header" scope="col" id="select-all"></th>
+                   <th class="govuk-table__header" scope="col">Reference</th>
+                   <th class="govuk-table__header" scope="col">Parent / Guardian</th>
+                   <th class="govuk-table__header" scope="col">Child</th>
+                   <th class="govuk-table__header" scope="col">Child DOB</th>
+                   <th class="govuk-table__header" scope="col">Eligible from</th>
+                   <th class="govuk-table__header" scope="col"> Status</th>
+                   <th class="govuk-table__header" scope="col">Submission date</th>
+               </tr>
+           </thead>
+           <tbody class="govuk-table__body">
+               @foreach (var application in Model.Data)
+               {
+                   
+                   <tr class="govuk-table__row">
+                       <td class="govuk-table__cell"></td>
+                       <td class="govuk-table__cell">@application.Reference</td>
+                       <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
+                       <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
+                       <td class="govuk-table__cell">@Convert.ToDateTime("12/02/21 10:56:09").ToString("MMM dd yyyy")</td>
+
+                       <td class="govuk-table__cell">Eligible from?</td>
+                       <td class="govuk-table__cell">
+                            <strong class="govuk-tag @statusColor[application.Status]">
+                                @application.Status
+                            </strong>
+                       </td>
+                       <td class="govuk-table__cell">Submission date</td>
+                   </tr>
+               }
+           </tbody>
+       </table>
 
     </div>
 </div>

@@ -1,4 +1,5 @@
 using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
@@ -62,11 +63,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     : null,
                 }
             };
-            var response = await _service.PostApplicationSearch(applicationSearch);
+            ApplicationSearchResponse response = await _service.PostApplicationSearch(applicationSearch);
 
             //Fetch result and pass it to view
             //return null;
-            return View();
+            return View(response);
         }
     } 
 }
