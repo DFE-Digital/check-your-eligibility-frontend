@@ -34,7 +34,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
             req.headers['Authorization'] = authorizationHeader;
         }).as('interceptForGET');
 
-        cy.contains('Go to OneGov').click();
+        cy.contains('Continue to GOV.UK One Login').click();
 
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";
@@ -59,7 +59,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
             cy.contains('Continue').click();
 
         });
-
+        cy.wait(2000);
         cy.url().should('include', '/Check/Enter_Child_Details');
         cy.get('h1').should('include.text', 'Provide details of your children');
 
@@ -79,7 +79,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.contains('Save and continue').click();
 
-        cy.contains('Tim Smith');
+        cy.get('.govuk-summary-list__value').should('include.text','Tim Smith');
         cy.contains('Hinde House 2-16 Academy');
         cy.contains('01/01/2007')
 
