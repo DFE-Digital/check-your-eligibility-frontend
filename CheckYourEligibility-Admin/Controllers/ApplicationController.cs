@@ -20,7 +20,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
 
         }
-
+        
+        public IActionResult Finalise()
+        {
+            return View();
+        }
         public IActionResult Process_Appeals()
         {
             return View();

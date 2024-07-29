@@ -1,0 +1,54 @@
+﻿@using CheckYourEligibility_FrontEnd.ViewModels
+
+@model ApplicationConfirmationEntitledViewModel
+
+@{
+    ViewData["Title"] = "confirmation-entitled";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-xl">Children details added</h1>
+            <p>You have successfully added children’s details to @Model.ParentName free school meals application record.</p>
+        </div>
+    </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Parent or guardian</th>
+                    <th class="govuk-table__header">Child</th>
+                    <th class="govuk-table__header">Reference</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                @foreach (var item in @Model.Children)
+                {
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">@item.ParentName</td>
+                        <td class="govuk-table__cell">@item.ChildName</td>
+                        <td class="govuk-table__cell">@item.Reference</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h2 class="govuk-heading-m">What to do next</h2>
+            <p>As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.</p>
+            <p> Go to <a href="../checker/applications" class="govuk-link">@Html.ActionLink("Finalise applications", "Finalise", "application")</a> and follow the instructions there. </p>
+        </div>
+    </div>
+</div>
+
+<p> @Html.ActionLink("Return to dashboard", "index", "home")</p>
+<p> @Html.ActionLink("Sign Out", "SignOut", "Account")</p>
