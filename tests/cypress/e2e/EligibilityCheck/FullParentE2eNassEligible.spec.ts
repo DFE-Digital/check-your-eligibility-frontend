@@ -26,6 +26,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.contains('Save and continue').click();
 
         cy.url().should('include', '/Check/Loader');
+        cy.wait(4000);
 
 
 
@@ -41,7 +42,6 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
             cy.url().then((url) => {
                 currentUrl = url;
             });
-            cy.wait(2000);
 
             cy.visit(currentUrl, {
                 auth: {

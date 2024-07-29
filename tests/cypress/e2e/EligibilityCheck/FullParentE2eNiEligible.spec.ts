@@ -22,6 +22,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Save and continue').click();
         cy.url().should('include', '/Check/Loader');
+        cy.wait(4000);
 
         cy.get('h1').should('include.text', 'Your children are entitled to free school meals');
 
@@ -39,7 +40,6 @@ describe('Parent with valid details can complete full Eligibility check and appl
             cy.url().then((url) => {
                 currentUrl = url;
             });
-            cy.wait(2000);
 
             cy.visit(currentUrl, {
                 auth: {

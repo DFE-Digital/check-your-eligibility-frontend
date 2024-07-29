@@ -111,6 +111,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.contains('Save and continue').click();
         cy.url().should('include', '/Check/Loader');
+        cy.wait(4000);
 
         cy.get('h1').should('include.text', 'Your children are entitled to free school meals');
 
@@ -128,7 +129,7 @@ describe('After errors have been input initially a Parent with valid details can
             cy.url().then((url) => {
                 currentUrl = url;
             });
-            cy.wait(2000);
+            // cy.wait(2000);
 
             cy.visit(currentUrl, {
                 auth: {
