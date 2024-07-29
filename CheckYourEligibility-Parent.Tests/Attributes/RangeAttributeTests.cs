@@ -1,4 +1,5 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
+using FluentAssertions;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
@@ -39,7 +40,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             Validator.TryValidateObject(_parent, _validationContext, _validationResults, true);
 
             // Assert
-            Assert.AreEqual(numberOfErrors, _validationResults.Count);
+            numberOfErrors.Should().Be(_validationResults.Count);
         }
     }
 }

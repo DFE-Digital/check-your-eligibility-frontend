@@ -5,8 +5,10 @@ using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Reflection;
 using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
@@ -311,17 +313,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            var responses = new List<ApplicationSaveItemResponse>();
-            var sentApplications = new FsmApplication()
-            {
-                ParentFirstName = request.ParentFirstName,
-                ParentLastName = request.ParentLastName,
-                ParentDateOfBirth = request.ParentDateOfBirth,
-                ParentEmail = request.ParentEmail,
-                ParentNino = request.ParentNino,
-                ParentNass = request.ParentNass,
-                Children = new Children { ChildList = new List<Child>() }
-            };
+            var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
+            var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
+
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -343,21 +337,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application as an individual check
-                var response = await _parentService.PostApplication(fsmApplication);
+                var responseApplication = await _parentService.PostApplication(fsmApplication);
+                response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
+                { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }
-
-            TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
-            
-            return RedirectToAction("Application_Sent");
+            TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
+           return RedirectToAction("ApplicationsRegistered");
         }
 
         [HttpGet]
-        public IActionResult Application_Sent()
+        public IActionResult ApplicationsRegistered()
         {
-            // Skip validation
-            ModelState.Clear();
-
-            return View();
+            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
+            return View(vm);
         }
 
         public IActionResult ChangeChildDetails()
