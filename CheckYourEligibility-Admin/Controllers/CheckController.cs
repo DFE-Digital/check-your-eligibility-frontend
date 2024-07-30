@@ -9,6 +9,7 @@ using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
@@ -17,17 +18,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     {
       
         private readonly ILogger<CheckController> _logger;
+        private readonly IEcsCheckService _checkService;
         private readonly IEcsServiceParent _parentService;
         private readonly IConfiguration _config;
         private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
         DfeClaims? _Claims;
         
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IConfiguration configuration)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IEcsCheckService ecsCheckService, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsServiceParent ?? throw new ArgumentNullException(nameof(ecsServiceParent));
+            _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
         }
 
         [HttpGet]
@@ -95,7 +98,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
 
                 // queue api soft-check
-                var response = await _parentService.PostCheck(checkEligibilityRequest);
+                var response = await _checkService.PostCheck(checkEligibilityRequest);
 
                 TempData["Response"] = JsonConvert.SerializeObject(response);
 
@@ -139,7 +142,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
 
                 // queue api soft-check
-                var response = await _parentService.PostCheck(checkEligibilityRequest);
+                var response = await _checkService.PostCheck(checkEligibilityRequest);
 
                 TempData["Response"] = JsonConvert.SerializeObject(response);
 
@@ -171,7 +174,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // periodically get status and then render appropriate outcome page
             while (await timer.WaitForNextTickAsync())
             {
-                var check = await _parentService.GetStatus(response);
+                var check = await _checkService.GetStatus(response);
                 Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
 
                 if (status != CheckEligibilityStatus.queuedForProcessing)

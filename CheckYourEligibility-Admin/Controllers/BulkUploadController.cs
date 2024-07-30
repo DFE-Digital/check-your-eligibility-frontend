@@ -21,6 +21,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         const int TotalErrorsToDisplay = 20;
 
         private readonly ILogger<BulkUploadController> _logger;
+        private readonly IEcsCheckService _checkService;
         private readonly IEcsServiceAdmin _adminService;
         private readonly IConfiguration _config;
         private ILogger<BulkUploadController> _loggerMock;
@@ -115,7 +116,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                var result = await _adminService.PostBulkCheck(new CheckEligibilityRequestBulk { Data = requestItems});
+                var result = await _checkService.PostBulkCheck(new CheckEligibilityRequestBulk { Data = requestItems});
                 HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
                 HttpContext.Session.SetString("Get_BulkCheck_Results", result.Links.Get_BulkCheck_Results);
                 return RedirectToAction("Batch_Loader");
@@ -125,7 +126,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Batch_Loader()
         {
             
-            var result = await _adminService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
+            var result = await _checkService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
             if (result != null)
             {
                 TempData["totalCounter"] = result.Data.Total;
@@ -146,7 +147,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Batch_check_download()
         {
-            var resultData = await _adminService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
+            var resultData = await _checkService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
             var exportData = resultData.Data.Select(x=> new BatchFSMExport {
                 LastName = x.LastName,
                 DOB =x.DateOfBirth,

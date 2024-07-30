@@ -22,7 +22,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
     {
         // mocks
         private ILogger<CheckController> _loggerMock;
-        private Mock<IEcsServiceParent> _serviceMock;
+        private Mock<IEcsServiceParent> _parentServiceMock;
+        private Mock<IEcsCheckService> _checkServiceMock;
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
         private Mock<IConfiguration> _configMock;
@@ -203,9 +204,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             void SetUpInitialMocks()
             {
                 _configMock = new Mock<IConfiguration>();
-                _serviceMock = new Mock<IEcsServiceParent>();
+                _parentServiceMock = new Mock<IEcsServiceParent>();
+                _checkServiceMock = new Mock<IEcsCheckService>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _sut = new CheckController(_loggerMock, _serviceMock.Object, _configMock.Object);
+                _sut = new CheckController(_loggerMock, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object);
             }
 
             void SetUpSessionData()
@@ -234,16 +236,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             void SetUpServiceMocks()
             {
-                _serviceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                _checkServiceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
                     .ReturnsAsync(_eligibilityStatusResponse);
 
-                _serviceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest>()))
+                _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest>()))
                             .ReturnsAsync(_eligibilityResponse);
 
-                _serviceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
+                _parentServiceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
                             .ReturnsAsync(_schoolSearchResponse);
 
-                _serviceMock.Setup(s => s.PostApplication(It.IsAny<ApplicationRequest>()))
+                _parentServiceMock.Setup(s => s.PostApplication(It.IsAny<ApplicationRequest>()))
                             .ReturnsAsync(_applicationSaveItemResponse);
             }
         }
@@ -471,7 +473,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             var query = "Not a real school";
-            _serviceMock.Setup(x => x.GetSchool(query)).ReturnsAsync(_schoolSearchResponse = null);
+            _parentServiceMock.Setup(x => x.GetSchool(query)).ReturnsAsync(_schoolSearchResponse = null);
 
             // Act
             var result = _sut.GetSchoolDetails(query);
@@ -667,7 +669,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             try
             {
-                _sut = new CheckController(null, _serviceMock.Object, _configMock.Object);
+                _sut = new CheckController(null, _parentServiceMock.Object, _checkServiceMock.Object,_configMock.Object);
             }
             catch (ArgumentNullException ex)
             {
@@ -676,11 +678,24 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_CheckController_When_ServiceIsNull_Should_ReturnArgumentNullException()
+        public async Task Given_CheckController_When_ParentServiceIsNull_Should_ReturnArgumentNullException()
         {
             try
             {
-                _sut = new CheckController(_loggerMock, null, _configMock.Object);
+                _sut = new CheckController(_loggerMock, null, _checkServiceMock.Object, _configMock.Object);
+            }
+            catch (ArgumentNullException ex)
+            {
+                ex.Should().NotBeNull();
+            }
+        }
+
+        [Test]
+        public async Task Given_CheckController_When_CheckServiceIsNull_Should_ReturnArgumentNullException()
+        {
+            try
+            {
+                _sut = new CheckController(_loggerMock, _parentServiceMock.Object, null, _configMock.Object);
             }
             catch (ArgumentNullException ex)
             {
