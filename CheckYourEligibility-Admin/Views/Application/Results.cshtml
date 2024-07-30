@@ -55,18 +55,17 @@
                        <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
                        <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
                        <td class="govuk-table__cell">@Convert.ToDateTime("12/02/21 10:56:09").ToString("MMM dd yyyy")</td>
-
-                       <td class="govuk-table__cell">Eligible from?</td>
                        <td class="govuk-table__cell">
                             <strong class="govuk-tag @statusColor[application.Status]">
                                 @statusName[application.Status]
                             </strong>
                        </td>
-                       <td class="govuk-table__cell">Submission date</td>
+                       <td class="govuk-table__cell">@application.created</td>
                    </tr>
                }
            </tbody>
        </table>
 
+    </div>
     </div>
 </div>
