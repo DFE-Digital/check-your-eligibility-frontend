@@ -38,7 +38,7 @@
                     <span asp-validation-for="ChildList[i].FirstName"></span>
                 </p>
 
-                <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text">
+                <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name">
             </div>
 
             <div class="govuk-form-group">
@@ -48,7 +48,7 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="ChildList[i].LastName"></span>
                 </p>
-                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text">
+                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="Last Name">
             </div>
 
             <div class="govuk-form-group">
@@ -62,7 +62,7 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="ChildList[i].School.Name"></span>
                 </p>
-                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off">
+                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
                 <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
                 <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
                 <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
@@ -90,7 +90,7 @@
                                 <p class="govuk-error-message">
                                     <span asp-validation-for="ChildList[i].Day"></span>
                                 </p>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric">
+                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric" aria-label="Day">
                             </div>
                         </div>
 
@@ -102,7 +102,7 @@
                                 <p class="govuk-error-message">
                                     <span asp-validation-for="ChildList[i].Month"></span>
                                 </p>
-                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric">
+                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric" aria-label="Month">
                             </div>
                         </div>
 
@@ -114,13 +114,12 @@
                                 <p class="govuk-error-message">
                                     <span asp-validation-for="ChildList[i].Year"></span>
                                 </p>
-                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4" inputmode="numeric">
+                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4" inputmode="numeric" aria-label="Year">
                             </div>
                         </div>
                     </div>
-                </fieldset>
-            </div>
-        </fieldset>
+                </div>
+            </fieldset>
         </div>
     }
 
