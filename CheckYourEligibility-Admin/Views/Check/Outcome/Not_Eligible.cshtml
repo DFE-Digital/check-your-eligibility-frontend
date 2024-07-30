@@ -1,7 +1,7 @@
 ﻿<div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-heading-l">The children of this parent or guardian may not be entitled to free school meals</p>
+            <p class="govuk-heading-l">@TempData["OutcomeText"]</p>
             <p class="govuk-body">If the parent wishes to appeal, you’ll need to send their supporting evidence to your local authority for review.</p>
         </div>
     </div>
@@ -33,6 +33,5 @@
 <div class="govuk-!-padding-bottom-2"></div>
 
 
-<p><a href="">Return to dashboard</a></p>
-
-<p><a href="">Sign out</a></p>
+<p> @Html.ActionLink("Return to dashboard", "index", "home")</p>
+<p> @Html.ActionLink("Sign Out", "SignOut", "Account")</p>

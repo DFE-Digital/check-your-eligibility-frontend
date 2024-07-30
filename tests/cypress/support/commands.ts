@@ -19,19 +19,6 @@ Cypress.Commands.add('verifyFieldVisibility', (selector: string, isVisible: bool
   }
 });
 
-Cypress.Commands.add('enterDate', (daySelector: string, monthSelector: string, yearSelector: string, day: string, month: string, year: string) => {
-  cy.get(daySelector).clear().type(day);
-  cy.get(monthSelector).clear().type(month);
-  cy.get(yearSelector).clear().type(year);
-});
-
-Cypress.Commands.add('clickButtonByRole', (role: string) => {
-  cy.contains(role).click();
-});
-
-Cypress.Commands.add('clickButton', (text: string) => {
-  cy.contains('button', text).click();
-});
 
 Cypress.Commands.add('verifyH1Text', (expectedText: string) => {
   cy.contains('h1', expectedText).should('be.visible');
@@ -42,6 +29,7 @@ Cypress.Commands.add('verifyH1Text', (expectedText: string) => {
 
 Cypress.Commands.add('selectYesNoOption', (baseSelector: string, isYes: boolean) => {
   const finalSelector = isYes ? `${baseSelector}[value="true"]` : `${baseSelector}[value="false"]`;
+  cy.log(`selector being used: ${finalSelector}`)
   cy.get(finalSelector).click();
 });
 

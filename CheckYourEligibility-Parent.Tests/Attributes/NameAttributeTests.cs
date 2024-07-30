@@ -53,7 +53,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
 
             // Assert
-            Assert.AreEqual(result, null);
+            result.Should().BeNull(name);
         }
 
         [TestCase("Simpson1", LastNameFormatErrorMessage)]
@@ -88,7 +88,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 
             // Assert
             result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
-            Assert.AreEqual(result, null);
+            result.Should().BeNull(name);
         }
     }
 }
