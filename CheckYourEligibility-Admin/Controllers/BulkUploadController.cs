@@ -22,15 +22,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         private readonly ILogger<BulkUploadController> _logger;
         private readonly IEcsCheckService _checkService;
-        private readonly IEcsServiceAdmin _adminService;
         private readonly IConfiguration _config;
         private ILogger<BulkUploadController> _loggerMock;
                 
-        public BulkUploadController(ILogger<BulkUploadController> logger, IEcsServiceAdmin ecsServiceAdmin, IConfiguration configuration)
+        public BulkUploadController(ILogger<BulkUploadController> logger, IEcsCheckService ecsCheckService, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _adminService = ecsServiceAdmin ?? throw new ArgumentNullException(nameof(ecsServiceAdmin));
+            _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
         }
 
         public IActionResult Batch_Check()

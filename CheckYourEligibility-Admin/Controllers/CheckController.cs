@@ -339,7 +339,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     }
                 };
 
-                // Send each application as an individual check
+                // Send each application individually
                 var responseApplication = await _parentService.PostApplication(fsmApplication);
                 response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
                 { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
