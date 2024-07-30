@@ -1,18 +1,14 @@
-﻿using CheckYourEligibility.Domain.Constants;
-using CheckYourEligibility.Domain.Enums;
+﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CsvHelper;
-using CsvHelper.Configuration;
-using FeatureManagement.Domain.Validation;
-using FluentValidation.Results;
+using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Globalization;
+using System.Reflection;
 using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
@@ -123,9 +119,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
                 // build object for api soft-check
-                var checkEligibilityRequest = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequest()
+                var checkEligibilityRequest = new CheckEligibilityRequest()
                 {
-                    Data = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequestDataFsm
+                    Data = new CheckEligibilityRequestDataFsm
                     {
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
@@ -154,57 +150,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Loader");
         }
 
-        public IActionResult Nass()
-        {
-            var parent = new ParentGuardian();
-
-            return View(parent);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Nass(ParentGuardian request)
-        {
-            // don't want to validate nino as that has been declared on previous page as not given
-            ModelState.Remove("NationalInsuranceNumber");
-
-            // access tempdata and get request
-            TempData["Request"] = JsonConvert.SerializeObject(request);
-
-            if (!ModelState.IsValid)
-                return View("Nass");
-
-            // if no nass given return couldn't check outcome page
-            if (request.NationalAsylumSeekerServiceNumber == null)
-                return View("Outcome/Could_Not_Check");
-            // otherwise build object and queue soft-check
-            else
-            {
-                // set nass in session storage 
-                HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
-
-                // build object for api soft-check
-                var checkEligibilityRequest = new CheckEligibilityRequest()
-                {
-                    Data = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequestDataFsm
-                    {
-                        LastName = request.LastName,
-                        NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
-                    }
-                };
-
-                //TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-
-                // queue api soft-check
-                var response = await _parentService.PostCheck(checkEligibilityRequest);
-
-                _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
-                // go to loader page which will poll soft-check status
-                return RedirectToAction("Loader");
-            }
-        }
-
         public IActionResult Loader()
         {
             return View();
@@ -213,12 +158,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         /// this method is called by AJAX
         public async Task<IActionResult> Poll_Status()
         {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
             var startTime = DateTime.UtcNow;
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
             // gather api response which should either be queuedForProcessing or has a response
             var responseJson = TempData["Response"] as string;
-            var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
+            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
             _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
 
@@ -226,22 +172,28 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             while (await timer.WaitForNextTickAsync())
             {
                 var check = await _parentService.GetStatus(response);
+                Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
 
-                if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
+                if (status != CheckEligibilityStatus.queuedForProcessing)
                 {
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-                        return View("Outcome/Eligible");
+                    TempData["OutcomeText"] = GetLaOutcomeText(status);
+                    if (_Claims.Organisation.Category.Name == Constants.CategoryTypeLA)
+                    {            
+                        return View("Outcome/LA");
+                    }
+                    else
+                    {
+                        switch (status)
+                        {
+                            case CheckEligibilityStatus.eligible: return View("Outcome/Eligible");
+                            case CheckEligibilityStatus.notEligible: return View("Outcome/Not_Eligible");
+                            case CheckEligibilityStatus.parentNotFound: return View("Outcome/Not_Found");
+                            case CheckEligibilityStatus.DwpError: return View("Outcome/Not_Found_Pending");
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
-                        return View("Outcome/Not_Eligible");
-
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
-                        return View("Outcome/Not_Found");
-
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
-                        return View("Outcome/Not_Found_Pending");
-
-                    break;
+                            default:
+                                throw new Exception($"Unknown Status {status}");
+                        }
+                    }
                 }
                 else
                 {
@@ -252,7 +204,25 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     continue;
                 }
             }
-            return View("Outcome/Default");
+            return View();
+        }
+
+        private string GetLaOutcomeText(CheckEligibilityStatus status)
+        {
+            switch (status)
+            {
+                case CheckEligibilityStatus.eligible:
+                    return "The children of this parent or guardian are entitled to free school meals";
+                case CheckEligibilityStatus.notEligible:
+                    return "The children of this parent or guardian may not be entitled to free school meals";
+                case CheckEligibilityStatus.parentNotFound:
+                    return "We could not check if this applicant’s children are entitled to free school meals";
+                 case CheckEligibilityStatus.DwpError:
+                    return "We could not check if this applicant’s children are entitled to free school meals";
+
+                default:
+                    return $"Unknown Status {status}";
+            }
         }
 
         public IActionResult Enter_Child_Details()
@@ -343,17 +313,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            var responses = new List<ApplicationSaveItemResponse>();
-            var sentApplications = new FsmApplication()
-            {
-                ParentFirstName = request.ParentFirstName,
-                ParentLastName = request.ParentLastName,
-                ParentDateOfBirth = request.ParentDateOfBirth,
-                ParentEmail = request.ParentEmail,
-                ParentNino = request.ParentNino,
-                ParentNass = request.ParentNass,
-                Children = new Children { ChildList = new List<Child>() }
-            };
+            var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
+            var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
+
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -375,21 +337,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application as an individual check
-                var response = await _parentService.PostApplication(fsmApplication);
+                var responseApplication = await _parentService.PostApplication(fsmApplication);
+                response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
+                { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }
-
-            TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
-            
-            return RedirectToAction("Application_Sent");
+            TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
+           return RedirectToAction("ApplicationsRegistered");
         }
 
         [HttpGet]
-        public IActionResult Application_Sent()
+        public IActionResult ApplicationsRegistered()
         {
-            // Skip validation
-            ModelState.Clear();
-
-            return View();
+            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
+            return View(vm);
         }
 
         public IActionResult ChangeChildDetails()

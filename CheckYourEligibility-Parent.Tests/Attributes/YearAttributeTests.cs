@@ -41,7 +41,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 
             // Assert
             result.Should().BeEquivalentTo<ValidationResult>(ValidationResult.Success);
-            Assert.AreEqual(result, null);
+            result.Should().BeNull();
         }
     }
 }

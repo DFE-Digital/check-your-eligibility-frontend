@@ -32,7 +32,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
             req.headers['Authorization'] = authorizationHeader;
         }).as('interceptForGET');
 
-        cy.contains('Go to OneGov').click();
+        cy.contains('Continue to GOV.UK One Login').click();
 
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";

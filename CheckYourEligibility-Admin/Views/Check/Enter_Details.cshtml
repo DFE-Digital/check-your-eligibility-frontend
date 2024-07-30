@@ -22,7 +22,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="FirstName"></span>
             </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="FirstName" type="text">
+            <input class="govuk-input govuk-input--width-20" asp-for="FirstName" type="text" aria-label="Parent or guardian first name">
         </div>
 
         <div class="govuk-form-group">
@@ -32,7 +32,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="LastName"></span>
             </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="LastName" type="text">
+            <input class="govuk-input govuk-input--width-20" asp-for="LastName" type="text" aria-label="Parent or guardian last name">
         </div>
 
         <div class="govuk-form-group">
@@ -42,7 +42,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="EmailAddress"></span>
             </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="EmailAddress" type="text">
+            <input class="govuk-input govuk-input--width-20" asp-for="EmailAddress" type="text" aria-label="Parent or guardian email address">
         </div>
 
         <div class="govuk-form-group">
@@ -52,7 +52,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="NationalInsuranceNumber"></span>
             </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text">
+            <input class="govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text" aria-label="Parent or guardian National Insurance Number">
 
             <p class="paragraph-add-margin-top">Or</p>
 
@@ -62,7 +62,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="NationalAsylumSeekerServiceNumber"></span>
             </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text">
+            <input class="govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text" aria-label="Parent or guardian asylum support reference number">
 
         </div>
 
@@ -87,7 +87,7 @@
                             <p class="govuk-error-message">
                                 <span asp-validation-for="Day"></span>
                             </p>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" type="text" inputmode="numeric" maxlength="2" data-type="dob" />
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" type="text" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Day" />
                         </div>
                     </div>
 
@@ -99,7 +99,7 @@
                             <p class="govuk-error-message">
                                 <span asp-validation-for="Month"></span>
                             </p>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" type="text" inputmode="numeric" maxlength="2" data-type="dob" />
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" type="text" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Month" />
                         </div>
                     </div>
 
@@ -111,7 +111,7 @@
                             <p class="govuk-error-message">
                                 <span asp-validation-for="Year"></span>
                             </p>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" />
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" aria-label="Year" />
                         </div>
                     </div>
                 </div>

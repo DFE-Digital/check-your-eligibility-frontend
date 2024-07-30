@@ -7,6 +7,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     [Authorize]
     public class BaseController : Controller
     {
+        
 
         protected DfeClaims? _Claims;
 

@@ -15,7 +15,7 @@
         <h1 class="govuk-heading-l">
            @Model.Organisation.Name
         </h1>
-@if(@Model.Organisation.Category.Name == "Establishment")
+        @if (@Model.Organisation.Category.Name == Constants.CategoryTypeSchool)
 {
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

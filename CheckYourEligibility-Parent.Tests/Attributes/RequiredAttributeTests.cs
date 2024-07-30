@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using System.ComponentModel.DataAnnotations;
+using FluentAssertions;
 
 namespace CheckYourEligibility_Parent.Tests.Attributes
 {
@@ -31,12 +32,12 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             Validator.TryValidateObject(_parent, _validationContext, _validationResults);
 
             // Assert
-            Assert.True(_validationResults[0].ErrorMessage == "First Name is required");
-            Assert.True(_validationResults[1].ErrorMessage == "Last Name is required");
-            Assert.True(_validationResults[2].ErrorMessage == "Day is required");
-            Assert.True(_validationResults[3].ErrorMessage == "Month is required");
-            Assert.True(_validationResults[4].ErrorMessage == "Year is required");
-            Assert.AreEqual(5, _validationResults.Count);
+            _validationResults[0].ErrorMessage.Should().BeEquivalentTo("First Name is required");
+            _validationResults[1].ErrorMessage.Should().BeEquivalentTo("Last Name is required");
+            _validationResults[2].ErrorMessage.Should().BeEquivalentTo("Day is required");
+            _validationResults[3].ErrorMessage.Should().BeEquivalentTo("Month is required");
+            _validationResults[4].ErrorMessage.Should().BeEquivalentTo("Year is required");
+            _validationResults.Count().Should().Be(5);
         }
     }
 }

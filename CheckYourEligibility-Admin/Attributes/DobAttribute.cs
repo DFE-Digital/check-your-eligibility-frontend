@@ -3,6 +3,7 @@ using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Net.WebSockets;
 using System.Text.RegularExpressions;
 
@@ -20,20 +21,20 @@ namespace CheckYourEligibility_FrontEnd.Attributes
             }
             else
             {
-                DateOnly dob;
-                var day = model.GetType().GetProperty("Day").GetValue(model);
-                var month = model.GetType().GetProperty("Month").GetValue(model);
-                var year = model.GetType().GetProperty("Year").GetValue(model);
-                DateOnly dobAsDate = new DateOnly((int)year, (int)month, (int)day);
-                var dobString = $"{year}-{month}-{day}";
+                DateTime dob;
+                var day = model.GetType().GetProperty("Day").GetValue(model)?.ToString().PadLeft(2, '0');
+                var month = model.GetType().GetProperty("Month").GetValue(model)?.ToString().PadLeft(2, '0');
+                var year = model.GetType().GetProperty("Year").GetValue(model)?.ToString().PadLeft(2, '0');
 
-                if (dobAsDate > DateOnly.FromDateTime(DateTime.Now))
+                if (DateTime.TryParseExact($"{year}-{month}-{day}","yyyy-MM-dd",
+                       CultureInfo.InvariantCulture,
+                       DateTimeStyles.None,
+                       out dob))
                 {
-                    return new ValidationResult("Date of Birth cannot be a future date");
-                }
-
-                if (DateOnly.TryParse(dobString, out dob))
-                {
+                    if (dob.Year > DateTime.Now.Year)
+                    {
+                        return new ValidationResult("Date of Birth cannot be a future date");
+                    }
                     return ValidationResult.Success;
                 }
                 else
