@@ -14,6 +14,11 @@ namespace CheckYourEligibility_FrontEnd
             {
                 client.BaseAddress = new Uri(configuration["Api:Host"]);
             });
+
+            services.AddHttpClient<IEcsCheckService, EcsCheckService>(client =>
+            {
+                client.BaseAddress = new Uri(configuration["Api:Host"]);
+            });
             
             return services;
         }
