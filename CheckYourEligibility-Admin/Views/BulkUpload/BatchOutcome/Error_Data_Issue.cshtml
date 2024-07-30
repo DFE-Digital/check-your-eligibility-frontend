@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Could not check eligibility";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+        <h2 class="govuk-error-summary__title">
+            Error – Parent data issue
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li>
+                    <strong>There are issues with the parent data on the following lines:</strong>
+                </li>
+                @Html.Raw(@TempData["BatchParentCheckItemsErrors"])
+
+                @if (Convert.ToInt32(@TempData["BatchParentCheckItemsLineMoreErrors"]) > 0)
+                    {
+                    <li>
+                        <strong>There are also issues on @TempData["BatchParentCheckItemsLineMoreErrors"] more lines</strong>
+                    </li>
+                    }
+                    
+                
+            </ul>
+        </div>
+    </div>
+</div>
+<p class="govuk-body">Please make sure you’ve corrected the issues on these lines and upload the file again.</p>
+<p><a href="javascript:window.history.back()">Try again</a></p>
+<p><a href="@Url.Action("Index", "Home")">Return to dashboard</a></p>
+<p><a href="#">Sign out</a></p>

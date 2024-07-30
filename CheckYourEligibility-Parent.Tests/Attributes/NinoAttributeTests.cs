@@ -66,7 +66,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             var result = _ninoAttribute.NinoIsValid(nino, _validationContext);
 
             // Assert
-            Assert.AreEqual(result, null);
+           result.Should().BeNull(nino);
         }
     }
 }

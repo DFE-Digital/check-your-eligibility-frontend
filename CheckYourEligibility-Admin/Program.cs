@@ -1,6 +1,6 @@
-using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
+using CheckYourEligibility_DfeSignIn;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +15,11 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddSession();
+
+var dfeSignInConfiguration = new DfeSignInConfiguration();
+builder.Configuration.GetSection("DfeSignIn").Bind(dfeSignInConfiguration);
+builder.Services.AddDfeSignInAuthentication(dfeSignInConfiguration);
+
 
 var app = builder.Build();
 

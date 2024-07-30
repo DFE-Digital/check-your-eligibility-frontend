@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using System.ComponentModel.DataAnnotations;
+using FluentAssertions;
 
 namespace CheckYourEligibility_Parent.Tests.ViewModels
 {
@@ -37,8 +38,8 @@ namespace CheckYourEligibility_Parent.Tests.ViewModels
             // Act
             Validator.TryValidateObject(_parent, _validationContext, _validationResults, true);
 
-            // Assert
-            Assert.AreEqual(numberOfErrors, _validationResults.Count);
+            //
+            _validationResults.Count.Should().Be(numberOfErrors);
         }
     }
 }

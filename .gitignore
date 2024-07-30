@@ -403,3 +403,5 @@ FodyWeavers.xsd
 /CheckYourEligibility-Parent/appsettings.Development.json
 /CheckYourEligibility-Admin/appsettings.Development.json
 
+/tests/cypress.env.json
+/tests/results

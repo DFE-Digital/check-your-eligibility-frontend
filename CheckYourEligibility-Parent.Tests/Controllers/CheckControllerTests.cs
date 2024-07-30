@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using ChildsSchool = CheckYourEligibility_FrontEnd.Models.School;
 using School = CheckYourEligibility.Domain.Responses.School;
 using Microsoft.Extensions.Configuration;
+using Azure.Core;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -169,7 +170,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
                 _applicationSaveItemResponse = new ApplicationSaveItemResponse()
                 {
-                    Data = new ApplicationSave()
+                    Data = new ApplicationResponse()
                     {
                         ParentFirstName = _fsmApplication.ParentFirstName,
                         ParentLastName = _fsmApplication.ParentLastName,
@@ -177,12 +178,12 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
                         ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
                         ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
-                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, 
+                        _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
                         ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
                         Id = "",
-                        LocalAuthority = 10002,
+                        School = new ApplicationResponse.ApplicationSchool {Id = 10002,LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123} },
                         Reference = "",
-                        School = 10002
                     },
                     Links = new ApplicationResponseLinks()
                     {
@@ -345,6 +346,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_Nass_When_LoadingPage_Should_LoadNassPage()
         {
+            //arrange
+            var request = new Parent();
+            _sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
             // Act
             var result = _sut.Nass();
 
@@ -357,7 +361,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToLoaderPage()
+        public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToNass()
         {
             // Arrange
             _parent.IsNassSelected = true;
@@ -365,32 +369,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _parent.NationalAsylumSeekerServiceNumber = "202405001";
 
             // Act
-            var result = _sut.Nass(_parent);
+            var result = _sut.Enter_Details(_parent);
 
             // Assert
             result.Should().BeOfType<Task<IActionResult>>();
 
             var actionResult = (RedirectToActionResult)result.Result;
-            actionResult.ActionName.Should().Be("Loader");
+            actionResult.ActionName.Should().Be("Nass");
         }
 
-        [Test]
-        public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToCouldNotCheckPage()
-        {
-            // Arrange
-            _parent.IsNassSelected = true;
-            _parent.NationalInsuranceNumber = null;
-
-            // Act
-            var result = _sut.Nass(_parent);
-
-            // Assert
-            result.Should().BeOfType<Task<IActionResult>>();
-
-            var viewResult = (ViewResult)result.Result;
-            viewResult.ViewName.Should().Be("Outcome/Could_Not_Check");
-        }
-
+       
         [Test]
         public async Task Given_Loader_When_LoadingPage_Should_LoadLoaderPage()
         {
@@ -707,13 +695,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.ModelState.AddModelError("TestError", "TestErrorMessage");
 
             // Act
-            var result = _sut.Nass(_parent);
+            var result = _sut.Enter_Details(_parent);
 
             // Assert
             _sut.ModelState.IsValid.Should().BeFalse();
-
-            var viewResult = result.Result as ViewResult;
-            viewResult.ViewName = "Nass";
+            
+            var viewResult = result.Result as RedirectToActionResult;
+            viewResult.ActionName = "Enter_Details";
         }
     }
 }

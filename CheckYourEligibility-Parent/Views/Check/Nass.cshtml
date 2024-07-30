@@ -18,7 +18,7 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <form asp-controller="Check" asp-action="Nass" method="post" novalidate>
+        <form asp-controller="Check" asp-action="Enter_Details" method="post" novalidate>
 
             <input type="hidden" asp-for="NationalInsuranceNumber" value="@parent.NationalInsuranceNumber" />
             <input type="hidden" asp-for="FirstName" value="@parent.FirstName" />
@@ -26,6 +26,7 @@
             <input type="hidden" asp-for="Day" value="@parent.Day" />
             <input type="hidden" asp-for="Month" value="@parent.Month" />
             <input type="hidden" asp-for="Year" value="@parent.Year" />
+            <input type="hidden" asp-for="NASSRedirect" value="@parent.NASSRedirect" />
 
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" aria-describedby="nass-number-hint">

@@ -62,11 +62,11 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="ChildList[i].School.Name"></span>
                 </p>
-                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds autocomplete__input autocomplete__input--default" type="text" oninput="searchSchool(this.value, @i)" aria-label="School">
-                <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" value="" />
-                <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" value="" />
-                <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" value=""  />
-                <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds autocomplete__menu autocomplete__menu--inline"></ul>
+                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
+                <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
+                <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
+                <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
+                <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
             </div>
 
             <div class="govuk-form-group" data-type="dob-form-group">
@@ -118,9 +118,8 @@
                             </div>
                         </div>
                     </div>
-                </fieldset>
-            </div>
-        </fieldset>
+                </div>
+            </fieldset>
         </div>
     }
 

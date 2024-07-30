@@ -1,4 +1,3 @@
-import { authenticator } from 'otplib';
 
 // Custom commands
 Cypress.Commands.add('typeTextByLabel', (labelText: string, text: string) => {
@@ -20,28 +19,17 @@ Cypress.Commands.add('verifyFieldVisibility', (selector: string, isVisible: bool
   }
 });
 
-Cypress.Commands.add('enterDate', (daySelector: string, monthSelector: string, yearSelector: string, day: string, month: string, year: string) => {
-  cy.get(daySelector).clear().type(day);
-  cy.get(monthSelector).clear().type(month);
-  cy.get(yearSelector).clear().type(year);
-});
-
-Cypress.Commands.add('clickButtonByRole', (role: string) => {
-  cy.contains(role).click();
-});
-
-Cypress.Commands.add('clickButton', (text: string) => {
-  cy.contains('button', text).click();
-});
 
 Cypress.Commands.add('verifyH1Text', (expectedText: string) => {
+  cy.contains('h1', expectedText).should('be.visible');
   cy.get('h1').invoke('text').then((actualText: string) => {
-    expect(actualText.trim()).to.eq(expectedText);
+    expect(actualText.trim()).to.eq(expectedText); 
   });
 });
 
 Cypress.Commands.add('selectYesNoOption', (baseSelector: string, isYes: boolean) => {
   const finalSelector = isYes ? `${baseSelector}[value="true"]` : `${baseSelector}[value="false"]`;
+  cy.log(`selector being used: ${finalSelector}`)
   cy.get(finalSelector).click();
 });
 
@@ -77,14 +65,11 @@ Cypress.Commands.add('retainAuthOnRedirect', (initialUrl, authHeader, alias) => 
   });
 });
 
-Cypress.Commands.add('generateOtp', (): Cypress.Chainable<string> => {
-  const secret = '224VJ2KRGWSURPLLUNDEJ3KO5PGF32PN';
-  if (!secret) {
-    throw new Error('Authenticator secret key is not defined in Cypress environment variables');
-  }
-
-  const otp: string = authenticator.generate(secret);
-  return cy.wrap(otp);
+Cypress.Commands.add('waitForElementToDisappear', (selector: string) => {
+  cy.get('body').then($body => {
+    if ($body.find(selector).length > 0) {
+      cy.get(selector, { timeout: 30000 }).should('not.exist');
+    }
+  });
 });
-
 

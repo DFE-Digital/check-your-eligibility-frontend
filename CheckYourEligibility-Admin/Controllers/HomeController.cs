@@ -1,10 +1,16 @@
+using CheckYourEligibility_DfeSignIn;
+using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
-    public class HomeController : Controller
+
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -12,13 +18,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             
             _logger = logger;
+            
         }
 
         public IActionResult Index()
         {
-            return View();
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            return View(_Claims);
         }
 
+       
         public IActionResult Privacy()
         {
             return View();

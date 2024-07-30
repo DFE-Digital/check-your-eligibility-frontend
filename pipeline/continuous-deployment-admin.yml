@@ -1,0 +1,102 @@
+trigger:
+  - main
+    
+pr: none
+
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+stages:
+  - stage: BuildApp
+    displayName: Build App
+    jobs:
+      #- template: templates/app-build.yml@templates
+      - job:
+        pool:
+          name: Azure Pipelines
+          vmImage: 'windows-latest'
+        steps:
+          - task: NuGetToolInstaller@1
+
+          - task: NuGetCommand@2
+            inputs:
+              restoreSolution: '$(solution)'
+
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solution)'
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: True
+              arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: True
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'checkYourEligibility-Admin'
+
+  - stage: DeployAppDev
+    displayName: Deploy App Dev
+    jobs:
+    - deployment: devdeploy
+      displayName: Deploy App Dev
+      pool:
+        name: Azure Pipelines
+        vmImage: 'windows-latest'
+      environment: DEVELOPMENT
+      strategy:
+        runOnce:
+          preDeploy:
+            steps:
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                buildType: 'current'
+                targetPath: '$(Pipeline.Workspace)'
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 's203d.azdo.deployment'
+                appType: 'webApp'
+                WebAppName: 'ecs-dev-as-admin-frontend'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
+  - stage: DeployAppTest
+    displayName: Deploy App Test
+    jobs:
+    - deployment: testdeploy
+      displayName: Deploy App Test
+      pool:
+        name: Azure Pipelines
+        vmImage: 'windows-latest'
+      environment: TEST
+      strategy:
+        runOnce:
+          preDeploy:
+            steps:
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                buildType: 'current'
+                targetPath: '$(Pipeline.Workspace)'
+          deploy:
+            steps:
+            - task: AzureRmWebAppDeployment@4
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 's203t.azdo.deployment'
+                appType: 'webApp'
+                WebAppName: 'ecs-test-as-admin-frontend'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
+                

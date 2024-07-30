@@ -30,7 +30,8 @@ declare namespace Cypress {
       verifyH1Text(expectedText: string): Chainable<void>;
       selectYesNoOption(selector: string, isYes: boolean): Chainable<Element>;
       retainAuthOnRedirect(initialUrl: string, authHeader: string, alias: string): Chainable<void>;
-      generateOtp(): Chainable<string>;
+      generateOtp(): Chainable<string>
+      waitForElementToDisappear(selector: string): Chainable<void>;
     }
   }
   

@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Checking Loader";
+    ViewData["ServiceName"] = "Check a family's eligibility";
+}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="flex-container">
+            <div class="container">
+                <h1 class="govuk-heading-l">
+                    Checking
+                </h1>
+                <p class="govuk-body-l">Please wait. This may take a few minutes</p>
+                <span id="currentCounter">@TempData["currentCounter"]</span>/
+                <span id="totalCounter">@TempData["totalCounter"] records processed.</span>
+                <div class="govuk-!-padding-bottom-5"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        setInterval(function () {
+            
+            $.ajax({
+                url: '@Url.Action("Batch_loader", "bulkupload")',
+                type: 'GET',
+                success: function (data) {
+                    var currentCounter = $(data).find("#currentCounter");
+                    if (currentCounter.length) {
+                        document.getElementById("currentCounter").innerHTML = currentCounter.text();
+                    }
+                    else {
+                        document.location = document.location.href;
+                    }
+                }
+            });
+        }, 1000); 
+    });
+</script>

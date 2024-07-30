@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using CheckYourEligibility_FrontEnd.Services;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authentication;
+using GovUk.OneLogin.AspNetCore;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -53,7 +56,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             // dont want to validate nass on this page 
             if (request.IsNassSelected == true)
-                ModelState.Remove("NationalAsylumSeekerServiceNumber");
+            {
+                ModelState.Remove("NationalInsuranceNumber");
+                if (!request.NASSRedirect)
+                {
+                    ModelState.Remove("NationalAsylumSeekerServiceNumber");
+                }
+               
+            }
+            else {
+                request.NASSRedirect = false; }
 
             // do want to validate everything else
             if (!ModelState.IsValid)
@@ -67,6 +79,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
+                if (request.NASSRedirect)
+                {
+                    return View("Nass");
+                }
                 return RedirectToAction("Enter_Details");
             }
 
@@ -77,6 +93,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     LastName = request.LastName,
                     NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
+                    NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber?.ToUpper(),
                     DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd")
                 }
             };
@@ -87,15 +104,22 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
 
             // if user selected to input nass, save incomplete-model to tempdata and redirect to nass page
-            if (request.IsNassSelected == true)
+            if (request.IsNassSelected == true && !request.NASSRedirect)
             {
+                request.NASSRedirect = true;
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 return RedirectToAction("Nass");
             }
 
-            // otherwise set nino detail in session aswell
-            HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
-
+            // otherwise set nino and NASS detail in session
+            if (!string.IsNullOrEmpty(request.NationalInsuranceNumber))
+            {
+                HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
+            }
+            if (!string.IsNullOrEmpty(request.NationalAsylumSeekerServiceNumber))
+            {
+                HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
+            }
             // queue api soft-check
             var response = await _service.PostCheck(checkEligibilityRequest);
             TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
@@ -111,53 +135,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Nass()
         {
+            var parentDetails = TempData["ParentDetails"];
+            if (parentDetails == null)
+            {
+                return RedirectToAction("Enter_Details");
+            }
             var parent = new Parent();
 
             return View(parent);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Nass(Parent request)
-        {
-            // don't want to validate nino as that has been declared on previous page as not given
-            ModelState.Remove("NationalInsuranceNumber");
-
-            // access tempdata and get request
-            TempData["Request"] = JsonConvert.SerializeObject(request);
-
-            if (!ModelState.IsValid)
-                return View("Nass");
-
-            // if no nass given return couldn't check outcome page
-            if (request.NationalAsylumSeekerServiceNumber == null)
-                return View("Outcome/Could_Not_Check");
-            // otherwise build object and queue soft-check
-            else
-            {
-                // set nass in session storage 
-                HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
-
-                // build object for api soft-check
-                var checkEligibilityRequest = new CheckEligibilityRequest()
-                {
-                    Data = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequestDataFsm
-                    {
-                        LastName = request.LastName,
-                        NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("dd/MM/yyyy")
-                    }
-                };
-
-                //TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-
-                // queue api soft-check
-                var response = await _service.PostCheck(checkEligibilityRequest);
-
-                _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
-                // go to loader page which will poll soft-check status
-                return RedirectToAction("Loader");
-            }
         }
 
         public IActionResult Loader()
@@ -187,11 +172,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (check.Data.Status ==
                         CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
                     {
-                        string url = _config["OneLogin:Host"];
-                        url += "/authorize?ui_locales=en&response_type=code&scope=openid,email";
-                        url += "&client_id="+_config["OneLogin:ClientId"];
-                        url += "&state=dolkfkfkfkflooh&nonce=qwsrkiseyullllio";
-                        url += "&redirect_uri="+_config["Host"]+"/Check/Enter_Child_Details";
+                        string url = "/check/signIn";
                         return View("Outcome/Eligible", url);
                     }
 
@@ -213,6 +194,35 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
             return View("Outcome/Default");
+        }
+
+        public IActionResult SignIn()
+        {
+            var properties = new AuthenticationProperties();
+            properties.SetVectorOfTrust(@"[""Cl""]");
+            properties.RedirectUri = "/Check/CreateUser";
+            return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
+        }
+
+        public async Task<IActionResult> CreateUser()
+        {
+            string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
+            string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sid").Select(c => c.Value).First();
+            
+            var user = await _service.CreateUser(
+                new UserCreateRequest()
+                {
+                    Data = new UserData() {
+                        Email = email,
+                        Reference = uniqueId
+                    }
+                }
+            );
+            
+            HttpContext.Session.SetString("Email", email);
+            HttpContext.Session.SetString("UserId", user.Data);
+
+            return RedirectToAction("Enter_Child_Details");
         }
 
         public IActionResult Enter_Child_Details()
@@ -253,7 +263,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
                 ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
                 ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
-                Children = request
+                Children = request,
+                Email = HttpContext.Session.GetString("Email")
             };
 
             TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
@@ -341,9 +352,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(child.School.URN),
-                        UserId = null // get from gov.uk onelogin??
+                        UserId = HttpContext.Session.GetString("UserId"),
                     }
                 };
 

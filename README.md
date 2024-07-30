@@ -25,11 +25,18 @@ Assuming you have NPM installed.
 `
 cd tests
 npm install
-export CYPRESS_BASE_URL="https-path to localhost or remote"
-npm run e2e:chrome
+CYPRESS_BASE_URL="https://ecs-test-as-frontend.azurewebsites.net" npx cypress open
 `
+Inside the cypress directory create a "cypress.env.json" and paste in these:
 
-Note, replace `export` with `set` in the above command for Windows.
+{
+    "AUTHORIZATION_HEADER": "",
+    "AUTH_USERNAME": "",
+    "AUTH_PASSWORD": "",
+    "ONEGOV_EMAIL": "",
+    "ONEGOV_PASSWORD": "",
+    "AUTH_SECRET": ""
+}
 
 ## Ways of working
 ### Releasing code
@@ -45,3 +52,4 @@ We don't commit active secrets to this repo. If we do, it is crucial to notify D
 ## Resources
 ### Deployment
 ![Deployment](docs/images/frontend-pipeline.png)
+
