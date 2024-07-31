@@ -7,22 +7,25 @@ using GovUk.OneLogin.AspNetCore;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
 using Microsoft.IdentityModel.Tokens;
+using System.Runtime.CompilerServices;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
     public class CheckController : Controller
     {
         private readonly ILogger<CheckController> _logger;
-        private readonly IEcsServiceParent _service;
+        private readonly IEcsServiceParent _parentService;
+        private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
         private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsService, IConfiguration configuration)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _service = ecsService ?? throw new ArgumentNullException(nameof(ecsService));
+            _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
+            _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
         }
 
         [HttpGet]
@@ -121,7 +124,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
             }
             // queue api soft-check
-            var response = await _service.PostCheck(checkEligibilityRequest);
+            var response = await _checkService.PostCheck(checkEligibilityRequest);
             TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -165,7 +168,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // periodically get status and then render appropriate outcome page
             while (await timer.WaitForNextTickAsync())
             {
-                var check = await _service.GetStatus(response);
+                var check = await _checkService.GetStatus(response);
 
                 if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
                 {
@@ -182,6 +185,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
                         return View("Outcome/Not_Found");
 
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
+                        return View("Outcome/Technical_Error");
+
                     break;
                 }
                 else
@@ -193,7 +199,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     continue;
                 }
             }
-            return View("Outcome/Default");
+            return View("Outcome/Technical_Error");
         }
 
         public IActionResult SignIn()
@@ -209,7 +215,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
             string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sid").Select(c => c.Value).First();
             
-            var user = await _service.CreateUser(
+            var user = await _parentService.CreateUser(
                 new UserCreateRequest()
                 {
                     Data = new UserData() {
@@ -316,7 +322,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
 
             // make api query
-            var results = await _service.GetSchool(query);
+            var results = await _parentService.GetSchool(query);
             if (results != null)
             {
                 // return the results in a list of json
@@ -359,7 +365,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application as an individual check
-                var response = await _service.PostApplication(fsmApplication);
+                var response = await _parentService.PostApplication(fsmApplication);
                 responses.Add(response);
             }
 
