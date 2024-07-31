@@ -5,8 +5,6 @@ namespace CheckYourEligibility_FrontEnd.Services
 {
     public interface IEcsServiceParent
     {
-        Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody);
-        Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);
         Task<SchoolSearchResponse> GetSchool(string name);
         Task<ApplicationSaveItemResponse> PostApplication(ApplicationRequest requestBody);
         Task<UserSaveItemResponse> CreateUser(UserCreateRequest requestBody);
