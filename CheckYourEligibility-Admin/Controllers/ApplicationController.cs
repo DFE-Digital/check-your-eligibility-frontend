@@ -59,7 +59,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     : null,
                 }
             };
-            ApplicationSearchResponse response = await _service.PostApplicationSearch(applicationSearch);
+            ApplicationSearchResponse response = await _adminService.PostApplicationSearch(applicationSearch);
 
             //Fetch result and pass it to view
             //return null;
