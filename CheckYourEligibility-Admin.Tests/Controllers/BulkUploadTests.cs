@@ -85,35 +85,36 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             viewResult.Model.Should().BeNull();
         }
 
-        //[Test]
-        //public async Task Given_Batch_Check_When_FileData_Invalid_Should_Return_BadRequest()
-        //{
-        //    // Arrange
-        //    var content = Properties.Resources.batchchecktemplate_some_invalid_items;
-        //    var fileName = "test.csv";
-        //    var stream = new MemoryStream();
-        //    var writer = new StreamWriter(stream);
-        //    writer.Write(content);
-        //    writer.Flush();
-        //    stream.Position = 0;
+        [Test]
+        public async Task Given_Batch_Check_When_FileData_Invalid_Should_Return_Error_Data_Issue()
+        {
+            // Arrange
+            var content = Properties.Resources.batchchecktemplate_some_invalid_items;
+            var fileName = "test.csv";
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
 
-        //    //create FormFile with desired data
-        //    var file = new FormFile(stream, 0, stream.Length, fileName, fileName)
-        //    {
-        //        Headers = new HeaderDictionary(),
-        //        ContentType = "text/csv"
-        //    };//_sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(_parent);
+            //create FormFile with desired data
+            var file = new FormFile(stream, 0, stream.Length, fileName, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/csv"
+            };//_sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(_parent);
 
-        //    // Act
-        //    var result = _sut.Batch_Check(file);
+            // Act
+            var result = await _sut.Batch_Check(file);
 
-        //    // Assert
-        //    //result.Should().BeOfType<ViewResult>();
-        //    //var viewResult = result as ViewResult;
-        //    //viewResult.Model.Should().BeOfType<Parent>();
-        //    //var model = viewResult.Model as Parent;
-        //    //model.Should().BeEquivalentTo(_parent);
-        //}
+            // Assert
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().BeEquivalentTo("BatchOutcome/Error_Data_Issue");
+            viewResult.TempData["BatchParentCheckItemsErrors"].Should().NotBeNull();
+
+
+        }
 
     }
 }
