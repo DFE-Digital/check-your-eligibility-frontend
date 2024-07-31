@@ -10,14 +10,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     public class ApplicationController : BaseController
     {
         private readonly ILogger<ApplicationController> _logger;
-        private readonly IEcsServiceAdmin _service;
-        private readonly IEcsServiceAdmin _object;
+        private readonly IEcsServiceAdmin _adminService;
 
         public ApplicationController(ILogger<ApplicationController> logger, IEcsServiceAdmin ecsServiceAdmin)
         {
             
             _logger = logger;
-            _service = ecsServiceAdmin ?? throw new ArgumentNullException(nameof(ecsServiceAdmin));
+            _adminService = ecsServiceAdmin ?? throw new ArgumentNullException(nameof(ecsServiceAdmin));
             
 
         }

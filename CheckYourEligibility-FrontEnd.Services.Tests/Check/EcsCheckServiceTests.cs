@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility_FrontEnd.Services.Tests.Parent;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -8,16 +9,16 @@ using Moq.Protected;
 using Newtonsoft.Json;
 using System.Net;
 
-namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
+namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
 {
-    public class EcsServiceParentTests
+    internal class EcsCheckServiceTests
     {
         private Mock<ILoggerFactory> _loggerFactoryMock;
         private Mock<ILogger> _loggerMock;
         private Mock<IConfiguration> _configMock;
         private Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private HttpClient _httpClient;
-        private EcsServiceParentTest _sut;
+        private DerivedCheckService _sut;
 
         [SetUp]
         public void Setup()
@@ -37,7 +38,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 BaseAddress = new Uri("https://localhost:7000")
             };
 
-            _sut = new EcsServiceParentTest(_loggerFactoryMock.Object, _httpClient, _configMock.Object);
+            _sut = new DerivedCheckService(_loggerFactoryMock.Object, _httpClient, _configMock.Object);
         }
 
         [TearDown]
@@ -46,12 +47,16 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
             _httpClient.Dispose();
         }
 
+
         [Test]
-        public async Task Given_GetSchool_When_CalledWithValidQuery_Should_ReturnSchoolSearchResponse()
+        public async Task Given_GetStatus_When_CalledWithValidResponse_Should_ReturnCheckEligibilityStatusResponse()
         {
             // Arrange
-            var query = "Test";
-            var responseContent = new SchoolSearchResponse();
+            var responseBody = new CheckEligibilityResponse
+            {
+                Links = new CheckEligibilityResponseLinks { Get_EligibilityCheck = "EligibilityCheckLink" }
+            };
+            var responseContent = new CheckEligibilityStatusResponse();
             var responseMessage = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
@@ -66,7 +71,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = await _sut.GetSchool(query);
+            var result = await _sut.GetStatus(responseBody);
 
             // Assert
             result.Should().NotBeNull();
@@ -74,11 +79,11 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         }
 
         [Test]
-        public async Task Given_PostApplication_When_CalledWithValidRequest_Should_ReturnApplicationSaveItemResponse()
+        public async Task Given_PostCheck_When_CalledWithValidRequest_Should_ReturnCheckEligibilityResponse()
         {
             // Arrange
-            var requestBody = new ApplicationRequest();
-            var responseContent = new ApplicationSaveItemResponse();
+            var requestBody = new CheckEligibilityRequest();
+            var responseContent = new CheckEligibilityResponse();
             var responseMessage = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
@@ -93,23 +98,58 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = await _sut.PostApplication(requestBody);
+            var result = await _sut.PostCheck(requestBody);
 
             // Assert
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(responseContent);
         }
 
+        [Test]
+        public void Given_GetStatus_When_CalledWithNullInput_Should_ThrowArgumentNullException()
+        {
+            // Act
+            var result = async () => await _sut.GetStatus(null);
 
+
+            // Assert
+            var resultAsResponse = result.As<Task<CheckEligibilityStatusResponse>>();
+            resultAsResponse.Should().BeNull();
+
+            result.Should().ThrowAsync<ArgumentNullException>();
+        }
 
         [Test]
-        public async Task Given_GetSchool_When_ApiReturnsNotFound_Should_ReturnNullAndLogAPIError()
+        public async Task Given_GetStatus_When_GivenInAnInvalidValue_ShouldReturnNull()
         {
             // Arrange
-            var query = "Test";
+
+            // Assert
+            var result = _sut.GetStatus(new CheckEligibilityResponse()
+            {
+                Data = new StatusValue()
+                {
+                    Status = "unknown"
+                },
+                Links = new CheckEligibilityResponseLinks()
+                {
+                    Get_EligibilityCheck = "link"
+                }
+            });
+
+            // Act
+            result.Result.Should().Be(null);
+
+        }
+
+        [Test]
+        public async Task Given_PostCheck_When_ApiReturnsUnauthorized_Should_LogApiErrorAndReturnNullResult()
+        {
+            // Arrange
+            var requestBody = new CheckEligibilityRequest();
             var responseMessage = new HttpResponseMessage
             {
-                StatusCode = HttpStatusCode.NotFound,
+                StatusCode = HttpStatusCode.Unauthorized,
                 Content = new StringContent("")
             };
 
@@ -121,23 +161,27 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = await _sut.GetSchool(query);
+            var result = _sut.PostCheck(requestBody);
 
             // Assert
-            result.Data.Should().BeNull();
+            result.Result.Should().BeNull();
             _sut.apiErrorCount.Should().Be(1);
-
         }
 
+
         [Test]
-        public async Task Given_PostApplication_When_ApiReturnsServerError_Should_ReturnNullAndLogAPIError()
+        public async Task Given_GetStatus_When_ApiReturnsUnauthorized_Should_LogApiErrorAndThrowExecption()
         {
             // Arrange
-            var requestBody = new ApplicationRequest();
+            var responseBody = new CheckEligibilityResponse
+            {
+                Links = new CheckEligibilityResponseLinks { Get_EligibilityCheck = "EligibilityCheckLink" }
+            };
+            var responseContent = new CheckEligibilityStatusResponse();
             var responseMessage = new HttpResponseMessage
             {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Content = new StringContent("")
+                StatusCode = HttpStatusCode.Unauthorized,
+                Content = new StringContent(JsonConvert.SerializeObject(responseContent))
             };
 
             _httpMessageHandlerMock.Protected()
@@ -148,11 +192,10 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = await _sut.PostApplication(requestBody);
+            var result = _sut.GetStatus(responseBody);
 
             // Assert
-            result.Data.Should().BeNull();
-            result.Links.Should().BeNull();
+            result.Result.Should().BeNull();
             _sut.apiErrorCount.Should().Be(1);
         }
     }
