@@ -24,13 +24,12 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
 
-
-
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
-            Search results (@Model.Data.Count())
-            
+            Search results (@Model.Data.Count())  
         </h1>
+
+        <p><a href="search">Search again</a> </p>
 
        <table class="govuk-table">
            <thead class="govuk-table__head">
@@ -40,7 +39,7 @@
                    <th class="govuk-table__header" scope="col">Parent / Guardian</th>
                    <th class="govuk-table__header" scope="col">Child</th>
                    <th class="govuk-table__header" scope="col">Child DOB</th>
-                   <th class="govuk-table__header" scope="col">Eligible from</th>
+                   @* <th class="govuk-table__header" scope="col">Eligible from</th> *@
                    <th class="govuk-table__header" scope="col"> Status</th>
                    <th class="govuk-table__header" scope="col">Submission date</th>
                </tr>
@@ -54,13 +53,13 @@
                        <td class="govuk-table__cell">@application.Reference</td>
                        <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
                        <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
-                       <td class="govuk-table__cell">@Convert.ToDateTime("12/02/21 10:56:09").ToString("MMM dd yyyy")</td>
+                       <td class="govuk-table__cell">@Convert.ToDateTime(application.ChildDateOfBirth).ToString("MMM dd yyyy")</td>
                        <td class="govuk-table__cell">
                             <strong class="govuk-tag @statusColor[application.Status]">
                                 @statusName[application.Status]
                             </strong>
                        </td>
-                       <td class="govuk-table__cell">@application.created</td>
+                       <td class="govuk-table__cell">@application.Created.ToString("MMM dd yyyy")</td>
                    </tr>
                }
            </tbody>
