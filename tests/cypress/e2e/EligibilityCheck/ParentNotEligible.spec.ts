@@ -1,7 +1,7 @@
 
 describe('Parents journey when not eligible', () => {
 
-    it('Will not return the correct responses if the Parent is not eligible for free school meals', () => {
+    it('Will return the correct responses if the Parent is not eligible for free school meals', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start Now').click();

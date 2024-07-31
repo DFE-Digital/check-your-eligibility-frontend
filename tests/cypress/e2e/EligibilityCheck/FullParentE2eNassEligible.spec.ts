@@ -42,6 +42,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
             cy.url().then((url) => {
                 currentUrl = url;
             });
+            cy.wait(2000);
 
             cy.visit(currentUrl, {
                 auth: {
@@ -49,6 +50,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
                     password: Cypress.env('AUTH_PASSWORD')
                 },
             });
+            cy.wait(2000);
 
             cy.contains('Sign in').click();
 

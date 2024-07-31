@@ -40,6 +40,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
             cy.url().then((url) => {
                 currentUrl = url;
             });
+            cy.wait(2000);
 
             cy.visit(currentUrl, {
                 auth: {
@@ -47,6 +48,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
                     password: Cypress.env('AUTH_PASSWORD')
                 },
             });
+            cy.wait(2000);
 
             cy.contains('Sign in').click();
 
@@ -56,8 +58,6 @@ describe('Parent with valid details can complete full Eligibility check and appl
             cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
             cy.contains('Continue').click();
 
-            //cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
-            //cy.contains('Continue').click();
 
         });
 
@@ -79,6 +79,8 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('[id="ChildList[0].Year"]').type('2007');
 
         cy.contains('Save and continue').click();
+
+        cy.wait(3000);
 
         cy.get('h1').should('contain.text', 'Check your answers before registering');
 

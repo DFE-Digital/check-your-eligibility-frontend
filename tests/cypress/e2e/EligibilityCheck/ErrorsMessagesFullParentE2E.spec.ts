@@ -129,7 +129,7 @@ describe('After errors have been input initially a Parent with valid details can
             cy.url().then((url) => {
                 currentUrl = url;
             });
-            // cy.wait(2000);
+            cy.wait(2000);
 
             cy.visit(currentUrl, {
                 auth: {
@@ -137,6 +137,8 @@ describe('After errors have been input initially a Parent with valid details can
                     password: Cypress.env('AUTH_PASSWORD')
                 },
             });
+
+            cy.wait(2000);
 
             cy.contains('Sign in').click();
 
