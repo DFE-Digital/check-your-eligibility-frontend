@@ -31,7 +31,7 @@
                                 Child last name
                             </h6>
 
-                            <input id="ChildLastName" class="govuk-input" type="text" name="ChildLastName" value="" placeholder="Child surname">
+                            <input id="ChildLastName" class="govuk-input" type="text" name="ChildLastName" value="" placeholder="Child surname" aria-label="Child last name">
 
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                 Parent or guardian last name
                             </h6>
                             <div class="autocomplete">
-                                <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Status">
+                                <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Parent or guardian last name" aria-label="Parent or guardian last name">
                             </div>
 
                         </div>
@@ -66,7 +66,7 @@
                                 Reference number
                             </h6>
 
-                            <input id="Reference" class="govuk-input" type="text" name="Reference" value="" placeholder="Reference number">
+                            <input id="Reference" class="govuk-input" type="text" name="Reference" value="" placeholder="Reference number" aria-label="Reference number">
 
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                             <div class="govuk-form-group">
 
 
-                                <select class="govuk-select" id="Status" name="Status">
+                                <select class="govuk-select" id="Status" name="Status" aria-label="Status">
 
 
                                     <option value="all">All statuses</option>
@@ -136,46 +136,43 @@
                     <div class="govuk-grid-column-one-quarter">
 
 
-                        <div class="govuk-form-group HO-uk-margin-bottom-3">
-                            <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
-                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                                    Child date of birth
-                                </legend>
-                                <!--<div id="passport-issued-hint" class="govuk-hint">
-                                    For example, 12 11 2007
-                                </div> -->
-                                <div class="govuk-date-input" id="dob">
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBDay">
-                                                Day
-                                            </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                            <div class="govuk-form-group HO-uk-margin-bottom-3">
+                                <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
+                                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                        Child date of birth
+                                    </legend>
+                                    <!--<div id="passport-issued-hint" class="govuk-hint">
+                                        For example, 12 11 2007
+                                    </div> -->
+                                    <div class="govuk-date-input" id="dob">
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="ChildDOBDay">
+                                                    Day
+                                                </label>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Day of birth">
+                                            </div>
                                         </div>
-
-
-                                    </div>
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBMonth">
-                                                Month
-                                            </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="ChildDOBMonth">
+                                                    Month
+                                                </label>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Month of birth">
+                                            </div>
+                                        </div>
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="ChildDOBYear">
+                                                    Year
+                                                </label>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Year of birth">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBYear">
-                                                Year
-                                            </label>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
-                                        </div>
+                                </fieldset>
+                            </div>
 
-                                    </div>
-                                </div>
-
-                            </fieldset>
-                        </div>
                     </div>
 
 
@@ -184,48 +181,45 @@
                 <!-- PARENT -->
 
                 <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-one-quarter">
-
-
-                        <div class="govuk-form-group">
-                            <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
-                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                                    Parent or guardian date of birth
-                                </legend>
-                                <!--<div id="passport-issued-hint" class="govuk-hint">
-                                    For example, 12 11 2007
-                                </div> -->
-                                <div class="govuk-date-input" id="passport-issued">
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="PGDOBDay">
-                                                Day
-                                            </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                        <div class="govuk-grid-column-one-quarter">
+                            <div class="govuk-form-group">
+                                <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
+                                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                        Parent or guardian date of birth
+                                    </legend>
+                                    <!--<div id="passport-issued-hint" class="govuk-hint">
+                                        For example, 12 11 2007
+                                    </div> -->
+                                    <div class="govuk-date-input" id="passport-issued">
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="PG-DOB-Day">
+                                                    Day
+                                                </label>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Day of birth">
+                                            </div>
                                         </div>
-
-                                    </div>
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                                <label class="govuk-label govuk-date-input__label" for="PGDOBMonth">
-                                                Month
-                                            </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="PG-DOB-Month">
+                                                    Month
+                                                </label>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Month of birth">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="govuk-date-input__item">
-                                        <div class="govuk-form-group">
-                                                <label class="govuk-label govuk-date-input__label" for="PGDOBYear">
-                                                Year
-                                            </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="PG-DOB-Year">
+                                                    Year
+                                                </label>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Year of birth">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-
-                            </fieldset>
+                                </fieldset>
+                            </div>
                         </div>
-                    </div>
+
                 </div>
                 <!-- SEX -->
                 <div class="govuk-grid-row">
