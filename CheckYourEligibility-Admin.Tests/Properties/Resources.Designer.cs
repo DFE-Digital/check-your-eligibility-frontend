@@ -85,5 +85,14 @@ namespace CheckYourEligibility_Parent.Tests.Properties {
                 return ResourceManager.GetString("batchchecktemplate some invalid items", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;id&quot;:&quot;4579AE90-8B2B-4C02-AC08-756CBBB1C567&quot;,&quot;name&quot;:&quot;Hollinswood Primary School&quot;,&quot;LegalName&quot;:&quot;HOLLINSWOOD PRIMARY SCHOOL&quot;,&quot;category&quot;:{&quot;id&quot;:&quot;001&quot;,&quot;name&quot;:&quot;Establishment&quot;},&quot;type&quot;:{&quot;id&quot;:&quot;01&quot;,&quot;name&quot;:&quot;Community School&quot;},&quot;urn&quot;:&quot;123456&quot;,&quot;uid&quot;:null,&quot;upin&quot;:null,&quot;ukprn&quot;:&quot;10069246&quot;,&quot;establishmentNumber&quot;:&quot;2200&quot;,&quot;status&quot;:{&quot;id&quot;:1,&quot;name&quot;:&quot;Open&quot;},&quot;closedOn&quot;:null,&quot;address&quot;:&quot;Dale Acre Way, Hollinswood, Telford, Shropshire, TF3 2EP&quot;,&quot;telephone&quot;:&quot;01952386920&quot;,&quot;region&quot;:{&quot;id&quot;:&quot;F&quot;,&quot;name&quot;:&quot;West Midlands&quot;},&quot;localAuthority&quot;:{&quot;id&quot;:&quot;24 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ClaimSchool {
+            get {
+                return ResourceManager.GetString("ClaimSchool", resourceCulture);
+            }
+        }
     }
 }
