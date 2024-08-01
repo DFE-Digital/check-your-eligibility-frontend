@@ -1,17 +1,15 @@
-﻿using CheckYourEligibility_FrontEnd.Controllers;
-using CheckYourEligibility_FrontEnd.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Microsoft.Extensions.Configuration;
+﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using CheckYourEligibility_FrontEnd.Controllers;
+using CheckYourEligibility_FrontEnd.Services;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using CheckYourEligibility.Domain.Enums;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -20,7 +18,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
     {
         // mocks
         private ILogger<BulkUploadController> _loggerMock;
-       // private Mock<IEcsServiceParent> _parentServiceMock;
         private Mock<IEcsCheckService> _checkServiceMock;
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
