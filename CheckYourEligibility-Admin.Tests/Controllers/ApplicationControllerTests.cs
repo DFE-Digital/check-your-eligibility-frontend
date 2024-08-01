@@ -99,7 +99,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             var model = viewResult.Model as ApplicationSearchResponse;
             model.Should().NotBeNull();
-            model.Should().BeEquivalentTo(_adminServiceMock.Object);
+            model.Should().BeEquivalentTo(response);
 
         }
     }
