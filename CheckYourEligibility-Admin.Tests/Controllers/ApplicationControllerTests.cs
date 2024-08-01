@@ -41,6 +41,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
 
             SetUpInitialMocks();
+            SetUpHTTPContext();
             // SetUpServiceMocks();
 
             void SetUpInitialMocks()
@@ -50,6 +51,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
 
             };
+
+            void SetUpHTTPContext()
+            {
+                _httpContext = new Mock<HttpContext>();
+                _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+                _sut.ControllerContext.HttpContext = _httpContext.Object;
+            }
 
             //void SetUpServiceMocks()
             //{
@@ -84,6 +92,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
                    .ReturnsAsync(response);
+
+            _httpContext.Setup(s => s.)
+            
 
             var request = _fixture.Create<ApplicationSearch>();
 
