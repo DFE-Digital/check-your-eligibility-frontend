@@ -70,7 +70,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             {
                 _userMock = new Mock<ClaimsPrincipal>();
                 var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
-                var claim2 = new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", Properties.Resources.ClaimSchool);
                 _userMock.Setup(x=>x.Claims).Returns(new List<Claim> { claimSchool,
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", "123"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress","test@test.com"),
@@ -125,7 +124,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                    .ReturnsAsync(response);
 
 
-            var request = _fixture.Create<ApplicationSearch>();
+            var request = new ApplicationSearch();
 
 
             //act
