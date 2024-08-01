@@ -24,7 +24,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         //private Mock<IConfiguration> _configMock;
 
         // responses
-        private ApplicationSearchResponse _applicationSearchResponse;
+        // private ApplicationSearchResponse _applicationSearchResponse;
 
         //system under test
         private ApplicationController _sut;
@@ -33,7 +33,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public void SetUp()
         {
             SetUpInitialMocks();
-            SetUpServiceMocks();
+            // SetUpServiceMocks();
 
             void SetUpInitialMocks()
             {
@@ -44,11 +44,11 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             }
 
-            void SetUpServiceMocks()
-            {
-                _checkServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
-                    .ReturnsAsync(_applicationSearchResponse);
-            }
+            //void SetUpServiceMocks()
+            //{
+            //    _checkServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            //        .ReturnsAsync(_applicationSearchResponse);
+            //}
         }
 
         [TearDown]
@@ -60,11 +60,20 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
+            // Act
             var result = _sut.Search();
 
+            // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.Model.Should().BeNull();
+        }
+
+        public async Task Given_Application_Search_Results_Page_Returns_Valid_Data()
+        {
+            var response = 
+               // new ApplicationSearchResponse { Data = new  IEnumerable<ApplicationSearchResponse>() };
+
         }
     }
 
