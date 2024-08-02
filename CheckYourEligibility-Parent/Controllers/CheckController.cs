@@ -173,7 +173,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
                 {
-                    HttpContext.Session.SetString("CheckResult", check.Data.Status);
+                    SetSessionCheckResult(check.Data.Status);
+                    
                     if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
                     {
                         string url = "/check/signIn";
@@ -201,6 +202,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
             return View("Outcome/Technical_Error");
+        }
+
+        public void SetSessionCheckResult(string status)
+        {
+            HttpContext.Session.SetString("CheckResult", status);
         }
 
         public IActionResult SignIn()
