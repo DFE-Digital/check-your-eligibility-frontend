@@ -8,6 +8,7 @@ using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
 using Microsoft.IdentityModel.Tokens;
 using System.Runtime.CompilerServices;
+using Azure.Core;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -161,7 +162,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             // gather api response which should either be queuedForProcessing or has a response
             var responseJson = TempData["Response"] as string;
-            var response = JsonConvert.DeserializeObject<CheckYourEligibility.Domain.Responses.CheckEligibilityResponse>(responseJson);
+            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
             _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
 
@@ -172,8 +173,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
                 {
-                    if (check.Data.Status ==
-                        CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+                    HttpContext.Session.SetString("CheckResult", check.Data.Status);
+                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
                     {
                         string url = "/check/signIn";
                         return View("Outcome/Eligible", url);
@@ -342,6 +343,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
+            if (HttpContext.Session.GetString("CheckResult") != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+            {
+                throw new Exception($"Invalid status when trying to create an application:-{HttpContext.Session.GetString("CheckResult")}");
+            }
             var responses = new List<ApplicationSaveItemResponse>();
 
             foreach (var child in request.Children.ChildList)
