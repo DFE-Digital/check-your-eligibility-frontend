@@ -35,13 +35,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
         private ApplicationController _sut;
 
+
         [SetUp]
-        public void TestSetUp()
+        public override void SetUp()
         {
-            SetUp();
+            base.SetUp();
+            SetClaimsData();
         }
-
-
         void SetClaimsData()
         {
             _userMock = new Mock<ClaimsPrincipal>();
@@ -54,12 +54,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 });
         }
 
-
         [TearDown]
-        public void TearDown()
-        {
-            TearDown();
-        }
+        
+
+
 
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()

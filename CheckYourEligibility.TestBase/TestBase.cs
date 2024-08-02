@@ -30,7 +30,7 @@ namespace CheckYourEligibility.TestBase
         private ApplicationController _sut;
 
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
 
             SetUpInitialMocks();
