@@ -71,6 +71,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             viewResult.Model.Should().BeNull();
         }
 
+        
         [Test]
         public async Task Given_Application_Search_Results_Page_Returns_Valid_Data()
         {
@@ -80,9 +81,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
                    .ReturnsAsync(response);
 
-
             var request = new ApplicationSearch();
-
 
             //act
             var result = await _sut.Results(request);

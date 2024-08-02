@@ -408,6 +408,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_CheckAnswers_When_ValidDataProvided_Should_RedirectToApplicationSentPage()
         {
             // Arrange 
+
+            _sut.SetSessionCheckResult(CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString());
             _sut.TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(_applicationSaveItemResponse);
 
             // Act
