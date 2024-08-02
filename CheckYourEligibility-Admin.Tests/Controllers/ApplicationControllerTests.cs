@@ -32,29 +32,14 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ClaimsPrincipal> _userMock;
         protected readonly Fixture _fixture = new Fixture();
 
-        //private Mock<IConfiguration> _configMock;
 
-        // responses
-        //private ApplicationSearchResponse _applicationSearchResponse;
-        //private ApplicationResponse _applicationResponse;
-
-        //system under test
         private ApplicationController _sut;
 
+        [SetUp]
         public void TestSetUp()
         {
             SetUp();
         }
-
-        //[SetUp]
-        //public void SetUp()
-        //{
-
-        //    SetUpInitialMocks();
-        //    SetUpSessionData();
-        //    SetClaimsData();
-        //    SetUpHTTPContext();
-        //    // SetUpServiceMocks();
 
 
         void SetClaimsData()

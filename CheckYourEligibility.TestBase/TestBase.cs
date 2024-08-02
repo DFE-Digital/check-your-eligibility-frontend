@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Security.Claims;
 using CheckYourEligibility_DfeSignIn.Models;
-using Albedo;
+
 
 
 
@@ -71,9 +71,6 @@ namespace CheckYourEligibility.TestBase
                 _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
                 _sut.ControllerContext.HttpContext = _httpContext.Object;
             }
-        }
-
-
 
             //void SetUpClaimsData()
             //{
@@ -86,8 +83,9 @@ namespace CheckYourEligibility.TestBase
             //        new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname","testSurname")
             //    });
             //}
-            //}
+
         }
+
 
         [TearDown]
         public void TearDown()
@@ -97,4 +95,5 @@ namespace CheckYourEligibility.TestBase
 
 
     }
+
 }
