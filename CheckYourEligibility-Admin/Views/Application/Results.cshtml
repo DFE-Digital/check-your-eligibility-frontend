@@ -58,9 +58,9 @@
                        <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
                        <td class="govuk-table__cell">@Convert.ToDateTime(application.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
                        <td class="govuk-table__cell">
-                            <strong class="govuk-tag @statusColor[application.Status]">
+                            <p class="govuk-tag @statusColor[application.Status]">
                                 @statusName[application.Status]
-                            </strong>
+                            </p>
                        </td>
                        <td class="govuk-table__cell">@application.Created.ToString("dd MMM yyyy")</td>
                    </tr>
