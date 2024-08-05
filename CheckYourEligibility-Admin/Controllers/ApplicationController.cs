@@ -69,6 +69,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                     localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = request.Status,
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
