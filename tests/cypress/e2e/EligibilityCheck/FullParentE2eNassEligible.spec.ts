@@ -34,7 +34,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
             req.headers['Authorization'] = authorizationHeader;
         }).as('interceptForGET');
 
-        cy.contains('Continue to GOV.UK One Login').click();
+        cy.contains('Continue to GOV.UK One Login', { timeout: 60000 }).click();
 
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";

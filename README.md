@@ -27,7 +27,7 @@ cd tests
 npm install
 CYPRESS_BASE_URL="https://ecs-test-as-frontend.azurewebsites.net" npx cypress open
 `
-Inside the cypress directory create a "cypress.env.json" and paste in these:
+Inside the tests directory create a "cypress.env.json" and paste in these:
 
 {
     "AUTHORIZATION_HEADER": "",

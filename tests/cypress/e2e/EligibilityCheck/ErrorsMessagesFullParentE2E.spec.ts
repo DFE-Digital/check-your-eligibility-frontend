@@ -137,16 +137,13 @@ describe('After errors have been input initially a Parent with valid details can
                 },
             });
 
-            cy.contains('Sign in').click();
+            cy.contains('Sign in',{ timeout: 60000 }).click();
 
             cy.get('input[name=email]').type(Cypress.env('ONEGOV_EMAIL'));
             cy.contains('Continue').click();
 
             cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
             cy.contains('Continue').click();
-
-            //cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
-            //cy.contains('Continue').click();
 
         });
 
@@ -167,9 +164,8 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('[id="ChildList[0].Year"]').type('2007');
 
         cy.contains('Save and continue').click();
-        cy.wait(2000);
 
-        cy.get('h1').should('contain.text', 'Check your answers before registering');
+        cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before registering');
 
         cy.contains('Tim Smith');
         cy.contains('01/01/1990');

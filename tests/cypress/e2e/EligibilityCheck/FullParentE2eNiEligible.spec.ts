@@ -32,7 +32,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
             req.headers['Authorization'] = authorizationHeader;
         }).as('interceptForGET');
 
-        cy.contains('Continue to GOV.UK One Login').click();
+        cy.contains('Continue to GOV.UK One Login',{ timeout: 60000 }).click();
 
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";
@@ -80,7 +80,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Save and continue').click();
 
-        cy.get('h1').should('contain.text', 'Check your answers before registering');
+        cy.get('h1',{ timeout: 10000 }).should('contain.text', 'Check your answers before registering');
 
         cy.contains('Tim Smith');
         cy.contains('01/01/1990');
