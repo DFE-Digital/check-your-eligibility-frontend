@@ -31,41 +31,40 @@
             }
 
             <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold" for="ch1-first-name">
+                <label class="govuk-label govuk-!-font-weight-bold" for="ChildList[@i].FirstName">
                     First name
                 </label>
-                <p class="govuk-error-message">
-                    <span asp-validation-for="ChildList[i].FirstName"></span>
+                <p class="govuk-error-message" id="ChildList[@i].FirstName-error">
+                    <span asp-validation-for="ChildList[@i].FirstName"></span>
                 </p>
-
-                <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name">
+                <input asp-for="ChildList[@i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name" aria-invalid="true" aria-describedby="ChildList[@i].FirstName-error">
             </div>
 
             <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold">
+                <label class="govuk-label govuk-!-font-weight-bold" for="ChildList[@i].LastName">
                     Last name
                 </label>
-                <p class="govuk-error-message">
-                    <span asp-validation-for="ChildList[i].LastName"></span>
+                <p class="govuk-error-message" id="ChildList[@i].LastName-error">
+                    <span asp-validation-for="ChildList[@i].LastName"></span>
                 </p>
-                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="Last Name">
+                <input asp-for="ChildList[@i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="Last Name" aria-invalid="true" aria-describedby="ChildList[@i].LastName-error">
             </div>
 
             <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
+                <label class="govuk-label govuk-!-font-weight-bold" for="ChildList[@i].School.Name">
                     School
                 </label>
 
-                <div id="school-picker-hint" class="govuk-hint">
+                <div id="school-picker-hint-@i" class="govuk-hint">
                     Type to search
                 </div>
-                <p class="govuk-error-message">
-                    <span asp-validation-for="ChildList[i].School.Name"></span>
+                <p class="govuk-error-message" id="ChildList[@i].School.Name-error">
+                    <span asp-validation-for="ChildList[@i].School.Name"></span>
                 </p>
-                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
-                <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
-                <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
-                <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
+                <input asp-for="ChildList[@i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School" aria-describedby="school-picker-hint-@i ChildList[@i].School.Name-error">
+                <input hidden asp-for="ChildList[@i].School.URN" id="ChildList[@i].School.URN" />
+                <input hidden asp-for="ChildList[@i].School.Postcode" id="ChildList[@i].School.Postcode" />
+                <input hidden asp-for="ChildList[@i].School.LA" id="ChildList[@i].School.LA" />
                 <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
             </div>
 
@@ -76,45 +75,45 @@
                         Date of birth
                     </legend>
 
-                    <div id="dob-hint" class="govuk-hint">
+                    <div id="dob-hint-@i" class="govuk-hint">
                         For example, 27 3 2007
                     </div>
 
-                    <div class="govuk-date-input" id="dob">
+                    <div class="govuk-date-input" id="dob-@i">
 
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group" data-type="dob-input">
-                                <label class="govuk-label govuk-date-input__label" for="ch1-day">
+                                <label class="govuk-label govuk-date-input__label" for="ChildList[@i].Day">
                                     Day
                                 </label>
-                                <p class="govuk-error-message">
-                                    <span asp-validation-for="ChildList[i].Day"></span>
+                                <p class="govuk-error-message" id="ChildList[@i].Day-error">
+                                    <span asp-validation-for="ChildList[@i].Day"></span>
                                 </p>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric" aria-label="Day">
+                                <input asp-for="ChildList[@i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric" aria-label="Day" aria-invalid="true" aria-describedby="dob-hint-@i ChildList[@i].Day-error">
                             </div>
                         </div>
 
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group" data-type="dob-input">
-                                <label class="govuk-label govuk-date-input__label" for="ch1-month">
+                                <label class="govuk-label govuk-date-input__label" for="ChildList[@i].Month">
                                     Month
                                 </label>
-                                <p class="govuk-error-message">
-                                    <span asp-validation-for="ChildList[i].Month"></span>
+                                <p class="govuk-error-message" id="ChildList[@i].Month-error">
+                                    <span asp-validation-for="ChildList[@i].Month"></span>
                                 </p>
-                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric" aria-label="Month">
+                                <input asp-for="ChildList[@i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" inputmode="numeric" aria-label="Month" aria-invalid="true" aria-describedby="dob-hint-@i ChildList[@i].Month-error">
                             </div>
                         </div>
 
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group" data-type="dob-input">
-                                <label class="govuk-label govuk-date-input__label" for="ch1-year">
+                                <label class="govuk-label govuk-date-input__label" for="ChildList[@i].Year">
                                     Year
                                 </label>
-                                <p class="govuk-error-message">
-                                    <span asp-validation-for="ChildList[i].Year"></span>
+                                <p class="govuk-error-message" id="ChildList[@i].Year-error">
+                                    <span asp-validation-for="ChildList[@i].Year"></span>
                                 </p>
-                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4" inputmode="numeric" aria-label="Year">
+                                <input asp-for="ChildList[@i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4" inputmode="numeric" aria-label="Year" aria-invalid="true" aria-describedby="dob-hint-@i ChildList[@i].Year-error">
                             </div>
                         </div>
                     </div>

@@ -16,30 +16,29 @@
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
-<h1 class="govuk-heading-xl">Children Details Added</h1>
+<h1 class="govuk-heading-xl" tabindex="-1">Children Details Added</h1>
 
 <p>We have sent details for: </p>
-<table>
-    <thead>
-        <tr>
-            <th>Reference</th>
-            <th>Child Name</th>
-            <th>Child School</th>
+<table class="govuk-table" aria-describedby="children-details-description">
+    <caption id="children-details-description" class="govuk-table__caption">List of children whose details have been sent</caption>
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Reference</th>
+            <th scope="col" class="govuk-table__header">Child Name</th>
+            <th scope="col" class="govuk-table__header">Child School</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="govuk-table__body">
         @foreach (var response in responses)
         {
-            <tr>
-                <td>@response.Data.Reference</td>
-                <td>@response.Data.ChildFirstName @response.Data.ChildLastName</td>
-                <td>@response.Data.School.Name</td>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">@response.Data.Reference</td>
+                <td class="govuk-table__cell">@response.Data.ChildFirstName @response.Data.ChildLastName</td>
+                <td class="govuk-table__cell">@response.Data.School.Name</td>
             </tr>
         }
     </tbody>
 </table>
-
-
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -47,6 +46,5 @@
         <p>The school will email you when they have registered your details, and will arrange for your children's free school meals to start.</p>
     </div>
 </div>
-
 
 <script src="/js/validationSummary.js"></script>
