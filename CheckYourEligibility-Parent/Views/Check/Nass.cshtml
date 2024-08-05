@@ -42,7 +42,7 @@
 
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true" data-aria-controls="conditional-nass-number" aria-expanded="false">
+                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true" data-aria-controls="conditional-nass-number" aria-expanded="false" aria-label="Yes, I have an asylum support reference number">
                             <label class="govuk-label govuk-radios__label" for="nass-number">
                                 Yes
                             </label>
@@ -56,15 +56,15 @@
                                 <div id="nass-number-entered-hint" class="govuk-hint">
                                     Enter the first 9 numbers
                                 </div>
-                                <p class="govuk-error-message">
+                                <p class="govuk-error-message" id="nass-number-error">
                                     <span asp-validation-for="NationalAsylumSeekerServiceNumber"></span>
                                 </p>
-                                <input class="govuk-input govuk-!-width-one-third" asp-for="NationalAsylumSeekerServiceNumber" type="text" inputmode="numeric" maxlength="10" spellcheck="false" aria-describedby="nass-number-entered-hint" autocomplete="text">
+                                <input class="govuk-input govuk-!-width-one-third" asp-for="NationalAsylumSeekerServiceNumber" type="text" inputmode="numeric" maxlength="10" spellcheck="false" aria-describedby="nass-number-entered-hint nass-number-error" autocomplete="text">
                             </div>
                         </div>
 
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false">
+                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false" aria-label="No, I do not have an asylum support reference number">
                             <label class="govuk-label govuk-radios__label" for="nass-number-2">
                                 No, I do not have one
                             </label>

@@ -23,20 +23,20 @@
             <label class="govuk-label" for="first-name">
                 Your first name
             </label>
-            <p class="govuk-error-message">
+            <p class="govuk-error-message" id="first-name-error">
                 <span asp-validation-for="FirstName"></span>
             </p>
-            <input class="govuk-input govuk-!-width-two-thirds" asp-for="FirstName" type="text" aria-label="Your first name">
+            <input class="govuk-input govuk-!-width-two-thirds" asp-for="FirstName" type="text" aria-label="Your first name" aria-invalid="true" aria-describedby="first-name-error">
         </div>
 
         <div class="govuk-form-group">
             <label class="govuk-label" for="surname">
                 Your last name
             </label>
-            <p class="govuk-error-message">
+            <p class="govuk-error-message" id="surname-error">
                 <span asp-validation-for="LastName"></span>
             </p>
-            <input class="govuk-input govuk-!-width-two-thirds" asp-for="LastName" type="text" aria-label="Your last name">
+            <input class="govuk-input govuk-!-width-two-thirds" asp-for="LastName" type="text" aria-label="Your last name" aria-invalid="true" aria-describedby="surname-error">
         </div>
     </fieldset>
 
@@ -58,10 +58,10 @@
                         <label class="govuk-label govuk-date-input__label" for="dob-day">
                             Day
                         </label>
-                        <p class="govuk-error-message">
+                        <p class="govuk-error-message" id="dob-day-error">
                             <span asp-validation-for="Day"></span>
                         </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Day" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Day" aria-invalid="true" aria-describedby="dob-day-error" />
                     </div>
                 </div>
 
@@ -70,10 +70,10 @@
                         <label class="govuk-label govuk-date-input__label" for="dob-month">
                             Month
                         </label>
-                        <p class="govuk-error-message">
+                        <p class="govuk-error-message" id="dob-month-error">
                             <span asp-validation-for="Month"></span>
                         </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Month" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Month" aria-invalid="true" aria-describedby="dob-month-error" />
                     </div>
                 </div>
 
@@ -82,10 +82,10 @@
                         <label class="govuk-label govuk-date-input__label" for="dob-year">
                             Year
                         </label>
-                        <p class="govuk-error-message">
+                        <p class="govuk-error-message" id="dob-year-error">
                             <span asp-validation-for="Year"></span>
                         </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" aria-label="Year" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" inputmode="numeric" maxlength="4" data-type="dob" aria-label="Year" aria-invalid="true" aria-describedby="dob-year-error" />
                     </div>
                 </div>
             </div>
@@ -119,10 +119,10 @@
                         <div id="ni-number-entered-hint" class="govuk-hint">
                             For example, ‘QQ 12 34 56 C’
                         </div>
-                        <p class="govuk-error-message">
+                        <p class="govuk-error-message" id="ni-number-error">
                             <span asp-validation-for="NationalInsuranceNumber"></span>
                         </p>
-                        <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text" aria-label="Your National Insurance Number">
+                        <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text" aria-label="Your National Insurance Number" aria-invalid="true" aria-describedby="ni-number-error">
                     </div>
                 </div>
                 <div class="govuk-radios__item">
