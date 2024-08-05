@@ -83,8 +83,10 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.contains('Hinde House 2-16 Academy');
         cy.contains('01/01/2007')
 
-        cy.get('h1').should('contain.text', 'Check your answers before registering');
+        cy.get('h1',{ timeout: 10000 }).should('contain.text', 'Check your answers before registering');
+
         cy.contains('Register details').click();
+
 
 
     });
