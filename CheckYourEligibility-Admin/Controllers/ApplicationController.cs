@@ -1,3 +1,4 @@
+using Azure.Core;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
@@ -25,9 +26,29 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View();
         }
-        public IActionResult Process_Appeals()
+        public async Task<IActionResult> Process_Appeals()
         {
-            return View();
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+
+            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            {
+                Data = new ApplicationRequestSearchData
+                {
+
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
+                }
+            };
+            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview;
+            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsSentForReview ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
+            var results = new ApplicationSearchResponse() { Data = resultItems };
+            return View(results);
         }
 
         [HttpGet]
