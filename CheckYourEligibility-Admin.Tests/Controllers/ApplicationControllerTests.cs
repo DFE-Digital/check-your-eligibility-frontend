@@ -25,15 +25,15 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
     public class ApplicationControllerTests : TestBase
     {
         // mocks
-        private ILogger<ApplicationController> _loggerMock;
-        private Mock<IEcsServiceAdmin> _adminServiceMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<HttpContext> _httpContext;
+        //private ILogger<ApplicationController> _loggerMock;
+        //private Mock<IEcsServiceAdmin> _adminServiceMock;
+        //private Mock<ISession> _sessionMock;
+        //private Mock<HttpContext> _httpContext;
         private Mock<ClaimsPrincipal> _userMock;
-        protected readonly Fixture _fixture = new Fixture();
+        //protected readonly Fixture _fixture = new Fixture();
 
 
-        private ApplicationController _sut;
+        //private ApplicationController _sut;
 
 
         [SetUp]
@@ -42,7 +42,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             base.SetUp();
             SetClaimsData();
         }
-        void SetClaimsData()
+        private void SetClaimsData()
         {
             _userMock = new Mock<ClaimsPrincipal>();
             var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
@@ -53,10 +53,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname","testSurname")
                 });
         }
-
-        [TearDown]
         
-
 
 
         [Test]

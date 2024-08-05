@@ -20,14 +20,14 @@ namespace CheckYourEligibility.TestBase
     [ExcludeFromCodeCoverage]
     public abstract class TestBase
     {
-        private ILogger<ApplicationController> _loggerMock;
-        private Mock<IEcsServiceAdmin> _adminServiceMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<HttpContext> _httpContext;
-        private Mock<ClaimsPrincipal> _userMock;
+        protected ILogger<ApplicationController> _loggerMock;
+        protected Mock<IEcsServiceAdmin> _adminServiceMock;
+        protected Mock<ISession> _sessionMock;
+        protected Mock<HttpContext> _httpContext;
+        protected  Mock<ClaimsPrincipal> _userMock;
         protected readonly Fixture _fixture = new Fixture();
 
-        private ApplicationController _sut;
+        protected ApplicationController _sut;
 
         [SetUp]
         public virtual void SetUp()
@@ -35,8 +35,9 @@ namespace CheckYourEligibility.TestBase
 
             SetUpInitialMocks();
             SetUpSessionData();
-            //SetUpClaimsData();
+
             SetUpHTTPContext();
+        }
 
 
 
@@ -46,7 +47,7 @@ namespace CheckYourEligibility.TestBase
                 _loggerMock = Mock.Of<ILogger<ApplicationController>>();
                 _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
 
-            };
+            }
 
             void SetUpSessionData()
             {
@@ -84,7 +85,6 @@ namespace CheckYourEligibility.TestBase
             //    });
             //}
 
-        }
 
 
         [TearDown]
