@@ -1,4 +1,6 @@
+using Azure.Core;
 using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
@@ -24,14 +26,38 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             return View();
         }
-        public IActionResult Process_Appeals()
+        public async Task<IActionResult> Process_Appeals()
         {
-            return View();
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+
+            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            {
+                Data = new ApplicationRequestSearchData
+                {
+
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
+                }
+            };
+            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview;
+            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsSentForReview ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
+            var results = new ApplicationSearchResponse() { Data = resultItems };
+            return View(results);
         }
 
         [HttpGet]
         public IActionResult Search()
         {
+            if (TempData["Message"] != null)
+            {
+                ViewBag.Message = TempData["Message"];
+            }
             return View();
         }
 
@@ -47,22 +73,37 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                     localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = request.Status,
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
-                    ChildDateOfBirth =  request.ChildDOBYear.HasValue && request.ChildDOBMonth.HasValue && request.ChildDOBDay.HasValue ?
+                    ChildDateOfBirth =  request.ChildDOBYear.HasValue ?
                     new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd")
                     : null,
-                    ParentDateOfBirth = request.PGDOBYear.HasValue && request.PGDOBMonth.HasValue && request.PGDOBDay.HasValue ?
+                    ParentDateOfBirth = request.PGDOBYear.HasValue ?
                     new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
                     : null,
                 }
             };
             var response = await _adminService.PostApplicationSearch(applicationSearch);
 
-            //Fetch result and pass it to view
-            //return null;
-            return View();
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            if (response.Data == null || !response.Data.Any())
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return RedirectToAction("Search");
+            }
+
+            return View(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetail(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+
+            return View(response);
         }
     } 
 }

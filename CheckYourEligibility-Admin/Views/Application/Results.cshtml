@@ -1,12 +1,75 @@
-﻿@model CheckYourEligibility_FrontEnd.Models.ApplicationSearch;
+﻿@model CheckYourEligibility.Domain.Responses.ApplicationSearchResponse;
+
+@{
+    Dictionary<string, string> statusColor = new Dictionary<string, string>
+    {
+        {"Entitled", "govuk-tag--green"},
+        {"EvidenceNeeded", "govuk-tag--light-blue"},
+        {"ReceivingEntitlement", "govuk-tag--pink"},
+        {"SentForReview", "govuk--tag-blue"},
+        {"ReviewedEntitled", "govuk--tag-green"},
+        {"ReviewedNotEntitled", "govuk--tag-red"}
+    };
+
+    Dictionary<string, string> statusName = new Dictionary<string, string>
+    {
+        {"Entitled", "Entitled"},
+        {"EvidenceNeeded", "Evidence Needed"},
+        {"ReceivingEntitlement", "Receiving"},
+        {"SentForReview", "Sent for Review"},
+        {"ReviewedEntitled", "Reviewed Entitled"},
+        {"ReviewedNotEntitled", "Reviewed Not Entitled"}
+    };
+
+}
+
 
 <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
 
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
-            Results
+            Search results (@Model.Data.Count())  
         </h1>
-        <p>Results page.</p>
 
+        <p><a href="search">Search again</a> </p>
+
+       <table class="govuk-table">
+           <thead class="govuk-table__head">
+               <tr class="govuk-table__row">
+                   <th class="govuk-table__header" scope="col" id="select-all"></th>
+                   <th class="govuk-table__header" scope="col">Reference</th>
+                   <th class="govuk-table__header" scope="col">Parent / Guardian</th>
+                   <th class="govuk-table__header" scope="col">Child</th>
+                   <th class="govuk-table__header" scope="col">Child DOB</th>
+                   @* <th class="govuk-table__header" scope="col">Eligible from</th> *@
+                   <th class="govuk-table__header" scope="col"> Status</th>
+                   <th class="govuk-table__header" scope="col">Submission date</th>
+               </tr>
+           </thead>
+           <tbody class="govuk-table__body">
+               @foreach (var application in Model.Data)
+               {
+                   
+                   <tr class="govuk-table__row">
+                       <td class="govuk-table__cell"></td>
+                       <td class="govuk-table__cell">
+                                @Html.ActionLink(@application.Reference, "ApplicationDetail", "application", new { id = application.Id }, new { @class = "govuk-link" })
+                       </td>
+                       <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
+                       <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
+                       <td class="govuk-table__cell">@Convert.ToDateTime(application.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
+                       <td class="govuk-table__cell">
+                            <strong class="govuk-tag @statusColor[application.Status]" style="text-transform: none">
+                                @statusName[application.Status]
+                            </strong>
+                       </td>
+                       <td class="govuk-table__cell">@application.Created.ToString("dd MMM yyyy")</td>
+                   </tr>
+               }
+           </tbody>
+       </table>
+
+    </div>
     </div>
 </div>

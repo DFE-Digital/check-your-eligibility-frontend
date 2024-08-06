@@ -10,8 +10,6 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? ChildLastName { get; set; }
         public string? ParentLastName { get; set; }
         public string? Reference { get; set; }
-        public string? ChildDateOfBirth { get; set; }
-        public string? ParentDateOfBirth { get; set; }
         public int? ChildDOBDay { get; set; }
         public int? ChildDOBMonth { get; set; }
         public int? ChildDOBYear { get; set; }

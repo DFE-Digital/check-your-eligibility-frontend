@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="appsettings.development.json" />
+    <None Include="appsettings.Development.json" />
     <None Include="appsettings.json" />
   </ItemGroup>
 
