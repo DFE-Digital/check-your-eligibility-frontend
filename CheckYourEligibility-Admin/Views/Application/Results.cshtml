@@ -53,7 +53,9 @@
                    
                    <tr class="govuk-table__row">
                        <td class="govuk-table__cell"></td>
-                       <td class="govuk-table__cell">@application.Reference</td>
+                       <td class="govuk-table__cell">
+                                @Html.ActionLink(@application.Reference, "ApplicationDetail", "application", new { id = application.Id }, new { @class = "govuk-link" })
+                       </td>
                        <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
                        <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
                        <td class="govuk-table__cell">@Convert.ToDateTime(application.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
