@@ -57,6 +57,21 @@
     <div class="govuk-width-container ">
         <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
         <main class="govuk-main-wrapper " id="main-content" role="main">
+            @if (ViewBag.Message != null)
+            {
+                <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            Notice
+                        </h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-notification-banner__heading">
+                            @ViewBag.Message
+                        </p>
+                    </div>
+                </div>
+            }
             @RenderBody()
         </main>
     </div>

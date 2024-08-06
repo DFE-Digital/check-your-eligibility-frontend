@@ -106,6 +106,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
+            // Arrange 
+            var mockTempDataProvider = new Mock<ITempDataProvider>();
+            var mockTempDataDict = new TempDataDictionary(_httpContext.Object, mockTempDataProvider.Object);
+            _sut.TempData = mockTempDataDict;
             // Act
             var result = _sut.Search();
 

@@ -54,6 +54,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public IActionResult Search()
         {
+            if (TempData["Message"] != null)
+            {
+                ViewBag.Message = TempData["Message"];
+            }
             return View();
         }
 
@@ -84,6 +88,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var response = await _adminService.PostApplicationSearch(applicationSearch);
 
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            if (response.Data == null || !response.Data.Any())
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return RedirectToAction("Search");
+            }
 
             return View(response);
         }
