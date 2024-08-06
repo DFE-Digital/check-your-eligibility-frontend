@@ -89,6 +89,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
 
+            if (response.Data == null || !response.Data.Any())
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return RedirectToAction("Search");
+            }
+
             return View(response);
         }
 
