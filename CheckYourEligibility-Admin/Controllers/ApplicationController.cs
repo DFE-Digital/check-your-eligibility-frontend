@@ -85,13 +85,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     : null,
                 }
             };
-            ApplicationSearchResponse response = await _adminService.PostApplicationSearch(applicationSearch);
+            var response = await _adminService.PostApplicationSearch(applicationSearch);
 
-            if (response.Data == null)
-            {
-                TempData["Message"] = "There are no records matching your search.";
-                return RedirectToAction("Search");
-            }
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            return View(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetail(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+
             return View(response);
         }
     } 
