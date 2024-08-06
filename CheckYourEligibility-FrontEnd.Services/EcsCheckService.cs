@@ -33,6 +33,7 @@ namespace CheckYourEligibility_FrontEnd.Services
                 _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{_FsmUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
                 throw;
             }
+
         }
 
         public async Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody)
