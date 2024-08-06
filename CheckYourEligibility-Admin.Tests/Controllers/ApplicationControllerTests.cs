@@ -97,6 +97,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             }
         }
 
+        public void SetUpTempData()
+        {
+            var mockTempDataProvider = new Mock<ITempDataProvider>();
+            var mockTempDataDict = new TempDataDictionary(_httpContext.Object, mockTempDataProvider.Object);
+            _sut.TempData = mockTempDataDict;
+        }
+
         [TearDown]
         public void TearDown()
         {
@@ -107,9 +114,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
             // Arrange 
-            var mockTempDataProvider = new Mock<ITempDataProvider>();
-            var mockTempDataDict = new TempDataDictionary(_httpContext.Object, mockTempDataProvider.Object);
-            _sut.TempData = mockTempDataDict;
+            SetUpTempData();
             // Act
             var result = _sut.Search();
 
@@ -117,6 +122,28 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.Model.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Given_Application_Search_Returns_No_Records_User_Redirected_To_Search()
+        {
+            //Arrange
+            SetUpTempData();
+            var response = new ApplicationSearchResponse();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.Results(request);
+
+            //assert 
+
+            var Result = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            Result.ActionName.Should().Be("Search");
+            _sut.TempData["Message"].Should().Be("There are no records matching your search.");
         }
 
         
