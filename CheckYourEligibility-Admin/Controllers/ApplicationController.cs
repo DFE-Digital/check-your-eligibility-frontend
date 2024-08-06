@@ -82,8 +82,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             };
             ApplicationSearchResponse response = await _adminService.PostApplicationSearch(applicationSearch);
 
-            //Fetch result and pass it to view
-            //return null;
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            return View(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetail(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+
             return View(response);
         }
     } 
