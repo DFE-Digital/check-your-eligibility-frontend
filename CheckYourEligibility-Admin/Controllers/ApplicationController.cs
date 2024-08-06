@@ -81,7 +81,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     : null,
                 }
             };
-            ApplicationSearchResponse response = await _adminService.PostApplicationSearch(applicationSearch);
+            var response = await _adminService.PostApplicationSearch(applicationSearch);
 
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
 
