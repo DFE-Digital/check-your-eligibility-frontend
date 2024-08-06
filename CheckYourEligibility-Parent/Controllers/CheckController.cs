@@ -154,53 +154,39 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        /// this method is called by AJAX
+        
+        /// This method is called by AJAX
         public async Task<IActionResult> Poll_Status()
         {
-            var startTime = DateTime.UtcNow;
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
-
-            // gather api response which should either be queuedForProcessing or has a response
+            // Gather API response which should either be queuedForProcessing or has a response
             var responseJson = TempData["Response"] as string;
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
             _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
 
-            // periodically get status and then render appropriate outcome page
-            while (await timer.WaitForNextTickAsync())
-            {
-                var check = await _checkService.GetStatus(response);
+            var check = await _checkService.GetStatus(response);
 
-                if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
-                {
-                    SetSessionCheckResult(check.Data.Status);
-                    
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-                    {
-                        string url = "/check/signIn";
-                        return View("Outcome/Eligible", url);
-                    }
+            // Return the status response
+            return Json(check.Data.Status);
+        }
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
-                        return View("Outcome/Not_Eligible");
+        public IActionResult Eligible()
+        {
+            return View("Outcome/Eligible");
+        }
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
-                        return View("Outcome/Not_Found");
+        public IActionResult NotEligible()
+        {
+            return View("Outcome/Not_Eligible");
+        }
 
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
-                        return View("Outcome/Technical_Error");
+        public IActionResult NotFound()
+        {
+            return View("Outcome/Not_Found");
+        }
 
-                    break;
-                }
-                else
-                {
-                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
-                    {
-                        break;
-                    }
-                    continue;
-                }
-            }
+        public IActionResult TechnicalError()
+        {
             return View("Outcome/Technical_Error");
         }
 
