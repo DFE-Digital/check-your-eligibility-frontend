@@ -8,8 +8,6 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
@@ -78,7 +76,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
                 // build object for api soft-check
-                var checkEligibilityRequest = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequest()
+                var checkEligibilityRequest = new CheckEligibilityRequest()
                 {
                     Data = new CheckEligibilityRequestDataFsm
                     {
@@ -367,8 +365,5 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // populate enter_child_details page with children model
             return View("Enter_Child_Details", children);
         }
-
-
-
     }
 }

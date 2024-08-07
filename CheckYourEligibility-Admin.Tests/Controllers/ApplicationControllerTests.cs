@@ -10,7 +10,7 @@ using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.TestBase;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
     public class ApplicationControllerTests : TestBase
