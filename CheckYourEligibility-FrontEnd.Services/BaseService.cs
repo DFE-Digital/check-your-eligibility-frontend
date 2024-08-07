@@ -153,6 +153,28 @@ namespace CheckYourEligibility_FrontEnd.Services
             return result;
         }
 
+        [ExcludeFromCodeCoverage(Justification = "Method Not Implemented yet accross the solution")]
+        protected async Task<T2> ApiDataPatchAsynch<T1, T2>(string address, T1 data, T2 result)
+        {
+            string uri = address;
+            string json = JsonConvert.SerializeObject(data);
+            HttpContent content = new StringContent(json);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var task = await _httpClient.PatchAsync(uri, content);
+            if (task.IsSuccessStatusCode)
+            {
+                var jsonString = await task.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<T2>(jsonString);
+            }
+            else
+            {
+                var method = "PATCH";
+                await LogApiError(task, method, uri, json);
+            }
+
+            return result;
+        }
+
         internal async Task LogApiError(HttpResponseMessage task, string method, string uri, string data)
         {
             await LogApiErrorInternal(task, method, uri, data);

@@ -95,5 +95,27 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             return View(response);
         }
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppeal(string id)
+        {
+                var response = await _adminService.GetApplication(id);
+
+                return View(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealConfirmation(string id)
+        {
+            TempData["AppAppealID"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealSend(string id)
+        {
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
+            
+            return RedirectToAction("Process_Appeals");
+        }
     } 
 }
