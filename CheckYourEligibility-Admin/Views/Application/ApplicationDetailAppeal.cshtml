@@ -125,6 +125,12 @@
                             @statusName[Model.Data.Status]
                         </strong>
                     </dd>
+                    <dd class="govuk-summary-list__value">
+                        @if (Model.Data.Status == "EvidenceNeeded")
+                        {
+                            @Html.ActionLink("Send for review", "ApplicationDetailAppealConfirmation", "application", new { id = Model.Data.Id }, new { @class = "govuk-button govuk-button--primary" })
+                        }
+                    </dd>
 
                 </div>
 

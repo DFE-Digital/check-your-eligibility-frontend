@@ -1,22 +1,13 @@
 ﻿using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Microsoft.Extensions.Configuration;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using AutoFixture;
-using AutoFixture.AutoMoq;
-using AutoFixture.Idioms;
 using CheckYourEligibility_FrontEnd.Models;
-using System.Security.Principal;
-using System.Security.Claims;
-using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility.TestBase;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
@@ -24,77 +15,22 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
     [TestFixture]
     public class ApplicationControllerTests : TestBase
     {
-        // mocks
+        //mocks
         private ILogger<ApplicationController> _loggerMock;
         private Mock<IEcsServiceAdmin> _adminServiceMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<HttpContext> _httpContext;
-        private Mock<ClaimsPrincipal> _userMock;
-        
 
-
+        // system under test
         private ApplicationController _sut;
-
 
         [SetUp]
         public void SetUp()
         {
-            SetUpInitialMocks();
-            _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
-            SetUpSessionData();
-            SetUpClaimsData();
-            SetUpHTTPContext();
-
-        }
-
-        public void SetUpInitialMocks()
-        {
             _adminServiceMock = new Mock<IEcsServiceAdmin>();
             _loggerMock = Mock.Of<ILogger<ApplicationController>>();
-        }
+            _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
 
-        public void SetUpHTTPContext()
-        {
-            _httpContext = new Mock<HttpContext>();
-            _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
-            _httpContext.Setup(ctx => ctx.User).Returns(_userMock.Object);
+            base.SetUp();
             _sut.ControllerContext.HttpContext = _httpContext.Object;
-        }
-
-        public void SetUpSessionData()
-        {
-            _sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>();
-
-            _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                            .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-            _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                        .Returns((string key, out byte[] value) =>
-                        {
-                            var result = sessionStorage.TryGetValue(key, out var storedValue);
-                            value = storedValue;
-                            return result;
-                        });
-        }
-
-        void SetUpClaimsData()
-        {
-            _userMock = new Mock<ClaimsPrincipal>();
-            var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
-            _userMock.Setup(x => x.Claims).Returns(new List<Claim> { claimSchool,
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", "123"),
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress","test@test.com"),
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname","testFirstName"),
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname","testSurname")
-                });
-        }
-
-        public void SetUpTempData()
-        {
-            var mockTempDataProvider = new Mock<ITempDataProvider>();
-            var mockTempDataDict = new TempDataDictionary(_httpContext.Object, mockTempDataProvider.Object);
-            _sut.TempData = mockTempDataDict;
         }
 
         [TearDown]
@@ -103,11 +39,52 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.Dispose();
         }
 
+        public ApplicationResponse CreateApplicationResponse(string status)
+        {
+            return new ApplicationResponse
+            {
+                Id = "12345",
+                Reference = "123456789",
+                School = new ApplicationResponse.ApplicationSchool
+                {
+                    Id = 1,
+                    Name = "Hollinswood",
+                    LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority
+                    {
+                        Id = 50,
+                        Name = "Telford and Wrekin"
+                    }
+                },
+                ParentFirstName = "Tim",
+                ParentLastName = "Smith",
+                ParentNationalInsuranceNumber = "AB123456C",
+                ParentNationalAsylumSeekerServiceNumber = null,
+                ParentDateOfBirth = "1990-01-01",
+                ChildFirstName = "Timmy",
+                ChildLastName = "Smith",
+                ChildDateOfBirth = "2010-01-01",
+                Status = status ,
+                User = new ApplicationResponse.ApplicationUser
+                {
+                    UserID = "9876",
+                    Email = "Test@User.com",
+                    Reference = "12345",
+                },
+                Created = DateTime.Now,
+                CheckOutcome = new ApplicationResponse.ApplicationHash
+                {
+                    Outcome = "Entitled"
+                }
+
+            };
+        }
+
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
             // Arrange 
-            SetUpTempData();
+            _sut.TempData = _tempData;
+
             // Act
             var result = _sut.Search();
 
@@ -121,7 +98,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Application_Search_Returns_No_Records_User_Redirected_To_Search()
         {
             //Arrange
-            SetUpTempData();
+            _sut.TempData = _tempData;
             var response = new ApplicationSearchResponse();
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
@@ -165,6 +142,49 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             model.Should().BeEquivalentTo(response);
 
         }
-    }
 
+        [Test]
+        public async Task Given_Application_Search_Can_Filter_Based_On_Status()
+        {
+            //arrange
+            var statuses = new[] { "Entitled", "Receiving", "EvidenceNeeded", "SentForReview", "ReviewedEntitled", "ReviewedNotEntitled" };
+            var applicationResponses = new List<ApplicationResponse>();
+
+            foreach (var status in statuses)
+            {
+                applicationResponses.Add(CreateApplicationResponse(status));
+            }
+            var applicationSearchResponse = new ApplicationSearchResponse
+            {
+                Data = applicationResponses
+            };
+
+            var request = new ApplicationSearch
+            {
+                Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled
+            };
+            ////arrange
+            
+            //var response = _fixture.Create<ApplicationSearchResponse>();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(applicationSearchResponse);
+
+            ////act
+            var result = await _sut.Results(request);
+
+            ////assert
+            result.Should().BeOfType<ViewResult>();
+
+            //var viewResult = result as ViewResult;
+            //viewResult.Model.Should().BeAssignableTo<ApplicationSearchResponse>();
+
+            //var model = viewResult.Model as ApplicationSearchResponse;
+            //model.Should().NotBeNull();
+            //model.Should().BeEquivalentTo(response);
+
+        }
+        // Set up test response object
+
+    }
 }
