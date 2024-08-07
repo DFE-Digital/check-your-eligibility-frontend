@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility.Domain;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -121,11 +122,22 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
 
                 var method = "GET";
-                await LogApiError(task, method, uri);
-                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                try
                 {
-                    throw new UnauthorizedAccessException();
+                    await LogApiError(task, method, uri);
                 }
+                catch (Exception)
+                {
+                    if (task.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                    if (task.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return default;
+                    }
+                }
+                
             }
 
             return result;
