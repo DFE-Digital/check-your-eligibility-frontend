@@ -30,6 +30,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
 
             base.SetUp();
+            _sut.ControllerContext.HttpContext = _httpContext.Object;
         }
 
         [TearDown]
