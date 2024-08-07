@@ -35,7 +35,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
 
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
                 }
@@ -70,8 +70,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 Data = new ApplicationRequestSearchData
                 {
-
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = request.Status,
                     ChildLastName = request.ChildLastName,
