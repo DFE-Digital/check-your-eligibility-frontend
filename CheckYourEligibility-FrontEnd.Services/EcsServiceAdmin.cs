@@ -1,6 +1,7 @@
 ﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

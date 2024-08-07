@@ -101,15 +101,52 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> ApplicationDetail(string id)
         {
             var response = await _adminService.GetApplication(id);
-
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response)){
+                return new UnauthorizedResult();
+            }
+            
             return View(response);
         }
         [HttpGet]
         public async Task<IActionResult> ApplicationDetailAppeal(string id)
         {
-                var response = await _adminService.GetApplication(id);
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
 
-                return View(response);
+            return View(response);
+        }
+
+        private bool CheckAccess(ApplicationItemResponse response)
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
+            {
+                if (response.Data.School.Id.ToString() != _Claims.Organisation.Urn)
+                {
+                    _logger.LogError($"Invalid School access attempt {response.Data.School.Id} organisation Urn:-{_Claims.Organisation.Urn}");
+                    return false;
+                }
+            }
+            if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
+            {
+                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.Urn)
+                {
+                    _logger.LogError($"Invalid Local Authority access attempt {response.Data.School.LocalAuthority.Id} organisation Urn:-{_Claims.Organisation.Urn}");
+                    return false;
+                }
+            }
+            return true;
         }
 
         [HttpGet]
