@@ -31,11 +31,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.Dispose();
         }
 
-        public HomeControllerTests()
-        {
-                
-        }
-
         [Test]
         public void Given_Accessibility_LoadsWithEmptyModel()
         {
