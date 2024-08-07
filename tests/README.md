@@ -35,7 +35,8 @@ Inside the tests directory create a file named "Cypress.env.json" and input the 
     "AUTH_PASSWORD": "",
     "ONEGOV_EMAIL": "",
     "ONEGOV_PASSWORD": ""
-}```
+}
+```
 
 4. Open Cypress
 Launch Cypress using the following command:
