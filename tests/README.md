@@ -29,14 +29,13 @@ Certain machines may struggle to install Cypress and receive a certificate error
 3. Configuring Environment envariables
 
 Inside the tests directory create a file named "Cypress.env.json" and input the following, Populating the relevant information from the KV.
-{
+```{
     "AUTHORIZATION_HEADER": "",
     "AUTH_USERNAME": "",
     "AUTH_PASSWORD": "",
     "ONEGOV_EMAIL": "",
-    "ONEGOV_PASSWORD": "",
-    "AUTH_SECRET": ""
-}
+    "ONEGOV_PASSWORD": ""
+}```
 
 4. Open Cypress
 Launch Cypress using the following command:
