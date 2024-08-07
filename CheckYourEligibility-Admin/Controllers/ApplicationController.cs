@@ -54,6 +54,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public IActionResult Search()
         {
+            if (TempData["Message"] != null)
+            {
+                ViewBag.Message = TempData["Message"];
+            }
             return View();
         }
 
@@ -73,10 +77,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
-                    ChildDateOfBirth =  request.ChildDOBYear.HasValue && request.ChildDOBMonth.HasValue && request.ChildDOBDay.HasValue ?
+                    ChildDateOfBirth =  request.ChildDOBYear.HasValue ?
                     new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd")
                     : null,
-                    ParentDateOfBirth = request.PGDOBYear.HasValue && request.PGDOBMonth.HasValue && request.PGDOBDay.HasValue ?
+                    ParentDateOfBirth = request.PGDOBYear.HasValue ?
                     new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
                     : null,
                 }
@@ -84,6 +88,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var response = await _adminService.PostApplicationSearch(applicationSearch);
 
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+
+            if (response.Data == null || !response.Data.Any())
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return RedirectToAction("Search");
+            }
 
             return View(response);
         }

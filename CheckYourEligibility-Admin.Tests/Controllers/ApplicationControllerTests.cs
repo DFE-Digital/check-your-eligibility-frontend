@@ -17,11 +17,12 @@ using CheckYourEligibility_FrontEnd.Models;
 using System.Security.Principal;
 using System.Security.Claims;
 using CheckYourEligibility_DfeSignIn.Models;
+using CheckYourEligibility.TestBase;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
     [TestFixture]
-    public class ApplicationControllerTests
+    public class ApplicationControllerTests : TestBase
     {
         // mocks
         private ILogger<ApplicationController> _loggerMock;
@@ -29,72 +30,64 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
         private Mock<ClaimsPrincipal> _userMock;
-        protected readonly Fixture _fixture = new Fixture();
+        
 
-        //private Mock<IConfiguration> _configMock;
 
-        // responses
-        //private ApplicationSearchResponse _applicationSearchResponse;
-        //private ApplicationResponse _applicationResponse;
-
-        //system under test
         private ApplicationController _sut;
+
 
         [SetUp]
         public void SetUp()
         {
-
             SetUpInitialMocks();
+            _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
             SetUpSessionData();
-            SetClaimsData();
+            SetUpClaimsData();
             SetUpHTTPContext();
-            // SetUpServiceMocks();
 
-            void SetUpInitialMocks()
-            {
-                _adminServiceMock = new Mock<IEcsServiceAdmin>();
-                _loggerMock = Mock.Of<ILogger<ApplicationController>>();
-                _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
+        }
 
-            };
+        public void SetUpInitialMocks()
+        {
+            _adminServiceMock = new Mock<IEcsServiceAdmin>();
+            _loggerMock = Mock.Of<ILogger<ApplicationController>>();
+        }
 
-            void SetUpHTTPContext()
-            {
-                _httpContext = new Mock<HttpContext>();
-                _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
-                _httpContext.Setup(ctx => ctx.User).Returns(_userMock.Object);
-                _sut.ControllerContext.HttpContext = _httpContext.Object;
-            }
+        public void SetUpHTTPContext()
+        {
+            _httpContext = new Mock<HttpContext>();
+            _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+            _httpContext.Setup(ctx => ctx.User).Returns(_userMock.Object);
+            _sut.ControllerContext.HttpContext = _httpContext.Object;
+        }
 
-            void SetClaimsData()
-            {
-                _userMock = new Mock<ClaimsPrincipal>();
-                var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
-                var claim2 = new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", Properties.Resources.ClaimSchool);
-                _userMock.Setup(x=>x.Claims).Returns(new List<Claim> { claimSchool,
+        public void SetUpSessionData()
+        {
+            _sessionMock = new Mock<ISession>();
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                            .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                        .Returns((string key, out byte[] value) =>
+                        {
+                            var result = sessionStorage.TryGetValue(key, out var storedValue);
+                            value = storedValue;
+                            return result;
+                        });
+        }
+
+        void SetUpClaimsData()
+        {
+            _userMock = new Mock<ClaimsPrincipal>();
+            var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
+            _userMock.Setup(x => x.Claims).Returns(new List<Claim> { claimSchool,
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", "123"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress","test@test.com"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname","testFirstName"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname","testSurname")
                 });
-            }
-
-            void SetUpSessionData()
-            {
-                _sessionMock = new Mock<ISession>();
-                var sessionStorage = new Dictionary<string, byte[]>();
-
-                _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-                _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                            .Returns((string key, out byte[] value) =>
-                            {
-                                var result = sessionStorage.TryGetValue(key, out var storedValue);
-                                value = storedValue;
-                                return result;
-                            });
-            }
         }
 
         [TearDown]
@@ -106,6 +99,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
+            // Arrange 
+            var mockTempDataProvider = new Mock<ITempDataProvider>();
+            var mockTempDataDict = new TempDataDictionary(_httpContext.Object, mockTempDataProvider.Object);
+            _sut.TempData = mockTempDataDict;
             // Act
             var result = _sut.Search();
 
