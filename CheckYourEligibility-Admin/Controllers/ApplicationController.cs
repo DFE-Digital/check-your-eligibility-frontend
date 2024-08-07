@@ -35,7 +35,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
 
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
                 }
@@ -70,8 +70,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 Data = new ApplicationRequestSearchData
                 {
-
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = request.Status,
                     ChildLastName = request.ChildLastName,
@@ -102,8 +101,67 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> ApplicationDetail(string id)
         {
             var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response)){
+                return new UnauthorizedResult();
+            }
+            
+            return View(response);
+        }
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppeal(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
 
             return View(response);
+        }
+
+        private bool CheckAccess(ApplicationItemResponse response)
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
+            {
+                if (response.Data.School.Id.ToString() != _Claims.Organisation.Urn)
+                {
+                    _logger.LogError($"Invalid School access attempt {response.Data.School.Id} organisation Urn:-{_Claims.Organisation.Urn}");
+                    return false;
+                }
+            }
+            if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
+            {
+                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.Urn)
+                {
+                    _logger.LogError($"Invalid Local Authority access attempt {response.Data.School.LocalAuthority.Id} organisation Urn:-{_Claims.Organisation.Urn}");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealConfirmation(string id)
+        {
+            TempData["AppAppealID"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealSend(string id)
+        {
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
+            
+            return RedirectToAction("Process_Appeals");
         }
     } 
 }

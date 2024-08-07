@@ -196,7 +196,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
             var result = _sut.GetStatus(responseBody);
 
             // Assert
-            result.Result.Should().BeNull();
+            result.Result.Data.Should().BeNull();
             _sut.apiErrorCount.Should().Be(1);
         }
     }
