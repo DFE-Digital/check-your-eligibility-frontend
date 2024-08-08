@@ -29,7 +29,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Process_Appeals()
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-throw new NotImplementedException();
             ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
             {
                 Data = new ApplicationRequestSearchData
