@@ -65,6 +65,8 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
     });
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
