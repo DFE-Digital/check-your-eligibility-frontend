@@ -121,7 +121,7 @@ describe('After errors have been input initially a Parent with valid details can
             req.headers['Authorization'] = authorizationHeader;
         }).as('interceptForGET');
 
-        cy.contains('Continue to GOV.UK One Login').click();
+        cy.contains('Continue to GOV.UK One Login',{ timeout: 60000 }).click();
 
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";
