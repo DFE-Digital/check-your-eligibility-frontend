@@ -155,7 +155,6 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('[id="ChildList[0].School.Name"]').type('Hinde House 2-16 Academy');
 
         cy.get('#schoolList0')
-            .should('be.visible')
             .contains('Hinde House 2-16 Academy, 139856, S5 6AG, Sheffield')
             .click({ force: true})
 
@@ -175,8 +174,11 @@ describe('After errors have been input initially a Parent with valid details can
         cy.contains('Hinde House 2-16 Academy');
         cy.contains('01/01/2007');
 
-        cy.contains('Register details').click();
+        cy.contains('Submit application').click();
 
+        cy.url().should('include', '/Check/Application_sent');
+        cy.get('h1').should('contain.text', 'Children Details Added');
+        
 
     });
 });
