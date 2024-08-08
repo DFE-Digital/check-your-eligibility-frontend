@@ -51,6 +51,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpGet]
+        public IActionResult EvidenceGuidance()
+        {
+           
+            return View();
+        }
+
+        
+
+        [HttpGet]
         public IActionResult Search()
         {
             if (TempData["Message"] != null)
