@@ -19,24 +19,11 @@ cd CheckYourEligibility-Parent.Tests
 dotnet test
 `
 
-### Cypress
-Assuming you have NPM installed.
+### Cypress Testing
 
-`
-cd tests
-npm install
-CYPRESS_BASE_URL="https://ecs-test-as-frontend.azurewebsites.net" npx cypress open
-`
-Inside the cypress directory create a "cypress.env.json" and paste in these:
+There is a full breakdown of how to set up and run the Cypress tests along with our current standards for Cypress testing 
+within the tests folder.
 
-{
-    "AUTHORIZATION_HEADER": "",
-    "AUTH_USERNAME": "",
-    "AUTH_PASSWORD": "",
-    "ONEGOV_EMAIL": "",
-    "ONEGOV_PASSWORD": "",
-    "AUTH_SECRET": ""
-}
 
 ## Ways of working
 ### Releasing code
