@@ -29,7 +29,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Process_Appeals()
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-
             ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
             {
                 Data = new ApplicationRequestSearchData
@@ -50,6 +49,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var results = new ApplicationSearchResponse() { Data = resultItems };
             return View(results);
         }
+
+        [HttpGet]
+        public IActionResult EvidenceGuidance()
+        {
+           
+            return View();
+        }
+
+        
 
         [HttpGet]
         public IActionResult Search()
