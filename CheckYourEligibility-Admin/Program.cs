@@ -21,8 +21,8 @@ var dfeSignInConfiguration = new DfeSignInConfiguration();
 builder.Configuration.GetSection("DfeSignIn").Bind(dfeSignInConfiguration);
 builder.Services.AddDfeSignInAuthentication(dfeSignInConfiguration);
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+//builder.Services.AddProblemDetails();
 
 
 var app = builder.Build();
