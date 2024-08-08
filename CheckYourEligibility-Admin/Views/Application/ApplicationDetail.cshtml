@@ -1,0 +1,222 @@
+﻿@using System.Globalization
+@model CheckYourEligibility.Domain.Responses.ApplicationItemResponse;
+
+@{
+    Dictionary<string, string> statusColor = new Dictionary<string, string>
+    {
+        {"Entitled", "govuk-tag--green"},
+        {"EvidenceNeeded", "govuk-tag--light-blue"},
+        {"ReceivingEntitlement", "govuk-tag--pink"},
+        {"SentForReview", "govuk--tag-blue"},
+        {"ReviewedEntitled", "govuk--tag-green"},
+        {"ReviewedNotEntitled", "govuk--tag-red"}
+    };
+
+    Dictionary<string, string> statusName = new Dictionary<string, string>
+    {
+        {"Entitled", "Entitled"},
+        {"EvidenceNeeded", "Evidence Needed"},
+        {"ReceivingEntitlement", "Receiving"},
+        {"SentForReview", "Sent for Review"},
+        {"ReviewedEntitled", "Reviewed Entitled"},
+        {"ReviewedNotEntitled", "Reviewed Not Entitled"}
+    };
+
+}
+
+<main class="govuk-main-wrapper" id="main-content">
+
+
+
+
+    <div class="govuk-grid-row govuk-!-margin-bottom-5">
+        <div class="govuk-grid-column-full">
+
+
+
+
+
+            <div class="moj-page-header-actions">
+
+                <div class="moj-page-header-actions__title">
+                    <h1 class="govuk-heading-xl">@Model.Data.ParentFirstName @Model.Data.ParentLastName</h1>
+                </div>
+
+
+                <div class="moj-page-header-actions__actions">
+
+
+                    <div class="moj-button-menu">
+                        <div class="moj-button-menu__wrapper"></div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+
+            <div class="govuk-width-container">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <p class="govuk-heading-s">Once you've received evidence from this parent or guardian:</p>
+                        <ol class="govuk-list govuk-list--number">
+                            <li>Send it to your local authority contact along with the application reference number. Typically this would happen via email.</li>
+                            <li>Select ‘Send for review’ on this page. This will notify the local authority that the free school meals application is ready for their attention.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+
+            <h2 class="govuk-summary-card__title">
+                Child details Reference :- @Model.Data.Reference
+            </h2>
+
+
+
+            <div class="govuk-summary-card__actions">
+                <a class="govuk-link" href="#"><span class="govuk-visually-hidden"> of University of Gloucestershire (Parent or guardian details)</span></a>
+            </div>
+
+
+        </div>
+
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Data.ChildFirstName @Model.Data.ChildLastName
+                    </dd>
+
+                </div>
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Date of birth
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @DateTime.ParseExact(Model.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy")
+                    </dd>
+
+                </div>
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Status of application
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <strong class="govuk-tag @statusColor[Model.Data.Status]">
+                            @statusName[Model.Data.Status]
+                        </strong>
+                    </dd>
+
+                </div>
+
+            </dl>
+        </div>
+    </div>
+
+
+    <div class="govuk-!-padding-bottom-5"></div>
+
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+
+            <h2 class="govuk-summary-card__title">
+                Parent or guardian details
+            </h2>
+
+
+
+            <div class="govuk-summary-card__actions">
+                <a class="govuk-link" href="#"><span class="govuk-visually-hidden"> of University of Gloucestershire (Parent or guardian details)</span></a>
+            </div>
+
+
+        </div>
+
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Data.ParentFirstName @Model.Data.ParentLastName
+                    </dd>
+
+                </div>
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Date of birth
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @DateTime.ParseExact(Model.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy")
+                    </dd>
+
+                </div>
+
+
+
+                <div class="govuk-summary-list__row">
+                    @if(!string.IsNullOrEmpty(Model.Data.ParentNationalInsuranceNumber))
+                    {
+                        <dt class="govuk-summary-list__key">
+                            National Insurance number
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.Data.ParentNationalInsuranceNumber
+                        </dd>
+
+                    }
+                    else
+                    {
+                        <dt class="govuk-summary-list__key">
+                            Asylum support reference number
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.Data.ParentNationalAsylumSeekerServiceNumber
+                        </dd>
+
+                    }
+                   
+                </div>
+
+
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Email address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Data.User.Email
+                    </dd>
+
+                </div>
+
+
+            </dl>
+        </div>
+    </div>
+
+</main>
+

@@ -30,17 +30,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
        
         public IActionResult Privacy()
         {
-            return View();
+            return View("Privacy");
         }
 
         public IActionResult Accessibility()
         {
-            return View();
+            return View("Accessibility");
         }
 
         public IActionResult Cookies()
         {
-            return View();
+            return View("Cookies");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -30,10 +30,8 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}");
-
+                throw;
             }
-
-            return null;
         }
 
         public async Task<ApplicationSaveItemResponse> PostApplication(ApplicationRequest requestBody)
@@ -46,9 +44,8 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Post Application failed. uri-{_httpClient.BaseAddress}{_FsmUrl}/Application");
+                throw;
             }
-
-            return null;
         }
 
         public async Task<UserSaveItemResponse> CreateUser(UserCreateRequest requestBody)
