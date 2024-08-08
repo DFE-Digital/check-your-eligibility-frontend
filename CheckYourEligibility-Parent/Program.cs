@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true;

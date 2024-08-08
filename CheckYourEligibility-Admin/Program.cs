@@ -4,6 +4,7 @@ using CheckYourEligibility_DfeSignIn;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationInsightsTelemetry();
 if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 {
     var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
