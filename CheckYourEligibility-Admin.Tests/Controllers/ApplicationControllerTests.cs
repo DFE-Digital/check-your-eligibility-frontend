@@ -39,6 +39,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.Dispose();
         }
 
+
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
@@ -54,7 +55,29 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             viewResult.Model.Should().BeNull();
         }
 
-        
+        [Test]
+        public async Task Given_Application_Search_Returns_No_Records_User_Redirected_To_Search()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var response = new ApplicationSearchResponse();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.Results(request);
+
+            //assert 
+
+            var Result = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            Result.ActionName.Should().Be("Search");
+            _sut.TempData["Message"].Should().Be("There are no records matching your search.");
+        }
+
+
         [Test]
         public async Task Given_Application_Search_Results_Page_Returns_Valid_Data()
         {
@@ -80,5 +103,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             model.Should().BeEquivalentTo(response);
 
         }
+
     }
 }
