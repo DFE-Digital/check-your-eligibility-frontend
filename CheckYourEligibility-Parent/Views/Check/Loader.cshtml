@@ -22,16 +22,33 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        setTimeout(function () {
+        // Function to poll the server for status
+        function pollServer() {
             $.ajax({
                 url: '@Url.Action("Poll_Status", "Check")',
                 type: 'GET',
                 success: function (data) {
-                    document.open()
-                    document.write(data)
-                    document.close()
+                    if (data === "eligible") {
+                        window.location.href = '@Url.Action("Eligible", "Check")';
+                    } else if (data === "notEligible") {
+                        window.location.href = '@Url.Action("NotEligible", "Check")';
+                    } else if (data === "parentNotFound") {
+                        window.location.href = '@Url.Action("NotFound", "Check")';
+                    } else if (data === "DwpError") {
+                        window.location.href = '@Url.Action("TechnicalError", "Check")';
+                    } else {
+                        // If the status is still 'queuedForProcessing', poll again after a delay
+                        setTimeout(pollServer, 500);
+                    }
+                },
+                error: function () {
+                    // Handle error
+                    setTimeout(pollServer, 500); // Retry after delay if there's an error
                 }
             });
-        }, 1000); 
+        }
+
+        // Start polling the server
+        pollServer();
     });
 </script>
