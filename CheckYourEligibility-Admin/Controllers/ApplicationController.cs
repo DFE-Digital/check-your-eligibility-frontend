@@ -1,6 +1,5 @@
 // Ignore Spelling: Finalise
 
-using Azure.Core;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;

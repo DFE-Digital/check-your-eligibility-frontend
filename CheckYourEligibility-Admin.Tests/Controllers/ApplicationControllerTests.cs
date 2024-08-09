@@ -1,17 +1,15 @@
-﻿using CheckYourEligibility_FrontEnd.Controllers;
-using CheckYourEligibility_FrontEnd.Services;
-using Microsoft.Extensions.Logging;
-using Moq;
+﻿using AutoFixture;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using Microsoft.AspNetCore.Mvc;
-using FluentAssertions;
-using AutoFixture;
-using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.TestBase;
 using CheckYourEligibility_DfeSignIn;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using CheckYourEligibility_FrontEnd.Controllers;
+using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Services;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
