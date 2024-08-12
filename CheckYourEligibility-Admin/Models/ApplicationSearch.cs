@@ -1,4 +1,6 @@
 ﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility_FrontEnd.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace CheckYourEligibility_FrontEnd.Models
 {
@@ -7,11 +9,19 @@ namespace CheckYourEligibility_FrontEnd.Models
         public int? LocalAuthority { get; set; }
         public int? School { get; set; }
         public ApplicationStatus? Status { get; set; }
+
         public string? ChildLastName { get; set; }
+
         public string? ParentLastName { get; set; }
         public string? Reference { get; set; }
+
+        [Range(1, 31, ErrorMessage = "Invalid Day")]
         public int? ChildDOBDay { get; set; }
+
+        [Range(1, 12, ErrorMessage = "Invalid Month")]
         public int? ChildDOBMonth { get; set; }
+
+        [Year]
         public int? ChildDOBYear { get; set; }
         public int? PGDOBDay { get; set; }
         public int? PGDOBMonth { get; set; }
