@@ -1,4 +1,5 @@
-using Azure.Core;
+// Ignore Spelling: Finalise
+
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
@@ -21,43 +22,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
 
         }
-        
-        public IActionResult Finalise()
-        {
-            return View();
-        }
-        public async Task<IActionResult> Process_Appeals()
-        {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
-            {
-                Data = new ApplicationRequestSearchData
-                {
 
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
-                }
-            };
-            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
-            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
-            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview;
-            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
-            resultsSentForReview ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
-
-            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
-            var results = new ApplicationSearchResponse() { Data = resultItems };
-            return View(results);
-        }
-
-        [HttpGet]
-        public IActionResult EvidenceGuidance()
-        {
-           
-            return View();
-        }
-
-        
+        #region Search
 
         [HttpGet]
         public IActionResult Search()
@@ -119,6 +85,43 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
             return View(response);
         }
+
+        #endregion
+
+        #region Appeals
+
+        public async Task<IActionResult> Process_Appeals()
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            {
+                Data = new ApplicationRequestSearchData
+                {
+
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
+                }
+            };
+            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview;
+            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsSentForReview ??= new ApplicationSearchResponse { Data = new List<ApplicationResponse>() };
+
+            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
+            var results = new ApplicationSearchResponse() { Data = resultItems };
+            return View(results);
+
+        }
+
+        [HttpGet]
+        public IActionResult EvidenceGuidance()
+        {
+
+            return View();
+        }
+
         [HttpGet]
         public async Task<IActionResult> ApplicationDetailAppeal(string id)
         {
@@ -134,6 +137,29 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             return View(response);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealConfirmation(string id)
+        {
+            TempData["AppAppealID"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealSend(string id)
+        {
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
+            
+            return RedirectToAction("Process_Appeals");
+        }
+
+        public IActionResult Finalise()
+        {
+            return View();
+        }
+
+        #endregion
 
         private bool CheckAccess(ApplicationItemResponse response)
         {
@@ -155,21 +181,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
             }
             return true;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ApplicationDetailAppealConfirmation(string id)
-        {
-            TempData["AppAppealID"] = id;
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ApplicationDetailAppealSend(string id)
-        {
-            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
-            
-            return RedirectToAction("Process_Appeals");
         }
     } 
 }
