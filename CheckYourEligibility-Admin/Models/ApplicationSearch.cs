@@ -10,8 +10,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         public int? School { get; set; }
         public ApplicationStatus? Status { get; set; }
 
+        [LastName(ErrorMessage = "Invalid character used in Childs last name")]
         public string? ChildLastName { get; set; }
 
+        [LastName(ErrorMessage = "Invalid character used in Parent last name")]
         public string? ParentLastName { get; set; }
         public string? Reference { get; set; }
 
@@ -21,7 +23,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Range(1, 12, ErrorMessage = "Invalid Month")]
         public int? ChildDOBMonth { get; set; }
 
-        [Year]
+       // [Year]
         public int? ChildDOBYear { get; set; }
         public int? PGDOBDay { get; set; }
         public int? PGDOBMonth { get; set; }

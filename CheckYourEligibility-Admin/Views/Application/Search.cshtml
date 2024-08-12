@@ -57,10 +57,10 @@
                             <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
                                 Parent or guardian last name
                             </h6>
-                            <div class="autocomplete">
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ParentLastName"></span>
+                                </p>
                                 <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Parent last name">
-                            </div>
-
                         </div>
                     </div>
 
