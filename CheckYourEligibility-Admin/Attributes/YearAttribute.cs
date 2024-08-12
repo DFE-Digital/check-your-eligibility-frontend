@@ -11,7 +11,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         {
             if (value == null || value == "")
             {
-                return new ValidationResult("Year is required");
+                return ValidationResult.Success;
             }
 
             if ((int)value > currentYear || (int)value < allowableYearInPast)

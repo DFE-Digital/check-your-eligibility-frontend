@@ -6,6 +6,7 @@ using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -32,12 +33,33 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 ViewBag.Message = TempData["Message"];
             }
+            if (TempData["Errors"] != null)
+            {
+                var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
+                foreach (var kvp in errors)
+                {
+                    foreach (var error in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, error);
+                    }
+                }
+            }
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Results(ApplicationSearch request)
         {
+            if (!ModelState.IsValid)
+            {       
+                TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                TempData["Errors"] = JsonConvert.SerializeObject(errors);
+                return RedirectToAction("Search");
+            }
+
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
             ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
