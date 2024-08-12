@@ -17,16 +17,22 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? ParentLastName { get; set; }
         public string? Reference { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
+        [Range(1, 31, ErrorMessage = "Invalid day entered")]
         public int? ChildDOBDay { get; set; }
 
-        [Range(1, 12, ErrorMessage = "Invalid Month")]
+        [Range(1, 12, ErrorMessage = "Invalid month entered")]
         public int? ChildDOBMonth { get; set; }
 
-       // [Year]
+        [Year]
         public int? ChildDOBYear { get; set; }
+
+        [Range(1, 31, ErrorMessage = "Invalid Day")]
         public int? PGDOBDay { get; set; }
+
+        [Range(1, 31, ErrorMessage = "Invalid Month")]
         public int? PGDOBMonth { get; set; }
+
+        [Year]
         public int? PGDOBYear { get; set; }
         
 

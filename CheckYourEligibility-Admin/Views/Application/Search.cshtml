@@ -190,8 +190,6 @@
 
                 </div>
 
-                <!-- PARENT -->
-
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-quarter">
 
@@ -201,15 +199,15 @@
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                     Parent or guardian date of birth
                                 </legend>
-                                <!--<div id="passport-issued-hint" class="govuk-hint">
-                                    For example, 12 11 2007
-                                </div> -->
                                 <div class="govuk-date-input" id="passport-issued">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
                                             <label class="govuk-label govuk-date-input__label" for="PGDOBDay">
                                                 Day
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBDay"></span>
+                                                </p>
                                                 <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
@@ -219,6 +217,9 @@
                                                 <label class="govuk-label govuk-date-input__label" for="PGDOBMonth">
                                                 Month
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBMonth"></span>
+                                                </p>
                                                 <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
@@ -227,6 +228,9 @@
                                                 <label class="govuk-label govuk-date-input__label" for="PGDOBYear">
                                                 Year
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBYear"></span>
+                                                </p>
                                                 <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
