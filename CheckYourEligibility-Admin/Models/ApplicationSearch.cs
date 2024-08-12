@@ -10,10 +10,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         public int? School { get; set; }
         public ApplicationStatus? Status { get; set; }
 
-        [LastName(ErrorMessage = "Invalid character used in Childs last name")]
+        [LastName(ErrorMessage = "Child Last Name field contains an invalid character")]
         public string? ChildLastName { get; set; }
 
-        [LastName(ErrorMessage = "Invalid character used in Parent last name")]
+        [LastName(ErrorMessage = "Parent Last Name field contains an invalid character")]
         public string? ParentLastName { get; set; }
         public string? Reference { get; set; }
 
