@@ -1,5 +1,16 @@
 @model CheckYourEligibility_FrontEnd.Models.ApplicationSearch;
 
+@{
+    ViewData["Title"] = "Application Search";
+    ViewData["ServiceName"] = "Search for an existing application";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Error: Check Details";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-full">
@@ -7,150 +18,102 @@
             Search all records
         </h1>
         <p>Fill in any of the fields on this page to find a free school meal record.</p>
-
     </div>
 </div>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-    <form asp-controller="Application" asp-action="Results" method="post" class="form">
+        <form asp-controller="Application" asp-action="Results" method="post" class="form">
 
+            <!-- SEARCH BAR -->
+            <div class="cardDesign">
 
-        <!-- SEARCH BAR -->
-        <div class="cardDesign">
+                <div id="PersonName">
 
+                    <div class="govuk-grid-row">
 
-            <div id="PersonName">
-
-                <div class="govuk-grid-row">
-
-
-                    <div class="govuk-grid-column-one-quarter">
-                        <div class="govuk-form-group HO-uk-margin-bottom-3">
-                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
-                                Child last name
-                            </h6>
-
-                            <input id="ChildLastName" class="govuk-input" type="text" name="ChildLastName" value="" placeholder="Child surname" aria-label="Child last name">
-
-                        </div>
-                    </div>
-                    <!--COL 1-->
-
-
-                    <div class="govuk-grid-column-one-quarter">
-                        <div class="govuk-form-group HO-uk-margin-bottom-3">
-                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
-                                Parent or guardian last name
-                            </h6>
-                            <div class="autocomplete">
-                                <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Parent or guardian last name" aria-label="Parent or guardian last name">
+                        <div class="govuk-grid-column-one-quarter">
+                            <div class="govuk-form-group HO-uk-margin-bottom-3">
+                                <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                    Child last name
+                                </h6>
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ChildLastName"></span>
+                                </p>
+                                <input id="ChildLastName" class="govuk-input" type="text" name="ChildLastName" value="" placeholder="Child surname">
                             </div>
-
                         </div>
-                    </div>
-                    <!--COL 2-->
+                        <!--COL 1-->
 
-
-                    <!--COL 3-->
-                </div>
-
-                <!-- ROW 2 -->
-
-                <div class="govuk-grid-row">
-
-
-                    <div class="govuk-grid-column-one-quarter">
-                        <div class="govuk-form-group HO-uk-margin-bottom-3">
-                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
-                                Reference number
-                            </h6>
-
-                            <input id="Reference" class="govuk-input" type="text" name="Reference" value="" placeholder="Reference number" aria-label="Reference number">
-
-                        </div>
-                    </div>
-                    <!--COL 1-->
-
-
-                    <div class="govuk-grid-column-one-quarter">
-                        <div class="govuk-form-group HO-uk-margin-bottom-3">
-                            <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
-                                Status
-                            </h6>
-
-
-                            <div class="govuk-form-group">
-
-
-                                <select class="govuk-select" id="Status" name="Status" aria-label="Status">
-
-
-                                    <option value="all">All statuses</option>
-
-
-                                    <option value="entitled">Entitled</option>
-
-
-                                    <option value="evidence-needed">Evidence needed</option>
-
-
-                                    <option value="sent-for-review">Sent for review</option>
-                                      
-                                        <!-- <option value="reviewed-enititled">Reviewed entitled</option> -->
-
-                                        <!-- <option value="reviewed-not-entitled">Reviewed not entitled</option> -->
-                                        
-                                    <option value="receiving-entitlement">Receiving entitlement</option>
-
-
-                                </select>
-
+                        <div class="govuk-grid-column-one-quarter">
+                            <div class="govuk-form-group HO-uk-margin-bottom-3">
+                                <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                    Parent or guardian last name
+                                </h6>
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ParentLastName"></span>
+                                </p>
+                                <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Parent last name">
                             </div>
-
-
                         </div>
-                    </div>
-                    <!--COL 2-->
-
-
-                    <!--COL 3-->
-                </div>
-
-
-                <!-- ROW 3 -->
-
-
-                <div class="govuk-grid-row">
-
-                    <div class="govuk-grid-column-one-quarter">
-
 
                     </div>
-                </div>
 
+                    <div class="govuk-grid-row">
 
-                <!-- CHILD -->
-                <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-quarter">
+                            <div class="govuk-form-group HO-uk-margin-bottom-3">
+                                <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                    Reference number
+                                </h6>
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="Reference"></span>
+                                </p>
+                                <input id="Reference" class="govuk-input" type="text" name="Reference" value="" placeholder="Reference number">
+                            </div>
+                        </div>
+                        <!--COL 1-->
 
-                    <div class="govuk-grid-column-one-quarter">
+                        <div class="govuk-grid-column-one-quarter">
+                            <div class="govuk-form-group HO-uk-margin-bottom-3">
+                                <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
+                                    Status
+                                </h6>
+                                <div class="govuk-form-group">
+                                    <select class="govuk-select" id="Status" name="Status" aria-label="Status">
+                                        <option value="">All statuses</option>
+                                        <option value="Entitled">Entitled</option>
+                                        <option value="EvidenceNeeded">Evidence needed</option>
+                                        <option value="SentForReview">Sent for review</option>
+                                        <option value="ReviewEntitled">Reviewed entitled</option>
+                                        <option value="ReviewedNotEntitled">Reviewed not entitled</option>
+                                        <option value="ReceivingEntitlement">Receiving entitlement</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
 
+                    <!-- CHILD -->
+                    <div class="govuk-grid-row">
+
+                        <div class="govuk-grid-column-one-quarter">
                             <div class="govuk-form-group HO-uk-margin-bottom-3">
                                 <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
                                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                         Child date of birth
                                     </legend>
-                                    <!--<div id="passport-issued-hint" class="govuk-hint">
-                                        For example, 12 11 2007
-                                    </div> -->
                                     <div class="govuk-date-input" id="dob">
                                         <div class="govuk-date-input__item">
                                             <div class="govuk-form-group">
                                                 <label class="govuk-label govuk-date-input__label" for="ChildDOBDay">
                                                     Day
                                                 </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Day of birth">
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="ChildDOBDay"></span>
+                                                </p>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                         <div class="govuk-date-input__item">
@@ -158,7 +121,10 @@
                                                 <label class="govuk-label govuk-date-input__label" for="ChildDOBMonth">
                                                     Month
                                                 </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Month of birth">
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="ChildDOBMonth"></span>
+                                                </p>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                         <div class="govuk-date-input__item">
@@ -166,53 +132,10 @@
                                                 <label class="govuk-label govuk-date-input__label" for="ChildDOBYear">
                                                     Year
                                                 </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Year of birth">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                            </div>
-
-                    </div>
-
-
-                </div>
-
-                <!-- PARENT -->
-
-                <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-quarter">
-                            <div class="govuk-form-group">
-                                <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
-                                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                                        Parent or guardian date of birth
-                                    </legend>
-                                    <!--<div id="passport-issued-hint" class="govuk-hint">
-                                        For example, 12 11 2007
-                                    </div> -->
-                                    <div class="govuk-date-input" id="passport-issued">
-                                        <div class="govuk-date-input__item">
-                                            <div class="govuk-form-group">
-                                                <label class="govuk-label govuk-date-input__label" for="PG-DOB-Day">
-                                                    Day
-                                                </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Day of birth">
-                                            </div>
-                                        </div>
-                                        <div class="govuk-date-input__item">
-                                            <div class="govuk-form-group">
-                                                <label class="govuk-label govuk-date-input__label" for="PG-DOB-Month">
-                                                    Month
-                                                </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Month of birth">
-                                            </div>
-                                        </div>
-                                        <div class="govuk-date-input__item">
-                                            <div class="govuk-form-group">
-                                                <label class="govuk-label govuk-date-input__label" for="PG-DOB-Year">
-                                                    Year
-                                                </label>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Year of birth">
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="ChildDOBYear"></span>
+                                                </p>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                     </div>
@@ -220,38 +143,63 @@
                             </div>
                         </div>
 
-                </div>
-                <!-- SEX -->
-                <div class="govuk-grid-row">
-
-                    <div class="govuk-grid-column-full">
-
-                        <form action="eligible-list">
-                            <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button">
-                                Generate results
-                            </button>
-
-                        </form>
-
-
                     </div>
 
+                    <!-- PARENT OR GUARDIAN -->
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-quarter">
+                            <div class="govuk-form-group">
+                                <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
+                                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                        Parent or guardian date of birth
+                                    </legend>
+                                    <div class="govuk-date-input" id="passport-issued">
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="PGDOBDay">
+                                                    Day
+                                                </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBDay"></span>
+                                                </p>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            </div>
+                                        </div>
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="PGDOBMonth">
+                                                    Month
+                                                </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBMonth"></span>
+                                                </p>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            </div>
+                                        </div>
+                                        <div class="govuk-date-input__item">
+                                            <div class="govuk-form-group">
+                                                <label class="govuk-label govuk-date-input__label" for="PGDOBYear">
+                                                    Year
+                                                </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBYear"></span>
+                                                </p>
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
 
-                </div>
-
-
-            <!-- EXPLANATIONS REMOVED FOR V2 -->
-
-
-            </div>
-            <!--END SHOW/HIDE -->
-
-
-        </div>
-    </form>
-
-    <!-- END CARD // SEARCH BAR -->
-
-
-    </div>
-</div>
+                    <!-- SEX -->
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <form action="eligible-list">
+                                <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button">
+                                    Generate results
+                                </button>
+                            </form>
+                        </div>
+                    </div

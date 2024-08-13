@@ -4,7 +4,7 @@
     {
         {"Entitled", "govuk-tag--green"},
         {"EvidenceNeeded", "govuk-tag--light-blue"},
-        {"ReceivingEntitlement", "govuk-tag--pink"},
+        {"Receiving", "govuk-tag--pink"},
         {"SentForReview", "govuk--tag-blue"},
         {"ReviewedEntitled", "govuk--tag-green"},
         {"ReviewedNotEntitled", "govuk--tag-red"}
@@ -14,7 +14,7 @@
     {
         {"Entitled", "Entitled"},
         {"EvidenceNeeded", "Evidence Needed"},
-        {"ReceivingEntitlement", "Receiving"},
+        {"Receiving", "Receiving Entitlement"},
         {"SentForReview", "Sent for Review"},
         {"ReviewedEntitled", "Reviewed Entitled"},
         {"ReviewedNotEntitled", "Reviewed Not Entitled"}
@@ -46,7 +46,7 @@
                 <div class="govuk-grid-column-full">
                     <h2 class="govuk-heading-m">How to process appeals</h2>
                     <ol class="govuk-list govuk-list--number">
-                        <li>For each record with the status 'Evidence needed', ask the parent or guardian for supporting evidence. <a href="../checker/evidence-guidance.html" class="govuk-link">See a full list of acceptable documents.</a></li>
+                        <li>For each record with the status 'Evidence needed', ask the parent or guardian for supporting evidence. @Html.ActionLink("See a full list of acceptable documents.", "EvidenceGuidance", "application", null, new { @class = "govuk-link" })</li>
                         <li>Once you have this, go into the record by selecting the reference number, and follow the instructions there.</li>
                     </ol>
                 </div>
@@ -75,7 +75,9 @@
 
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell"></td>
-                                <td class="govuk-table__cell">@application.Reference</td>
+                                <td class="govuk-table__cell">
+                                    @Html.ActionLink(@application.Reference, "ApplicationDetailAppeal", "application", new { id = application.Id }, new { @class = "govuk-link" })
+                                </td>
                                 <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
                                 <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
                                 <td class="govuk-table__cell">@Convert.ToDateTime(application.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
