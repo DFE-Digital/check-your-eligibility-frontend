@@ -19,10 +19,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         [ReferenceNumber]
         public string? Reference { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid day entered")]
+        [Range(1, 31, ErrorMessage = "Invalid day")]
         public int? ChildDOBDay { get; set; }
 
-        [Range(1, 12, ErrorMessage = "Invalid month entered")]
+        [Range(1, 12, ErrorMessage = "Invalid month")]
         public int? ChildDOBMonth { get; set; }
 
         [Year]
