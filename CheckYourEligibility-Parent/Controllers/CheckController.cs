@@ -157,49 +157,50 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         /// This method is called by AJAX
         public async Task<IActionResult> Poll_Status()
-        {
-            // Retrieve the API response from TempData
-            var responseJson = TempData["Response"] as string;
-            if (responseJson == null)
-            {
-                _logger.LogWarning("No response data found in TempData.");
-                return RedirectToAction("TechnicalError", "Check");
-            }
+{
+    // Retrieve the API response from TempData
+    var responseJson = TempData["Response"] as string;
+    if (responseJson == null)
+    {
+        _logger.LogWarning("No response data found in TempData.");
+        return View("Outcome/Technical_Error");
+    }
 
-            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
+    var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
-            _logger.LogInformation($"Check status processed: {response.Data.Status}");
+    _logger.LogInformation($"Check status processed: {response.Data.Status}");
 
-            // Call the service to check the current status
-            var check = await _checkService.GetStatus(response);
+    // Call the service to check the current status
+    var check = await _checkService.GetStatus(response);
 
-            if (check == null || check.Data == null)
-            {
-                _logger.LogWarning("Null response received from GetStatus.");
-                return RedirectToAction("TechnicalError", "Check");
-            }
+    if (check == null || check.Data == null)
+    {
+        _logger.LogWarning("Null response received from GetStatus.");
+        return View("Outcome/Technical_Error");
+    }
 
-            _logger.LogInformation($"Received status: {check.Data.Status}");
+    _logger.LogInformation($"Received status: {check.Data.Status}");
 
-            switch (check.Data.Status)
-            {
-                case "eligible":
-                    return RedirectToAction("Eligible", "Check");
-                case "notEligible":
-                    return RedirectToAction("NotEligible", "Check");
-                case "parentNotFound":
-                    return RedirectToAction("NotFound", "Check");
-                case "DwpError":
-                    return RedirectToAction("TechnicalError", "Check");
-                case "queuedForProcessing":
-                    _logger.LogInformation("Still queued for processing, reloading loader view.");
-                    TempData["Response"] = JsonConvert.SerializeObject(response);
-                    return View("Loader"); // Keep polling by returning the same view
-                default:
-                    _logger.LogError("Unexpected status received.");
-                    return RedirectToAction("TechnicalError", "Check");
-            }
-        }
+    switch (check.Data.Status)
+    {
+        case "eligible":
+            return View("Outcome/Eligible");
+        case "notEligible":
+            return View("Outcome/Not_Eligible");
+        case "parentNotFound":
+            return View("Outcome/Not_Found");
+        case "DwpError":
+            return View("Outcome/Technical_Error");
+        case "queuedForProcessing":
+            _logger.LogInformation("Still queued for processing, reloading loader view.");
+            TempData["Response"] = JsonConvert.SerializeObject(response);
+            return View("Loader"); // Keep polling by returning the same view
+        default:
+            _logger.LogError("Unexpected status received.");
+            return View("Outcome/Technical_Error");
+    }
+}
+
 
 
         public IActionResult Eligible()
