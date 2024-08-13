@@ -5,7 +5,11 @@ using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.ViewModels;
+using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Reflection;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -160,6 +164,116 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         #endregion
+
+        #region School finalise Applications
+
+        public async Task<IActionResult> FinaliseApplications()
+        {
+            ApplicationSearchResponse results = await GetFinalisedApplications();
+
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailFinalise(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
+
+            return View(response);
+        }
+
+        [HttpPost]
+        public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
+        {
+            
+            TempData["FinaliseApplicationIds"] = model.getSelectedIds(); 
+
+            return View("ApplicationFinaliseConfirmation");
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationFinaliseSend()
+        {
+            foreach (var id in TempData["FinaliseApplicationIds"] as IEnumerable<string>)
+            {
+                await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.Receiving);
+
+            }
+            return RedirectToAction("FinaliseApplications");
+        }
+
+        public async Task<IActionResult> FinalisedApplicationsdownload()
+        {
+            var resultData = await GetFinalisedApplications();
+
+            var fileName = $"finalise-applications-{DateTime.Now.ToString("yyyyMMdd")}.csv";
+
+            var result = WriteCsvToMemory(resultData.Data.Select(x=> new ApplicationExport {
+                Reference= x.Reference,
+                Parent = $"{x.ParentFirstName} {x.ParentLastName}",
+                Child = $"{x.ChildFirstName} {x.ChildLastName}",
+                ChildDOB = Convert.ToDateTime(x.ChildDateOfBirth).ToString("dd MMM yyyy"),
+                Status = x.Status.GetFsmStatusDescription(),
+                SubmisionDate = x.Created.ToString("dd MMM yyyy")
+
+            }));
+            var memoryStream = new MemoryStream(result);
+            return new FileStreamResult(memoryStream, "text/csv") { FileDownloadName = fileName };
+        }
+
+
+
+
+        #endregion
+
+        private byte[] WriteCsvToMemory(IEnumerable<ApplicationExport> records)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var streamWriter = new StreamWriter(memoryStream))
+            using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
+            {
+                csvWriter.WriteRecords(records);
+                streamWriter.Flush();
+                return memoryStream.ToArray();
+            }
+        }
+
+        private async Task<ApplicationSearchResponse> GetFinalisedApplications()
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            {
+                Data = new ApplicationRequestSearchData
+                {
+
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled
+                }
+            };
+            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled;
+            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
+            resultsSentForReview ??= new ApplicationSearchResponse { Data = new List<ApplicationResponse>() };
+            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
+            var results = new ApplicationSearchResponse() { Data = resultItems };
+            return results;
+        }
+
 
         private bool CheckAccess(ApplicationItemResponse response)
         {
