@@ -1,16 +1,7 @@
 
 describe('Admin journey search for application', () => {
     beforeEach(() => {
-        cy.visit('/');
-        cy.get('h1').should('include.text', 'Department for Education Sign-in');
-        cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
-        cy.contains('Continue').click();
-
-        cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
-        cy.contains('Sign in').click();
-
-        cy.get('h1').should('include.text', 'Telford and Wrekin Council');
-
+        cy.SignIn();
         cy.contains('Search all records').click();
 
     });

@@ -1,11 +1,25 @@
 
 // Custom commands
+
+Cypress.Commands.add('SignIn', () => {
+  cy.visit('/');
+  cy.get('h1').should('include.text', 'Department for Education Sign-in');
+  cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
+  cy.contains('Continue').click();
+
+  cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
+  cy.contains('Sign in').click();
+
+  cy.get('h1').should('include.text', 'Telford and Wrekin Council');
+})
+
 Cypress.Commands.add('typeTextByLabel', (labelText: string, text: string) => {
   cy.contains('label', labelText)
     .parent()
     .find('input')
     .type(text);
 });
+
 
 Cypress.Commands.add('typeIntoInput', (selector: string, text: string) => {
   cy.get(selector).type(text);
