@@ -22,28 +22,24 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        // Function to poll the server for status
         function pollServer() {
             $.ajax({
                 url: '@Url.Action("Poll_Status", "Check")',
                 type: 'GET',
                 success: function (data) {
-                    if (data === "eligible") {
-                        window.location.href = '@Url.Action("Eligible", "Check")';
-                    } else if (data === "notEligible") {
-                        window.location.href = '@Url.Action("NotEligible", "Check")';
-                    } else if (data === "parentNotFound") {
-                        window.location.href = '@Url.Action("NotFound", "Check")';
-                    } else if (data === "DwpError") {
-                        window.location.href = '@Url.Action("TechnicalError", "Check")';
+                    // The server will handle redirection or reloading the page as needed.
+                    if (data.indexOf('<html') !== -1) {
+                        document.open();
+                        document.write(data);
+                        document.close();
                     } else {
-                        // If the status is still 'queuedForProcessing', poll again after a delay
-                        setTimeout(pollServer, 500);
+                        // Handle any other potential outcomes (this should be rare)
+                        location.reload();
                     }
                 },
                 error: function () {
-                    // Handle error
-                    setTimeout(pollServer, 500); // Retry after delay if there's an error
+                    // Retry after delay if there's an error
+                    setTimeout(pollServer, 500);
                 }
             });
         }
@@ -52,3 +48,4 @@
         pollServer();
     });
 </script>
+

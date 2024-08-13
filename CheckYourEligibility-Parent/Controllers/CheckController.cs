@@ -154,21 +154,53 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        
+
         /// This method is called by AJAX
         public async Task<IActionResult> Poll_Status()
         {
-            // Gather API response which should either be queuedForProcessing or has a response
+            // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
+            if (responseJson == null)
+            {
+                _logger.LogWarning("No response data found in TempData.");
+                return RedirectToAction("TechnicalError", "Check");
+            }
+
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
-            _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
+            _logger.LogInformation($"Check status processed: {response.Data.Status}");
 
+            // Call the service to check the current status
             var check = await _checkService.GetStatus(response);
 
-            // Return the status response
-            return Json(check.Data.Status);
+            if (check == null || check.Data == null)
+            {
+                _logger.LogWarning("Null response received from GetStatus.");
+                return RedirectToAction("TechnicalError", "Check");
+            }
+
+            _logger.LogInformation($"Received status: {check.Data.Status}");
+
+            switch (check.Data.Status)
+            {
+                case "eligible":
+                    return RedirectToAction("Eligible", "Check");
+                case "notEligible":
+                    return RedirectToAction("NotEligible", "Check");
+                case "parentNotFound":
+                    return RedirectToAction("NotFound", "Check");
+                case "DwpError":
+                    return RedirectToAction("TechnicalError", "Check");
+                case "queuedForProcessing":
+                    _logger.LogInformation("Still queued for processing, reloading loader view.");
+                    TempData["Response"] = JsonConvert.SerializeObject(response);
+                    return View("Loader"); // Keep polling by returning the same view
+                default:
+                    _logger.LogError("Unexpected status received.");
+                    return RedirectToAction("TechnicalError", "Check");
+            }
         }
+
 
         public IActionResult Eligible()
         {
