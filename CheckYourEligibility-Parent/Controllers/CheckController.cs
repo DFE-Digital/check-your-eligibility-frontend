@@ -192,9 +192,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         case "DwpError":
             return View("Outcome/Technical_Error");
         case "queuedForProcessing":
-            _logger.LogInformation("Still queued for processing, reloading loader view.");
-            TempData["Response"] = JsonConvert.SerializeObject(response);
-            return View("Loader"); // Keep polling by returning the same view
+    _logger.LogInformation("Still queued for processing, reloading loader view.");
+    // Check if the processing has been going on for too long
+    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
+    {
+        return RedirectToAction("TechnicalError", "Check");
+    }
+    TempData["Response"] = JsonConvert.SerializeObject(response);
+    return View("Loader"); // Keep polling by returning the same view
         default:
             _logger.LogError("Unexpected status received.");
             return View("Outcome/Technical_Error");
