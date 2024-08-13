@@ -1,5 +1,17 @@
 @model CheckYourEligibility_FrontEnd.Models.ApplicationSearch;
 
+@{
+    ViewData["Title"] = "Application Search";
+    ViewData["ServiceName"] = "Search for an existing application";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Error: Check Details";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-full">
@@ -30,7 +42,9 @@
                             <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
                                 Child last name
                             </h6>
-
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="ChildLastName"></span>
+                            </p>
                             <input id="ChildLastName" class="govuk-input" type="text" name="ChildLastName" value="" placeholder="Child surname">
 
                         </div>
@@ -43,19 +57,14 @@
                             <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
                                 Parent or guardian last name
                             </h6>
-                            <div class="autocomplete">
+                                <p class="govuk-error-message">
+                                    <span asp-validation-for="ParentLastName"></span>
+                                </p>
                                 <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Parent last name">
-                            </div>
-
                         </div>
                     </div>
-                    <!--COL 2-->
 
-
-                    <!--COL 3-->
                 </div>
-
-                <!-- ROW 2 -->
 
                 <div class="govuk-grid-row">
 
@@ -111,14 +120,8 @@
 
                         </div>
                     </div>
-                    <!--COL 2-->
 
-
-                    <!--COL 3-->
                 </div>
-
-
-                <!-- ROW 3 -->
 
 
                 <div class="govuk-grid-row">
@@ -141,15 +144,15 @@
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                     Child date of birth
                                 </legend>
-                                <!--<div id="passport-issued-hint" class="govuk-hint">
-                                    For example, 12 11 2007
-                                </div> -->
                                 <div class="govuk-date-input" id="dob">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
                                             <label class="govuk-label govuk-date-input__label" for="ChildDOBDay">
                                                 Day
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="ChildDOBDay"></span>
+                                                </p>
                                             <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
@@ -160,6 +163,9 @@
                                             <label class="govuk-label govuk-date-input__label" for="ChildDOBMonth">
                                                 Month
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="ChildDOBMonth"></span>
+                                                </p>
                                             <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
@@ -168,6 +174,9 @@
                                             <label class="govuk-label govuk-date-input__label" for="ChildDOBYear">
                                                 Year
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="ChildDOBYear"></span>
+                                                </p>
                                             <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
@@ -181,8 +190,6 @@
 
                 </div>
 
-                <!-- PARENT -->
-
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-quarter">
 
@@ -192,15 +199,15 @@
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                     Parent or guardian date of birth
                                 </legend>
-                                <!--<div id="passport-issued-hint" class="govuk-hint">
-                                    For example, 12 11 2007
-                                </div> -->
                                 <div class="govuk-date-input" id="passport-issued">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
                                             <label class="govuk-label govuk-date-input__label" for="PGDOBDay">
                                                 Day
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBDay"></span>
+                                                </p>
                                                 <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
 
@@ -210,6 +217,9 @@
                                                 <label class="govuk-label govuk-date-input__label" for="PGDOBMonth">
                                                 Month
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBMonth"></span>
+                                                </p>
                                                 <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
@@ -218,6 +228,9 @@
                                                 <label class="govuk-label govuk-date-input__label" for="PGDOBYear">
                                                 Year
                                             </label>
+                                                <p class="govuk-error-message">
+                                                    <span asp-validation-for="PGDOBYear"></span>
+                                                </p>
                                                 <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                         </div>
                                     </div>
