@@ -488,7 +488,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [TestCase("notEligible", "Outcome/Not_Eligible")]
         [TestCase("parentNotFound", "Outcome/Not_Found")]
         [TestCase("DwpError", "Outcome/Technical_Error")]
-        [TestCase("queuedForProcessing", "Outcome/Technical_Error")]
+        [TestCase("queuedForProcessing", "Loader")]
         [TestCase("notARealStatus", "Outcome/Technical_Error")]
         public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expected)
         {

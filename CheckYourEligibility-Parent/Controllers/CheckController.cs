@@ -163,7 +163,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (responseJson == null)
             {
                 _logger.LogWarning("No response data found in TempData.");
-                return RedirectToAction("TechnicalError", "Check");
+                return View("Outcome/Technical_Error");
             }
 
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
@@ -176,7 +176,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (check == null || check.Data == null)
             {
                 _logger.LogWarning("Null response received from GetStatus.");
-                return RedirectToAction("TechnicalError", "Check");
+                return View("Outcome/Technical_Error");
             }
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
@@ -184,22 +184,23 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return RedirectToAction("Eligible", "Check");
+                    return View("Outcome/Eligible");
                 case "notEligible":
-                    return RedirectToAction("NotEligible", "Check");
+                    return View("Outcome/Not_Eligible");
                 case "parentNotFound":
-                    return RedirectToAction("NotFound", "Check");
+                    return View("Outcome/Not_Found");
                 case "DwpError":
-                    return RedirectToAction("TechnicalError", "Check");
+                    return View("Outcome/Technical_Error");
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing, reloading loader view.");
                     TempData["Response"] = JsonConvert.SerializeObject(response);
                     return View("Loader"); // Keep polling by returning the same view
                 default:
                     _logger.LogError("Unexpected status received.");
-                    return RedirectToAction("TechnicalError", "Check");
+                    return View("Outcome/Technical_Error");
             }
         }
+
 
 
         public IActionResult Eligible()
