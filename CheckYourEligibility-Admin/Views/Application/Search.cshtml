@@ -12,7 +12,6 @@
 }
 
 <div class="govuk-grid-row">
-
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
             Search all records
@@ -27,11 +26,8 @@
 
             <!-- SEARCH BAR -->
             <div class="cardDesign">
-
                 <div id="PersonName">
-
                     <div class="govuk-grid-row">
-
                         <div class="govuk-grid-column-one-quarter">
                             <div class="govuk-form-group HO-uk-margin-bottom-3">
                                 <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
@@ -40,10 +36,10 @@
                                 <p class="govuk-error-message">
                                     <span asp-validation-for="ChildLastName"></span>
                                 </p>
-                                <input id="ChildLastName" class="govuk-input" type="text" name="ChildLastName" value="" placeholder="Child surname">
+                                <input id="ChildLastName" class="govuk-input" type="text" asp-for="ChildLastName" placeholder="Child surname">
                             </div>
                         </div>
-                        <!--COL 1-->
+                        <!-- COL 1 -->
 
                         <div class="govuk-grid-column-one-quarter">
                             <div class="govuk-form-group HO-uk-margin-bottom-3">
@@ -53,14 +49,12 @@
                                 <p class="govuk-error-message">
                                     <span asp-validation-for="ParentLastName"></span>
                                 </p>
-                                <input id="ParentLastName" class="countryAutocomplete govuk-input" type="text" name="ParentLastName" value="" placeholder="Parent last name">
+                                <input id="ParentLastName" class="govuk-input" type="text" asp-for="ParentLastName" placeholder="Parent last name">
                             </div>
                         </div>
-
                     </div>
 
                     <div class="govuk-grid-row">
-
                         <div class="govuk-grid-column-one-quarter">
                             <div class="govuk-form-group HO-uk-margin-bottom-3">
                                 <h6 class="govuk-heading-xxs HO-uk-margin-bottom-1">
@@ -69,10 +63,10 @@
                                 <p class="govuk-error-message">
                                     <span asp-validation-for="Reference"></span>
                                 </p>
-                                <input id="Reference" class="govuk-input" type="text" name="Reference" value="" placeholder="Reference number">
+                                <input id="Reference" class="govuk-input" type="text" asp-for="Reference" placeholder="Reference number">
                             </div>
                         </div>
-                        <!--COL 1-->
+                        <!-- COL 1 -->
 
                         <div class="govuk-grid-column-one-quarter">
                             <div class="govuk-form-group HO-uk-margin-bottom-3">
@@ -80,7 +74,7 @@
                                     Status
                                 </h6>
                                 <div class="govuk-form-group">
-                                    <select class="govuk-select" id="Status" name="Status" aria-label="Status">
+                                    <select class="govuk-select" asp-for="Status" aria-label="Status">
                                         <option value="">All statuses</option>
                                         <option value="Entitled">Entitled</option>
                                         <option value="EvidenceNeeded">Evidence needed</option>
@@ -92,12 +86,10 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- CHILD -->
                     <div class="govuk-grid-row">
-
                         <div class="govuk-grid-column-one-quarter">
                             <div class="govuk-form-group HO-uk-margin-bottom-3">
                                 <fieldset class="govuk-fieldset" role="group" aria-describedby="passport-issued-hint">
@@ -113,7 +105,7 @@
                                                 <p class="govuk-error-message">
                                                     <span asp-validation-for="ChildDOBDay"></span>
                                                 </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="ChildDOBDay" asp-for="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                         <div class="govuk-date-input__item">
@@ -124,7 +116,7 @@
                                                 <p class="govuk-error-message">
                                                     <span asp-validation-for="ChildDOBMonth"></span>
                                                 </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="ChildDOBMonth" asp-for="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                         <div class="govuk-date-input__item">
@@ -135,14 +127,13 @@
                                                 <p class="govuk-error-message">
                                                     <span asp-validation-for="ChildDOBYear"></span>
                                                 </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="ChildDOBYear" asp-for="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                     </div>
                                 </fieldset>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- PARENT OR GUARDIAN -->
@@ -162,7 +153,7 @@
                                                 <p class="govuk-error-message">
                                                     <span asp-validation-for="PGDOBDay"></span>
                                                 </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PGDOBDay" asp-for="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                         <div class="govuk-date-input__item">
@@ -173,7 +164,7 @@
                                                 <p class="govuk-error-message">
                                                     <span asp-validation-for="PGDOBMonth"></span>
                                                 </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PGDOBMonth" asp-for="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                         <div class="govuk-date-input__item">
@@ -184,7 +175,7 @@
                                                 <p class="govuk-error-message">
                                                     <span asp-validation-for="PGDOBYear"></span>
                                                 </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PGDOBYear" asp-for="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
                                             </div>
                                         </div>
                                     </div>
@@ -193,13 +184,18 @@
                         </div>
                     </div>
 
-                    <!-- SEX -->
+                    <!-- SUBMIT BUTTON -->
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <form action="eligible-list">
-                                <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button">
-                                    Generate results
-                                </button>
-                            </form>
+                            <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button" type="submit">
+                                Generate results
+                            </button>
                         </div>
-                    </div
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div> <!-- Closing div for the last govuk-grid-row -->
+
+<script src="/js/validationSummary.js"></script>
