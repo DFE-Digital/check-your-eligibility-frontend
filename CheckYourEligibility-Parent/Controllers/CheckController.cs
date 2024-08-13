@@ -59,7 +59,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Enter_Details(Parent request)
         {
             // dont want to validate nass on this page 
-            if (request.IsNassSelected == true)
+            if (request.IsNinoNotSelected == true)
             {
                 ModelState.Remove("NationalInsuranceNumber");
                 if (!request.NASSRedirect)
@@ -87,6 +87,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     return View("Nass");
                 }
+                else if (request.IsNassNotSelected == true )
+                {
+                    return View("Outcome/Could_Not_Check");
+                }
                 return RedirectToAction("Enter_Details");
             }
 
@@ -108,7 +112,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
 
             // if user selected to input nass, save incomplete-model to tempdata and redirect to nass page
-            if (request.IsNassSelected == true && !request.NASSRedirect)
+            if (request.IsNinoNotSelected == true && !request.NASSRedirect)
             {
                 request.NASSRedirect = true;
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
@@ -124,6 +128,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
             }
+            
             // queue api soft-check
             var response = await _checkService.PostCheck(checkEligibilityRequest);
             TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
