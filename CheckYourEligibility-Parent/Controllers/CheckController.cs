@@ -155,7 +155,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
 
-        /// This method is called by AJAX
         public async Task<IActionResult> Poll_Status()
         {
             // Retrieve the API response from TempData
@@ -166,12 +165,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View("Outcome/Technical_Error");
             }
 
-            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
+    var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
-            _logger.LogInformation($"Check status processed: {response.Data.Status}");
+    _logger.LogInformation($"Check status processed: {response.Data.Status}");
 
-            // Call the service to check the current status
-            var check = await _checkService.GetStatus(response);
+    // Call the service to check the current status
+    var check = await _checkService.GetStatus(response);
 
             if (check == null || check.Data == null)
             {
@@ -179,7 +178,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View("Outcome/Technical_Error");
             }
 
-            _logger.LogInformation($"Received status: {check.Data.Status}");
+    _logger.LogInformation($"Received status: {check.Data.Status}");
 
             switch (check.Data.Status)
             {
