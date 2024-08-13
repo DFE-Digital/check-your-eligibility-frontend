@@ -13,7 +13,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         [LastName(ErrorMessage = "Child last name field contains an invalid character")]
         public string? ChildLastName { get; set; }
 
-        [LastName(ErrorMessage = "Parent  or Guardian last name field contains an invalid character")]
+        [LastName(ErrorMessage = "Parent or Guardian last name field contains an invalid character")]
         public string? ParentLastName { get; set; }
 
         [ReferenceNumber]
