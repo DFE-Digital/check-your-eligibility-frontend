@@ -110,6 +110,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
             response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
 
@@ -125,11 +127,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
 
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeAssignableTo<ApplicationItemResponse>();
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
 
-            var model = viewResult.Model as ApplicationItemResponse;
+            var model = viewResult.Model as ApplicationDetailViewModel;
             model.Should().NotBeNull();
-            model.Should().BeEquivalentTo(response);
 
         }
 
@@ -248,6 +249,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
             response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
 
@@ -263,12 +266,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
 
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeAssignableTo<ApplicationItemResponse>();
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
 
-            var model = viewResult.Model as ApplicationItemResponse;
+            var model = viewResult.Model as ApplicationDetailViewModel;
             model.Should().NotBeNull();
-            model.Should().BeEquivalentTo(response);
-
         }
 
         [Test]
