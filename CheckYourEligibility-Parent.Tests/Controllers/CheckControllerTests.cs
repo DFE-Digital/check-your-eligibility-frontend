@@ -82,8 +82,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     Year = 1990,
                     NationalInsuranceNumber = "AB123456C",
                     NationalAsylumSeekerServiceNumber = null,
-                    IsNinoNotSelected = true,
-                    IsNassNotSelected = null
+                    IsNinoNotSelected = false,
+                    IsNassNotSelected = null,
                 };
 
                 _children = new Children()
