@@ -10,6 +10,7 @@ using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Reflection;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -107,11 +108,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 return NotFound();
             }
-            if (!CheckAccess(response)){
+            if (!CheckAccess(response))
+            {
                 return new UnauthorizedResult();
             }
-            
-            return View(response);
+
+            return View(GetViewData(response));
         }
 
         #endregion
@@ -167,7 +169,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return new UnauthorizedResult();
             }
 
-            return View(response);
+            return View(GetViewData(response));
         }
 
 
@@ -219,7 +221,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return new UnauthorizedResult();
             }
 
-            return View(response);
+            return View(GetViewData(response));
         }
 
         [HttpPost]
@@ -266,6 +268,26 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
 
         #endregion
+
+
+        private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
+        {
+            var viewData = new ApplicationDetailViewModel
+            {
+                Id = response.Data.Id,
+                Reference = response.Data.Reference,
+                ParentName = $"{response.Data.ParentFirstName} {response.Data.ParentLastName}",
+                ParentEmail = response.Data.User.Email,
+                ParentNas = response.Data.ParentNationalAsylumSeekerServiceNumber,
+                ParentNI = response.Data.ParentNationalInsuranceNumber,
+                Status = response.Data.Status,
+                ChildName = $"{response.Data.ChildFirstName} {response.Data.ChildLastName}",
+            };
+            viewData.ParentDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            return viewData;
+        }
+
 
         private byte[] WriteCsvToMemory(IEnumerable<ApplicationExport> records)
         {
