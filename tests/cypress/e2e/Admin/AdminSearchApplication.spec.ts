@@ -1,19 +1,7 @@
 
 describe('Admin journey search for application', () => {
     beforeEach(() => {
-        cy.visit('/');
-        cy.get('h1').should('include.text', 'Department for Education Sign-in');
-        cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
-        cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
-        cy.contains('Sign in').click();
-
-        cy.url().should('include', 'select-organisation');
-        cy.get('h1').should('include.text', 'Select your organisation');
-        cy.get('#3A984661-4986-4866-8A3E-C5935FE20821').click();
-        cy.contains('Continue').click();
-
-        cy.get('h1').should('include.text', 'Hollinswood Primary School');
-
+        cy.SignIn();
         cy.contains('Search all records').click();
 
     });
@@ -43,7 +31,7 @@ describe('Admin journey search for application', () => {
 
         cy.get('.govuk-table')
             .find('tbody tr')
-            .eq(1)
+            .eq(0)
             .find('td')
             .eq(3)
             .should('include.text', 'Simpson');
@@ -57,16 +45,16 @@ describe('Admin journey search for application', () => {
 
         cy.get('.govuk-table')
             .find('tbody tr')
-            .eq(1)
+            .eq(0)
             .find('td')
             .eq(2)
             .should('include.text', 'Simpson');
     });
 
 
-    it('Will allow Local Authority users to search for an application with a selected Parent or Guardian name', () => {
+    it('Will allow Local Authority users to search for an application with a selected reference', () => {
 
-        cy.get('#Reference').type('53579731');
+        cy.get('#Reference').type('10041696');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -77,7 +65,7 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(1)
-            .should('contain.text', '53579731');
+            .should('contain.text', '10041696');
     });
 
     it('Will allow Local Authority users to search for an application with a selected Child DOB', () => {
