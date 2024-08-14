@@ -93,7 +93,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return RedirectToAction("Search");
             }
 
-            return View(response);
+            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetail", ShowSelectorCheck = false, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
         }
 
         [HttpGet]
@@ -113,7 +116,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
-        #region Appeals
+        #region School Appeals
 
         public async Task<IActionResult> Process_Appeals()
         {
@@ -136,7 +139,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
             var results = new ApplicationSearchResponse() { Data = resultItems };
-            return View(results);
+
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetailAppeal", ShowSelectorCheck = false, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
 
         }
 
@@ -192,7 +199,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             ApplicationSearchResponse results = await GetFinalisedApplications();
 
-            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { Person = x });
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel {DetailView = "ApplicationDetailFinalise",ShowSelectorCheck = true, Person = x });
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
 
             return View(viewData);
