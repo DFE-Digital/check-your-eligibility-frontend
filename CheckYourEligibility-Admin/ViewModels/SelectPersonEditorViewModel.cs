@@ -6,6 +6,8 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
     {
         public bool Selected { get; set; }
         public ApplicationResponse Person { get; set; }
+        public string DetailView { get; set; }
+        public bool ShowSelectorCheck { get; internal set; }
     }
 
     public class PeopleSelectionViewModel

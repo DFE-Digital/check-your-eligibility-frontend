@@ -22,13 +22,21 @@
     };
 
 }
+
 <tr>
     @Html.HiddenFor(model => model.Person.Id)
+    @if(Model.ShowSelectorCheck)
+    {
     <td class="govuk-checkboxes__item moj-multi-select__checkbox" style="text-align:center">
         @Html.CheckBoxFor(model => model.Selected)
-    </td>
+        </td>
+    }
+    else
+    {
+        <td></td>
+    }
     <td class="govuk-table__cell">
-        @Html.ActionLink(Model.Person.Reference, "ApplicationDetailFinalise", "application", new { id = Model.Person.Id }, new { @class = "govuk-link" })
+        @Html.ActionLink(Model.Person.Reference, Model.DetailView, "application", new { id = Model.Person.Id }, new { @class = "govuk-link" })
     </td>
      
     <td class="govuk-table__cell">@(@Model.Person.ParentFirstName + " " + @Model.Person.ParentLastName)</td>
