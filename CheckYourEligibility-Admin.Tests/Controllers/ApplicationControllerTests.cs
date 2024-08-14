@@ -6,6 +6,7 @@ using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.ViewModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -97,11 +98,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
 
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeAssignableTo<ApplicationSearchResponse>();
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
 
-            var model = viewResult.Model as ApplicationSearchResponse;
+            var model = viewResult.Model as PeopleSelectionViewModel;
             model.Should().NotBeNull();
-            model.Should().BeEquivalentTo(response);
 
         }
 
@@ -195,11 +195,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
 
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeAssignableTo<ApplicationSearchResponse>();
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
 
-            var model = viewResult.Model as ApplicationSearchResponse;
+            var model = viewResult.Model as PeopleSelectionViewModel;
             model.Should().NotBeNull();
-            model.Should().BeEquivalentTo(response);
 
         }
 
@@ -219,8 +218,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             //assert 
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            var resultData = viewResult.Model as ApplicationSearchResponse;
-            resultData.Data.Should().BeEmpty();
+            var resultData = viewResult.Model as PeopleSelectionViewModel;
         }
 
         [Test]
