@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility.TestBase;
@@ -175,7 +176,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
         #endregion
 
-        #region appeals
+        #region school appeals
 
 
         [Test]
@@ -337,6 +338,191 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
             redirect.ActionName.Should().BeEquivalentTo("Process_Appeals");
+        }
+
+        #endregion
+
+
+        #region school finalise
+
+
+        [Test]
+        public async Task Given_FinaliseApplications_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationSearchResponse>();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.FinaliseApplications();
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
+
+            var model = viewResult.Model as PeopleSelectionViewModel;
+            model.Should().NotBeNull();
+
+        }
+
+        [Test]
+        public async Task Given_FinaliseApplications_Returns_No_Records_null()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(default(ApplicationSearchResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.FinaliseApplications();
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            var resultData = viewResult.Model as PeopleSelectionViewModel;
+        }
+
+
+        [Test]
+        public async Task Given_ApplicationDetailFinalise_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
+
+            var model = viewResult.Model as ApplicationDetailViewModel;
+            model.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailFinalise_Results_Returns_NotFound()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(default(ApplicationItemResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailFinalise_Results_Returns_UnauthorizedResult()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.School.Id = -99;
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+
+        [Test]
+        public async Task Given_FinaliseSelectedApplications_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var model = _fixture.Create<PeopleSelectionViewModel>();
+            foreach (var item in model.People)
+            {
+                item.Selected = true;
+            }
+            var ids = model.getSelectedIds();
+            //act
+            var result = _sut.FinaliseSelectedApplications(model);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var tempDataIds = _sut.TempData["FinaliseApplicationIds"];
+
+            _sut.TempData["FinaliseApplicationIds"].Should().BeEquivalentTo(ids);
+        }
+
+        [Test]
+        public async Task Given_ApplicationFinaliseSend_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var model = _fixture.Create<PeopleSelectionViewModel>();
+            foreach (var item in model.People)
+            {
+                item.Selected = true;
+            }
+            var ids = model.getSelectedIds();
+            _sut.TempData["FinaliseApplicationIds"] = model.getSelectedIds();
+            _adminServiceMock.Setup(x=>x.PatchApplicationStatus(It.IsAny<string>(), It.IsAny<ApplicationStatus>()));
+            //act
+            var result = await _sut.ApplicationFinaliseSend();
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("FinaliseApplications");
+        }
+
+        [Test]
+        public async Task Given_FinalisedApplicationsdownload_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationSearchResponse>();
+            foreach (var item in response.Data)
+            {
+                item.ChildDateOfBirth = "1990-01-01";
+                item.ParentDateOfBirth = "1990-01-01";
+            }
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.FinalisedApplicationsdownload();
+
+            //assert
+            result.Should().BeOfType<FileStreamResult>();
+
         }
 
         #endregion
