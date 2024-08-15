@@ -338,7 +338,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
             {
-                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.Urn)
+                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.EstablishmentNumber)
                 {
                     _logger.LogError($"Invalid Local Authority access attempt {response.Data.School.LocalAuthority.Id} organisation Urn:-{_Claims.Organisation.Urn}");
                     return false;
