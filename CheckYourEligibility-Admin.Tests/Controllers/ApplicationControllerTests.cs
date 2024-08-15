@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
     public class ApplicationControllerTests : TestBase
