@@ -269,6 +269,69 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
+        #region LA
+
+        public async Task<IActionResult> PendingApplications()
+        {
+            ApplicationSearchResponse results = await GetPendingApplications();
+
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetailLa", ShowSchool = true, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
+
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailLa(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
+
+            return View(GetViewData(response));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApproveConfirmation(string id)
+        {
+            TempData["AppApproveId"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeclineConfirmation(string id)
+        {
+            TempData["AppApproveId"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationApproveSend(string id)
+        { 
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled);
+
+            return RedirectToAction("PendingApplications");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDeclineSend(string id)
+        {
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedNotEntitled);
+
+            return RedirectToAction("PendingApplications");
+        }
+
+
+        #endregion
+
 
         private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
         {
@@ -323,6 +386,27 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var results = new ApplicationSearchResponse() { Data = resultItems };
             return results;
         }
+
+
+        private async Task<ApplicationSearchResponse> GetPendingApplications()
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            {
+                Data = new ApplicationRequestSearchData
+                {
+
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview
+                }
+            };
+            var results = await _adminService.PostApplicationSearch(applicationSearch);
+            results ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            
+            return results;
+        }
+
 
 
         private bool CheckAccess(ApplicationItemResponse response)
