@@ -10,6 +10,7 @@ using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Reflection;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -93,7 +94,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return RedirectToAction("Search");
             }
 
-            return View(response);
+            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetail", ShowSelectorCheck = false, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
         }
 
         [HttpGet]
@@ -104,16 +108,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 return NotFound();
             }
-            if (!CheckAccess(response)){
+            if (!CheckAccess(response))
+            {
                 return new UnauthorizedResult();
             }
-            
-            return View(response);
+
+            return View(GetViewData(response));
         }
 
         #endregion
 
-        #region Appeals
+        #region School Appeals
 
         public async Task<IActionResult> Process_Appeals()
         {
@@ -136,7 +141,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
             var results = new ApplicationSearchResponse() { Data = resultItems };
-            return View(results);
+
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetailAppeal", ShowSelectorCheck = false, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
 
         }
 
@@ -160,7 +169,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return new UnauthorizedResult();
             }
 
-            return View(response);
+            return View(GetViewData(response));
         }
 
 
@@ -192,7 +201,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             ApplicationSearchResponse results = await GetFinalisedApplications();
 
-            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { Person = x });
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel {DetailView = "ApplicationDetailFinalise",ShowSelectorCheck = true, Person = x });
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
 
             return View(viewData);
@@ -212,14 +221,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return new UnauthorizedResult();
             }
 
-            return View(response);
+            return View(GetViewData(response));
         }
 
         [HttpPost]
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
             
-            TempData["FinaliseApplicationIds"] = model.getSelectedIds(); 
+           TempData["FinaliseApplicationIds"] = model.getSelectedIds(); 
 
             return View("ApplicationFinaliseConfirmation");
         }
@@ -260,6 +269,89 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
+        #region LA
+
+        public async Task<IActionResult> PendingApplications()
+        {
+            ApplicationSearchResponse results = await GetPendingApplications();
+
+            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetailLa", ShowSchool = true, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
+
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailLa(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
+
+            return View(GetViewData(response));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApproveConfirmation(string id)
+        {
+            TempData["AppApproveId"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeclineConfirmation(string id)
+        {
+            TempData["AppApproveId"] = id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationApproveSend(string id)
+        { 
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled);
+
+            return RedirectToAction("PendingApplications");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDeclineSend(string id)
+        {
+            await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedNotEntitled);
+
+            return RedirectToAction("PendingApplications");
+        }
+
+
+        #endregion
+
+
+        private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
+        {
+            var viewData = new ApplicationDetailViewModel
+            {
+                Id = response.Data.Id,
+                Reference = response.Data.Reference,
+                ParentName = $"{response.Data.ParentFirstName} {response.Data.ParentLastName}",
+                ParentEmail = response.Data.User.Email,
+                ParentNas = response.Data.ParentNationalAsylumSeekerServiceNumber,
+                ParentNI = response.Data.ParentNationalInsuranceNumber,
+                Status = response.Data.Status,
+                ChildName = $"{response.Data.ChildFirstName} {response.Data.ChildLastName}",
+            };
+            viewData.ParentDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            return viewData;
+        }
+
+
         private byte[] WriteCsvToMemory(IEnumerable<ApplicationExport> records)
         {
             using (var memoryStream = new MemoryStream())
@@ -296,6 +388,27 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
 
+        private async Task<ApplicationSearchResponse> GetPendingApplications()
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            {
+                Data = new ApplicationRequestSearchData
+                {
+
+                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview
+                }
+            };
+            var results = await _adminService.PostApplicationSearch(applicationSearch);
+            results ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            
+            return results;
+        }
+
+
+
         private bool CheckAccess(ApplicationItemResponse response)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
@@ -309,7 +422,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
             {
-                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.Urn)
+                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.EstablishmentNumber)
                 {
                     _logger.LogError($"Invalid Local Authority access attempt {response.Data.School.LocalAuthority.Id} organisation Urn:-{_Claims.Organisation.Urn}");
                     return false;
