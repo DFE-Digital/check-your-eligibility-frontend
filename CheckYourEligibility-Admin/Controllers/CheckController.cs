@@ -153,7 +153,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Loader()
         {
-            return View();
+            return View("Loader");
         }
 
         /// this method is called by AJAX
@@ -163,7 +163,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var startTime = DateTime.UtcNow;
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
-            // gather api response which should either be queuedForProcessing or has a response
+            // gather api response which should either be queuedForProcessing or a finalised response
             var responseJson = TempData["Response"] as string;
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
@@ -248,12 +248,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
-                return View(request);
+                return View("Enter_Child_Details", request);
             }
 
             if (!ModelState.IsValid)
             {
-                return View(request);
+                return View("Enter_Child_Details", request);
             }
 
             var fsmApplication = new FsmApplication
@@ -294,20 +294,28 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Remove_Child(Children request, int index)
         {
-            // remove child at given index
-            var child = request.ChildList[index];
-            request.ChildList.Remove(child);
+            try
+            {
+                // remove child at given index
+                var child = request.ChildList[index];
+                request.ChildList.Remove(child);
 
-            // set up tempdata so page can be correctly rendered
-            TempData["IsChildAddOrRemove"] = true;
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+                // set up tempdata so page can be correctly rendered
+                TempData["IsChildAddOrRemove"] = true;
+                TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
-            return RedirectToAction("Enter_Child_Details");
+                return RedirectToAction("Enter_Child_Details");
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                throw ex;
+            }
+
         }
 
         public IActionResult Check_Answers()
         {
-            return View();
+            return View("Check_Answers");
         }
 
         [HttpPost]
@@ -350,7 +358,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public IActionResult ApplicationsRegistered()
         {
             var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
-            return View(vm);
+            return View("ApplicationsRegistered", vm);
         }
 
         public IActionResult ChangeChildDetails()
