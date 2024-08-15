@@ -1,7 +1,7 @@
 
 describe('Admin journey search for application', () => {
     beforeEach(() => {
-        cy.SignIn();
+        cy.SignInLA();
         cy.contains('Search all records').click();
 
     });
@@ -34,12 +34,12 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(3)
-            .should('include.text', 'Simpson');
+            .contains(/Simpson/i);
     });
 
     it('Will allow Local Authority users to search for an application with a selected Parent or Guardian name', () => {
 
-        cy.get('#ParentLastName').type('Simpson');
+        cy.get('#ParentLastName').type('Smith');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -48,13 +48,13 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(2)
-            .should('include.text', 'Simpson');
+            .should('include.text', /Smith/i);
     });
 
 
     it('Will allow Local Authority users to search for an application with a selected reference', () => {
 
-        cy.get('#Reference').type('10041696');
+        cy.get('#Reference').type('68383670');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -65,7 +65,7 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(1)
-            .should('contain.text', '10041696');
+            .should('contain.text', '68383670');
     });
 
     it('Will allow Local Authority users to search for an application with a selected Child DOB', () => {
@@ -93,5 +93,26 @@ describe('Admin journey search for application', () => {
         cy.url().should('include', 'Application/Results');
     });
 
+    
+    it('Will allow a Local Authority to view an application from the results page by selecting the reference number link', () => {
+        cy.get('#ParentLastName').type('Smith');
+        cy.contains('Generate results').click();
+        cy.url().should('include', 'Application/Results');
 
+        cy.get('.govuk-table')
+            .find('tbody tr')
+            .eq(0)
+            .find('td')
+            .eq(2)
+            .should('include.text', 'Smith');
+
+        cy.get('.govuk-table')
+            .find('tbody tr')
+            .eq(0)
+            .find('td')
+            .find('a')
+            .click();
+
+        cy.url().should('include', 'ApplicationDetail');
+    })
 });
