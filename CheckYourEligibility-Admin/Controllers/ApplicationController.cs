@@ -228,7 +228,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
             
-            TempData["FinaliseApplicationIds"] = model.getSelectedIds(); 
+           TempData["FinaliseApplicationIds"] = model.getSelectedIds(); 
 
             return View("ApplicationFinaliseConfirmation");
         }
