@@ -322,6 +322,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            var user = await _parentService.CreateUser(new UserCreateRequest { Data = new UserData { Email = request.ParentEmail, Reference = $"AdminCreated:- {_Claims.User.Email}" } });
             var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
             var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
 
@@ -341,7 +342,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(_Claims.Organisation.Urn),
-                        UserId = _Claims.User.Id
+                        UserId = user.Data
                     }
                 };
 
