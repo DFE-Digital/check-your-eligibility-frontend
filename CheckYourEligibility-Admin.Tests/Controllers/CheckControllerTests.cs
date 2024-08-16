@@ -323,9 +323,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var serviceMockRequest = _fixture.Create<ApplicationRequest>();
             var serviceMockResponse = _fixture.Create<Task<ApplicationSaveItemResponse>>();
+            var userCreateResponse = _fixture.Create<UserSaveItemResponse>();
             var request = _fixture.Create<FsmApplication>();
-
-             _parentServiceMock.Setup(x => x.PostApplication(It.IsAny<ApplicationRequest>()))
+            _parentServiceMock.Setup(x => x.CreateUser(It.IsAny<UserCreateRequest>()))
+                .ReturnsAsync(userCreateResponse);
+            _parentServiceMock.Setup(x => x.PostApplication(It.IsAny<ApplicationRequest>()))
                 .Returns(serviceMockResponse);
 
             // Act
