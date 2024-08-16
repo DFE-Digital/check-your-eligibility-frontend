@@ -21,10 +21,10 @@ describe('Full journey of creating an application through school portal through 
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
 
-        cy.contains('Perform check').click();
+        cy.contains('button', 'Perform check').click();
 
         cy.url().should('include', 'Check/Loader');
-        cy.get('p').should('include.text', 'The children of this parent or guardian may not be entitled to free school meals', { timeout: 10000 });
+        cy.get('p', { timeout: 30000 }).should('include.text', 'The children of this parent or guardian may not be entitled to free school meals');
         cy.contains('button', 'Appeal now').click();
 
         cy.url().should('include', '/Check/Enter_Child_Details');
@@ -64,12 +64,10 @@ describe('Full journey of creating an application through school portal through 
             cy.contains('Process appeals').click();
 
             cy.contains(referenceNumber).click();
-            // cy.get('.govuk-table')
-            // .find('tbody tr')
-            // .find(referenceNumber)
-            // .find('a')
-            // .click();
         })
+
+        cy.get('h1').should('contain',`${parentFirstName} ${parentLastName}`);
+        cy.contains('Send for review').click();
 
     });
 
