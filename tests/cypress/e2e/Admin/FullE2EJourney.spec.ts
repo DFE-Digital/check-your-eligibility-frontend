@@ -67,8 +67,33 @@ describe('Full journey of creating an application through school portal through 
         })
 
         cy.get('h1').should('contain',`${parentFirstName} ${parentLastName}`);
-        cy.contains('Send for review').click();
+        cy.get('.govuk-button').click();
+
+        cy.url().should('contain', 'ApplicationDetailAppealConfirmation');
+        cy.get('p').should('include.text', 'Are you sure?');
+        cy.contains('.govuk-button', 'Yes, send now').click();
 
     });
+
+    it('Allows a user when logged into the LA portal to approve the application review', () => {
+        cy.SignInLA();
+
+        cy.contains('Search all records').click();
+        cy.url().should('contain', 'Application/Search');
+
+        cy.get('#Reference').type(referenceNumber);
+        cy.contains('Generate results').click();
+        cy.url().should('include', 'Application/Results');
+
+        cy.get('h1').should('contain.text', 'Search results (1)');
+
+        cy.get('.govuk-table')
+            .find('tbody tr')
+            .eq(0)
+            .find('td')
+            .eq(1)
+            .should('contain.text', referenceNumber)
+            .click();
+    })
 
 })  
