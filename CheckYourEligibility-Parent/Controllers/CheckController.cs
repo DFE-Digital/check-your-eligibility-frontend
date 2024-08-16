@@ -221,11 +221,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             properties.RedirectUri = "/Check/CreateUser";
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
-
+        
         public async Task<IActionResult> CreateUser()
         {
             string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
-            string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sid").Select(c => c.Value).First();
+            string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sub").Select(c => c.Value).First();
             
             var user = await _parentService.CreateUser(
                 new UserCreateRequest()
