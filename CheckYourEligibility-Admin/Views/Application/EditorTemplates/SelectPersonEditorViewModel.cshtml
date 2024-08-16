@@ -42,11 +42,18 @@
     <td class="govuk-table__cell">@(@Model.Person.ParentFirstName + " " + @Model.Person.ParentLastName)</td>
     <td class="govuk-table__cell">@(@Model.Person.ChildFirstName + " " + Model.Person.ChildLastName)</td>
     <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
+    @if(Model.ShowSchool)
+    {
+        <td class="govuk-table__cell">@(@Model.Person.School.Name)</td>
+    }
+    else
+    {
     <td class="govuk-table__cell">
         <strong class="govuk-tag @statusColor[Model.Person.Status]">
             @statusName[Model.Person.Status]
         </strong>
     </td>
+    }
     <td class="govuk-table__cell">@Model.Person.Created.ToString("dd MMM yyyy")</td>
   
    

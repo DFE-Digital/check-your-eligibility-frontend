@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
     public class ApplicationControllerTests : TestBase
@@ -342,7 +342,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
         #endregion
 
-
         #region school finalise
 
 
@@ -525,6 +524,180 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
         }
 
+        #endregion
+
+
+        #region la pending applications
+
+
+        [Test]
+        public async Task Given_PendingApplications_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationSearchResponse>();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.PendingApplications();
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
+
+            var model = viewResult.Model as PeopleSelectionViewModel;
+            model.Should().NotBeNull();
+
+        }
+
+        [Test]
+        public async Task Given_PendingApplications_Returns_No_Records_null()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(default(ApplicationSearchResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.PendingApplications();
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            var resultData = viewResult.Model as PeopleSelectionViewModel;
+        }
+
+
+        [Test]
+        public async Task Given_ApplicationDetailLa_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailLa(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
+
+            var model = viewResult.Model as ApplicationDetailViewModel;
+            model.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailLa_Results_Returns_NotFound()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(default(ApplicationItemResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailLa(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailLa_Results_Returns_UnauthorizedResult()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.School.Id = -99;
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailLa(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+
+        [Test]
+        public async Task Given_ApproveConfirmation_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.ApproveConfirmation(id);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            _sut.TempData["AppApproveId"].Should().Be(id);
+        }
+
+
+        [Test]
+        public async Task Given_DeclineConfirmation_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.DeclineConfirmation(id);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            _sut.TempData["AppApproveId"].Should().Be(id);
+        }
+
+        [Test]
+        public async Task Given_ApplicationApproveSend_Returns_ViewResult()
+        {
+            //Arrange
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.ApplicationApproveSend(id);
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+        }
+
+        [Test]
+        public async Task Given_ApplicationDeclineSend_Returns_ViewResult()
+        {
+            //Arrange
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.ApplicationDeclineSend(id);
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+        }
         #endregion
     }
 }

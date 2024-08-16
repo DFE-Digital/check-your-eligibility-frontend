@@ -4,13 +4,14 @@ using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility.TestBase;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_Parent.Tests.Properties;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
     public class BulkUploadTests : TestBase
@@ -58,7 +59,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Batch_Check_When_FileData_Invalid_Should_Return_Error_Data_Issue()
         {
             // Arrange
-            var content = Properties.Resources.batchchecktemplate_some_invalid_items;
+            var content = Resources.batchchecktemplate_some_invalid_items;
             var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -151,7 +152,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _checkServiceMock.Setup(s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk>()))
                     .ReturnsAsync(response);
 
-            var content = Properties.Resources.batchchecktemplate_small_Valid;
+            var content = Resources.batchchecktemplate_small_Valid;
             var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
