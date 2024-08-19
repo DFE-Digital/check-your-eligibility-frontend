@@ -1,21 +1,79 @@
 
 describe('Admin journey search for application', () => {
+
+    const parentFirstName = 'Timothy';
+    const parentLastName = 'Smith';
+    const parentEmailAddress = 'TimJones@Example.com';
+    const NIN = 'AB123456C'
+    const childFirstName = 'Tom';
+    const childLastName = 'Jones';
+    var referenceNumber: string;
+
     beforeEach(() => {
-        cy.SignInLA();
-        cy.contains('Search all records').click();
+        cy.SignInSchool();
 
     });
 
-    it('Will allow Local Authority users to search for an application with any status', () => {
-  
+    it('Will create an application that can be used for searches', () => {
+
+        cy.contains('Check free school meals - single student').click();
+        
+        cy.url().should('include', '/Check/Enter_Details');
+        cy.get('#FirstName').type(parentFirstName);
+        cy.get('#LastName').type(parentLastName);
+        cy.get('#EmailAddress').type(parentEmailAddress);
+        cy.get('#NationalInsuranceNumber').type(NIN);
+        cy.get('#Day').type('01');
+        cy.get('#Month').type('01');
+        cy.get('#Year').type('1990');
+
+        cy.contains('button', 'Perform check').click();
+
+        cy.url().should('include', 'Check/Loader');
+        cy.get('h1', { timeout: 20000 }).should('include.text', 'The children of this parent or guardian are entitled to free school meals');
+        cy.contains('button', "Add children's details").click();
+
+        cy.url().should('include', '/Check/Enter_Child_Details');
+        cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
+        cy.get('[id="ChildList[0].LastName"]').type(childLastName);
+        cy.get('[id="ChildList[0].Day"]').type('01');
+        cy.get('[id="ChildList[0].Month"]').type('01');
+        cy.get('[id="ChildList[0].Year"]').type('2007');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.get('h1').should('include.text', 'Check your answers before registering');
+
+        cy.CheckValuesInSummaryCard('Parent or guardian name', `${parentFirstName} ${parentLastName}`);
+        cy.CheckValuesInSummaryCard('Parent or guardian date of birth', '1990-01-01');
+        cy.CheckValuesInSummaryCard('National insurance number', NIN);
+        cy.CheckValuesInSummaryCard('Email address', parentEmailAddress);
+        cy.CheckValuesInSummaryCard("Child's name", childFirstName + " " + childLastName);
+        cy.contains('button', 'Submit application').click();
+
+        cy.url().should('include', '/Check/ApplicationsRegistered');
+        cy.get('.govuk-table')
+            .find('tbody tr')
+            .eq(0)
+            .find('td')
+            .eq(2)
+            .invoke('text')
+            .then((text) => {
+                referenceNumber = text;
+            });
+    });
+
+    it('Will allow School users to search for an application with any status', () => {
+
+        cy.contains('Search all records').click();
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
         cy.get('h1').should('include.text', 'Search results');
 
     });
 
-    it('Will allow Local Authority users to search for an application with a selected status', () => {
+    it('Will allow School users to search for an application with a selected status', () => {
 
+        cy.contains('Search all records').click();
         cy.get('#Status').select('Evidence needed');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
@@ -23,9 +81,10 @@ describe('Admin journey search for application', () => {
 
     });
 
-    it('Will allow Local Authority users to search for an application with a selected Child name', () => {
+    it('Will allow School users to search for an application with a selected Child name', () => {
 
-        cy.get('#ChildLastName').type('Jones');
+        cy.contains('Search all records').click();
+        cy.get('#ChildLastName').type(childLastName);
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -34,12 +93,13 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(3)
-            .contains(/Jones/i);
+            .contains(childLastName);
     });
 
-    it('Will allow Local Authority users to search for an application with a selected Parent or Guardian name', () => {
+    it('Will allow School users to search for an application with a selected Parent or Guardian name', () => {
 
-        cy.get('#ParentLastName').type('Smith');
+        cy.contains('Search all records').click();
+        cy.get('#ParentLastName').type(parentLastName);
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -48,13 +108,14 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(2)
-            .should('include.text', /Smith/i);
+            .should('include.text', parentLastName);
     });
 
 
-    it('Will allow Local Authority users to search for an application with a selected reference', () => {
+    it('Will allow School users to search for an application with a selected reference', () => {
 
-        cy.get('#Reference').type('68383670');
+        cy.contains('Search all records').click();
+        cy.get('#Reference').type(referenceNumber);
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -65,11 +126,12 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(1)
-            .should('contain.text', '68383670');
+            .should('contain.text', referenceNumber);
     });
 
-    it('Will allow Local Authority users to search for an application with a selected Child DOB', () => {
+    it('Will allow School users to search for an application with a selected Child DOB', () => {
 
+        cy.contains('Search all records').click();
         cy.get('#Child-DOB-Day').type('01');
         cy.get('#Child-DOB-Month').type('01');
         cy.get('#Child-DOB-Year').type('2007');
@@ -84,8 +146,9 @@ describe('Admin journey search for application', () => {
             .should('contain.text', '01 Jan 2007');
     });
 
-    it('Will allow Local Authority users to search for an application with a selected Parent of Guardian DOB', () => {
+    it('Will allow School users to search for an application with a selected Parent of Guardian DOB', () => {
 
+        cy.contains('Search all records').click();
         cy.get('#PG-DOB-Day').type('01');
         cy.get('#PG-DOB-Month').type('01');
         cy.get('#PG-DOB-Year').type('1990');
@@ -94,7 +157,9 @@ describe('Admin journey search for application', () => {
     });
 
     
-    it('Will allow a Local Authority to view an application from the results page by selecting the reference number link', () => {
+    it('Will allow a School to view an application from the results page by selecting the reference number link', () => {
+
+        cy.contains('Search all records').click();
         cy.get('#ParentLastName').type('Smith');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');

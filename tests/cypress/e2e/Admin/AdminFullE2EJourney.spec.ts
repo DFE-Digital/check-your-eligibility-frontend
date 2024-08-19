@@ -52,11 +52,8 @@ describe('Full journey of creating an application through school portal through 
             .eq(2)
             .invoke('text')
             .then((text) => {
-                cy.log('Text retrieved', text)
                 referenceNumber = text;
-                cy.log(referenceNumber)
             });
-        cy.log(referenceNumber);
 
         cy.then(() =>{
             cy.visit('/')
@@ -76,9 +73,10 @@ describe('Full journey of creating an application through school portal through 
     });
 
     it('Allows a user when logged into the LA portal to approve the application review', () => {
+        
         cy.SignInLA();
 
-        cy.contains('.govuk-link', 'Finalise applications').click();
+        cy.contains('.govuk-link', 'Pending applications').click();
         cy.url().should('contain', 'Application/PendingApplications');
         
         cy.contains(referenceNumber).click();
@@ -103,6 +101,33 @@ describe('Full journey of creating an application through school portal through 
             .eq(1)
             .should('contain.text', referenceNumber)
             .click();
-    })
+
+        cy.get('.govuk-table')
+            .find('tbody tr')
+            .eq(0)
+            .find('td')
+            .eq(5)
+            .should('contain.text', 'Reviewed Entitled');
+    });
+
+    it('Allows a user when back logged into the School portal to finalise the application', () => {
+
+        cy.SignInSchool();
+        cy.contains('Finalise applications').click();
+        cy.url().should('contain', 'Application/FinaliseApplications');
+        cy.log(referenceNumber)
+
+        cy.get('.govuk-table tbody tr').each(($row) => {
+            cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
+                if (text.trim() === referenceNumber) {
+                    cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
+                    cy.log('found it!');
+                }
+            })
+        })
+        cy.contains('.govuk-button', 'Finalise applications').click();
+        cy.contains('.govuk-button', 'Yes, finalise now').click();
+
+    });
 
 })  
