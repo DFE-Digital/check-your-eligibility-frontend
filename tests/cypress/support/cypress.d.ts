@@ -20,6 +20,7 @@ declare namespace Cypress {
     }
   
     interface Chainable<Subject = any> {
+      SignIn(): Chainable<void>
       clickButtonByText(buttonText: string): Chainable<Element>;
       typeTextByLabel(labelText: string, text: string): Chainable<Element>;
       typeIntoInput(selector: string, text: string): Chainable<void>;

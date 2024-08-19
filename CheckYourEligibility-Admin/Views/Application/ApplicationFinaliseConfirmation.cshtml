@@ -1,0 +1,22 @@
+﻿    <div class="govuk-!-padding-bottom-3"></div>
+    <main class="govuk-main-wrapper" id="main-content">
+
+
+        <div class="govuk-width-container">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <p class="govuk-heading-l">Are you sure?</p>
+                    <p class="govuk-body">Applications should only be finalised after you've added the details to your own system.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="govuk-!-padding-bottom-3"></div>
+
+    @Html.ActionLink("Yes, finalise now", "ApplicationFinaliseSend", "application", null, new { @class = "govuk-button govuk-button--primary" })
+
+    @Html.ActionLink("No, return to table", "FinaliseApplications", "application", null, new { @class = "govuk-button govuk-button--secondary" })
+
+        <div class="govuk-!-padding-bottom-3"></div>
+
+</main>

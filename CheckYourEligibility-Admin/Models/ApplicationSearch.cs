@@ -10,17 +10,19 @@ namespace CheckYourEligibility_FrontEnd.Models
         public int? School { get; set; }
         public ApplicationStatus? Status { get; set; }
 
-        [LastName(ErrorMessage = "Child Last Name field contains an invalid character")]
+        [LastName(ErrorMessage = "Child last name field contains an invalid character")]
         public string? ChildLastName { get; set; }
 
-        [LastName(ErrorMessage = "Parent Last Name field contains an invalid character")]
+        [LastName(ErrorMessage = "Parent or Guardian last name field contains an invalid character")]
         public string? ParentLastName { get; set; }
+
+        [ReferenceNumber]
         public string? Reference { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid day entered")]
+        [Range(1, 31, ErrorMessage = "Invalid Day")]
         public int? ChildDOBDay { get; set; }
 
-        [Range(1, 12, ErrorMessage = "Invalid month entered")]
+        [Range(1, 12, ErrorMessage = "Invalid Month")]
         public int? ChildDOBMonth { get; set; }
 
         [Year]

@@ -19,7 +19,8 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         {
             _parent = new Parent()
             {
-                IsNassSelected = true,
+                IsNassNotSelected = false,
+                IsNinoNotSelected = true,
             };
             _nassAttribute = new TestableNassAttribute();
             _validationContext = new ValidationContext(_parent);

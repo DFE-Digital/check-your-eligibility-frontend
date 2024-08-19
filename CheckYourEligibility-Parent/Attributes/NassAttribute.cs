@@ -13,7 +13,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         {
             var model = (Parent)validationContext.ObjectInstance;
 
-            if (model.IsNassSelected == true)
+            if (model.IsNassNotSelected == false)
             {
                 if (value == null || value == "")
                 {

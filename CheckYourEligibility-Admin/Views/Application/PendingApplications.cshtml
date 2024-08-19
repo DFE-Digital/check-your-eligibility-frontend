@@ -1,0 +1,40 @@
+﻿@using CheckYourEligibility_FrontEnd.ViewModels
+@model PeopleSelectionViewModel;
+
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="moj-page-header-actions">
+
+            <div class="moj-page-header-actions__title">
+                <h1 class="govuk-heading-l">Pending applications (@Model.People.Count())</h1>
+            </div>
+        </div>
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                Help with this page
+            </span>
+        </summary>
+        <div class="govuk-!-padding-bottom-3"></div>
+
+        <div class="govuk-grid-row">
+
+            <div class="govuk-grid-column-full">
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th class="govuk-table__header" scope="col" id="select-all"></th>
+                            <th class="govuk-table__header" scope="col">Reference</th>
+                            <th class="govuk-table__header" scope="col">Parent / Guardian</th>
+                            <th class="govuk-table__header" scope="col">Child</th>
+                            <th class="govuk-table__header" scope="col">Child date of birth</th>
+                            <th class="govuk-table__header" scope="col"> School</th>
+                            <th class="govuk-table__header" scope="col">Submission date</th>
+                        </tr>
+                    </thead>
+                    @Html.EditorFor(model => model.People)
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
