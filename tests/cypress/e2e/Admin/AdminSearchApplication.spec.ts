@@ -16,7 +16,7 @@ describe('Admin journey search for application', () => {
 
     it('Will allow Local Authority users to search for an application with a selected status', () => {
 
-        cy.get('#Status').select('Entitled');
+        cy.get('#Status').select('Evidence needed');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
         cy.get('h1').should('include.text', 'Search results');
@@ -25,7 +25,7 @@ describe('Admin journey search for application', () => {
 
     it('Will allow Local Authority users to search for an application with a selected Child name', () => {
 
-        cy.get('#ChildLastName').type('Simpson');
+        cy.get('#ChildLastName').type('Jones');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/Results');
 
@@ -34,7 +34,7 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(3)
-            .contains(/Simpson/i);
+            .contains(/Jones/i);
     });
 
     it('Will allow Local Authority users to search for an application with a selected Parent or Guardian name', () => {

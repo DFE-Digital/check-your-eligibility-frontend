@@ -78,6 +78,15 @@ describe('Full journey of creating an application through school portal through 
     it('Allows a user when logged into the LA portal to approve the application review', () => {
         cy.SignInLA();
 
+        cy.contains('.govuk-link', 'Finalise applications').click();
+        cy.url().should('contain', 'Application/PendingApplications');
+        
+        cy.contains(referenceNumber).click();
+        cy.contains('.govuk-button', 'Approve application').click();
+        cy.contains('.govuk-button', 'Yes, approve now').click();
+
+        cy.visit('/');
+
         cy.contains('Search all records').click();
         cy.url().should('contain', 'Application/Search');
 
