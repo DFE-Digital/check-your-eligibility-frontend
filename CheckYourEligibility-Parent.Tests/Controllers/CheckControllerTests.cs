@@ -82,8 +82,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     Year = 1990,
                     NationalInsuranceNumber = "AB123456C",
                     NationalAsylumSeekerServiceNumber = null,
-                    IsNinoNotSelected = false,
-                    IsNassNotSelected = null,
+                    IsNinoSelected = true,
+                    IsNassSelected = null,
                 };
 
                 _children = new Children()
@@ -367,7 +367,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToNass()
         {
             // Arrange
-            _parent.IsNinoNotSelected = true;
+            _parent.IsNinoSelected = false;
             _parent.NationalInsuranceNumber = null;
             _parent.NationalAsylumSeekerServiceNumber = "202405001";
 
@@ -657,7 +657,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_EnterDetails_When_UserHasSelectedToInputANass_Should_RedirectToNassPage()
         {
             // Arrange
-            _parent.IsNinoNotSelected = true;
+            _parent.IsNinoSelected = false;
             _parent.NationalInsuranceNumber = null;
 
             // Act
