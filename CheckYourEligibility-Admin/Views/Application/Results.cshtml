@@ -70,6 +70,39 @@
            </tbody>
        </table>
 
+            <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
+                <ul class="govuk-pagination__list">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <li class="govuk-pagination__item">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage - 1, PageSize = ViewBag.PageSize })">Previous</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = i, PageSize = ViewBag.PageSize })">@i</a>
+                        </li>
+                    }
+
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <li class="govuk-pagination__item">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage + 1, PageSize = ViewBag.PageSize })">Next</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <p>No results found.</p>
+                    }
+                </ul>
+            </nav>
+
+
+
+
+
     </div>
     </div>
 </div>
