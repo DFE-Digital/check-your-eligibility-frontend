@@ -21,7 +21,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.contains('Save and continue').click();
 
         cy.get('h1').should('include.text', 'Do you have an asylum support reference number?');
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNassNotSelected').click();
         cy.get('#NationalAsylumSeekerServiceNumber').type('240767899')
 
         cy.contains('Save and continue').click();
