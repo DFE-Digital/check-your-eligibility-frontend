@@ -1,7 +1,7 @@
 
 describe('Admin journey search for application', () => {
     beforeEach(() => {
-        cy.SignIn();
+        cy.SignInLA();
         cy.contains('Search all records').click();
 
     });
@@ -22,7 +22,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Generate results').click();
         cy.get('h2').should('include.text', 'There is a problem');
 
-        cy.get('.field-validation-error').should('contain.text', 'Parent  or Guardian last name field contains an invalid character');
+        cy.get('.field-validation-error').should('contain.text', 'Parent or Guardian last name field contains an invalid character');
 
     });
 
