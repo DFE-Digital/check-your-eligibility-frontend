@@ -11,18 +11,18 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.get('h1').should('include.text', 'Enter your details');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
-        cy.get('#LastName').should('be.visible').type('GRIFFIN');
-        cy.get('#Day').should('be.visible').type('31');
-        cy.get('#Month').should('be.visible').type('12');
-        cy.get('#Year').should('be.visible').type('2000');
+        cy.get('#LastName').should('be.visible').type('Simpson');
+        cy.get('#Day').should('be.visible').type('01');
+        cy.get('#Month').should('be.visible').type('01');
+        cy.get('#Year').should('be.visible').type('1990');
 
-        cy.get('input[type="radio"][value="true"]').click();
+        cy.get('input[type="radio"][value="false"]').click();
 
         cy.contains('Save and continue').click();
 
         cy.get('h1').should('include.text', 'Do you have an asylum support reference number?');
-        cy.get('#IsNassNotSelected').click();
-        cy.get('#NationalAsylumSeekerServiceNumber').type('240767899')
+        cy.get('#IsNassSelected').click();
+        cy.get('#NationalAsylumSeekerServiceNumber').type('240712345')
 
         cy.contains('Save and continue').click();
 
@@ -66,7 +66,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Tim');
-        cy.get('[id="ChildList[0].LastName"]').type('GRIFFIN');
+        cy.get('[id="ChildList[0].LastName"]').type('Simpson');
         cy.get('[id="ChildList[0].School.Name"]').type('Hinde House 2-16 Academy');
 
         cy.get('#schoolList0')
@@ -85,33 +85,33 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.get('h2').should('contain.text', 'Parent or guardian details')
         cy.contains('dt', 'Parent or guardian name')
             .next('dd')
-            .contains('Tim GRIFFIN');
+            .contains('Tim Simpson');
 
         cy.contains('dt', 'Parent or guardian date of birth')
-        .next('dd')
-        .contains('31/12/200');
+            .next('dd')
+            .contains('01/01/1990');
 
         cy.contains('dt', 'Asylum support reference number')
-        .next('dd')
-        .contains('240767899');
+            .next('dd')
+            .contains('240712345');
 
         cy.contains('dt', 'Email address')
-        .next('dd')
-        .contains('sam.fallowfield@education.gov.uk');
+            .next('dd')
+            .contains('sam.fallowfield@education.gov.uk');
 
 
         cy.get('h2').should('contain.text', 'Child 1')
         cy.contains('dt', "Child's name")
             .next('dd')
-            .contains('Tim GRIFFIN');
+            .contains('Tim Simpson');
 
         cy.contains('dt', 'School')
-        .next('dd')
-        .contains('Hinde House 2-16 Academy');
+            .next('dd')
+            .contains('Hinde House 2-16 Academy');
 
         cy.contains('dt', "Child's date of birth")
-        .next('dd')
-        .contains('01/01/2007');
+            .next('dd')
+            .contains('01/01/2007');
 
         cy.contains('Submit application').click();
 
@@ -120,7 +120,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.get('td')
             .eq(1)
-            .should('contain.text', 'Tim GRIFFIN');
+            .should('contain.text', 'Simpson');
         
         cy.get('td')
             .eq(2)

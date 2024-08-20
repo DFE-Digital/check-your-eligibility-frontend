@@ -20,7 +20,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         {
             var model = (Parent)validationContext.ObjectInstance;
 
-            if (model.IsNinoNotSelected == true)
+            if (model.IsNassSelected == true)
             {
                 return ValidationResult.Success;
             }
