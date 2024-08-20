@@ -1,5 +1,6 @@
 ﻿using CheckYourEligibility.Domain;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -121,11 +122,22 @@ namespace CheckYourEligibility_FrontEnd.Services
             {
 
                 var method = "GET";
-                await LogApiError(task, method, uri);
-                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                try
                 {
-                    throw new UnauthorizedAccessException();
+                    await LogApiError(task, method, uri);
                 }
+                catch (Exception)
+                {
+                    if (task.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                    if (task.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return default;
+                    }
+                }
+                
             }
 
             return result;
@@ -147,6 +159,28 @@ namespace CheckYourEligibility_FrontEnd.Services
             else
             {
                 var method = "PUT";
+                await LogApiError(task, method, uri, json);
+            }
+
+            return result;
+        }
+
+        [ExcludeFromCodeCoverage(Justification = "Method Not Implemented yet accross the solution")]
+        protected async Task<T2> ApiDataPatchAsynch<T1, T2>(string address, T1 data, T2 result)
+        {
+            string uri = address;
+            string json = JsonConvert.SerializeObject(data);
+            HttpContent content = new StringContent(json);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var task = await _httpClient.PatchAsync(uri, content);
+            if (task.IsSuccessStatusCode)
+            {
+                var jsonString = await task.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<T2>(jsonString);
+            }
+            else
+            {
+                var method = "PATCH";
                 await LogApiError(task, method, uri, json);
             }
 

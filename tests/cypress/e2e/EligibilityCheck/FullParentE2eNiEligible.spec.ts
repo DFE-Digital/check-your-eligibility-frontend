@@ -16,7 +16,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('#Month').should('be.visible').type('01');
         cy.get('#Year').should('be.visible').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
 
         cy.get('#NationalInsuranceNumber').should('be.visible').type('AB123456C');
 
@@ -32,7 +32,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
             req.headers['Authorization'] = authorizationHeader;
         }).as('interceptForGET');
 
-        cy.contains('Continue to GOV.UK One Login').click();
+        cy.contains('Continue to GOV.UK One Login',{ timeout: 60000 }).click();
 
         cy.origin('https://signin.integration.account.gov.uk', () => {
             let currentUrl = "";
@@ -56,9 +56,6 @@ describe('Parent with valid details can complete full Eligibility check and appl
             cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
             cy.contains('Continue').click();
 
-            //cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
-            //cy.contains('Continue').click();
-
         });
 
         cy.url().should('include', '/Check/Enter_Child_Details');
@@ -80,17 +77,51 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Save and continue').click();
 
-        cy.get('h1').should('contain.text', 'Check your answers before registering');
+        cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before registering');
 
-        cy.contains('Tim Smith');
-        cy.contains('01/01/1990');
-        cy.contains('AB123456C');
+        cy.get('h2').should('contain.text', 'Parent or guardian details')
+        cy.contains('dt', 'Parent or guardian name')
+            .next('dd')
+            .contains('Tim Smith');
 
-        cy.contains('Timmy Smith');
-        cy.contains('Hinde House 2-16 Academy');
-        cy.contains('01/01/2007');
+        cy.contains('dt', 'Parent or guardian date of birth')
+        .next('dd')
+        .contains('01/01/1990');
 
-        cy.contains('Register details').click();
+        cy.contains('dt', 'National insurance number')
+        .next('dd')
+        .contains('AB123456C');
+
+        cy.contains('dt', 'Email address')
+        .next('dd')
+        .contains('sam.fallowfield@education.gov.uk');
+
+
+        cy.get('h2').should('contain.text', 'Child 1')
+        cy.contains('dt', "Child's name")
+            .next('dd')
+            .contains('Timmy Smith');
+
+        cy.contains('dt', 'School')
+        .next('dd')
+        .contains('Hinde House 2-16 Academy');
+
+        cy.contains('dt', "Child's date of birth")
+        .next('dd')
+        .contains('01/01/2007');
+
+        cy.contains('Submit application').click();
+
+        cy.url().should('include', '/Check/Application_Sent');
+        cy.get('h1').should('contain.text', 'Children Details Added');
+
+        cy.get('td')
+            .eq(1)
+            .should('contain.text', 'Timmy Smith');
+        
+        cy.get('td')
+            .eq(2)
+            .should('contain.text', 'Hinde House 2-16 Academy');
 
 
     });

@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true;
@@ -65,6 +66,8 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
     });
 
+//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+//builder.Services.AddProblemDetails();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

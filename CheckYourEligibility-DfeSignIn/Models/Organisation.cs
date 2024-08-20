@@ -22,6 +22,8 @@ public sealed class Organisation
 
     public string Sid { get; set; } = null!;
 
+    public string EstablishmentNumber { get; set; } = null;
+
     [JsonPropertyName("DistrictAdministrative_code")]
     public string DistrictAdministrative_Code { get; set; } = null!;
 }

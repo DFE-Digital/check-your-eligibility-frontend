@@ -1,9 +1,9 @@
-﻿using CheckYourEligibility.Domain.Requests;
+﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Xml.Linq;
 
 namespace CheckYourEligibility_FrontEnd.Services
 {
@@ -45,6 +45,28 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Post failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
+                throw;
+            }
+        }
+
+        public async Task<ApplicationStatusUpdateResponse> PatchApplicationStatus(string id, ApplicationStatus status)
+        {
+            var url = $"{_ApplicationUrl}/{id}";
+            var request = new ApplicationStatusUpdateRequest
+            {
+                Data = new ApplicationStatusData { Status = status }
+            };
+            try
+            {    
+                var result = await ApiDataPatchAsynch(url,request,new ApplicationStatusUpdateResponse());
+                if (result.Data.Status != status.ToString()) {
+                    throw new Exception("Failed to update status");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Post failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(request)}");
                 throw;
             }
         }
