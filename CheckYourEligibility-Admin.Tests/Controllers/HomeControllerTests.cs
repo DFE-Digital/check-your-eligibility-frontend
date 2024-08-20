@@ -3,13 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
     internal class HomeControllerTests

@@ -1,26 +1,5 @@
-﻿@model CheckYourEligibility.Domain.Responses.ApplicationSearchResponse;
-@{
-    Dictionary<string, string> statusColor = new Dictionary<string, string>
-    {
-        {"Entitled", "govuk-tag--green"},
-        {"EvidenceNeeded", "govuk-tag--light-blue"},
-        {"Receiving", "govuk-tag--pink"},
-        {"SentForReview", "govuk--tag-blue"},
-        {"ReviewedEntitled", "govuk--tag-green"},
-        {"ReviewedNotEntitled", "govuk--tag-red"}
-    };
-
-    Dictionary<string, string> statusName = new Dictionary<string, string>
-    {
-        {"Entitled", "Entitled"},
-        {"EvidenceNeeded", "Evidence Needed"},
-        {"Receiving", "Receiving Entitlement"},
-        {"SentForReview", "Sent for Review"},
-        {"ReviewedEntitled", "Reviewed Entitled"},
-        {"ReviewedNotEntitled", "Reviewed Not Entitled"}
-    };
-
-}
+﻿@using CheckYourEligibility_FrontEnd.ViewModels
+@model PeopleSelectionViewModel;
 
 
 <div class="govuk-grid-row">
@@ -28,7 +7,7 @@
         <div class="moj-page-header-actions">
 
             <div class="moj-page-header-actions__title">
-                <h1 class="govuk-heading-l">Process appeals (@Model.Data.Count())</h1>
+                <h1 class="govuk-heading-l">Process appeals (@Model.People.Count())</h1>
             </div>
         </div>
         <div class="govuk-width-container">
@@ -69,27 +48,7 @@
                             <th class="govuk-table__header" scope="col">Submission date</th>
                         </tr>
                     </thead>
-                    <tbody class="govuk-table__body">
-                        @foreach (var application in Model.Data)
-                        {
-
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell"></td>
-                                <td class="govuk-table__cell">
-                                    @Html.ActionLink(@application.Reference, "ApplicationDetailAppeal", "application", new { id = application.Id }, new { @class = "govuk-link" })
-                                </td>
-                                <td class="govuk-table__cell">@(@application.ParentFirstName + " " + @application.ParentLastName)</td>
-                                <td class="govuk-table__cell">@(@application.ChildFirstName + " " + application.ChildLastName)</td>
-                                <td class="govuk-table__cell">@Convert.ToDateTime(application.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
-                                <td class="govuk-table__cell">
-                                    <strong class="govuk-tag @statusColor[application.Status]">
-                                        @statusName[application.Status]
-                                    </strong>
-                                </td>
-                                <td class="govuk-table__cell">@application.Created.ToString("dd MMM yyyy")</td>
-                            </tr>
-                        }
-                    </tbody>
+                    @Html.EditorFor(model => model.People)
                 </table>
             </div>
         </div>

@@ -105,7 +105,7 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('#Month').should('be.visible').type('01');
         cy.get('#Year').should('be.visible').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
 
         cy.get('#NationalInsuranceNumber').should('be.visible').type('AB123456C');
 

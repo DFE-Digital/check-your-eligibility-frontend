@@ -6,6 +6,10 @@ namespace CheckYourEligibility_FrontEnd.Models
 {
     public class ApplicationSearch
     {
+        // Pagination Properties
+        public int PageNumber { get; set; } = 1; // Default to page 1
+        public int PageSize { get; set; } = 10; // Default to 10 items per page
+        //
         public int? LocalAuthority { get; set; }
         public int? School { get; set; }
         public ApplicationStatus? Status { get; set; }
@@ -19,10 +23,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         [ReferenceNumber]
         public string? Reference { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid day")]
+        [Range(1, 31, ErrorMessage = "Invalid Day")]
         public int? ChildDOBDay { get; set; }
 
-        [Range(1, 12, ErrorMessage = "Invalid month")]
+        [Range(1, 12, ErrorMessage = "Invalid Month")]
         public int? ChildDOBMonth { get; set; }
 
         [Year]
