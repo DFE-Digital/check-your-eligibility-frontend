@@ -29,7 +29,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         #region Search
-
         [HttpGet]
         public IActionResult Search()
         {
@@ -51,11 +50,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Results(int PageNumber)
+        {
+
+            var applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+            applicationSearch.PageNumber = PageNumber;
+            return await GetResults(PageNumber, applicationSearch);
+
+        }
+
         [HttpPost]
         public async Task<IActionResult> Results(ApplicationSearch request)
         {
             if (!ModelState.IsValid)
-            {       
+            {
                 TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
@@ -66,38 +75,38 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
-            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            var applicationSearch = new ApplicationRequestSearch()
             {
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
                 Data = new ApplicationRequestSearchData
                 {
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = request.Status,
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
-                    ChildDateOfBirth =  request.ChildDOBYear.HasValue ?
+                    ChildDateOfBirth = request.ChildDOBYear.HasValue ?
                     new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd")
                     : null,
                     ParentDateOfBirth = request.PGDOBYear.HasValue ?
                     new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
-                    : null,
+                   : null,
                 }
             };
+
+
             var response = await _adminService.PostApplicationSearch(applicationSearch);
 
-            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
 
             if (response.Data == null || !response.Data.Any())
             {
                 TempData["Message"] = "There are no records matching your search.";
                 return RedirectToAction("Search");
             }
-
-            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetail", ShowSelectorCheck = false, Person = x });
-            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
-
-            return View(viewData);
+            return await GetResults(1, applicationSearch);
         }
 
         [HttpGet]
@@ -128,7 +137,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
 
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
                 }
@@ -332,6 +341,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
+        private async Task<IActionResult> GetResults(int PageNumber, ApplicationRequestSearch? applicationSearch)
+        {
+            var response = await _adminService.PostApplicationSearch(applicationSearch);
+            var criteria = JsonConvert.SerializeObject(applicationSearch);
+            TempData["SearchCriteria"] = criteria;
+            ViewBag.CurrentPage = PageNumber;
+            ViewBag.TotalPages = response.TotalPages;
+            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetail", ShowSelectorCheck = false, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
+        }
 
         private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
         {
@@ -372,7 +393,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
 
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled
                 }
@@ -396,7 +417,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
 
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview
                 }
