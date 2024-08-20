@@ -16,7 +16,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('#Month').should('be.visible').type('01');
         cy.get('#Year').should('be.visible').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
 
         cy.get('#NationalInsuranceNumber').should('be.visible').type('AB123456C');
 
@@ -55,9 +55,6 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
             cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
             cy.contains('Continue').click();
-
-            //cy.get('h1').should('include.text', 'GOV.UK One Login terms of use update');
-            //cy.contains('Continue').click();
 
         });
 

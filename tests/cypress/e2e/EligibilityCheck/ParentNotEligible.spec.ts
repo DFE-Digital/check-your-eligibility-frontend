@@ -15,7 +15,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('AB123456C');
 
         cy.contains('Save and continue').click();
@@ -39,7 +39,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('AB123456C');
 
         cy.contains('Save and continue').click();
@@ -63,7 +63,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('ABCDE456C');
 
         cy.contains('Save and continue').click();
@@ -86,7 +86,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('0123456789');
 
         cy.contains('Save and continue').click();
@@ -109,7 +109,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
 
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('0123456789');
 
         cy.contains('Save and continue').click();
