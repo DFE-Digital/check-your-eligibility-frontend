@@ -126,8 +126,8 @@ stages:
           export CYPRESS_AUTH_SECRET="$(AUTH_SECRET)"
           export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
           export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
-          export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
-          export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
+          export CYPRESS_DFE_ADMIN_EMAIL_ADDRESS="$(DFE_ADMIN_EMAIL_ADDRESS)"
+          export CYPRESS_DFE_ADMIN_PASSWORD="$(DFE_ADMIN_PASSWORD)"
           npm run adminE2e:electron
       - task: Bash@3
         condition: always()
