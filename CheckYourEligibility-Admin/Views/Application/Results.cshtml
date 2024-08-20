@@ -1,65 +1,70 @@
-﻿@using CheckYourEligibility_FrontEnd.ViewModels
-@model PeopleSelectionViewModel;
-
+﻿@model PeopleSelectionViewModel
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-
-    <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
-            Search results (@Model.People.Count())  
+            Search results (@Model.People.Count())
         </h1>
 
-        <p><a href="search">Search again</a> </p>
+        <p><a href="search">Search again</a></p>
 
-       <table class="govuk-table">
-           <thead class="govuk-table__head">
-               <tr class="govuk-table__row">
-                   <th class="govuk-table__header" scope="col" id="select-all"></th>
-                   <th class="govuk-table__header" scope="col">Reference</th>
-                   <th class="govuk-table__header" scope="col">Parent / Guardian</th>
-                   <th class="govuk-table__header" scope="col">Child</th>
-                   <th class="govuk-table__header" scope="col">Child DOB</th>
-                   <th class="govuk-table__header" scope="col"> Status</th>
-                   <th class="govuk-table__header" scope="col">Submission date</th>
-               </tr>
-           </thead>
-            @Html.EditorFor(model => model.People)
-       </table>
+        @if (Model.People != null && Model.People.Any())
+        {
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header" scope="col" id="select-all"></th>
+                        <th class="govuk-table__header" scope="col">Reference</th>
+                        <th class="govuk-table__header" scope="col">Parent / Guardian</th>
+                        <th class="govuk-table__header" scope="col">Child</th>
+                        <th class="govuk-table__header" scope="col">Child DOB</th>
+                        <th class="govuk-table__header" scope="col">Status</th>
+                        <th class="govuk-table__header" scope="col">Submission date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var person in Model.People)
+                    {
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">@person.Reference</td>
+                            <td class="govuk-table__cell">@person.ParentGuardian</td>
+                            <td class="govuk-table__cell">@person.Child</td>
+                            <td class="govuk-table__cell">@person.ChildDOB.ToString("dd/MM/yyyy")</td>
+                            <td class="govuk-table__cell">@person.Status</td>
+                            <td class="govuk-table__cell">@person.SubmissionDate.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
             <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
                 <ul class="govuk-pagination__list">
                     @if (ViewBag.CurrentPage > 1)
                     {
                         <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage - 1, PageSize = ViewBag.PageSize })">Previous</a>
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
                         </li>
                     }
 
                     @for (int i = 1; i <= ViewBag.TotalPages; i++)
                     {
                         <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = i, PageSize = ViewBag.PageSize })">@i</a>
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = i })">@i</a>
                         </li>
                     }
 
                     @if (ViewBag.CurrentPage < ViewBag.TotalPages)
                     {
                         <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage + 1, PageSize = ViewBag.PageSize })">Next</a>
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
                         </li>
-                    }
-                    else
-                    {
-                        <p>No results found.</p>
                     }
                 </ul>
             </nav>
-
-
-
-
-
-    </div>
+        }
+        else
+        {
+            <p>No results found.</p>
+        }
     </div>
 </div>
