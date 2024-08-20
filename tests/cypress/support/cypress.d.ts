@@ -20,9 +20,10 @@ declare namespace Cypress {
     }
   
     interface Chainable<Subject = any> {
-      SignIn(): Chainable<void>
+      SignInLA(): Chainable<void>
+      SignInSchool(): Chainable<void>
+      CheckValuesInSummaryCard(key: string, expectedValue: string): Chainable<void>
       clickButtonByText(buttonText: string): Chainable<Element>;
-      typeTextByLabel(labelText: string, text: string): Chainable<Element>;
       typeIntoInput(selector: string, text: string): Chainable<void>;
       verifyFieldVisibility(selector: string, isVisible: boolean): Chainable<void>;
       enterDate(daySelector: string, monthSelector: string, yearSelector: string, day: string, month: string, year: string): Chainable<void>;
