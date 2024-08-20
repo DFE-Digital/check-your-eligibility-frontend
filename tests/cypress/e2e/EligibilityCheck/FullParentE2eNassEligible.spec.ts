@@ -22,7 +22,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.get('h1').should('include.text', 'Do you have an asylum support reference number?');
         cy.get('#IsNassSelected').click();
-        cy.get('#NationalAsylumSeekerServiceNumber').type('240712345')
+        cy.get('#NationalAsylumSeekerServiceNumber').type('240712349')
 
         cy.contains('Save and continue').click();
 
@@ -93,7 +93,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.contains('dt', 'Asylum support reference number')
             .next('dd')
-            .contains('240712345');
+            .contains('240712349');
 
         cy.contains('dt', 'Email address')
             .next('dd')
