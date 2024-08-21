@@ -11,7 +11,7 @@ Cypress.Commands.add('SignInLA', () => {
   cy.contains('Sign in').click();
 
   cy.get('#B0BDF090-8842-4044-94CB-94D7C13FE39D').click();
-  cy.contains('Continue').click();
+  cy.contains('Continue',{ timeout: 15000 }).click();
 
   cy.get('h1').should('include.text', 'Telford and Wrekin Council');
 });
@@ -25,7 +25,7 @@ Cypress.Commands.add('SignInSchool', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#4579AE90-8B2B-4C02-AC08-756CBBB1C567').click();
+  cy.get('#4579AE90-8B2B-4C02-AC08-756CBBB1C567',{ timeout: 15000 }).click();
   cy.contains('Continue').click();
 
   cy.get('h1').should('include.text', 'Hollinswood Primary School');
