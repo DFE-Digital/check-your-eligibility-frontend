@@ -9,8 +9,8 @@
 
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
-            Search results (@Model.People.Count())  
-        </h1>
+                Search results (@ViewBag.TotalRecords)
+            </h1>
 
         <p><a href="search">Search again</a> </p>
   @if (Model.People != null && Model.People.Any())
@@ -35,21 +35,21 @@
                     @if (ViewBag.CurrentPage > 1)
                     {
                         <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
                         </li>
                     }
 
                     @for (int i = 1; i <= ViewBag.TotalPages; i++)
                     {
                         <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = i })">@i</a>
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = i })">@i</a>
                         </li>
                     }
 
                     @if (ViewBag.CurrentPage < ViewBag.TotalPages)
                     {
                         <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("Results", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
                         </li>
                     }
                 </ul>
