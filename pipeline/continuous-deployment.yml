@@ -142,7 +142,7 @@ stages:
           export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
           export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
           export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
-          npm run e2e:electron
+          npm run parentE2e:electron
       - task: Bash@3
         condition: always()
         displayName: 'Generate report'
