@@ -11,7 +11,7 @@
             <div class="moj-page-header-actions">
 
                 <div class="moj-page-header-actions__title">
-                    <h1 class="govuk-heading-l">Finalise applications (@Model.People.Count())</h1>
+                    <h1 class="govuk-heading-l">Finalise applications (@ViewBag.TotalRecords)</h1>
                 </div>
             </div>
             <div class="govuk-width-container">
@@ -47,8 +47,6 @@
                             <input type="submit" name="operation" id="submit" value="Finalise applications" class="govuk-button" data-module="govuk-button" />
                            
                                 @Html.ActionLink("Download all files", "FinalisedApplicationsdownload", "Application", null, new { @class = "govuk-button govuk-button--secondary" })
-                           
-
                         </div>
                         
 
@@ -67,6 +65,30 @@
                        
                             @Html.EditorFor(model => model.People)
                     </table>
+                        <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
+                            <ul class="govuk-pagination__list">
+                                @if (ViewBag.CurrentPage > 1)
+                                {
+                                    <li class="govuk-pagination__item">
+                                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("FinaliseApplications", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
+                                    </li>
+                                }
+
+                                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                {
+                                    <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
+                                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("FinaliseApplications", new { PageNumber = i })">@i</a>
+                                    </li>
+                                }
+
+                                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                                {
+                                    <li class="govuk-pagination__item">
+                                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("FinaliseApplications", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
                     }
                 </div>
             </div>

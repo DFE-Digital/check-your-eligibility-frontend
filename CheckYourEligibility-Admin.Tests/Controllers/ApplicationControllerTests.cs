@@ -73,7 +73,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Results(request);
+            var result = await _sut.SearchResults(request);
 
             //assert 
 
@@ -95,7 +95,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Results(request);
+            var result = await _sut.SearchResults(request);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -193,7 +193,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Process_Appeals();
+            var result = await _sut.AppealsApplications(1);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -217,7 +217,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Process_Appeals();
+            var result = await _sut.AppealsApplications(1);
 
             //assert 
             result.Should().BeOfType<ViewResult>();
@@ -359,7 +359,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.FinaliseApplications();
+            var result = await _sut.FinaliseApplications(1);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -383,7 +383,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.FinaliseApplications();
+            var result = await _sut.FinaliseApplications(1);
 
             //assert 
             result.Should().BeOfType<ViewResult>();
@@ -544,7 +544,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.PendingApplications();
+            var result = await _sut.PendingApplications(1);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -568,7 +568,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.PendingApplications();
+            var result = await _sut.PendingApplications(1);
 
             //assert 
             result.Should().BeOfType<ViewResult>();

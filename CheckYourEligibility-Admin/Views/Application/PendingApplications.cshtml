@@ -7,7 +7,7 @@
         <div class="moj-page-header-actions">
 
             <div class="moj-page-header-actions__title">
-                <h1 class="govuk-heading-l">Pending applications (@Model.People.Count())</h1>
+                <h1 class="govuk-heading-l">Pending applications (@ViewBag.TotalRecords)</h1>
             </div>
         </div>
         <summary class="govuk-details__summary">
@@ -34,6 +34,30 @@
                     </thead>
                     @Html.EditorFor(model => model.People)
                 </table>
+                <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
+                    <ul class="govuk-pagination__list">
+                        @if (ViewBag.CurrentPage > 1)
+                        {
+                            <li class="govuk-pagination__item">
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("PendingApplications", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("PendingApplications", new { PageNumber = i })">@i</a>
+                            </li>
+                        }
+
+                        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                        {
+                            <li class="govuk-pagination__item">
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("PendingApplications", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

@@ -17,8 +17,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _FsmUrl = "/FreeSchoolMeals";
-            _FsmbulkUploadUrl = "/FreeSchoolMeals/bulk";
+            _FsmUrl = "FreeSchoolMeals";
+            _FsmbulkUploadUrl = "FreeSchoolMeals/bulk";
         }
 
         public async Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody)
