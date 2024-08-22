@@ -350,7 +350,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             var response = await _adminService.PostApplicationSearch(applicationSearch);
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
-            if (!response.Data.Any() && detailView == "ApplicationDetail")
+            if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
             {
                 TempData["Message"] = "There are no records matching your search.";
                 return RedirectToAction("Search");
