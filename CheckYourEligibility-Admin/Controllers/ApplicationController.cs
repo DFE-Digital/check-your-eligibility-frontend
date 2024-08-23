@@ -1,5 +1,6 @@
 // Ignore Spelling: Finalise
 
+using Azure;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
@@ -9,6 +10,7 @@ using CheckYourEligibility_FrontEnd.ViewModels;
 using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Reflection;
 
@@ -29,7 +31,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         #region Search
-
         [HttpGet]
         public IActionResult Search()
         {
@@ -51,11 +52,20 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchResults(int PageNumber)
+        {
+
+            var applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+            applicationSearch.PageNumber = PageNumber;
+            return await GetResults(applicationSearch, "ApplicationDetail", false);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Results(ApplicationSearch request)
+        public async Task<IActionResult> SearchResults(ApplicationSearch request)
         {
             if (!ModelState.IsValid)
-            {       
+            {
                 TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
@@ -66,38 +76,32 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
-            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
+            var applicationSearch = new ApplicationRequestSearch()
             {
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
                 Data = new ApplicationRequestSearchData
                 {
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Status = request.Status,
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
-                    ChildDateOfBirth =  request.ChildDOBYear.HasValue ?
+                    ChildDateOfBirth = request.ChildDOBYear.HasValue ?
                     new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd")
                     : null,
                     ParentDateOfBirth = request.PGDOBYear.HasValue ?
                     new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
-                    : null,
+                   : null,
                 }
             };
-            var response = await _adminService.PostApplicationSearch(applicationSearch);
-
-            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>()};
-
-            if (response.Data == null || !response.Data.Any())
+            if (request.Status != null)
             {
-                TempData["Message"] = "There are no records matching your search.";
-                return RedirectToAction("Search");
+                applicationSearch.Data.Statuses = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>() { request.Status.Value };
             }
 
-            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetail", ShowSelectorCheck = false, Person = x });
-            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
-
-            return View(viewData);
+            
+            return await GetResults(applicationSearch, "ApplicationDetail",false);
         }
 
         [HttpGet]
@@ -120,33 +124,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #region School Appeals
 
-        public async Task<IActionResult> Process_Appeals()
+        [HttpGet]
+        public async Task<IActionResult> AppealsApplications(int PageNumber)
         {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
-            {
-                Data = new ApplicationRequestSearchData
-                {
-
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded
-                }
-            };
-            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
-            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
-            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview;
-            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
-            resultsSentForReview ??= new ApplicationSearchResponse { Data = new List<ApplicationResponse>() };
-
-            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
-            var results = new ApplicationSearchResponse() { Data = resultItems };
-
-            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetailAppeal", ShowSelectorCheck = false, Person = x });
-            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
-
-            return View(viewData);
-
+            var applicationSearch = GetApplicationsForStatuses(
+                new List<CheckYourEligibility.Domain.Enums.ApplicationStatus> {
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded,
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview},
+                PageNumber, 10);
+            return await GetResults( applicationSearch, "ApplicationDetailAppeal", false);
         }
 
         [HttpGet]
@@ -218,15 +204,44 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #region School finalise Applications
 
-        public async Task<IActionResult> FinaliseApplications()
+        [HttpGet]
+        public async Task<IActionResult> FinaliseApplications(int PageNumber)
         {
-            ApplicationSearchResponse results = await GetFinalisedApplications();
+            var applicationSearch = GetApplicationsForStatuses(
+                new List<CheckYourEligibility.Domain.Enums.ApplicationStatus> {
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled,
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled},
+                PageNumber, 10);
+            return await GetResults(applicationSearch, "ApplicationDetailFinalise", true);
+        }
 
-            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel {DetailView = "ApplicationDetailFinalise",ShowSelectorCheck = true, Person = x });
-            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
 
-            return View(viewData);
+        private ApplicationRequestSearch GetApplicationsForStatuses(IEnumerable<CheckYourEligibility.Domain.Enums.ApplicationStatus> statuses, int pageNumber, int pageSize)
+        {
+            ApplicationRequestSearch applicationSearch;
+            if (pageNumber == 0)
+            {
+                _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+                applicationSearch = new ApplicationRequestSearch()
+                {
+                    PageNumber = 1,
+                    PageSize = pageSize,
+                    Data = new ApplicationRequestSearchData
+                    {
 
+                        LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                        School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                        Statuses = statuses
+                    }
+                };
+            }
+            else
+            {
+                applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+                applicationSearch.PageNumber = pageNumber;
+            }
+
+            return applicationSearch;
         }
 
         [HttpGet]
@@ -254,7 +269,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("ApplicationFinaliseConfirmation");
         }
 
-
         [HttpGet]
         public async Task<IActionResult> ApplicationFinaliseSend()
         {
@@ -268,7 +282,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> FinalisedApplicationsdownload()
         {
-            var resultData = await GetFinalisedApplications();
+            var applicationSearch = GetApplicationsForStatuses(
+               new List<CheckYourEligibility.Domain.Enums.ApplicationStatus> {
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled,
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled},
+               0, int.MaxValue);
+            var resultData = await _adminService.PostApplicationSearch(applicationSearch);
 
             var fileName = $"finalise-applications-{DateTime.Now.ToString("yyyyMMdd")}.csv";
 
@@ -285,22 +304,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return new FileStreamResult(memoryStream, "text/csv") { FileDownloadName = fileName };
         }
 
-
-
-
         #endregion
 
         #region LA
 
-        public async Task<IActionResult> PendingApplications()
+        public async Task<IActionResult> PendingApplications(int PageNumber)
         {
-            ApplicationSearchResponse results = await GetPendingApplications();
-
-            var viewModel = results.Data.Select(x => new SelectPersonEditorViewModel { DetailView = "ApplicationDetailLa", ShowSchool = true, Person = x });
-            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
-
-            return View(viewData);
-
+            var applicationSearch = GetApplicationsForStatuses(
+                new List<CheckYourEligibility.Domain.Enums.ApplicationStatus> {
+                CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview },
+                PageNumber, 10);
+            return await GetResults(applicationSearch, "ApplicationDetailLa", false);
         }
 
 
@@ -361,6 +375,26 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
+        private async Task<IActionResult> GetResults(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector)
+        {
+            var response = await _adminService.PostApplicationSearch(applicationSearch);
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return RedirectToAction("Search");
+            }
+
+            var criteria = JsonConvert.SerializeObject(applicationSearch);
+            TempData["SearchCriteria"] = criteria;
+            ViewBag.CurrentPage = applicationSearch.PageNumber;
+            ViewBag.TotalPages = response.TotalPages;
+            ViewBag.TotalRecords = response.TotalRecords;
+            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = detailView, ShowSelectorCheck = showSelector, Person = x });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+
+            return View(viewData);
+        }
 
         private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
         {
@@ -392,51 +426,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return memoryStream.ToArray();
             }
         }
-
-        private async Task<ApplicationSearchResponse> GetFinalisedApplications()
-        {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
-            {
-                Data = new ApplicationRequestSearchData
-                {
-
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled
-                }
-            };
-            var resultsEvidenceNeeded = await _adminService.PostApplicationSearch(applicationSearch);
-            resultsEvidenceNeeded ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
-            applicationSearch.Data.Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled;
-            var resultsSentForReview = await _adminService.PostApplicationSearch(applicationSearch);
-            resultsSentForReview ??= new ApplicationSearchResponse { Data = new List<ApplicationResponse>() };
-            var resultItems = resultsEvidenceNeeded.Data.Union(resultsSentForReview.Data);
-            var results = new ApplicationSearchResponse() { Data = resultItems };
-            return results;
-        }
-
-
-        private async Task<ApplicationSearchResponse> GetPendingApplications()
-        {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            ApplicationRequestSearch applicationSearch = new ApplicationRequestSearch()
-            {
-                Data = new ApplicationRequestSearchData
-                {
-
-                    localAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Status = CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview
-                }
-            };
-            var results = await _adminService.PostApplicationSearch(applicationSearch);
-            results ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
-            
-            return results;
-        }
-
-
 
         private bool CheckAccess(ApplicationItemResponse response)
         {

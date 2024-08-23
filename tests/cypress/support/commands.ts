@@ -1,7 +1,7 @@
 
 // Custom commands
 
-Cypress.Commands.add('SignIn', () => {
+Cypress.Commands.add('SignInLA', () => {
   cy.visit('/');
   cy.get('h1').should('include.text', 'Department for Education Sign-in');
   cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
@@ -10,20 +10,33 @@ Cypress.Commands.add('SignIn', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
+  cy.get('#B0BDF090-8842-4044-94CB-94D7C13FE39D').click();
+  cy.contains('Continue',{ timeout: 15000 }).click();
+
   cy.get('h1').should('include.text', 'Telford and Wrekin Council');
-})
-
-Cypress.Commands.add('typeTextByLabel', (labelText: string, text: string) => {
-  cy.contains('label', labelText)
-    .parent()
-    .find('input')
-    .type(text);
 });
 
+Cypress.Commands.add('SignInSchool', () => {
+  cy.visit('/');
+  cy.get('h1').should('include.text', 'Department for Education Sign-in');
+  cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
+  cy.contains('Continue').click();
 
-Cypress.Commands.add('typeIntoInput', (selector: string, text: string) => {
-  cy.get(selector).type(text);
+  cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
+  cy.contains('Sign in').click();
+
+  cy.get('#4579AE90-8B2B-4C02-AC08-756CBBB1C567',{ timeout: 15000 }).click();
+  cy.contains('Continue').click();
+
+  cy.get('h1').should('include.text', 'Hollinswood Primary School');
 });
+
+Cypress.Commands.add('CheckValuesInSummaryCard', (key: string, expectedValue: string) => {
+  cy.get('.govuk-summary-list__row').contains('.govuk-summary-list__key', key )
+    .siblings('.govuk-summary-list__value')
+    .should('include.text', expectedValue)
+});
+
 
 Cypress.Commands.add('verifyFieldVisibility', (selector: string, isVisible: boolean) => {
   if (isVisible) {

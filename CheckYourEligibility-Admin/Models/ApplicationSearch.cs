@@ -6,6 +6,10 @@ namespace CheckYourEligibility_FrontEnd.Models
 {
     public class ApplicationSearch
     {
+        // Pagination Properties
+        public int PageNumber { get; set; } = 1; // Default to page 1
+        public int PageSize { get; set; } = 10; // Default to 10 items per page
+        //
         public int? LocalAuthority { get; set; }
         public int? School { get; set; }
         public ApplicationStatus? Status { get; set; }
