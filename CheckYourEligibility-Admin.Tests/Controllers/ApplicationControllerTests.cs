@@ -9,6 +9,7 @@ using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -171,7 +172,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var result = await _sut.ApplicationDetail(response.Data.Id);
 
             //assert
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         }
 
         #endregion
@@ -294,7 +296,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_ApplicationDetailAppeal_Results_Returns_UnauthorizedResult()
+        public async Task Given_ApplicationDetailAppeal_Results_Returns_ForbiddenResult()
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
@@ -309,7 +311,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var result = await _sut.ApplicationDetailAppeal(response.Data.Id);
 
             //assert
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         }
 
         [Test]
@@ -330,7 +333,13 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_ApplicationDetailAppealSend_Returns_ViewResult()
         {
             //Arrange
-            var id = _fixture.Create<string>();
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = id;
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            
             //act
             var result = await _sut.ApplicationDetailAppealSend(id);
 
@@ -338,6 +347,25 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
             redirect.ActionName.Should().BeEquivalentTo("Process_Appeals");
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppealSend_NoPermission_Returns_ForbiddenResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+
+            //act
+            var result = await _sut.ApplicationDetailAppealSend(id);
+
+            //assert 
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         }
 
         #endregion
@@ -439,7 +467,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_ApplicationDetailFinalise_Results_Returns_UnauthorizedResult()
+        public async Task Given_ApplicationDetailFinalise_Results_Returns_ForbiddenResult()
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
@@ -454,7 +482,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
 
             //assert
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         }
 
         [Test]
@@ -675,7 +704,13 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_ApplicationApproveSend_Returns_ViewResult()
         {
             //Arrange
-            var id = _fixture.Create<string>();
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = id;
+
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
             //act
             var result = await _sut.ApplicationApproveSend(id);
 
@@ -686,10 +721,34 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
+        public async Task Given_ApplicationApproveSend_NoPermission_Returns_ForbiddenResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            //Act
+            var result = await _sut.ApplicationApproveSend(id);
+
+            //Assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+
+        [Test]
         public async Task Given_ApplicationDeclineSend_Returns_ViewResult()
         {
             //Arrange
-            var id = _fixture.Create<string>();
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = id;
+
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
             //act
             var result = await _sut.ApplicationDeclineSend(id);
 
@@ -697,6 +756,23 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
             redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+        }
+        [Test]
+        public async Task Given_ApplicationDeclineSend_NoPermission_Returns_ForbiddenResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            //Act
+            var result = await _sut.ApplicationDeclineSend(id);
+
+            //Assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         }
         #endregion
     }
