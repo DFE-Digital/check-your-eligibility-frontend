@@ -13,9 +13,9 @@ namespace CheckYourEligibility_FrontEnd.Models
         [MaxLength(10)]
         public string? NationalAsylumSeekerServiceNumber { get; set; }
 
-        public bool? IsNassNotSelected { get; set; }
+        public bool? IsNassSelected { get; set; }
 
-        public bool? IsNinoNotSelected { get; set; }
+        public bool? IsNinoSelected { get; set; }
 
         [Name]
         [Required(ErrorMessage = "First Name is required")]

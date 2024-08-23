@@ -60,6 +60,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             viewResult.Model.Should().BeNull();
         }
 
+
         [Test]
         public async Task Given_Application_Search_Returns_No_Records_User_Redirected_To_Search()
         {
@@ -73,7 +74,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Results(request);
+            var result = await _sut.SearchResults(request);
 
             //assert 
 
@@ -86,6 +87,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_Application_Search_Results_Page_Returns_Valid_Data()
         {
             //arrange
+            _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
@@ -94,7 +96,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Results(request);
+            var result = await _sut.SearchResults(request);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -185,6 +187,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_Process_Appeals_Results_Page_Returns_Valid_Data()
         {
             //arrange
+            _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
@@ -193,7 +196,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Process_Appeals();
+            var result = await _sut.AppealsApplications(0);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -217,7 +220,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Process_Appeals();
+            var result = await _sut.AppealsApplications(0);
 
             //assert 
             result.Should().BeOfType<ViewResult>();
@@ -346,7 +349,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //assert 
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
-            redirect.ActionName.Should().BeEquivalentTo("Process_Appeals");
+            redirect.ActionName.Should().BeEquivalentTo("AppealsApplications");
         }
 
         [Test]
@@ -377,6 +380,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_FinaliseApplications_Results_Page_Returns_Valid_Data()
         {
             //arrange
+            _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
@@ -385,7 +389,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.FinaliseApplications();
+            var result = await _sut.FinaliseApplications(0);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -409,7 +413,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.FinaliseApplications();
+            var result = await _sut.FinaliseApplications(0);
 
             //assert 
             result.Should().BeOfType<ViewResult>();
@@ -563,6 +567,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_PendingApplications_Results_Page_Returns_Valid_Data()
         {
             //arrange
+            _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
@@ -571,7 +576,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.PendingApplications();
+            var result = await _sut.PendingApplications(0);
 
             //assert
             result.Should().BeOfType<ViewResult>();
@@ -595,7 +600,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.PendingApplications();
+            var result = await _sut.PendingApplications(0);
 
             //assert 
             result.Should().BeOfType<ViewResult>();
