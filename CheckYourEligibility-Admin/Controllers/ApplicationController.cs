@@ -189,7 +189,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
 
-            return RedirectToAction("Process_Appeals");
+            return RedirectToAction("AppealsApplication");
         }
 
         private async Task<IActionResult> ConfirmCheckAccess(string id)
