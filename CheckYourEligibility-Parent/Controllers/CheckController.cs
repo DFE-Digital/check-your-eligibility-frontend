@@ -1,14 +1,11 @@
 ﻿using CheckYourEligibility.Domain.Requests;
-using Microsoft.AspNetCore.Mvc;
-using CheckYourEligibility_FrontEnd.Services;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Authentication;
-using GovUk.OneLogin.AspNetCore;
-using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility.Domain.Responses;
-using Microsoft.IdentityModel.Tokens;
-using System.Runtime.CompilerServices;
-using Azure.Core;
+using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Services;
+using GovUk.OneLogin.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -176,7 +173,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 var check = await _checkService.GetStatus(response);
 
-                if (check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
+                if (check != null && check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
                 {
                     SetSessionCheckResult(check.Data.Status);
                     
@@ -377,6 +374,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(child.School.URN),
                         UserId = HttpContext.Session.GetString("UserId"),
+                        ParentEmail = HttpContext.Session.GetString("Email"),
                     }
                 };
 

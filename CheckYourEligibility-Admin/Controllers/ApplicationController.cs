@@ -374,7 +374,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Id = response.Data.Id,
                 Reference = response.Data.Reference,
                 ParentName = $"{response.Data.ParentFirstName} {response.Data.ParentLastName}",
-                ParentEmail = response.Data.User.Email,
+                ParentEmail = response.Data.ParentEmail,
                 ParentNas = response.Data.ParentNationalAsylumSeekerServiceNumber,
                 ParentNI = response.Data.ParentNationalInsuranceNumber,
                 Status = response.Data.Status,
