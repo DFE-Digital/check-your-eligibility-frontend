@@ -114,7 +114,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             if (!CheckAccess(response))
             {
-                return new UnauthorizedResult();
+                return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
 
             return View(GetViewData(response));
@@ -152,7 +152,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             if (!CheckAccess(response))
             {
-                return new UnauthorizedResult();
+                return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
 
             return View(GetViewData(response));
@@ -169,9 +169,30 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> ApplicationDetailAppealSend(string id)
         {
+            var checkAccess = await ConfirmCheckAccess(id);
+            if (checkAccess != null)
+                { return checkAccess; }
+
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
-            
+
             return RedirectToAction("AppealsApplications");
+        }
+
+        private async Task<IActionResult> ConfirmCheckAccess(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            bool access = CheckAccess(response);
+
+            if (access == false | response.Data.Id != id)
+            {
+                return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
+            }
+            return null;
         }
 
         public IActionResult Finalise()
@@ -233,7 +254,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             if (!CheckAccess(response))
             {
-                return new UnauthorizedResult();
+                return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
 
             return View(GetViewData(response));
@@ -329,7 +350,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ApplicationApproveSend(string id)
-        { 
+        {
+            var checkAccess = await ConfirmCheckAccess(id);
+            if (checkAccess != null)
+            { return checkAccess; }
+
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled);
 
             return RedirectToAction("PendingApplications");
@@ -338,6 +363,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> ApplicationDeclineSend(string id)
         {
+            var checkAccess = await ConfirmCheckAccess(id);
+            if (checkAccess != null)
+            { return checkAccess; }
+
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedNotEntitled);
 
             return RedirectToAction("PendingApplications");
