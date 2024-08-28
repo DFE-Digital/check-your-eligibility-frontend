@@ -49,26 +49,34 @@ Cypress.Commands.add('scanPagesForValue', (value: string) => {
   });
 });
 
+
 Cypress.Commands.add('findApplicationFinalise', (value: string) => {
-  cy.get('.govuk-table tbody tr').each(($row) => {
-    cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
-        if (text.trim() === value) {
-            cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
-            cy.log('found it!');
-            return false;
-        }
+  let referenceFound = false;
+  function searchOnPage() {
+    cy.get('.govuk-table tbody tr').each(($row) => {
+      cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
+          if (text.trim() === value) {
+              referenceFound = true;
+              cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
+              cy.log('found it!');
+              return false;
+          }
+      });
+    }).then(() => {
+      if (!referenceFound){
+        cy.get('body').then((body) => {
+          if(body.find('.govuk-link').length > 0) {
+            cy.contains('.govuk-link', 'Next').click();
+            cy.findApplicationFinalise(value);
+          }
+          else{
+            cy.log('Reference number not found')
+          }
+        });
+      }
     });
-  }).then(() => {
-    cy.get('body').then((body) => {
-      if(body.find('.govuk-link').length > 0) {
-        cy.contains('.govuk-link', 'Next').click();
-        cy.findApplicationFinalise(value);
-      }
-      else{
-        cy.log('Reference number not found')
-      }
-    })
-  })
+  }
+  searchOnPage();
 })
 
 
