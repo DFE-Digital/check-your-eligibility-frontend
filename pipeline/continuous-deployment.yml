@@ -126,7 +126,7 @@ stages:
           cd tests
           npm run combine:reports
 
-      - task: PublishTestResultsDevEnv@2
+      - task: PublishTestResults@2
         condition: always()
         displayName: 'Publish test results'
         inputs:
