@@ -10,7 +10,7 @@ Cypress.Commands.add('SignInLA', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#B0BDF090-8842-4044-94CB-94D7C13FE39D').click();
+  cy.get('#D30E3BF7-9116-4243-989C-D20CC063DAB2').click();
   cy.contains('Continue',{ timeout: 15000 }).click();
 
   cy.get('h1').should('include.text', 'Telford and Wrekin Council');
@@ -25,10 +25,10 @@ Cypress.Commands.add('SignInSchool', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#4579AE90-8B2B-4C02-AC08-756CBBB1C567',{ timeout: 15000 }).click();
+  cy.get('#06293D2E-36CE-4928-958C-8B05F677FC03',{ timeout: 15000 }).click();
   cy.contains('Continue').click();
 
-  cy.get('h1').should('include.text', 'Hollinswood Primary School');
+  cy.get('h1').should('include.text', 'The Telford Park School');
 });
 
 Cypress.Commands.add('CheckValuesInSummaryCard', (key: string, expectedValue: string) => {

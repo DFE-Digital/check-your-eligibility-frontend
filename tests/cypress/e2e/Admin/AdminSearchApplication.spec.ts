@@ -74,7 +74,7 @@ describe('Admin journey search for application', () => {
     it('Will allow School users to search for an application with a selected status', () => {
 
         cy.contains('Search all records').click();
-        cy.get('#Status').select('Evidence needed');
+        cy.get('#Status').select('Entitled');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
         cy.get('h1').should('include.text', 'Search results');
