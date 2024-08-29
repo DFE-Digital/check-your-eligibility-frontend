@@ -7,58 +7,110 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
 
-    <div class="govuk-grid-column-full">
-        <h1 class="govuk-heading-l">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-l">
                 Search results (@ViewBag.TotalRecords)
             </h1>
 
-        <p><a href="search">Search again</a> </p>
-  @if (Model.People != null && Model.People.Any())
-        {
-       <table class="govuk-table">
-           <thead class="govuk-table__head">
-               <tr class="govuk-table__row">
-                   <th class="govuk-table__header" scope="col" id="select-all"></th>
-                   <th class="govuk-table__header" scope="col">Reference</th>
-                   <th class="govuk-table__header" scope="col">Parent / Guardian</th>
-                   <th class="govuk-table__header" scope="col">Child</th>
-                   <th class="govuk-table__header" scope="col">Child DOB</th>
-                   <th class="govuk-table__header" scope="col"> Status</th>
-                   <th class="govuk-table__header" scope="col">Submission date</th>
-               </tr>
-           </thead>
-            @Html.EditorFor(model => model.People)
-       </table>
+            <p><a href="search">Search again</a> </p>
+            @if (Model.People != null && Model.People.Any())
+            {
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th class="govuk-table__header" scope="col" id="select-all"></th>
+                            <th class="govuk-table__header" scope="col">Reference</th>
+                            <th class="govuk-table__header" scope="col">Parent / Guardian</th>
+                            <th class="govuk-table__header" scope="col">Child</th>
+                            <th class="govuk-table__header" scope="col">Child DOB</th>
+                            <th class="govuk-table__header" scope="col"> Status</th>
+                            <th class="govuk-table__header" scope="col">Submission date</th>
+                        </tr>
+                    </thead>
+                    @Html.EditorFor(model => model.People)
+                </table>
 
-            <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
-                <ul class="govuk-pagination__list">
+                <nav class="govuk-pagination" aria-label="Pagination">
                     @if (ViewBag.CurrentPage > 1)
                     {
-                        <li class="govuk-pagination__item">
-                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
-                        </li>
+                        <div class="govuk-pagination__prev">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage - 1 })" rel="prev">
+                                <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                    <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                                </svg>
+                                <span class="govuk-pagination__link-title">
+                                    Previous<span class="govuk-visually-hidden"> page</span>
+                                </span>
+                            </a>
+                        </div>
                     }
+                    <ul class="govuk-pagination__list">
+                        @if (ViewBag.CurrentPage > 1)
+                        {
+                            <li class="govuk-pagination__item">
+                                <a class="govuk-link govuk-pagination__link" href="/Application/SearchResults?PageNumber=1" aria-label="Page 1">
+                                    1
+                                </a>
+                            </li>
+                            <li class="govuk-pagination__item govuk-pagination__item--ellipses">
+                                &ctdot;
+                            </li>
+                        }
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
 
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = i })">@i</a>
-                        </li>
-                    }
+                            if (ViewBag.CurrentPage == i)
+                            {
+                                if (i > 2)
+                                {
+                                    <li class="govuk-pagination__item">
+                                        <a class="govuk-link govuk-pagination__link" aria-label="Page @(i-1)" aria-current="page" href="@Url.Action("SearchResults", new { PageNumber = (i-1) })">@(i - 1)</a>
+                                    </li>
+                                }
 
+                                <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
+                                    <a class="govuk-link govuk-pagination__link" aria-label="Page @i" aria-current="page" href="@Url.Action("SearchResults", new { PageNumber = i })">@i</a>
+                                </li>
+
+                                if (i < ViewBag.TotalPages - 1)
+                                {
+                                    <li class="govuk-pagination__item">
+                                        <a class="govuk-link govuk-pagination__link" aria-label="Page @(i+1)" aria-current="page" href="@Url.Action("SearchResults", new { PageNumber = (i+1) })">@(i + 1)</a>
+                                    </li>
+                                }
+                            }
+                        }
+                        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                        {
+                            <li class="govuk-pagination__item govuk-pagination__item--ellipses">
+                                &ctdot;
+                            </li>
+                            <li class="govuk-pagination__item">
+                                <a class="govuk-link govuk-pagination__link" href="/Application/SearchResults?PageNumber=@ViewBag.TotalPages" aria-label="Page @ViewBag.TotalPages">
+                                    @ViewBag.TotalPages
+                                </a>
+                            </li>
+                        }
+                    </ul>
                     @if (ViewBag.CurrentPage < ViewBag.TotalPages)
                     {
-                        <li class="govuk-pagination__item">
-                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
-                        </li>
+                        <div class="govuk-pagination__next">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage + 1 })" rel="next">
+                                <span class="govuk-pagination__link-title">
+                                    Next<span class="govuk-visually-hidden"> page</span>
+                                </span>
+                                <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                    <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                                </svg>
+                            </a>
+                        </div>
                     }
-                </ul>
-            </nav>
+                </nav>
             }
             else
             {
                 <p>No results found.</p>
             }
-    </div>
+        </div>
     </div>
 </div>
