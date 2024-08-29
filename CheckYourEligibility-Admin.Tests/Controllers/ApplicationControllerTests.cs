@@ -349,7 +349,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //assert 
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
-            redirect.ActionName.Should().BeEquivalentTo("AppealsApplications");
+            redirect.ActionName.Should().BeEquivalentTo("ApplicationDetailAppealConfirmationSent");
         }
 
         [Test]

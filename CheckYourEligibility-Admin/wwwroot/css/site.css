@@ -76,3 +76,7 @@ a.signOut:link, a.signOut:visited, a.signOut:hover, a.signOut:active {
 a.signOut:hover {
     text-decoration: underline;
 }
+
+.govuk-pagination {
+    justify-content: center;
+}
