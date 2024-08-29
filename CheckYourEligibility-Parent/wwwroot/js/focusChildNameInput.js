@@ -3,6 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var inputs = document.querySelectorAll("input[id^='ChildList'][id$='FirstName']");
     // Focus on the last input field
     if (inputs.length > 0) {
-        inputs[inputs.length - 1].focus();
+        var index = document.getElementById('ChildIndex');
+        if (index) {
+            inputs[index.value].focus();
+        } else {
+            inputs[inputs.length - 1].focus();
+        }
+        
     }
 });
