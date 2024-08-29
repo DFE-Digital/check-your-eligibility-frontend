@@ -73,7 +73,7 @@ stages:
                 appType: 'webApp'
                 WebAppName: 'ecs-dev-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
-    - stage: RunCypressTestsDevEnv
+  - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
     jobs:
     - job: 'SetUpCypressDevEnv'

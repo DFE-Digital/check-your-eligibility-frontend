@@ -87,7 +87,7 @@ stages:
                 appType: 'webApp'
                 WebAppName: 'ecs-dev-as-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
-    - stage: RunCypressTestsDevEnv
+  - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
     jobs:
     - job: 'SetUpCypressDevEnv'
