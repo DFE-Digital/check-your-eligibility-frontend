@@ -154,7 +154,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
-
+            HttpContext.Session.SetString("ApplicationReference", response.Data.Reference);
             return View(GetViewData(response));
         }
 
@@ -174,8 +174,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 { return checkAccess; }
 
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
+            
+            return RedirectToAction("ApplicationDetailAppealConfirmationSent", new { id = id });
+        }
 
-            return RedirectToAction("AppealsApplications");
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDetailAppealConfirmationSent(string id)
+        {
+            ViewBag.AppReference = HttpContext.Session.GetString("ApplicationReference");
+            TempData["AppAppealID"] = id;
+            return View();
         }
 
         private async Task<IActionResult> ConfirmCheckAccess(string id)
@@ -411,6 +420,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             };
             viewData.ParentDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
             viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+           
             return viewData;
         }
 
