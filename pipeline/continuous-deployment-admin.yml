@@ -165,8 +165,6 @@ stages:
          script: |
           cd tests
           export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_TEST)"
-          export CYPRESS_JWT_USERNAME=$(JWT_USERNAME)
-          export CYPRESS_JWT_PASSWORD="$(JWT_PASSWORD)"
           export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
           export CYPRESS_AUTH_SECRET="$(AUTH_SECRET)"
           export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
