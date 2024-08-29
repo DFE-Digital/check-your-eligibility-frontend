@@ -90,8 +90,8 @@ stages:
     - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
     jobs:
-    - job: 'SetUpCypress'
-      displayName: 'SetUpTests'
+    - job: 'SetUpCypressDevEnv'
+      displayName: 'SetUpTestsDevEnv'
       pool:
         vmImage: ubuntu-latest
       steps:
@@ -126,7 +126,7 @@ stages:
           cd tests
           npm run combine:reports
 
-      - task: PublishTestResults@2
+      - task: PublishTestResultsDevEnv@2
         condition: always()
         displayName: 'Publish test results'
         inputs:
@@ -162,8 +162,8 @@ stages:
   - stage: RunCypressTestsTestEnv
     displayName: Run Cypress Tests On Test Env
     jobs:
-    - job: 'SetUpCypress'
-      displayName: 'SetUpTests'
+    - job: 'SetUpCypressTestEnv'
+      displayName: 'SetUpTestsTestEnv'
       pool:
         vmImage: ubuntu-latest
       steps:
