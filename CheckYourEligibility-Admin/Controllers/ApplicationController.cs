@@ -216,6 +216,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> FinaliseApplications(int PageNumber)
         {
+
             var applicationSearch = GetApplicationsForStatuses(
                 new List<CheckYourEligibility.Domain.Enums.ApplicationStatus> {
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled,
@@ -281,10 +282,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> ApplicationFinaliseSend()
         {
-            foreach (var id in TempData["FinaliseApplicationIds"] as IEnumerable<string>)
+            if (TempData["FinaliseApplicationIds"]!= null)
             {
-                await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.Receiving);
+                foreach (var id in TempData["FinaliseApplicationIds"] as IEnumerable<string>)
+                {
+                    await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.Receiving);
 
+                }
             }
             return RedirectToAction("FinaliseApplications");
         }
@@ -401,7 +405,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.TotalRecords = response.TotalRecords;
             var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = detailView, ShowSelectorCheck = showSelector, Person = x });
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
-
+            
             return View(viewData);
         }
 
