@@ -10,7 +10,12 @@ Cypress.Commands.add('SignInLA', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#D30E3BF7-9116-4243-989C-D20CC063DAB2').click();
+  cy.contains('Telford and Wrekin Council')
+  .parent()
+  .find('input[type="radio"]')
+  .check();
+
+
   cy.contains('Continue',{ timeout: 15000 }).click();
 
   cy.get('h1').should('include.text', 'Telford and Wrekin Council');
@@ -25,7 +30,11 @@ Cypress.Commands.add('SignInSchool', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#06293D2E-36CE-4928-958C-8B05F677FC03',{ timeout: 15000 }).click();
+  cy.contains('The Telford Park School')
+    .parent()
+    .find('input[type="radio"]')
+    .check();
+
   cy.contains('Continue').click();
 
   cy.get('h1').should('include.text', 'The Telford Park School');
