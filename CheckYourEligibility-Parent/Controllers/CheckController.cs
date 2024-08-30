@@ -241,7 +241,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         public IActionResult Enter_Child_Details()
-        {
+        {   
             var children = new Children() { ChildList = [new()] };
 
             // Check if this is a redirect after add or remove child
@@ -400,6 +400,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
+            TempData["childIndexTest"] = child;
             var responseJson = TempData["FsmApplication"] as string;
             // deserialize
             var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
