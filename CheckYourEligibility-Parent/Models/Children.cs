@@ -4,7 +4,7 @@
     {
         public List<Child> ChildList { get; set; }
 
-        public int ChildIndex { get; set; }
+        public int? ChildIndex { get; set; }
 
         public Children()
         {
