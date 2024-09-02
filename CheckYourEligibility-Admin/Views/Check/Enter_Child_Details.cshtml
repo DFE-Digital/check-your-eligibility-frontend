@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Provide details of your children";
     ViewData["ServiceName"] = "Check a family's eligibility";
+    var childIndex = TempData["childIndex"] as int?;
 }
 
 @if (!ViewData.ModelState.IsValid)
@@ -21,6 +22,7 @@
 <p>Include all your children who are in compulsory education. You can use the add another option, if you have more than one child.</p>
 
 <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
+    <input type="hidden" id="ChildIndex" />
     @for (int i = 0; i < Model.ChildList.Count; i++)
     {
         <div id="childNumber@(@i)">
@@ -43,7 +45,13 @@
                     <span asp-validation-for="ChildList[i].FirstName"></span>
                 </p>
 
-                <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text">
+                 @if (childIndex ==i)
+                    {
+                        <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name" autofocus/>
+                    } else 
+                    {
+                       <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name"/>
+                    }
             </div>
 
             <div class="govuk-form-group">

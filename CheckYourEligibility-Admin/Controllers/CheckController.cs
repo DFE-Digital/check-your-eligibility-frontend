@@ -363,10 +363,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("ApplicationsRegistered", vm);
         }
 
-        public IActionResult ChangeChildDetails()
+        public IActionResult ChangeChildDetails(int child)
         {
             // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
+            TempData["childIndex"] = child;
             var responseJson = TempData["FsmApplication"] as string;
             // deserialize
             var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
