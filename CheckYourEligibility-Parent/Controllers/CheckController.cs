@@ -400,7 +400,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
-            TempData["childIndexTest"] = child;
+            TempData["childIndex"] = child;
             var responseJson = TempData["FsmApplication"] as string;
             // deserialize
             var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
