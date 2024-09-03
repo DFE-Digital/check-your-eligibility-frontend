@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\js\focusChildNameInput.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Attributes\NinoAttribute.cs" />
     <Content Include="Attributes\NameAttribute.cs" />
   </ItemGroup>
