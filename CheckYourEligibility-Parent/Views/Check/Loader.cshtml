@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     ViewData["Title"] = "Checking Loader";
     ViewData["ServiceName"] = "Check a family's eligibility";
 }
@@ -20,22 +20,47 @@
 </div>
 
 <noscript>
-    <meta http-equiv="refresh" content="5;url=@Url.Action("Poll_Status", "Check")"/>
+    <meta http-equiv="refresh" content="5;url=@Url.Action("Poll_Status", "Check")" />
 </noscript>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        setTimeout(function () {
+        function pollServer() {
             $.ajax({
                 url: '@Url.Action("Poll_Status", "Check")',
                 type: 'GET',
-                success: function (data) {
-                    document.open()
-                    document.write(data)
-                    document.close()
+                success: function (data, textStatus, xhr) {
+                    var contentType = xhr.getResponseHeader('Content-Type');
+
+                    // Check if the response is JSON or HTML
+                    if (contentType && contentType.indexOf('application/json') !== -1) {
+                        // JSON response: Handle based on status
+                        if (data.status === 'processing') {
+                            // Still processing, continue polling
+                            setTimeout(pollServer, 500); // Poll every 500ms
+                        } else if (data.status === 'error') {
+                            console.error(data.message);
+                            alert('An error occurred: ' + data.message);
+                        } else {
+                            console.error('Unexpected response status: ' + data.status);
+                            alert('Unexpected response from the server.');
+                        }
+                    } else {
+                        // HTML response: Replace the document content
+                        document.open();
+                        document.write(data);
+                        document.close();
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.error('AJAX error:', errorThrown);
+                    alert('An error occurred while processing your request. Please try again later.');
                 }
             });
-        }, 1000); 
+        }
+
+        // Start polling the server
+        pollServer();
     });
 </script>
