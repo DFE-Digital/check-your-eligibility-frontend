@@ -1,27 +1,24 @@
 ﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility.TestBase;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_Parent.Tests.Properties;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
-    public class BulkUploadTests
+    public class BulkUploadTests : TestBase
     {
         // mocks
         private ILogger<BulkUploadController> _loggerMock;
         private Mock<IEcsCheckService> _checkServiceMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<HttpContext> _httpContext;
-        private Mock<IConfiguration> _configMock;
 
         // system under test
         private BulkUploadController _sut;
@@ -29,51 +26,15 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [SetUp]
         public void SetUp()
         {
-            SetUpInitialMocks();
-            SetUpTempData();
-            SetUpSessionData();
-            SetUpHTTPContext();
+            _checkServiceMock = new Mock<IEcsCheckService>();
+            _loggerMock = Mock.Of<ILogger<BulkUploadController>>();
+            _sut = new BulkUploadController(_loggerMock, _checkServiceMock.Object, _configMock.Object);
+      
+            base.SetUp();
 
-            void SetUpInitialMocks()
-            {
-                _configMock = new Mock<IConfiguration>();
-                _checkServiceMock = new Mock<IEcsCheckService>();
-                _loggerMock = Mock.Of<ILogger<BulkUploadController>>();
-                _sut = new BulkUploadController(_loggerMock,  _checkServiceMock.Object, _configMock.Object);
-            }
-        }
-        void SetUpTempData()
-        {
-            ITempDataProvider tempDataProvider = Mock.Of<ITempDataProvider>();
-            TempDataDictionaryFactory tempDataDictionaryFactory = new TempDataDictionaryFactory(tempDataProvider);
-            ITempDataDictionary tempData = tempDataDictionaryFactory.GetTempData(new DefaultHttpContext());
-            _sut.TempData = tempData;
-        }
-
-        void SetUpSessionData()
-        {
-            _sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>();
-
-            _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                            .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-            _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                        .Returns((string key, out byte[] value) =>
-                        {
-                            var result = sessionStorage.TryGetValue(key, out var storedValue);
-                            value = storedValue;
-                            return result;
-                        });
-        }
-
-        void SetUpHTTPContext()
-        {
-            _httpContext = new Mock<HttpContext>();
-            _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+            _sut.TempData = _tempData;
             _sut.ControllerContext.HttpContext = _httpContext.Object;
         }
-
 
         [TearDown]
         public void TearDown()
@@ -98,7 +59,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Batch_Check_When_FileData_Invalid_Should_Return_Error_Data_Issue()
         {
             // Arrange
-            var content = Properties.Resources.batchchecktemplate_some_invalid_items;
+            var content = Resources.batchchecktemplate_some_invalid_items;
             var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -182,13 +143,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Batch_Check_When_FileData_Valid_Should_Return_ValidData()
         {
             // Arrange
-            var response = 
-                new CheckEligibilityResponseBulk { Data = new StatusValue { Status = "processing" },
-            Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" } };
+            var response =
+                new CheckEligibilityResponseBulk
+                {
+                    Data = new StatusValue { Status = "processing" },
+                    Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" }
+                };
             _checkServiceMock.Setup(s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk>()))
                     .ReturnsAsync(response);
-            
-            var content = Properties.Resources.batchchecktemplate_small_Valid;
+
+            var content = Resources.batchchecktemplate_small_Valid;
             var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -230,9 +194,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         public async Task Given_Loader_When_Results_Should_return_redirect()
         {
             //Arrange
-          //  HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
+            //  HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
             var response =
-               new CheckEligibilityBulkStatusResponse { Data = new BulkStatus { Complete = 10, Total = 10 }};
+               new CheckEligibilityBulkStatusResponse { Data = new BulkStatus { Complete = 10, Total = 10 } };
 
             _checkServiceMock.Setup(s => s.GetBulkCheckProgress(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -264,8 +228,11 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             //arrange
             var response =
-              new CheckEligibilityBulkResponse { Data = new List<CheckEligibilityItemFsm>() { 
-                  new CheckEligibilityItemFsm() {Status = CheckEligibilityStatus.eligible.ToString() } } };
+              new CheckEligibilityBulkResponse
+              {
+                  Data = new List<CheckEligibilityItemFsm>() {
+                  new CheckEligibilityItemFsm() {Status = CheckEligibilityStatus.eligible.ToString() } }
+              };
 
             _checkServiceMock.Setup(s => s.GetBulkCheckResults(It.IsAny<string>()))
                    .ReturnsAsync(response);

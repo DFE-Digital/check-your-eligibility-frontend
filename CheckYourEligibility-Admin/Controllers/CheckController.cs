@@ -8,8 +8,6 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
@@ -78,7 +76,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
                 // build object for api soft-check
-                var checkEligibilityRequest = new CheckYourEligibility.Domain.Requests.CheckEligibilityRequest()
+                var checkEligibilityRequest = new CheckEligibilityRequest()
                 {
                     Data = new CheckEligibilityRequestDataFsm
                     {
@@ -155,7 +153,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Loader()
         {
-            return View();
+            return View("Loader");
         }
 
         /// this method is called by AJAX
@@ -165,7 +163,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var startTime = DateTime.UtcNow;
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
-            // gather api response which should either be queuedForProcessing or has a response
+            // gather api response which should either be queuedForProcessing or a finalised response
             var responseJson = TempData["Response"] as string;
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
@@ -250,12 +248,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
-                return View(request);
+                return View("Enter_Child_Details", request);
             }
 
             if (!ModelState.IsValid)
             {
-                return View(request);
+                return View("Enter_Child_Details", request);
             }
 
             var fsmApplication = new FsmApplication
@@ -296,26 +294,35 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Remove_Child(Children request, int index)
         {
-            // remove child at given index
-            var child = request.ChildList[index];
-            request.ChildList.Remove(child);
+            try
+            {
+                // remove child at given index
+                var child = request.ChildList[index];
+                request.ChildList.Remove(child);
 
-            // set up tempdata so page can be correctly rendered
-            TempData["IsChildAddOrRemove"] = true;
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+                // set up tempdata so page can be correctly rendered
+                TempData["IsChildAddOrRemove"] = true;
+                TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
-            return RedirectToAction("Enter_Child_Details");
+                return RedirectToAction("Enter_Child_Details");
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                throw ex;
+            }
+
         }
 
         public IActionResult Check_Answers()
         {
-            return View();
+            return View("Check_Answers");
         }
 
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            var user = await _parentService.CreateUser(new UserCreateRequest { Data = new UserData { Email = _Claims.User.Email, Reference = _Claims.User.Id } });
             var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
             var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
 
@@ -328,6 +335,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         // Set the properties for each child
                         ParentFirstName = request.ParentFirstName,
                         ParentLastName = request.ParentLastName,
+                        ParentEmail = request.ParentEmail,
                         ParentDateOfBirth = request.ParentDateOfBirth,
                         ParentNationalInsuranceNumber = request.ParentNino,
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
@@ -335,7 +343,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
                         School = int.Parse(_Claims.Organisation.Urn),
-                        UserId = _Claims.User.Id
+                        UserId = user.Data
                     }
                 };
 
@@ -352,7 +360,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public IActionResult ApplicationsRegistered()
         {
             var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
-            return View(vm);
+            return View("ApplicationsRegistered", vm);
         }
 
         public IActionResult ChangeChildDetails()
@@ -367,8 +375,5 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // populate enter_child_details page with children model
             return View("Enter_Child_Details", children);
         }
-
-
-
     }
 }

@@ -20,8 +20,12 @@ declare namespace Cypress {
     }
   
     interface Chainable<Subject = any> {
+      SignInLA(): Chainable<void>
+      SignInSchool(): Chainable<void>
+      CheckValuesInSummaryCard(key: string, expectedValue: string): Chainable<void>
+      scanPagesForValue(value: string): Chainable<void>;
+      findApplicationFinalise(value: string): Chainable<void>;
       clickButtonByText(buttonText: string): Chainable<Element>;
-      typeTextByLabel(labelText: string, text: string): Chainable<Element>;
       typeIntoInput(selector: string, text: string): Chainable<void>;
       verifyFieldVisibility(selector: string, isVisible: boolean): Chainable<void>;
       enterDate(daySelector: string, monthSelector: string, yearSelector: string, day: string, month: string, year: string): Chainable<void>;
@@ -30,8 +34,6 @@ declare namespace Cypress {
       verifyH1Text(expectedText: string): Chainable<void>;
       selectYesNoOption(selector: string, isYes: boolean): Chainable<Element>;
       retainAuthOnRedirect(initialUrl: string, authHeader: string, alias: string): Chainable<void>;
-      generateOtp(): Chainable<string>
-      waitForElementToDisappear(selector: string): Chainable<void>;
     }
   }
   

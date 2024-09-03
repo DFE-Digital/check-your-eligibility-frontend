@@ -1,100 +1,40 @@
-﻿using CheckYourEligibility_FrontEnd.Controllers;
-using CheckYourEligibility_FrontEnd.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Microsoft.Extensions.Configuration;
+﻿using AutoFixture;
+using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using AutoFixture;
-using AutoFixture.AutoMoq;
-using AutoFixture.Idioms;
+using CheckYourEligibility.TestBase;
+using CheckYourEligibility_DfeSignIn;
+using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
-using System.Security.Principal;
-using System.Security.Claims;
-using CheckYourEligibility_DfeSignIn.Models;
+using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.ViewModels;
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 
-namespace CheckYourEligibility_Parent.Tests.Controllers
+namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
-    public class ApplicationControllerTests
+    public class ApplicationControllerTests : TestBase
     {
-        // mocks
+        //mocks
         private ILogger<ApplicationController> _loggerMock;
         private Mock<IEcsServiceAdmin> _adminServiceMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<HttpContext> _httpContext;
-        private Mock<ClaimsPrincipal> _userMock;
-        protected readonly Fixture _fixture = new Fixture();
 
-        //private Mock<IConfiguration> _configMock;
-
-        // responses
-        //private ApplicationSearchResponse _applicationSearchResponse;
-        //private ApplicationResponse _applicationResponse;
-
-        //system under test
+        // system under test
         private ApplicationController _sut;
 
         [SetUp]
         public void SetUp()
         {
+            _adminServiceMock = new Mock<IEcsServiceAdmin>();
+            _loggerMock = Mock.Of<ILogger<ApplicationController>>();
+            _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
 
-            SetUpInitialMocks();
-            SetUpSessionData();
-            SetClaimsData();
-            SetUpHTTPContext();
-            // SetUpServiceMocks();
-
-            void SetUpInitialMocks()
-            {
-                _adminServiceMock = new Mock<IEcsServiceAdmin>();
-                _loggerMock = Mock.Of<ILogger<ApplicationController>>();
-                _sut = new ApplicationController(_loggerMock, _adminServiceMock.Object);
-
-            };
-
-            void SetUpHTTPContext()
-            {
-                _httpContext = new Mock<HttpContext>();
-                _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
-                _httpContext.Setup(ctx => ctx.User).Returns(_userMock.Object);
-                _sut.ControllerContext.HttpContext = _httpContext.Object;
-            }
-
-            void SetClaimsData()
-            {
-                _userMock = new Mock<ClaimsPrincipal>();
-                var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
-                var claim2 = new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", Properties.Resources.ClaimSchool);
-                _userMock.Setup(x=>x.Claims).Returns(new List<Claim> { claimSchool,
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", "123"),
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress","test@test.com"),
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname","testFirstName"),
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname","testSurname")
-                });
-            }
-
-            void SetUpSessionData()
-            {
-                _sessionMock = new Mock<ISession>();
-                var sessionStorage = new Dictionary<string, byte[]>();
-
-                _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-                _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                            .Returns((string key, out byte[] value) =>
-                            {
-                                var result = sessionStorage.TryGetValue(key, out var storedValue);
-                                value = storedValue;
-                                return result;
-                            });
-            }
+            base.SetUp();
+            _sut.ControllerContext.HttpContext = _httpContext.Object;
         }
 
         [TearDown]
@@ -103,9 +43,14 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.Dispose();
         }
 
+        #region search
+
         [Test]
         public async Task Given_Application_Search_Should_Load_ApplicationSearchPage()
         {
+            // Arrange 
+            _sut.TempData = _tempData;
+
             // Act
             var result = _sut.Search();
 
@@ -115,11 +60,34 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             viewResult.Model.Should().BeNull();
         }
 
-        
+
+        [Test]
+        public async Task Given_Application_Search_Returns_No_Records_User_Redirected_To_Search()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var response = new ApplicationSearchResponse();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.SearchResults(request);
+
+            //assert 
+
+            var Result = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            Result.ActionName.Should().Be("Search");
+            _sut.TempData["Message"].Should().Be("There are no records matching your search.");
+        }
+
         [Test]
         public async Task Given_Application_Search_Results_Page_Returns_Valid_Data()
         {
             //arrange
+            _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
             _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
@@ -128,19 +96,689 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var request = new ApplicationSearch();
 
             //act
-            var result = await _sut.Results(request);
+            var result = await _sut.SearchResults(request);
 
             //assert
             result.Should().BeOfType<ViewResult>();
 
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeAssignableTo<ApplicationSearchResponse>();
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
 
-            var model = viewResult.Model as ApplicationSearchResponse;
+            var model = viewResult.Model as PeopleSelectionViewModel;
             model.Should().NotBeNull();
-            model.Should().BeEquivalentTo(response);
 
         }
-    }
 
+        [Test]
+        public async Task Given_ApplicationDetail_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetail(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
+
+            var model = viewResult.Model as ApplicationDetailViewModel;
+            model.Should().NotBeNull();
+
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetail_Results_Returns_NotFound()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(default(ApplicationItemResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetail(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetail_Results_Returns_UnauthorizedResult()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.School.Id = -99;
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetail(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+
+        #endregion
+
+        #region school appeals
+
+
+        [Test]
+        public async Task Given_Process_Appeals_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            _sut.TempData = _tempData;
+            var response = _fixture.Create<ApplicationSearchResponse>();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.AppealsApplications(0);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
+
+            var model = viewResult.Model as PeopleSelectionViewModel;
+            model.Should().NotBeNull();
+
+        }
+
+        [Test]
+        public async Task Given_Process_Appeals_Returns_No_Records_null()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(default(ApplicationSearchResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.AppealsApplications(0);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            var resultData = viewResult.Model as PeopleSelectionViewModel;
+        }
+
+        [Test]
+        public async Task Given_Process_Appeals_Finalise_Returns_ViewResult()
+        {
+            //Arrange
+            //act
+            var result = _sut.Finalise();
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+        }
+
+        [Test]
+        public async Task Given_Process_Appeals_EvidenceGuidance_Returns_ViewResult()
+        {
+            //Arrange
+            //act
+            var result = _sut.Finalise();
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppeal_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailAppeal(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
+
+            var model = viewResult.Model as ApplicationDetailViewModel;
+            model.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppeal_Results_Returns_NotFound()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(default(ApplicationItemResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailAppeal(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppeal_Results_Returns_ForbiddenResult()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.School.Id = -99;
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailAppeal(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppealConfirmation_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.ApplicationDetailAppealConfirmation(id);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            _sut.TempData["AppAppealID"].Should().Be(id);
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppealSend_Returns_ViewResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = id;
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            
+            //act
+            var result = await _sut.ApplicationDetailAppealSend(id);
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("ApplicationDetailAppealConfirmationSent");
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailAppealSend_NoPermission_Returns_ForbiddenResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+
+            //act
+            var result = await _sut.ApplicationDetailAppealSend(id);
+
+            //assert 
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+
+        #endregion
+
+        #region school finalise
+
+
+        [Test]
+        public async Task Given_FinaliseApplications_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            _sut.TempData = _tempData;
+            var response = _fixture.Create<ApplicationSearchResponse>();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.FinaliseApplications(0);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
+
+            var model = viewResult.Model as PeopleSelectionViewModel;
+            model.Should().NotBeNull();
+
+        }
+
+        [Test]
+        public async Task Given_FinaliseApplications_Returns_No_Records_null()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(default(ApplicationSearchResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.FinaliseApplications(0);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            var resultData = viewResult.Model as PeopleSelectionViewModel;
+        }
+
+
+        [Test]
+        public async Task Given_ApplicationDetailFinalise_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
+
+            var model = viewResult.Model as ApplicationDetailViewModel;
+            model.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailFinalise_Results_Returns_NotFound()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(default(ApplicationItemResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailFinalise_Results_Returns_ForbiddenResult()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.School.Id = -99;
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailFinalise(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+
+        [Test]
+        public async Task Given_FinaliseSelectedApplications_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var model = _fixture.Create<PeopleSelectionViewModel>();
+            foreach (var item in model.People)
+            {
+                item.Selected = true;
+            }
+            var ids = model.getSelectedIds();
+            //act
+            var result = _sut.FinaliseSelectedApplications(model);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var tempDataIds = _sut.TempData["FinaliseApplicationIds"];
+
+            _sut.TempData["FinaliseApplicationIds"].Should().BeEquivalentTo(ids);
+        }
+
+        [Test]
+        public async Task Given_ApplicationFinaliseSend_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var model = _fixture.Create<PeopleSelectionViewModel>();
+            foreach (var item in model.People)
+            {
+                item.Selected = true;
+            }
+            var ids = model.getSelectedIds();
+            _sut.TempData["FinaliseApplicationIds"] = model.getSelectedIds();
+            _adminServiceMock.Setup(x=>x.PatchApplicationStatus(It.IsAny<string>(), It.IsAny<ApplicationStatus>()));
+            //act
+            var result = await _sut.ApplicationFinaliseSend();
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("FinaliseApplications");
+        }
+
+        [Test]
+        public async Task Given_FinalisedApplicationsdownload_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationSearchResponse>();
+            foreach (var item in response.Data)
+            {
+                item.ChildDateOfBirth = "1990-01-01";
+                item.ParentDateOfBirth = "1990-01-01";
+            }
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.FinalisedApplicationsdownload();
+
+            //assert
+            result.Should().BeOfType<FileStreamResult>();
+
+        }
+
+        #endregion
+
+
+        #region la pending applications
+
+
+        [Test]
+        public async Task Given_PendingApplications_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            _sut.TempData = _tempData;
+            var response = _fixture.Create<ApplicationSearchResponse>();
+
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.PendingApplications(0);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<PeopleSelectionViewModel>();
+
+            var model = viewResult.Model as PeopleSelectionViewModel;
+            model.Should().NotBeNull();
+
+        }
+
+        [Test]
+        public async Task Given_PendingApplications_Returns_No_Records_null()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+                .ReturnsAsync(default(ApplicationSearchResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.PendingApplications(0);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            var resultData = viewResult.Model as PeopleSelectionViewModel;
+        }
+
+
+        [Test]
+        public async Task Given_ApplicationDetailLa_Results_Page_Returns_Valid_Data()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.ChildDateOfBirth = "2007-08-14";
+            response.Data.ParentDateOfBirth = "2007-08-14";
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailLa(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeAssignableTo<ApplicationDetailViewModel>();
+
+            var model = viewResult.Model as ApplicationDetailViewModel;
+            model.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailLa_Results_Returns_NotFound()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
+            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(default(ApplicationItemResponse));
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailLa(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task Given_ApplicationDetailLa_Results_Returns_UnauthorizedResult()
+        {
+            //arrange
+            var response = _fixture.Create<ApplicationItemResponse>();
+            response.Data.School.Id = -99;
+
+            _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
+                   .ReturnsAsync(response);
+
+            var request = new ApplicationSearch();
+
+            //act
+            var result = await _sut.ApplicationDetailLa(response.Data.Id);
+
+            //assert
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+
+        [Test]
+        public async Task Given_ApproveConfirmation_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.ApproveConfirmation(id);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            _sut.TempData["AppApproveId"].Should().Be(id);
+        }
+
+
+        [Test]
+        public async Task Given_DeclineConfirmation_Returns_ViewResult()
+        {
+            //Arrange
+            _sut.TempData = _tempData;
+            var id = _fixture.Create<string>();
+            //act
+            var result = await _sut.DeclineConfirmation(id);
+
+            //assert 
+            result.Should().BeOfType<ViewResult>();
+            _sut.TempData["AppApproveId"].Should().Be(id);
+        }
+
+        [Test]
+        public async Task Given_ApplicationApproveSend_Returns_ViewResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = id;
+
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            //act
+            var result = await _sut.ApplicationApproveSend(id);
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+        }
+
+        [Test]
+        public async Task Given_ApplicationApproveSend_NoPermission_Returns_ForbiddenResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            //Act
+            var result = await _sut.ApplicationApproveSend(id);
+
+            //Assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+
+        [Test]
+        public async Task Given_ApplicationDeclineSend_Returns_ViewResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = id;
+
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            //act
+            var result = await _sut.ApplicationDeclineSend(id);
+
+            //assert 
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirect = result as RedirectToActionResult;
+            redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+        }
+        [Test]
+        public async Task Given_ApplicationDeclineSend_NoPermission_Returns_ForbiddenResult()
+        {
+            //Arrange
+            var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
+            var response = _fixture.Create<Task<ApplicationItemResponse>>();
+            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
+
+            _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
+            //Act
+            var result = await _sut.ApplicationDeclineSend(id);
+
+            //Assert
+            result.Should().BeOfType<ContentResult>()
+                .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        }
+        #endregion
+    }
 }

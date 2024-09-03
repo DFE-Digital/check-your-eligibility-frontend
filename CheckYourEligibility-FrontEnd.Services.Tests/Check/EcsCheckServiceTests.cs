@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility.Domain.Requests;
+﻿using Azure.Core;
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services.Tests.Parent;
 using FluentAssertions;
@@ -143,7 +144,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
         }
 
         [Test]
-        public async Task Given_PostCheck_When_ApiReturnsUnauthorized_Should_LogApiErrorAndReturnNullResult()
+        public async Task Given_PostCheck_When_ApiReturnsUnauthorized_Should_LogApiErrorAnd_Throw_UnauthorizedAccessException()
         {
             // Arrange
             var requestBody = new CheckEligibilityRequest();
@@ -161,11 +162,11 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = _sut.PostCheck(requestBody);
+            Func<Task> act = async () => await _sut.PostCheck(requestBody);
 
             // Assert
-            result.Result.Should().BeNull();
-            _sut.apiErrorCount.Should().Be(1);
+            await act.Should().ThrowExactlyAsync<UnauthorizedAccessException>();
+
         }
 
 
@@ -195,7 +196,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
             var result = _sut.GetStatus(responseBody);
 
             // Assert
-            result.Result.Should().BeNull();
+            result.Result.Data.Should().BeNull();
             _sut.apiErrorCount.Should().Be(1);
         }
     }

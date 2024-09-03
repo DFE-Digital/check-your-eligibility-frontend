@@ -17,8 +17,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _FsmUrl = "/FreeSchoolMeals";
-            _FsmbulkUploadUrl = "/FreeSchoolMeals/bulk";
+            _FsmUrl = "FreeSchoolMeals";
+            _FsmbulkUploadUrl = "FreeSchoolMeals/bulk";
         }
 
         public async Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody)
@@ -31,8 +31,9 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{_FsmUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
+                throw;
             }
-            return null;
+
         }
 
         public async Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody)
@@ -73,8 +74,8 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"get failed. uri:-{_httpClient.BaseAddress}{_FsmbulkUploadUrl}");
+                throw;
             }
-            return null;
         }
 
         public async Task<CheckEligibilityResponseBulk> PostBulkCheck(CheckEligibilityRequestBulk requestBody)
@@ -87,8 +88,8 @@ namespace CheckYourEligibility_FrontEnd.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Post failed. uri:-{_httpClient.BaseAddress}{_FsmbulkUploadUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
+                throw;
             }
-            return null;
         }
     }
 }
