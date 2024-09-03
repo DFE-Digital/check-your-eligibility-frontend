@@ -552,7 +552,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(_fsmApplication);
 
             // Act
-            var result = _sut.ChangeChildDetails();
+            int child = 0;
+            var result = _sut.ChangeChildDetails(child);
 
             // Assert
             var viewResult = result as ViewResult;
