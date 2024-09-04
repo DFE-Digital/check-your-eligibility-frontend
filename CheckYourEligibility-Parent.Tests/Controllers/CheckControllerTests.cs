@@ -571,7 +571,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             // Act
             int child = 0;
-            var result = _sut.ChangeChildDetails(int child);
+            var result = _sut.ChangeChildDetails();
 
             // Assert
             var viewResult = result as ViewResult;
