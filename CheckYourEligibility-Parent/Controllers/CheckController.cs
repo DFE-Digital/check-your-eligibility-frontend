@@ -187,13 +187,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return PartialView("Eligible"); // Return HTML content
+                    return PartialView("Outcome/Eligible"); // Return HTML content
                 case "notEligible":
-                    return PartialView("Not_Eligible"); // Return HTML content
+                    return PartialView("Outcome/Not_Eligible"); // Return HTML content
                 case "parentNotFound":
-                    return PartialView("Not_Found"); // Return HTML content
+                    return PartialView("Outcome/Not_Found"); // Return HTML content
                 case "DwpError":
-                    return PartialView("Technical_Error"); // Return HTML content
+                    return PartialView("Outcome/Technical_Error"); // Return HTML content
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
                     TempData["Response"] = JsonConvert.SerializeObject(response);
