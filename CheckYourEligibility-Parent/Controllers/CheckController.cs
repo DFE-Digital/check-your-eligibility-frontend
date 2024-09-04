@@ -419,7 +419,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        public IActionResult ChangeChildDetails(int child)
+        public IActionResult ChangeChildDetails()
         {
             // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
