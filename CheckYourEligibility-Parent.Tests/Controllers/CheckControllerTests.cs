@@ -482,7 +482,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = _sut.GetSchoolDetails(query);
 
             // Assert
-            result.Result.Should().Be(null);
+            result.Result.Should().BeOfType<JsonResult>();
         }
 
         [TestCase("eligible", "Outcome/Eligible")]

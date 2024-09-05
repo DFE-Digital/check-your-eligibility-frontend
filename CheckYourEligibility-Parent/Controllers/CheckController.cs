@@ -6,6 +6,7 @@ using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -339,7 +340,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                return null;
+                return Json(new List<CheckYourEligibility.Domain.Responses.School>());
             }
         }
 
