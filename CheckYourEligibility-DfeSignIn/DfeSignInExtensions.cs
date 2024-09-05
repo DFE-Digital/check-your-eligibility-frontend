@@ -48,6 +48,16 @@ public static class DfeSignInExtensions
 
                 options.GetClaimsFromUserInfoEndpoint = configuration.GetClaimsFromUserInfoEndpoint;
                 options.SaveTokens = configuration.SaveTokens;
+                options.Events = new OpenIdConnectEvents
+                {
+                    OnRemoteFailure = context =>
+                    {
+                        context.Response.Redirect("/");
+                        context.HandleResponse();
+
+                        return Task.FromResult(0);
+                    }
+                };
             })
             .AddCookie(options =>
             {
