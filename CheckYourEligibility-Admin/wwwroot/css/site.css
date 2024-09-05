@@ -8,10 +8,12 @@
     }
 }
 
+.paragraph-add-margin-ingroup {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
 
 /*BEGIN - back button overrides */
-
-
 .govuk-main-wrapper {
     display: block;
     padding-top: 5px;
