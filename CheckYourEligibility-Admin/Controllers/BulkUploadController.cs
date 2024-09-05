@@ -83,7 +83,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         DateOfBirth = DateTime.TryParse(item.DOB, out var dtval) ? dtval.ToString("yyyy-MM-dd") : string.Empty,
                         NationalInsuranceNumber = item.Ni.ToUpper(),
                         NationalAsylumSeekerServiceNumber = item.Nass.ToUpper(),
-
+                        Sequence = sequence,
                     };
                     var validationResults = validator.Validate(requestItem);
                     if (!validationResults.IsValid)
