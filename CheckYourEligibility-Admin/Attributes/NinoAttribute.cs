@@ -34,7 +34,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (value == null)
             {
-                return new ValidationResult("National Insurance Number or National Asylum Support Reference Number is required");
+                return new ValidationResult("National Insurance Number or Asylum Support Reference Number is required");
             }
 
             if (value != null)
