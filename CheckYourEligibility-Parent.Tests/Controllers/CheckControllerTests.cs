@@ -485,13 +485,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Result.Should().BeOfType<JsonResult>();
         }
 
-        [TestCase("eligible", "Outcome/Eligible")]
-        [TestCase("notEligible", "Outcome/Not_Eligible")]
-        [TestCase("parentNotFound", "Outcome/Not_Found")]
-        [TestCase("DwpError", "Outcome/Technical_Error")]
-        [TestCase("queuedForProcessing", "Outcome/Technical_Error")]
-        [TestCase("notARealStatus", "Outcome/Technical_Error")]
-        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expected)
+        [TestCase("eligible", "Outcome/Eligible", typeof(PartialViewResult))]
+        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(PartialViewResult))]
+        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(PartialViewResult))]
+        [TestCase("DwpError", "Outcome/Technical_Error", typeof(PartialViewResult))]
+        [TestCase("queuedForProcessing", "Outcome/Technical_Error", typeof(JsonResult))]
+        [TestCase("notARealStatus", "Outcome/Technical_Error", typeof(JsonResult))]
+        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expectedView, Type expectedType)
         {
             // Arrange
             _eligibilityStatusResponse.Data.Status = status;
@@ -501,11 +501,29 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = await _sut.Poll_Status();
 
             // Assert
-            result.Should().BeOfType<ViewResult>();
+            result.Should().BeOfType(expectedType); // Use the type dynamically
 
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be(expected);
+            if (expectedType == typeof(ViewResult))
+            {
+                var viewResult = result as ViewResult;
+                viewResult.Should().NotBeNull();
+                viewResult.ViewName.Should().Be(expectedView);
+            }
+            else if (expectedType == typeof(PartialViewResult))
+            {
+                var partialViewResult = result as PartialViewResult;
+                partialViewResult.Should().NotBeNull();
+                partialViewResult.ViewName.Should().Be(expectedView);
+            }
+            else if (expectedType == typeof(JsonResult))
+            {
+                var jsonResult = result as JsonResult;
+                jsonResult.Should().NotBeNull();
+            }
         }
+
+
+
 
         [Test]
         public async Task Given_AddChild_When_AddingNewChild_Should_AddNewChildToEnterChildDetailsPageModel()
@@ -553,7 +571,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             // Act
             int child = 0;
-            var result = _sut.ChangeChildDetails(child);
+            var result = _sut.ChangeChildDetails();
 
             // Assert
             var viewResult = result as ViewResult;

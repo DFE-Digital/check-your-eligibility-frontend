@@ -64,10 +64,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     ModelState.Remove("NationalAsylumSeekerServiceNumber");
                 }
-               
+
             }
-            else {
-                request.NASSRedirect = false; }
+            else
+            {
+                request.NASSRedirect = false;
+            }
 
             // do want to validate everything else
             if (!ModelState.IsValid)
@@ -85,7 +87,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     return View("Nass");
                 }
-                else if (request.IsNassSelected == false )
+                else if (request.IsNassSelected == false)
                 {
                     return View("Outcome/Could_Not_Check");
                 }
@@ -126,7 +128,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
             }
-            
+
             // queue api soft-check
             var response = await _checkService.PostCheck(checkEligibilityRequest);
             TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
@@ -157,53 +159,79 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        /// this method is called by AJAX
+
         public async Task<IActionResult> Poll_Status()
         {
-            var startTime = DateTime.UtcNow;
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
-
-            // gather api response which should either be queuedForProcessing or has a response
+            // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
+            if (responseJson == null)
+            {
+                _logger.LogWarning("No response data found in TempData.");
+                return Json(new { status = "error", message = "No response data found" });
+            }
+
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
 
-            _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
+            _logger.LogInformation($"Check status processed: {response.Data.Status}");
 
-            // periodically get status and then render appropriate outcome page
-            while (await timer.WaitForNextTickAsync())
+            // Call the service to check the current status
+            var check = await _checkService.GetStatus(response);
+
+            if (check == null || check.Data == null)
             {
-                var check = await _checkService.GetStatus(response);
-
-                if (check != null && check.Data.Status != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.queuedForProcessing.ToString())
-                {
-                    SetSessionCheckResult(check.Data.Status);
-                    
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
-                    {
-                        string url = "/check/signIn";
-                        return View("Outcome/Eligible", url);
-                    }
-
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.notEligible.ToString())
-                        return View("Outcome/Not_Eligible");
-
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.parentNotFound.ToString())
-                        return View("Outcome/Not_Found");
-
-                    if (check.Data.Status == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.DwpError.ToString())
-                        return View("Outcome/Technical_Error");
-
-                    break;
-                }
-                else
-                {
-                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
-                    {
-                        break;
-                    }
-                    continue;
-                }
+                _logger.LogWarning("Null response received from GetStatus.");
+                return Json(new { status = "error", message = "Null response from service" });
             }
+
+            _logger.LogInformation($"Received status: {check.Data.Status}");
+
+            SetSessionCheckResult(check.Data.Status);
+
+            // Handle final statuses and return appropriate views
+            string url = "/check/signIn"; // The URL to pass as a model
+
+            switch (check.Data.Status)
+            {
+                case "eligible":
+                    return PartialView("Outcome/Eligible", url);
+                case "notEligible":
+                    return PartialView("Outcome/Not_Eligible");
+                case "parentNotFound":
+                    return PartialView("Outcome/Not_Found");
+                case "DwpError":
+                    return PartialView("Outcome/Technical_Error");
+                case "queuedForProcessing":
+                    _logger.LogInformation("Still queued for processing.");
+                    TempData["Response"] = JsonConvert.SerializeObject(response);
+                    return Json(new { status = "processing" }); // Return JSON to keep polling
+                default:
+                    _logger.LogError("Unexpected status received.");
+                    return Json(new { status = "error", message = "Unexpected status" });
+            }
+
+        }
+
+
+
+
+
+        public IActionResult Eligible()
+        {
+            return View("Outcome/Eligible");
+        }
+
+        public IActionResult NotEligible()
+        {
+            return View("Outcome/Not_Eligible");
+        }
+
+        public IActionResult NotFound()
+        {
+            return View("Outcome/Not_Found");
+        }
+
+        public IActionResult TechnicalError()
+        {
             return View("Outcome/Technical_Error");
         }
 
@@ -219,22 +247,23 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             properties.RedirectUri = "/Check/CreateUser";
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
-        
+
         public async Task<IActionResult> CreateUser()
         {
             string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
             string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sub").Select(c => c.Value).First();
-            
+
             var user = await _parentService.CreateUser(
                 new UserCreateRequest()
                 {
-                    Data = new UserData() {
+                    Data = new UserData()
+                    {
                         Email = email,
                         Reference = uniqueId
                     }
                 }
             );
-            
+
             HttpContext.Session.SetString("Email", email);
             HttpContext.Session.SetString("UserId", user.Data);
 
@@ -242,7 +271,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         public IActionResult Enter_Child_Details()
-        {   
+        {
             var children = new Children() { ChildList = [new()] };
 
             // Check if this is a redirect after add or remove child
@@ -352,9 +381,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            if (HttpContext.Session.GetString("CheckResult") != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+            var currentStatus = HttpContext.Session.GetString("CheckResult");
+            _logger.LogInformation($"Current eligibility status in session: {currentStatus}");
+
+            if (currentStatus != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
             {
-                throw new Exception($"Invalid status when trying to create an application:-{HttpContext.Session.GetString("CheckResult")}");
+                throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
             var responses = new List<ApplicationSaveItemResponse>();
 
@@ -397,11 +429,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        public IActionResult ChangeChildDetails(int child)
+        public IActionResult ChangeChildDetails()
         {
             // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
-            TempData["childIndex"] = child;
             var responseJson = TempData["FsmApplication"] as string;
             // deserialize
             var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
