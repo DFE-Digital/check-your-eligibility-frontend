@@ -38,31 +38,30 @@
                     // Check if the response is JSON or HTML
                     if (contentType && contentType.indexOf('application/json') !== -1) {
                         // JSON response: Handle based on status
-                       if (data.status === 'processing') {
+                        if (data.status === 'processing') {
                             // Still processing, continue polling
-                                setTimeout(pollServer, 500); // Poll every 500ms
-                            } else if (data.status === 'error') {
-                                console.error(data.message);
-                                alert('An error occurred: ' + data.message);
-                            } else {
-                                console.error('Unexpected response status: ' + data.status);
-                                alert('Unexpected response from the server.');
-                            }
+                            setTimeout(pollServer, 500); // Poll every 500ms
+                        } else if (data.status === 'error') {
+                            console.error(data.message);
+                            alert('An error occurred: ' + data.message);
                         } else {
-                            // HTML response: Replace the document content
-
-                            document.getElementById("content").innerHTML = data;
-
+                            console.error('Unexpected response status: ' + data.status);
+                            alert('Unexpected response from the server.');
                         }
-                    },
-                    error: function (xhr, textStatus, errorThrown) {
-                        console.error('AJAX error:', errorThrown);
-                        alert('An error occurred while processing your request. Please try again later.');
+                    } else {
+                        // HTML response: Replace the document content
+                        document.getElementById("content").innerHTML = data;
                     }
-                });
-            }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.error('AJAX error:', errorThrown);
+                    alert('An error occurred while processing your request. Please try again later.');
+                }
+            });
+        }
 
-            // Start polling the server
-            pollServer();
-        });
+        // Start polling the server
+        pollServer();
+    });
 </script>
+

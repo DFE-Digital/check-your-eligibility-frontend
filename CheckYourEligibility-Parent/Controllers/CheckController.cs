@@ -185,16 +185,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
 
+            SetSessionCheckResult(check.Data.Status);
+
+            // Handle final statuses and return appropriate views
+            string url = "/check/signIn"; // The URL to pass as a model
+
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return PartialView("Outcome/Eligible"); // Return HTML content
+                    return PartialView("Outcome/Eligible", url);
                 case "notEligible":
-                    return PartialView("Outcome/Not_Eligible"); // Return HTML content
+                    return PartialView("Outcome/Not_Eligible");
                 case "parentNotFound":
-                    return PartialView("Outcome/Not_Found"); // Return HTML content
+                    return PartialView("Outcome/Not_Found");
                 case "DwpError":
-                    return PartialView("Outcome/Technical_Error"); // Return HTML content
+                    return PartialView("Outcome/Technical_Error");
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
                     TempData["Response"] = JsonConvert.SerializeObject(response);
@@ -203,6 +208,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     _logger.LogError("Unexpected status received.");
                     return Json(new { status = "error", message = "Unexpected status" });
             }
+
         }
 
 
@@ -375,9 +381,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            if (HttpContext.Session.GetString("CheckResult") != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+            var currentStatus = HttpContext.Session.GetString("CheckResult");
+            _logger.LogInformation($"Current eligibility status in session: {currentStatus}");
+
+            if (currentStatus != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
             {
-                throw new Exception($"Invalid status when trying to create an application:-{HttpContext.Session.GetString("CheckResult")}");
+                throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
             var responses = new List<ApplicationSaveItemResponse>();
 
