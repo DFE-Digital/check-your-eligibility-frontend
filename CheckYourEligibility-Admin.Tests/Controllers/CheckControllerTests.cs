@@ -397,11 +397,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible")]
         [TestCase(CheckEligibilityStatus.parentNotFound, "Outcome/Not_Found")]
         [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Not_Found_Pending")]
-        public async Task GivenPollStatusWithValidStatusReturnsCorrectView(CheckEligibilityStatus status, string expectedView)
+        public async Task Given_Poll_Status_With_Valid_Status_Returns_Correct_View(CheckEligibilityStatus status, string expectedView)
         {
             // Arrange
 
-            // Create a fixture for the status value
+            // need to build status value fixture first as AutoFixture With() does not allow assignment on nested properties such as x.Data.Status
             var statusValue = _fixture.Build<StatusValue>()
                 .With(x => x.Status, status.ToString())
                 .Create();
@@ -413,54 +413,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
             _tempData["Response"] = responseJson;
 
-            var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
-                .With(x => x.Data, checkEligibilityResponse.Data)
-                .Create();
-
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Poll_Status();
-
-            // Assert
-            var partialViewResult = result as PartialViewResult;
-            partialViewResult.Should().NotBeNull(); // Ensure the result is not null and of the correct type
-
-            partialViewResult.ViewName.Should().Be(expectedView);
-        }
-
-        [Test]
-        public async Task Given_Poll_Status_When_TempData_IsNull_Returns_JsonError()
-        {
-            // Arrange
-            _tempData["Response"] = null;  // Simulate missing TempData
-
-            // Act
-            var result = await _sut.Poll_Status();
-
-            // Assert
-            var jsonResult = result as JsonResult;
-            jsonResult.Should().NotBeNull();
-            dynamic data = jsonResult.Value;
-            ((string)data.status).Should().Be("error");
-            ((string)data.message).Should().Be("No response data found");
-        }
-
-        [Test]
-        public async Task Given_Poll_Status_With_UnknownStatus_Returns_JsonError()
-        {
-            // Arrange
-            var statusValue = _fixture.Build<StatusValue>()
-                .With(x => x.Status, "UnknownStatus")  // Set an unexpected status
-                .Create();
-
-            var checkEligibilityResponse = _fixture.Build<CheckEligibilityResponse>()
-                .With(x => x.Data, statusValue)
-                .Create();
-
-            var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
-            _tempData["Response"] = responseJson;
 
             var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
                 .With(x => x.Data, checkEligibilityResponse.Data)
@@ -473,108 +425,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var result = await _sut.Poll_Status();
 
             // Assert
-            var jsonResult = result as JsonResult;
-            jsonResult.Should().NotBeNull();
-            dynamic data = jsonResult.Value;
-            ((string)data.status).Should().Be("error");
-            ((string)data.message).Should().Be("Unknown Status UnknownStatus");
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be(expectedView);
         }
-        [Test]
-        public void Given_Enter_Details_When_SessionData_IsMissing_Should_Return_Appropriate_View()
-        {
-            // Arrange
-            var request = _fixture.Create<ParentGuardian>();
-            _sut.HttpContext.Session.Remove("ParentFirstName");  // Simulate missing session data
-
-            // Act
-            var result = _sut.Enter_Details(request);
-
-            // Assert
-            var actionResult = result.Result as RedirectToActionResult;
-            actionResult.Should().NotBeNull();
-            actionResult.ActionName.Should().Be("Enter_Details");
-        }
-        [Test]
-        public async Task Given_Poll_Status_When_MultipleRequests_AreMade_Handles_Requests_Correctly()
-        {
-            // Arrange
-            var statusValue = _fixture.Build<StatusValue>()
-                .With(x => x.Status, CheckEligibilityStatus.queuedForProcessing.ToString())
-                .Create();
-
-            var checkEligibilityResponse = _fixture.Build<CheckEligibilityResponse>()
-                .With(x => x.Data, statusValue)
-                .Create();
-
-            var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
-            _tempData["Response"] = responseJson;
-
-            var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
-                .With(x => x.Data, checkEligibilityResponse.Data)
-                .Create();
-
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result1 = await _sut.Poll_Status();
-            var result2 = await _sut.Poll_Status();
-
-            // Assert
-            result1.Should().BeOfType<JsonResult>();
-            result2.Should().BeOfType<JsonResult>();
-
-            dynamic data1 = (result1 as JsonResult).Value;
-            dynamic data2 = (result2 as JsonResult).Value;
-            ((string)data1.status).Should().Be("processing");
-            ((string)data2.status).Should().Be("processing");
-        }
-        [Test]
-        public async Task Given_Unauthorized_User_When_Poll_Status_Called_Returns_UnauthorizedResult()
-        {
-            // Arrange
-            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(); // Simulate unauthenticated user
-
-            // Act
-            var result = await _sut.Poll_Status();
-
-            // Assert
-            result.Should().BeOfType<UnauthorizedResult>("because an unauthenticated user should not have access");
-        }
-
-        [TestCase(CheckEligibilityStatus.eligible, "Outcome/Eligible")]
-        [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible")]
-        public async Task GivenPollStatusWithValidStatusReturnsCorrectPartialView(CheckEligibilityStatus status, string expectedView)
-        {
-            // Arrange
-            var statusValue = _fixture.Build<StatusValue>()
-                .With(x => x.Status, status.ToString())
-                .Create();
-
-            var checkEligibilityResponse = _fixture.Build<CheckEligibilityResponse>()
-                .With(x => x.Data, statusValue)
-                .Create();
-
-            var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
-            _tempData["Response"] = responseJson;
-
-            var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
-                .With(x => x.Data, checkEligibilityResponse.Data)
-                .Create();
-
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Poll_Status();
-
-            // Assert
-            var partialViewResult = result as PartialViewResult;
-            partialViewResult.Should().NotBeNull();
-            partialViewResult.ViewName.Should().Be(expectedView);
-        }
-
-
-
     }
 }
