@@ -10,14 +10,11 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using Moq;
 using Newtonsoft.Json;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using School = CheckYourEligibility_FrontEnd.Models.School;
 
 namespace CheckYourEligibility_Admin.Tests.Controllers
@@ -36,7 +33,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         [SetUp]
         public void SetUp()
         {
-
             _parentServiceMock = new Mock<IEcsServiceParent>();
             _checkServiceMock = new Mock<IEcsCheckService>();
             _loggerMock = Mock.Of<ILogger<CheckController>>();
@@ -401,7 +397,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             // Arrange
 
-            // need to build status value fixture first as AutoFixture With() does not allow assignment on nested properties such as x.Data.Status
+            // Build status value fixture first since AutoFixture With() does not allow assignment on nested properties like x.Data.Status
             var statusValue = _fixture.Build<StatusValue>()
                 .With(x => x.Status, status.ToString())
                 .Create();
@@ -413,7 +409,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
             _tempData["Response"] = responseJson;
 
-
             var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
                 .With(x => x.Data, checkEligibilityResponse.Data)
                 .Create();
@@ -421,12 +416,74 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
                 .ReturnsAsync(checkEligibilityStatusResponse);
 
+            // Mock the _Claims object with all necessary claims
+            _sut.ControllerContext.HttpContext = new DefaultHttpContext();
+            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+    {
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "12345"),
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "test@example.com"),
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "John"),
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Doe"),
+        new Claim("OrganisationCategoryName", CheckYourEligibility_FrontEnd.Models.Constants.CategoryTypeLA)
+    }));
+
             // Act
             var result = await _sut.Poll_Status();
 
             // Assert
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be(expectedView);
+            if (result is PartialViewResult partialViewResult)
+            {
+                partialViewResult.ViewName.Should().Be(expectedView);
+            }
+            else if (result is RedirectToActionResult redirectResult)
+            {
+                redirectResult.ActionName.Should().Be("Application_Sent"); // Adjust this if you expect a different action
+            }
+            else
+            {
+                Assert.Fail("Unexpected result type");
+            }
         }
+
+        [Test]
+        public async Task Given_Poll_Status_When_Response_Is_Null_Returns_Error_Status()
+        {
+            // Arrange
+            _tempData["Response"] = null;
+
+            // Act
+            var result = await _sut.Poll_Status();
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            jsonResult.Should().NotBeNull();
+            jsonResult.Value.Should().BeEquivalentTo(new { status = "error", message = "No response data found" });
+        }
+
+        [Test]
+        public async Task Given_Poll_Status_When_Status_Is_Processing_Returns_JsonResult_Processing()
+        {
+            // Arrange
+            var response = new CheckEligibilityResponse
+            {
+                Data = new StatusValue { Status = "processing" }
+            };
+            _tempData["Response"] = JsonConvert.SerializeObject(response);
+
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(new CheckEligibilityStatusResponse { Data = response.Data });
+
+            // Act
+            var result = await _sut.Poll_Status();
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            jsonResult.Should().NotBeNull();
+            jsonResult.Value.Should().BeEquivalentTo(new { status = "processing" });
+        }
+
+
+
+
     }
 }

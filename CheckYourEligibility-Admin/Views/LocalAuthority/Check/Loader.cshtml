@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     ViewData["Title"] = "Checking Loader";
     ViewData["ServiceName"] = "Check a family's eligibility";
 }
@@ -24,6 +24,10 @@
     </div>
 </div>
 
+<noscript>
+    <meta http-equiv="refresh" content="5;url=@Url.Action("Poll_Status", "Check")" />
+</noscript>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -48,10 +52,8 @@
                             alert('Unexpected response from the server.');
                         }
                     } else {
-                        // HTML response: Replace the full document content
-                        document.open();
-                        document.write(data);
-                        document.close();
+                        // HTML response: Replace the document content
+                        document.getElementById("content").innerHTML = data;
                     }
                 },
                 error: function (xhr, textStatus, errorThrown) {
@@ -64,5 +66,5 @@
         // Start polling the server
         pollServer();
     });
-
 </script>
+
