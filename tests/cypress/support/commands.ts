@@ -10,7 +10,12 @@ Cypress.Commands.add('SignInLA', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#B0BDF090-8842-4044-94CB-94D7C13FE39D').click();
+  cy.contains('Telford and Wrekin Council')
+  .parent()
+  .find('input[type="radio"]')
+  .check();
+
+
   cy.contains('Continue',{ timeout: 15000 }).click();
 
   cy.get('h1').should('include.text', 'Telford and Wrekin Council');
@@ -25,10 +30,14 @@ Cypress.Commands.add('SignInSchool', () => {
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
 
-  cy.get('#4579AE90-8B2B-4C02-AC08-756CBBB1C567',{ timeout: 15000 }).click();
+  cy.contains('The Telford Park School')
+    .parent()
+    .find('input[type="radio"]')
+    .check();
+
   cy.contains('Continue').click();
 
-  cy.get('h1').should('include.text', 'Hollinswood Primary School');
+  cy.get('h1').should('include.text', 'The Telford Park School');
 });
 
 Cypress.Commands.add('CheckValuesInSummaryCard', (key: string, expectedValue: string) => {
@@ -36,6 +45,48 @@ Cypress.Commands.add('CheckValuesInSummaryCard', (key: string, expectedValue: st
     .siblings('.govuk-summary-list__value')
     .should('include.text', expectedValue)
 });
+
+Cypress.Commands.add('scanPagesForValue', (value: string) => {
+  cy.get('body').then((body) => {
+    if (body.find(`td:contains("${value}")`).length > 0) {
+      cy.get(`td:contains("${value}")`).click();
+    }
+    else {
+      cy.contains('.govuk-link', 'Next').click();
+      cy.scanPagesForValue(value);
+    }
+  });
+});
+
+
+Cypress.Commands.add('findApplicationFinalise', (value: string) => {
+  let referenceFound = false;
+  function searchOnPage() {
+    cy.get('.govuk-table tbody tr').each(($row) => {
+      cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
+          if (text.trim() === value) {
+              referenceFound = true;
+              cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
+              cy.log('found it!');
+              return false;
+          }
+      });
+    }).then(() => {
+      if (!referenceFound){
+        cy.get('body').then((body) => {
+          if(body.find('.govuk-link').length > 0) {
+            cy.contains('.govuk-link', 'Next').click();
+            cy.findApplicationFinalise(value);
+          }
+          else{
+            cy.log('Reference number not found')
+          }
+        });
+      }
+    });
+  }
+  searchOnPage();
+})
 
 
 Cypress.Commands.add('verifyFieldVisibility', (selector: string, isVisible: boolean) => {
@@ -92,11 +143,4 @@ Cypress.Commands.add('retainAuthOnRedirect', (initialUrl, authHeader, alias) => 
   });
 });
 
-Cypress.Commands.add('waitForElementToDisappear', (selector: string) => {
-  cy.get('body').then($body => {
-    if ($body.find(selector).length > 0) {
-      cy.get(selector, { timeout: 30000 }).should('not.exist');
-    }
-  });
-});
 

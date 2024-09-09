@@ -322,7 +322,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            var user = await _parentService.CreateUser(new UserCreateRequest { Data = new UserData { Email = request.ParentEmail, Reference = $"{_Claims.Organisation.Category}:- {_Claims.Organisation.Name}, {_Claims.User.Email}" } });
+            var user = await _parentService.CreateUser(new UserCreateRequest { Data = new UserData { Email = _Claims.User.Email, Reference = _Claims.User.Id } });
             var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
             var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
 
@@ -335,6 +335,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         // Set the properties for each child
                         ParentFirstName = request.ParentFirstName,
                         ParentLastName = request.ParentLastName,
+                        ParentEmail = request.ParentEmail,
                         ParentDateOfBirth = request.ParentDateOfBirth,
                         ParentNationalInsuranceNumber = request.ParentNino,
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
@@ -362,10 +363,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("ApplicationsRegistered", vm);
         }
 
-        public IActionResult ChangeChildDetails()
+        public IActionResult ChangeChildDetails(int child)
         {
             // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
+            TempData["childIndex"] = child;
             var responseJson = TempData["FsmApplication"] as string;
             // deserialize
             var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);

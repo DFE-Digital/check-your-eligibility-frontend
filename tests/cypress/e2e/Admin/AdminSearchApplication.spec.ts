@@ -66,7 +66,7 @@ describe('Admin journey search for application', () => {
 
         cy.contains('Search all records').click();
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
         cy.get('h1').should('include.text', 'Search results');
 
     });
@@ -74,9 +74,9 @@ describe('Admin journey search for application', () => {
     it('Will allow School users to search for an application with a selected status', () => {
 
         cy.contains('Search all records').click();
-        cy.get('#Status').select('Evidence needed');
+        cy.get('#Status').select('Entitled');
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
         cy.get('h1').should('include.text', 'Search results');
 
     });
@@ -86,7 +86,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Search all records').click();
         cy.get('#ChildLastName').type(childLastName);
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
 
         cy.get('.govuk-table')
             .find('tbody tr')
@@ -101,7 +101,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Search all records').click();
         cy.get('#ParentLastName').type(parentLastName);
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
 
         cy.get('.govuk-table')
             .find('tbody tr')
@@ -117,7 +117,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Search all records').click();
         cy.get('#Reference').type(referenceNumber);
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
 
         cy.get('h1').should('contain.text', 'Search results (1)');
 
@@ -136,7 +136,7 @@ describe('Admin journey search for application', () => {
         cy.get('#Child-DOB-Month').type('01');
         cy.get('#Child-DOB-Year').type('2007');
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
 
         cy.get('.govuk-table')
             .find('tbody tr')
@@ -153,7 +153,7 @@ describe('Admin journey search for application', () => {
         cy.get('#PG-DOB-Month').type('01');
         cy.get('#PG-DOB-Year').type('1990');
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
     });
 
     
@@ -162,7 +162,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Search all records').click();
         cy.get('#ParentLastName').type('Smith');
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
 
         cy.get('.govuk-table')
             .find('tbody tr')

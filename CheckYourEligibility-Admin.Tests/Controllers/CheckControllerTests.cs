@@ -268,7 +268,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var children = _fixture.CreateMany<Child>(99).ToList();
             request.ChildList.Clear();
             request.ChildList = children;
-           
+
             var result = _sut.Add_Child(request);
 
             var redirectToActionResult = result as RedirectToActionResult;
@@ -331,14 +331,14 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 .Returns(serviceMockResponse);
 
             // Act
-            var result =  _sut.Check_Answers(request);
+            var result = _sut.Check_Answers(request);
             var tempData = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(_sut.TempData["confirmationApplication"] as string);
 
             // Assert
             var redirectToActionResult = result.Result as RedirectToActionResult;
             redirectToActionResult.ActionName.Should().Be("ApplicationsRegistered");
             tempData.Children[0].ChildName.Should().Be($"{serviceMockResponse.Result.Data.ChildFirstName} {serviceMockResponse.Result.Data.ChildLastName}");
-            
+
         }
 
         [Test]
@@ -383,7 +383,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
 
             // Act
-            var result = _sut.ChangeChildDetails();
+            int child = 0;
+            var result = _sut.ChangeChildDetails(child);
 
             // Assert
             var viewResult = result as ViewResult;

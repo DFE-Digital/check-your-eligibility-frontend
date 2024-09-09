@@ -5,14 +5,14 @@
     ViewData["ServiceName"] = "Check a family's eligibility";
 }
 
+<a class="govuk-back-link" href="/Back" onclick="history.back(); return false;">Back</a>
+@* <a class="govuk-back-link-nolink"></a> *@
+
 @if (!ViewData.ModelState.IsValid)
 {
     ViewData["Title"] = "Error: Check Details";
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
-
-<a class="govuk-back-link" href="/Back" onclick="history.back(); return false;">Back</a>
-@* <a class="govuk-back-link-nolink"></a> *@
 
 <h1 class="govuk-heading-l">Enter parent or guardian details</h1>
 
@@ -48,25 +48,43 @@
             <input class="govuk-input govuk-input--width-20" asp-for="EmailAddress" type="text" aria-label="Parent or guardian email address">
         </div>
 
-        <div class="govuk-form-group">
-            <label class="govuk-label" for="NationalInsuranceNumber">
-                Parent or guardian National Insurance number
-            </label>
-            <p class="govuk-error-message">
-                <span asp-validation-for="NationalInsuranceNumber"></span>
-            </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text" aria-label="Parent or guardian National Insurance Number">
+        <div class="govuk-form-group" data-type="NINAS-form-group">
+            <fieldset class="govuk-fieldset" role="group" aria-describedby="NINAS-hint">
 
-            <p class="paragraph-add-margin-top">Or</p>
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    Parent or guardian National Insurance number or Asylum Support Reference Number
+                </legend>
 
-            <label class="govuk-label" for="NationalAsylumSeekerServiceNumber">
-                Parent or guardian asylum support reference number
-            </label>
-            <p class="govuk-error-message">
-                <span asp-validation-for="NationalAsylumSeekerServiceNumber"></span>
-            </p>
-            <input class="govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text" aria-label="Parent or guardian asylum support reference number">
+                <div id="NINAS-hint" class="govuk-hint">
+                    Please only provide either a National Insurance Number or an Asylum Support Reference Number and leave the other field blank.
+                </div>
 
+                <div class="govuk-NINAS-input" id="NINAS">
+
+                    <div class="govuk-NINAS-input__item">
+                        <div class="govuk-form-group" data-type="NINAS-input">
+
+                            <label class="govuk-label" for="NationalInsuranceNumber">
+                                Parent or guardian National Insurance number
+                            </label>
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="NationalInsuranceNumber"></span>
+                            </p>
+                            <input class="govuk-input govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text" data-type="NINAS" aria-label="Parent or guardian National Insurance Number" />
+
+                            <p class="paragraph-add-margin-ingroup">Or</p>
+
+                            <label class="govuk-label" for="NationalAsylumSeekerServiceNumber">
+                                Parent or guardian Asylum Support Reference Number
+                            </label>
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="NationalAsylumSeekerServiceNumber"></span>
+                            </p>
+                            <input class="govuk-input govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text" data-type="NINAS" aria-label="Parent or guardian Asylum Support Reference Number" />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
         </div>
 
         <div class="govuk-form-group" data-type="dob-form-group">

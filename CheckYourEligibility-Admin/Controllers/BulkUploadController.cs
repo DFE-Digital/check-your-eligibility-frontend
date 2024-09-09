@@ -78,11 +78,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                     var requestItem = new CheckEligibilityRequestDataFsm()
                     {
+                        FirstName = item.FirstName,
                         LastName = item.LastName,
                         DateOfBirth = DateTime.TryParse(item.DOB, out var dtval) ? dtval.ToString("yyyy-MM-dd") : string.Empty,
                         NationalInsuranceNumber = item.Ni.ToUpper(),
                         NationalAsylumSeekerServiceNumber = item.Nass.ToUpper(),
-
+                        Sequence = sequence,
                     };
                     var validationResults = validator.Validate(requestItem);
                     if (!validationResults.IsValid)
@@ -148,6 +149,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             var resultData = await _checkService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
             var exportData = resultData.Data.Select(x=> new BatchFSMExport {
+                FirstName = x.FirstName,
                 LastName = x.LastName,
                 DOB =x.DateOfBirth,
                 NI = x.NationalInsuranceNumber,

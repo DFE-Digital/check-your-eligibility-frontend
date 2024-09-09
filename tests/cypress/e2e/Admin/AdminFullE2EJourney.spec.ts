@@ -78,8 +78,8 @@ describe('Full journey of creating an application through school portal through 
 
         cy.contains('.govuk-link', 'Pending applications').click();
         cy.url().should('contain', 'Application/PendingApplications');
-        
-        cy.contains(referenceNumber).click();
+        cy.scanPagesForValue(referenceNumber);
+
         cy.contains('.govuk-button', 'Approve application').click();
         cy.contains('.govuk-button', 'Yes, approve now').click();
 
@@ -90,7 +90,7 @@ describe('Full journey of creating an application through school portal through 
 
         cy.get('#Reference').type(referenceNumber);
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/Results');
+        cy.url().should('include', 'Application/SearchResults');
 
         cy.get('h1').should('contain.text', 'Search results (1)');
 
@@ -116,15 +116,8 @@ describe('Full journey of creating an application through school portal through 
         cy.contains('Finalise applications').click();
         cy.url().should('contain', 'Application/FinaliseApplications');
         cy.log(referenceNumber)
+        cy.findApplicationFinalise(referenceNumber);
 
-        cy.get('.govuk-table tbody tr').each(($row) => {
-            cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
-                if (text.trim() === referenceNumber) {
-                    cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
-                    cy.log('found it!');
-                }
-            })
-        })
         cy.contains('.govuk-button', 'Finalise applications').click();
         cy.contains('.govuk-button', 'Yes, finalise now').click();
 

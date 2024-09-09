@@ -4,6 +4,9 @@ namespace CheckYourEligibility_FrontEnd.Models
 {
     public class BatchFSMExport
     {
+        [Name("Parent First Name")]
+        public string FirstName { get; set; }
+
         [Name("Parent Last Name")]
         public string LastName { get; set; }
 

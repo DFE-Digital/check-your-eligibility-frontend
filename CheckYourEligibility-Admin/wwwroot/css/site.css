@@ -8,10 +8,12 @@
     }
 }
 
+.paragraph-add-margin-ingroup {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
 
 /*BEGIN - back button overrides */
-
-
 .govuk-main-wrapper {
     display: block;
     padding-top: 5px;
@@ -68,6 +70,8 @@
 /*END - back button overrides */
 
 
+/*BEGIN - Sign out link syling */
+
 a.signOut:link, a.signOut:visited, a.signOut:hover, a.signOut:active {
     color: white;
     text-decoration: none;
@@ -76,3 +80,25 @@ a.signOut:link, a.signOut:visited, a.signOut:hover, a.signOut:active {
 a.signOut:hover {
     text-decoration: underline;
 }
+
+.govuk-pagination {
+    justify-content: center;
+}
+
+/*END - Sign out link syling */
+
+
+/*BEGIN - Accessible dashboard card links */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/*END - Accessible dashboard card links */
