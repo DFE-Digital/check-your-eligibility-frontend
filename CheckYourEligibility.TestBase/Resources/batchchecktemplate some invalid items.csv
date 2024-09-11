@@ -1,5 +1,5 @@
-Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent asylum seeker reference number
-tom,SIMPSON,1990-01-01,AB123456C,
-fred,Jones,1990-01-01,ABCD,
-dave,smith,32/01/1990,AB123456D,
-,flower,1990-01-01,,
+Parent National Insurance Number,Parent asylum seeker reference number,Parent Date of Birth,Parent Last Name
+AB123456C,,1990-01-01,SIMPSON,
+ABCD,,1990-01-01,Jones
+AB123456D,,32/01/1990,smith,
+,,1990-01-01,flower
