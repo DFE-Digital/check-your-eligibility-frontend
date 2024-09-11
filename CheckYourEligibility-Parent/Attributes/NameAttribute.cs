@@ -22,7 +22,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                     return ValidationResult.Success;
 
                 if (!regex.IsMatch(value.ToString()))
-                    return new ValidationResult("First Name field contains an invalid character");
+                    return new ValidationResult("Enter a first name with valid characters");
             }
 
             if (lastName == value)
@@ -31,7 +31,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                     return ValidationResult.Success;
 
                 if (!regex.IsMatch(value.ToString()))
-                    return new ValidationResult("Last Name field contains an invalid character");
+                    return new ValidationResult("Enter a last name with valid characters");
             }       
 
             return ValidationResult.Success;

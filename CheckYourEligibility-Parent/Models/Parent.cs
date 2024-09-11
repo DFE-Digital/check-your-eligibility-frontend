@@ -15,27 +15,28 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         public bool? IsNassSelected { get; set; }
 
+        [NinoSelection]
         public bool? IsNinoSelected { get; set; }
 
         [Name]
-        [Required(ErrorMessage = "First Name is required")]
+        [Required(ErrorMessage = "Enter a first name")]
         public string? FirstName { get; set; }
 
         [Name]
-        [Required(ErrorMessage = "Last Name is required")]
+        [Required(ErrorMessage = "Enter a last name")]
         public string? LastName { get; set; }
 
         [Dob]
-        [Required(ErrorMessage = "Day is required")]
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
+        [Required(ErrorMessage = "Enter a valid day")]
+        [Range(1, 31, ErrorMessage = "Enter a valid day")]
         public int? Day { get; set; }
 
-        [Required(ErrorMessage = "Month is required")]
-        [Range(1, 12, ErrorMessage = "Invalid Month")]
+        [Required(ErrorMessage = "Enter a valid month")]
+        [Range(1, 12, ErrorMessage = "Enter a valid month")]
         public int? Month { get; set; }
 
         [Year]
-        [Required(ErrorMessage = "Year is required")]
+        [Required(ErrorMessage = "Enter a valid year")]
         public int? Year { get; set; }
 
         public bool NASSRedirect { get; set; }

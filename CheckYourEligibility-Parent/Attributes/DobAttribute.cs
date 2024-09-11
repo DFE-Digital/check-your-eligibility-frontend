@@ -33,7 +33,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                 }
                 else
                 {
-                    return new ValidationResult("Invalid date entered");
+                    return new ValidationResult("Enter a complete date of birth");
                 }
             }
         }

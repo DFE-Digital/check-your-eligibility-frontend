@@ -25,6 +25,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                 return ValidationResult.Success;
             }
 
+
             if (value == null)
             {
                 return new ValidationResult("National Insurance Number is required");
@@ -41,7 +42,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (!regex.IsMatch(nino))
             {
-                return new ValidationResult("Invalid National Insurance Number format");
+                return new ValidationResult("Enter a National Insurance number with valid characters");
             }
             else
             {

@@ -16,7 +16,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if ((int)value > currentYear || (int)value < allowableYearInPast)
             {
-                return new ValidationResult("Invalid Year");
+                return new ValidationResult("Enter a valid year");
             }
 
             return ValidationResult.Success;
