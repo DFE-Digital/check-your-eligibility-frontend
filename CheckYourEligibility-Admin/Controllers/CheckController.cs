@@ -160,53 +160,64 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Poll_Status()
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            var startTime = DateTime.UtcNow;
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
 
-            // gather api response which should either be queuedForProcessing or a finalised response
+            // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
-            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
-
-            _logger.LogInformation($"Check status processed:- {response.Data.Status} {response.Links.Get_EligibilityCheckStatus}");
-
-            // periodically get status and then render appropriate outcome page
-            while (await timer.WaitForNextTickAsync())
+            if (responseJson == null)
             {
-                var check = await _checkService.GetStatus(response);
-                Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
+                _logger.LogWarning("No response data found in TempData.");
+                return Json(new { status = "error", message = "No response data found" });
+            }
 
-                if (status != CheckEligibilityStatus.queuedForProcessing)
+            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
+            _logger.LogInformation($"Check status processed: {response?.Data?.Status}");
+
+            // Call the service to check the current status
+            var check = await _checkService.GetStatus(response);
+            if (check == null || check.Data == null)
+            {
+                _logger.LogWarning("Null response received from GetStatus.");
+                return Json(new { status = "error", message = "Null response from service" });
+            }
+
+            _logger.LogInformation($"Received status: {check.Data.Status}");
+            Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
+
+            if (status != CheckEligibilityStatus.queuedForProcessing)
+            {
+                TempData["OutcomeText"] = GetLaOutcomeText(status);
+
+                if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
                 {
-                    TempData["OutcomeText"] = GetLaOutcomeText(status);
-                    if (_Claims.Organisation.Category.Name == Constants.CategoryTypeLA)
-                    {            
-                        return View("Outcome/LA");
-                    }
-                    else
-                    {
-                        switch (status)
-                        {
-                            case CheckEligibilityStatus.eligible: return View("Outcome/Eligible");
-                            case CheckEligibilityStatus.notEligible: return View("Outcome/Not_Eligible");
-                            case CheckEligibilityStatus.parentNotFound: return View("Outcome/Not_Found");
-                            case CheckEligibilityStatus.DwpError: return View("Outcome/Not_Found_Pending");
-
-                            default:
-                                throw new Exception($"Unknown Status {status}");
-                        }
-                    }
+                    return PartialView("Outcome/LA");
                 }
                 else
                 {
-                    if ((DateTime.UtcNow - startTime).TotalMinutes > 2)
+                    switch (status)
                     {
-                        break;
+                        case CheckEligibilityStatus.eligible:
+                            return PartialView("Outcome/Eligible");
+                        case CheckEligibilityStatus.notEligible:
+                            return PartialView("Outcome/Not_Eligible");
+                        case CheckEligibilityStatus.parentNotFound:
+                            return PartialView("Outcome/Not_Found");
+                        case CheckEligibilityStatus.DwpError:
+                            return PartialView("Outcome/Not_Found_Pending");
+                        default:
+                            _logger.LogError($"Unknown Status {status}");
+                            return Json(new { status = "error", message = $"Unknown Status {status}" });
                     }
-                    continue;
                 }
             }
-            return View();
+            else
+            {
+                _logger.LogInformation("Still queued for processing.");
+                TempData["Response"] = JsonConvert.SerializeObject(response);
+                return Json(new { status = "processing" }); // Return JSON to keep polling
+            }
         }
+
+
 
         private string GetLaOutcomeText(CheckEligibilityStatus status)
         {
