@@ -25,6 +25,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
+
+            _logger.LogInformation("controller log info");
         }
 
         [HttpGet]
@@ -304,7 +306,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     item.School.URN = item.School.Name;
                     ModelState.Remove($"ChildList[{idx}].School.URN");
-                    _checkService.LogInformation($"JavaScript Disabled URN Used for SchoolSearch");
+                    _logger.LogWarning($"JavaScript Disabled URN Used for SchoolSearch");
                 }
                 idx++;
             }

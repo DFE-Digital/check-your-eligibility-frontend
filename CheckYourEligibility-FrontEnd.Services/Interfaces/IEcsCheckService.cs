@@ -11,7 +11,6 @@ namespace CheckYourEligibility_FrontEnd.Services
         Task<CheckEligibilityResponseBulk> PostBulkCheck(CheckEligibilityRequestBulk requestBody);
         // single
         Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody);
-        Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);
-        void LogInformation(string message);
+        Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);  
     }
 }
