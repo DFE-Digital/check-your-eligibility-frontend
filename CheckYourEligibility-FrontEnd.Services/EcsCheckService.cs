@@ -91,5 +91,10 @@ namespace CheckYourEligibility_FrontEnd.Services
                 throw;
             }
         }
+
+        public void LogInformation(string message)
+        {
+            _logger.LogInformation(message);
+        }
     }
 }

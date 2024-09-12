@@ -12,5 +12,6 @@ namespace CheckYourEligibility_FrontEnd.Services
         // single
         Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody);
         Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);
+        void LogInformation(string message);
     }
 }
