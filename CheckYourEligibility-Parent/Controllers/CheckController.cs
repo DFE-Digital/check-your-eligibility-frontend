@@ -296,6 +296,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View(request);
             }
 
+            var idx = 0;
+            foreach (var item in request.ChildList)
+            {
+                //disable JS has been used
+                if (string.IsNullOrEmpty(item.School.URN) && !string.IsNullOrEmpty(item.School.Name))
+                {
+                    item.School.URN = item.School.Name;
+                    ModelState.Remove($"ChildList[{idx}].School.URN");
+                    _checkService.LogInformation($"JavaScript Disabled URN Used for SchoolSearch");
+                }
+                idx++;
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(request);
@@ -311,6 +324,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Children = request,
                 Email = HttpContext.Session.GetString("Email")
             };
+
 
             TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
 
