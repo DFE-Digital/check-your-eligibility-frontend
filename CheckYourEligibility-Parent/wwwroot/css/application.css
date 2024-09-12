@@ -14165,3 +14165,9 @@ p,
     transform: rotate(359deg);
   }
 }
+.blue-line {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: cornflowerblue;
+}
