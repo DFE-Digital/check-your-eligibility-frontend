@@ -67,36 +67,39 @@
             </div>
 
             <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
-                    School
-                </label>
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="school-picker-hint">
+                    <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
+                        School
+                    </label>
 
-                <div id="school-picker-hint" class="govuk-hint">
-                    Type to search
-                </div>
+                    <div id="school-picker-hint" class="govuk-hint" aria-label="Type to search">
+                        Type to search
+                        <noscript>
+                            <span class="govuk-error-message" aria-label="Your browser does not support JavaScript! please enter the URN in place of the school name">
+                                Your browser does not support JavaScript! please enter the URN in place of the school name.
+                            </span>
+                        </noscript>
+                    </div>
 
-                 <noscript>
-                     Your browser does not support JavaScript! please enter the URN in place of the school name.
-                 </noscript>
-
-                <p class="govuk-error-message">
-                    <span asp-validation-for="ChildList[i].School.Name"></span>
-                </p>
-                <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
-                <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
-                <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
-                <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
-                <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
+                    <p class="govuk-error-message">
+                        <span asp-validation-for="ChildList[i].School.Name"></span>
+                    </p>
+                    <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
+                    <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
+                    <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
+                    <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
+                    <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
+                </fieldset>
             </div>
 
-            <div class="govuk-form-group" data-type="dob-form-group">
-                <fieldset class="govuk-fieldset" role="group">
+        <div class="govuk-form-group" data-type="dob-form-group">
+            <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
 
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                         Date of birth
                     </legend>
 
-                    <div id="dob-hint" class="govuk-hint">
+                <div id="dob-hint" class="govuk-hint">
                         For example, 27 3 2007
                     </div>
 
@@ -138,8 +141,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </fieldset>
+                </fieldset>
+            </div>
         </div>
     }
 
