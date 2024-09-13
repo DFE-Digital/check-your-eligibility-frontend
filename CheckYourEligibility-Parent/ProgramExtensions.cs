@@ -1,5 +1,6 @@
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+using Microsoft.ApplicationInsights.Extensibility;
+using CheckYourEligibility_FrontEnd.Telemetry;
+using Microsoft.AspNetCore.Http;
 using CheckYourEligibility_FrontEnd.Services;
 
 namespace CheckYourEligibility_FrontEnd
@@ -19,7 +20,13 @@ namespace CheckYourEligibility_FrontEnd
             {
                 client.BaseAddress = new Uri(configuration["Api:Host"]);
             });
+
+           
+            services.AddHttpContextAccessor();
+
             
+            services.AddSingleton<ITelemetryInitializer, ResponseBodyInitializer>();
+
             return services;
         }
     }
