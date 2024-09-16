@@ -43,6 +43,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("Cookies");
         }
 
+        public IActionResult Guidance()
+        {
+            return View("Guidance");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
