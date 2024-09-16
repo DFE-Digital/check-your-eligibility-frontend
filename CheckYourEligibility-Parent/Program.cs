@@ -82,7 +82,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
-
+app.UseMiddleware<ResponseBodyLoggingMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(
