@@ -47,7 +47,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var validationResultsItems = new StringBuilder();
             if (fileUpload == null || fileUpload.ContentType.ToLower() != "text/csv")
             {
-                return BadRequest(new MessageResponse { Data = $"{Admin.CsvfileRequired}" });
+                TempData["ErrorMessage"] = "Select a CSV File";
+                return RedirectToAction("Batch_Check");
             }
             try
             {
