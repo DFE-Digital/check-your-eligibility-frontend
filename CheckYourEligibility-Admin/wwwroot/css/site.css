@@ -102,3 +102,16 @@ a.signOut:hover {
 }
 
 /*END - Accessible dashboard card links */
+
+
+/* MENU ITEM */
+.moj-button-menu__item {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: auto;
+}
+
+    .moj-button-menu__item:last-child {
+        margin-right: 0;
+    }
