@@ -57,13 +57,13 @@
 
             <span asp-validation-for="DateOfBirth" class="govuk-error-message"></span>
 
-            <div class="govuk-date-input" id="dob">
+            <div class="govuk-date-input" id="DateOfBirth">
                 <div class="govuk-date-input__item">
                     <div class="govuk-form-group">
                         <label class="govuk-label govuk-date-input__label" for="Day">
                             Day
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" id="DateOfBirth" data-val="false" type="text" inputmode="numeric" maxlength="2" aria-label="Day" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" id="Day" type="text" inputmode="numeric" maxlength="2" aria-label="Day" />
                     </div>
                 </div>
 
@@ -72,7 +72,7 @@
                         <label class="govuk-label govuk-date-input__label" for="Month">
                             Month
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" type="text" inputmode="numeric" maxlength="2" aria-label="Month" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" id="Month" type="text" inputmode="numeric" maxlength="2" aria-label="Month" />
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@
                         <label class="govuk-label govuk-date-input__label" for="Year">
                             Year
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" id="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
                     </div>
                 </div>
             </div>

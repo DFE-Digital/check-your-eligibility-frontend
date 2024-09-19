@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
-using System.Reflection;
 
 public class DobAttribute : ValidationAttribute
 {
@@ -11,69 +8,86 @@ public class DobAttribute : ValidationAttribute
     {
         var model = validationContext.ObjectInstance;
 
-        var dayProp = model.GetType().GetProperty("Day");
-        var monthProp = model.GetType().GetProperty("Month");
-        var yearProp = model.GetType().GetProperty("Year");
+        var dayProperty = model.GetType().GetProperty("Day");
+        var monthProperty = model.GetType().GetProperty("Month");
+        var yearProperty = model.GetType().GetProperty("Year");
 
-        var day = dayProp?.GetValue(model) as int?;
-        var month = monthProp?.GetValue(model) as int?;
-        var year = yearProp?.GetValue(model) as int?;
+        var dayString = dayProperty?.GetValue(model) as string;
+        var monthString = monthProperty?.GetValue(model) as string;
+        var yearString = yearProperty?.GetValue(model) as string;
 
-        if (!day.HasValue && !month.HasValue && !year.HasValue)
+        // Check if all date parts are provided
+        if (string.IsNullOrWhiteSpace(dayString) && string.IsNullOrWhiteSpace(monthString) && string.IsNullOrWhiteSpace(yearString))
         {
             return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth" });
         }
-        else if (!day.HasValue || !month.HasValue || !year.HasValue)
+        else if (string.IsNullOrWhiteSpace(dayString) || string.IsNullOrWhiteSpace(monthString) || string.IsNullOrWhiteSpace(yearString))
         {
             return new ValidationResult("Enter a complete date of birth", new[] { "DateOfBirth" });
         }
-        if(day.Value < 1 || day.Value > 31)
+
+        // Parse the day
+        if (!int.TryParse(dayString, out int dayInt))
+        {
+            return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth" });
+        }
+
+        if (dayInt < 1 || dayInt > 31)
         {
             return new ValidationResult("Enter a valid day", new[] { "DateOfBirth" });
         }
 
-        if(month.Value < 1 || month.Value > 13)
+        // Parse the month
+        if (!int.TryParse(monthString, out int monthInt))
+        {
+            return new ValidationResult("Enter a month using numbers only", new[] { "DateOfBirth" });
+        }
+
+        if (monthInt < 1 || monthInt > 12)
         {
             return new ValidationResult("Enter a valid month", new[] { "DateOfBirth" });
         }
 
-        if(day.Value > DateTime.DaysInMonth(year.Value, month.Value))
+        // Parse the year
+        if (!int.TryParse(yearString, out int yearInt))
+        {
+            return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth" });
+        }
+
+        if (yearInt < 1900 || yearInt > DateTime.Now.Year)
+        {
+            return new ValidationResult("Enter a valid year", new[] { "DateOfBirth" });
+        }
+
+        // Check if the day is valid for the given month and year
+        if (dayInt > DateTime.DaysInMonth(yearInt, monthInt))
         {
             return new ValidationResult("Enter a valid day", new[] { "DateOfBirth" });
         }
 
-        string dayString = day.Value.ToString("00");
-        string monthString = month.Value.ToString("00");
-        string yearString = year.Value.ToString();
+        // Construct the DateTime object
+        var dob = new DateTime(yearInt, monthInt, dayInt);
 
-        if (DateTime.TryParseExact($"{yearString}-{monthString}-{dayString}", "yyyy-MM-dd",
-                                CultureInfo.InvariantCulture,
-                                DateTimeStyles.None,
-                                out DateTime dob))
+        // Check if the date is in the future
+        if (dob > DateTime.Now)
         {
-            if (dob > DateTime.Now)
-            {
-                return new ValidationResult("Date of birth cannot be in the future", new[] { "DateOfBirth" });
-            }
-
-            // Additional validation for Child model
-            if (model.GetType().Name == "Child")
-            {
-                int age = CalculateAge(dob, DateTime.Now);
-
-                if (age < 4 || age > 17)
-                {
-                    return new ValidationResult("Enter an age between 4 and 17", new[] { "DateOfBirth" });
-                }
-            }
-
-            return ValidationResult.Success;
+            return new ValidationResult("Date of birth cannot be in the future", new[] { "DateOfBirth" });
         }
-        else
+
+        // Additional validation for Child model (if applicable)
+        if (model.GetType().Name == "Child")
         {
-            return new ValidationResult("Enter a valid date of birth", new[] { "DateOfBirth" });
+            int age = CalculateAge(dob, DateTime.Now);
+
+            if (age < 4 || age > 17)
+            {
+                return new ValidationResult("Enter an age between 4 and 17", new[] { "DateOfBirth" });
+            }
         }
+
+        return ValidationResult.Success;
     }
+
     private int CalculateAge(DateTime birthDate, DateTime now)
     {
         int age = now.Year - birthDate.Year;
@@ -84,4 +98,3 @@ public class DobAttribute : ValidationAttribute
         return age;
     }
 }
-

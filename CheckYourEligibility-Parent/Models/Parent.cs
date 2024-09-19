@@ -28,13 +28,16 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         [NotMapped]
         [Dob]
-        public DateTime? DateOfBirth { get; set; }
+        public string? DateOfBirth { get; set; }
 
-        public int? Day { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
+        public string? Day { get; set; }
 
-        public int? Month { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Month using numbers only")]
+        public string? Month { get; set; }
 
-        public int? Year { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Year using numbers only")]
+        public string? Year { get; set; }
 
         public bool NASSRedirect { get; set; }
 

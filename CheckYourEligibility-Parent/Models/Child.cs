@@ -16,13 +16,13 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         [NotMapped]
         [Dob]
-        public DateTime? DateOfBirth { get; set; }
+        public string? DateOfBirth { get; set; }
 
-        public int? Day { get; set; }
+        public string? Day { get; set; }
 
-        public int? Month { get; set; }
+        public string? Month { get; set; }
 
-        public int? Year { get; set; }
+        public string? Year { get; set; }
 
         public School School { get; set; }
     }
