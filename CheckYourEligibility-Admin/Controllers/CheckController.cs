@@ -193,6 +193,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
                 else
                 {
+                    TempData["Status"] = GetApplicationRegisteredText(status);                   
                     switch (status)
                     {
                         case CheckEligibilityStatus.eligible:
@@ -217,6 +218,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
         }
 
+        private string GetApplicationRegisteredText(CheckEligibilityStatus status)
+        { 
+            switch (status)
+            {
+                case CheckEligibilityStatus.eligible:
+                    return "As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.";
+                case CheckEligibilityStatus.notEligible:
+                    return "As these Children are not entitled to free school meals you'll need to add details of the appeal to your own system before finalising";
+                default:
+                    return "";
+            }    
+                }
 
 
         private string GetLaOutcomeText(CheckEligibilityStatus status)
