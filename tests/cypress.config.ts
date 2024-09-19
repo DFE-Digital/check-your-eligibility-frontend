@@ -17,8 +17,8 @@ export default defineConfig({
   reporterOptions: {
     mochaFile: "results/my-test-output-[hash].xml",
   },
-  retries: {
-    "runMode": 2,
-    "openMode": 2
-  }
+  // retries: {
+  //   "runMode": 2,
+  //   "openMode": 2
+  // }
 });
