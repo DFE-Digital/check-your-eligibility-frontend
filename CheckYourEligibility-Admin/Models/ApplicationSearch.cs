@@ -1,6 +1,7 @@
 ﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility_FrontEnd.Attributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CheckYourEligibility_FrontEnd.Models
 {
@@ -23,22 +24,30 @@ namespace CheckYourEligibility_FrontEnd.Models
         [ReferenceNumber]
         public string? Reference { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
+        [NotMapped]
+        [Dob("Day", "Month", "Year", isRequired: false)]
+        public string? ChildDob { get; set; }
+
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
         public int? ChildDOBDay { get; set; }
 
-        [Range(1, 12, ErrorMessage = "Invalid Month")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
         public int? ChildDOBMonth { get; set; }
 
-        [Year]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
         public int? ChildDOBYear { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
+        [NotMapped]
+        [Dob("Day", "Month", "Year", isRequired: false)]
+        public string? ParentDob { get; set; }
+
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
         public int? PGDOBDay { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Month")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
         public int? PGDOBMonth { get; set; }
 
-        [Year]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
         public int? PGDOBYear { get; set; }
         
 
