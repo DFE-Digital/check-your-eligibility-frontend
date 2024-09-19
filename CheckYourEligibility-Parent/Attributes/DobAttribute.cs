@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CheckYourEligibility_FrontEnd.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
@@ -67,7 +68,7 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a valid day", new[] { "DateOfBirth" });
         }
 
-        if (model.GetType().Name == "Child")
+        if (model is Child)
         {
             int age = CalculateAge(dob, DateTime.Now);
 
