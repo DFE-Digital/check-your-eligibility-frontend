@@ -29,26 +29,26 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? ChildDob { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
-        public int? ChildDOBDay { get; set; }
+        public int? ChildDobDay { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
-        public int? ChildDOBMonth { get; set; }
+        public int? ChildDobMonth { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
-        public int? ChildDOBYear { get; set; }
+        public int? ChildDobYear { get; set; }
 
         [NotMapped]
-        [Dob("PGDOBDay", "PGDOBMonth", "PGDOBYear", isRequired: false)]
+        [Dob("PGDobDay", "PGDobMonth", "PGDobYear", isRequired: false)]
         public string? ParentDob { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
-        public int? PGDOBDay { get; set; }
+        public int? PGDobDay { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
-        public int? PGDOBMonth { get; set; }
+        public int? PGDobMonth { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
-        public int? PGDOBYear { get; set; }
+        public int? PGDobYear { get; set; }
         
 
     }

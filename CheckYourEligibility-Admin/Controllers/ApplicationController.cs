@@ -87,11 +87,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
-                    ChildDateOfBirth = request.ChildDOBYear.HasValue ?
-                    new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd")
+                    ChildDateOfBirth = request.ChildDobYear.HasValue ?
+                    new DateOnly(request.ChildDobYear.Value, request.ChildDobMonth.Value, request.ChildDobDay.Value).ToString("yyyy-MM-dd")
                     : null,
-                    ParentDateOfBirth = request.PGDOBYear.HasValue ?
-                    new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
+                    ParentDateOfBirth = request.PGDobYear.HasValue ?
+                    new DateOnly(request.PGDobYear.Value, request.PGDobMonth.Value, request.PGDobDay.Value).ToString("yyyy-MM-dd")
                    : null,
                 }
             };

@@ -148,41 +148,33 @@
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                     Child date of birth
                                 </legend>
-                                <div class="govuk-date-input" id="dob">
+                                    <span asp-validation-for="ChildDob" class="govuk-error-message"></span>
+                                <div class="govuk-date-input" id="ChildDob">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
                                             <label class="govuk-label govuk-date-input__label" for="ChildDOBDay">
                                                 Day
                                             </label>
-                                                <p class="govuk-error-message">
-                                                    <span asp-validation-for="ChildDOBDay"></span>
-                                                </p>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Day" name="ChildDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                                            <input asp-for="ChildDobDay" class="govuk-input govuk-date-input__input govuk-input--width-2" id="ChildDobDay" name="ChildDobDay" inputmode="numeric" maxlength="2" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Day">  
                                         </div>
 
 
                                     </div>
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBMonth">
+                                            <label class="govuk-label govuk-date-input__label" for="ChildDobMonth">
                                                 Month
                                             </label>
-                                                <p class="govuk-error-message">
-                                                    <span asp-validation-for="ChildDOBMonth"></span>
-                                                </p>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="Child-DOB-Month" name="ChildDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
-                                        </div>
+                                                <input asp-for="ChildDobMonth" class="govuk-input govuk-date-input__input govuk-input--width-2" id="ChildDobMonth" name="ChildDobMonth" inputmode="numeric" maxlength="2" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Month">
+                                            </div>
                                     </div>
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
-                                            <label class="govuk-label govuk-date-input__label" for="ChildDOBYear">
+                                            <label class="govuk-label govuk-date-input__label" for="ChildDobYear">
                                                 Year
                                             </label>
-                                                <p class="govuk-error-message">
-                                                    <span asp-validation-for="ChildDOBYear"></span>
-                                                </p>
-                                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="Child-DOB-Year" name="ChildDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
-                                        </div>
+                                                <input asp-for="ChildDobYear" class="govuk-input govuk-date-input__input govuk-input--width-2" id="ChildDobYear" name="ChildDobYear" inputmode="numeric" maxlength="4" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Year">
+                                            </div>
 
                                     </div>
                                 </div>
@@ -203,16 +195,14 @@
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                     Parent or guardian date of birth
                                 </legend>
-                                <div class="govuk-date-input" id="passport-issued">
+                                    <span asp-validation-for="ChildDob" class="govuk-error-message"></span>
+                                <div class="govuk-date-input" id="ParentDob">
                                     <div class="govuk-date-input__item">
                                         <div class="govuk-form-group">
                                             <label class="govuk-label govuk-date-input__label" for="PGDOBDay">
                                                 Day
                                             </label>
-                                                <p class="govuk-error-message">
-                                                    <span asp-validation-for="PGDOBDay"></span>
-                                                </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Day" name="PGDOBDay" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input asp-for="PGDobDay" class="govuk-input govuk-date-input__input govuk-input--width-2" id="PGDobDay" name="PGDobDay" inputmode="numeric" maxlength="2" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Day">
                                         </div>
 
                                     </div>
@@ -221,10 +211,7 @@
                                                 <label class="govuk-label govuk-date-input__label" for="PGDOBMonth">
                                                 Month
                                             </label>
-                                                <p class="govuk-error-message">
-                                                    <span asp-validation-for="PGDOBMonth"></span>
-                                                </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="PG-DOB-Month" name="PGDOBMonth" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input asp-for="PGDobMonth" class="govuk-input govuk-date-input__input govuk-input--width-2" id="PGDobMonth" name="PGDobMonth" inputmode="numeric" maxlength="2" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Month">
                                         </div>
                                     </div>
                                     <div class="govuk-date-input__item">
@@ -232,10 +219,7 @@
                                                 <label class="govuk-label govuk-date-input__label" for="PGDOBYear">
                                                 Year
                                             </label>
-                                                <p class="govuk-error-message">
-                                                    <span asp-validation-for="PGDOBYear"></span>
-                                                </p>
-                                                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="PG-DOB-Year" name="PGDOBYear" type="text" pattern="[0-9]*" inputmode="numeric">
+                                                <input asp-for="PGDobYear" class="govuk-input govuk-date-input__input govuk-input--width-2" id="PGDobYear" name="PGDobYear" inputmode="numeric" maxlength="4" type="text" pattern="[0-9]*" inputmode="numeric" aria-label="Year">
                                         </div>
                                     </div>
                                 </div>
