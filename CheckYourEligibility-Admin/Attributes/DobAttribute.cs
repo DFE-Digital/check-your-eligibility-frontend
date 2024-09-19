@@ -45,10 +45,9 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a date of birth");
         }
 
-        //bool allFieldsEmpty = !dayValue.HasValue && !monthValue.HasValue && !yearValue.HasValue;
         bool allFieldsEmpty = string.IsNullOrWhiteSpace(dayString) && string.IsNullOrWhiteSpace(monthString) && string.IsNullOrWhiteSpace(yearString);
         bool anyFieldFilled = !string.IsNullOrWhiteSpace(dayString) || !string.IsNullOrWhiteSpace(monthString) || !string.IsNullOrWhiteSpace(yearString);
-        //bool anyFieldFilled = dayValue.HasValue || monthValue.HasValue || yearValue.HasValue;
+
 
         if (_isRequired)
         {

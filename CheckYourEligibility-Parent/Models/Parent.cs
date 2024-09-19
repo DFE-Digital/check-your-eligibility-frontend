@@ -26,6 +26,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Required(ErrorMessage = "Enter a last name")]
         public string? LastName { get; set; }
 
+
         [NotMapped]
         [Dob]
         public string? DateOfBirth { get; set; }

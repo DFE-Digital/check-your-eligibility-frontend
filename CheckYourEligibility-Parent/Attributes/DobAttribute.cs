@@ -21,7 +21,7 @@ public class DobAttribute : ValidationAttribute
         {
             return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth" });
         }
-        else if (string.IsNullOrWhiteSpace(dayString) || string.IsNullOrWhiteSpace(monthString) || string.IsNullOrWhiteSpace(yearString))
+        if (string.IsNullOrWhiteSpace(dayString) || string.IsNullOrWhiteSpace(monthString) || string.IsNullOrWhiteSpace(yearString))
         {
             return new ValidationResult("Enter a complete date of birth", new[] { "DateOfBirth" });
         }

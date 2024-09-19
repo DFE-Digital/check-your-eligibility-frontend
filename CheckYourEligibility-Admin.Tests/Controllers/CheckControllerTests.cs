@@ -75,9 +75,9 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             request.NationalInsuranceNumber = nino;
             request.NationalAsylumSeekerServiceNumber = nass;
             request.IsNassSelected = isNassSelected;
-            request.Day = 1;
-            request.Month = 1;
-            request.Year = 1990;
+            request.Day = "1";
+            request.Month = "1";
+            request.Year = "1990";
 
             // Act
             var result = _sut.Enter_Details(request);
@@ -103,9 +103,9 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             request.NationalInsuranceNumber = nino;
             request.NationalAsylumSeekerServiceNumber = nass;
             request.IsNassSelected = isNassSelected;
-            request.Day = 1;
-            request.Month = 1;
-            request.Year = 1990;
+            request.Day = "01";
+            request.Month = "01";
+            request.Year = "1990";
 
             var response = _fixture.Create<CheckEligibilityResponse>();
             _checkServiceMock.Setup(x => x.PostCheck(It.IsAny<CheckEligibilityRequest>())).ReturnsAsync(response);
@@ -120,7 +120,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             _sut.HttpContext.Session.GetString("ParentFirstName").Should().Be(request.FirstName);
             _sut.HttpContext.Session.GetString("ParentLastName").Should().Be(request.LastName);
-            _sut.HttpContext.Session.GetString("ParentDOB").Should().Be($"{request.Year.Value}-{request.Month.Value:D2}-{request.Day.Value:D2}");
+            _sut.HttpContext.Session.GetString("ParentDOB").Should().Be($"{request.Year}-{request.Month:D2}-{request.Day:D2}");
             _sut.HttpContext.Session.GetString("ParentEmail").Should().Be(request.EmailAddress);
 
             _checkServiceMock.Invocations.Should().HaveCount(1); // PostCheck should have been called on the mocked service once
@@ -319,8 +319,35 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var serviceMockRequest = _fixture.Create<ApplicationRequest>();
             var serviceMockResponse = _fixture.Create<Task<ApplicationSaveItemResponse>>();
+            //var serviceMockResponse = Task.FromResult(_fixture.Create<ApplicationSaveItemResponse>());
             var userCreateResponse = _fixture.Create<UserSaveItemResponse>();
             var request = _fixture.Create<FsmApplication>();
+            request.Children = new Children()
+            {
+                ChildList = new List<Child>()
+                {
+                    new Child()
+                    {
+                        FirstName = "Tomothy",
+                        LastName = "Smithothy",
+                        Day = "01",
+                        Month = "01",
+                        Year = "2018",
+                        School = _fixture.Create<School>()
+                    },
+                    new Child()
+                    {
+                        FirstName = "Tony",
+                        LastName = "Smith",
+                        Day = "01",
+                        Month = "02",
+                        Year = "2019",
+                        School = _fixture.Create<School>()
+
+                    }
+
+                }
+            };
             _parentServiceMock.Setup(x => x.CreateUser(It.IsAny<UserCreateRequest>()))
                 .ReturnsAsync(userCreateResponse);
             _parentServiceMock.Setup(x => x.PostApplication(It.IsAny<ApplicationRequest>()))
