@@ -39,14 +39,6 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             // Act
             Validator.TryValidateObject(_parent, _validationContext, _validationResults, true);
 
-            if (_validationResults.Count != numberOfErrors)
-            {
-                foreach (var validationResult in _validationResults)
-                {
-                    Console.WriteLine($"{validationResult.ErrorMessage}");
-                }
-            }
-
             // Assert
             numberOfErrors.Should().Be(_validationResults.Count);
         }
