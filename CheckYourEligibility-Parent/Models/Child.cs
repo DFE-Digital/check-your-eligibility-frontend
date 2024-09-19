@@ -7,11 +7,11 @@ namespace CheckYourEligibility_FrontEnd.Models
     public class Child
     { 
         [Name]
-        [Required(ErrorMessage = "First name is required")]
+        [Required(ErrorMessage = "Enter child's first name")]
         public string? FirstName { get; set; }
 
         [Name]
-        [Required(ErrorMessage = "Last name is required")]
+        [Required(ErrorMessage = "Enter child's last name")]
         public string? LastName { get; set; }
 
         [NotMapped]

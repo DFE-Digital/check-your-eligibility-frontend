@@ -19,11 +19,11 @@ namespace CheckYourEligibility_FrontEnd.Models
         public bool? IsNinoSelected { get; set; }
 
         [Name]
-        [Required(ErrorMessage = "First Name is required")]
+        [Required(ErrorMessage = "Enter a first name")]
         public string? FirstName { get; set; }
 
         [Name]
-        [Required(ErrorMessage = "Last Name is required")]
+        [Required(ErrorMessage = "Enter a last name")]
         public string? LastName { get; set; }
 
         [NotMapped]

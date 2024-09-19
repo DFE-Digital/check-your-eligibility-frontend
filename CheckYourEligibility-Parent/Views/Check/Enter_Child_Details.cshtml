@@ -105,14 +105,14 @@
 
                     <span asp-validation-for="ChildList[i].DateOfBirth" class="govuk-error-message"></span>
 
-                    <div class="govuk-date-input" id="dob">
+                    <div class="govuk-date-input" id="ChildList[@i].DateOfBirth">
 
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group" data-type="dob-input">
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].DateOfBirth" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Day">
+                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Day">
                             </div>
                         </div>
 

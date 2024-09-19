@@ -54,6 +54,14 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth" });
         }
 
+        var dob = new DateTime(yearInt, monthInt, dayInt);
+
+        // Check if the date is in the future
+        if (dob > DateTime.Now)
+        {
+            return new ValidationResult("Enter a date in the past", new[] { "DateOfBirth" });
+        }
+
         if (yearInt < 1900 || yearInt > DateTime.Now.Year)
         {
             return new ValidationResult("Enter a valid year", new[] { "DateOfBirth" });
@@ -66,13 +74,7 @@ public class DobAttribute : ValidationAttribute
         }
 
         // Construct the DateTime object
-        var dob = new DateTime(yearInt, monthInt, dayInt);
 
-        // Check if the date is in the future
-        if (dob > DateTime.Now)
-        {
-            return new ValidationResult("Date of birth cannot be in the future", new[] { "DateOfBirth" });
-        }
 
         // Additional validation for Child model (if applicable)
         if (model.GetType().Name == "Child")
