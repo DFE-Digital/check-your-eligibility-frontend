@@ -19,6 +19,10 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             var model = (Parent)validationContext.ObjectInstance;
+            if( model.IsNassSelected == null && model.IsNinoSelected == null  && value == null)
+            {
+                return new ValidationResult("Please select if you have a National Insurance number");
+            }
 
             if (model.IsNassSelected == true)
             {
