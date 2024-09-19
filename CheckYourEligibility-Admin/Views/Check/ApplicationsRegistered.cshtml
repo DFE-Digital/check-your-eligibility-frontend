@@ -47,7 +47,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">What to do next</h2>
-            <p>As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.</p>
+            <p> @TempData["Status"]</p>
             <p> Go to <a href="../checker/applications" class="govuk-link">@Html.ActionLink("Finalise applications", "FinaliseApplications","application")</a> and follow the instructions there. </p>
         </div>
     </div>
