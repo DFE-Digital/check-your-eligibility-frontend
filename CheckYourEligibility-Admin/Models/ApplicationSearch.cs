@@ -25,7 +25,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? Reference { get; set; }
 
         [NotMapped]
-        [Dob("ChildDobDay", "ChildDobMonth", "ChildDobYear", isRequired: false)]
+        [Dob("ChildDobDay", "ChildDobMonth", "ChildDobYear", isRequired: false, applyAgeRange: true)]
         public string? ChildDob { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
@@ -38,7 +38,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public int? ChildDobYear { get; set; }
 
         [NotMapped]
-        [Dob("PGDobDay", "PGDobMonth", "PGDobYear", isRequired: false)]
+        [Dob("PGDobDay", "PGDobMonth", "PGDobYear", isRequired: false, applyAgeRange: false)]
         public string? ParentDob { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]

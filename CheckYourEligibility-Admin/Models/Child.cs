@@ -15,7 +15,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? LastName { get; set; }
 
         [NotMapped]
-        [Dob("Day", "Month", "Year", isRequired: true)]
+        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: true)]
         public string? DateOfBirth { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]

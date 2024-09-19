@@ -29,7 +29,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? EmailAddress { get; set; }
 
         [NotMapped]
-        [Dob("Day", "Month", "Year", isRequired: true)]
+        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
         public string? DateOfBirth { get; set; }
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
