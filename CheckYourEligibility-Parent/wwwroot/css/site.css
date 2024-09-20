@@ -54,3 +54,12 @@
 }
 
 /*END - back button overrides */
+
+caption {
+    color: black;
+}
+
+table {
+    caption-side: top;
+    border-collapse: collapse;
+}
