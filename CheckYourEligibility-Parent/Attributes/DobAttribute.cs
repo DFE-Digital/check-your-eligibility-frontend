@@ -72,9 +72,9 @@ public class DobAttribute : ValidationAttribute
         {
             int age = CalculateAge(dob, DateTime.Now);
 
-            if (age < 4 || age > 17)
+            if (age < 4 || age > 19)
             {
-                return new ValidationResult("Enter an age between 4 and 17", new[] { "DateOfBirth" });
+                return new ValidationResult("Enter an age between 4 and 19", new[] { "DateOfBirth" });
             }
         }
 
