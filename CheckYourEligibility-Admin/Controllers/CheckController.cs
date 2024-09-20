@@ -82,7 +82,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd"),
+                        DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd"),
                     }
                 };
 
@@ -126,7 +126,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd")
+                        DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
                     }
                 };
 
@@ -365,7 +365,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
+                        ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
                         School = int.Parse(_Claims.Organisation.Urn),
                         UserId = user.Data
                     }

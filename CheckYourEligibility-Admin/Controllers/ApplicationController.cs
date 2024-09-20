@@ -87,14 +87,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
-                    ChildDateOfBirth = request.ChildDOBYear.HasValue ?
-                    new DateOnly(request.ChildDOBYear.Value, request.ChildDOBMonth.Value, request.ChildDOBDay.Value).ToString("yyyy-MM-dd")
-                    : null,
-                    ParentDateOfBirth = request.PGDOBYear.HasValue ?
-                    new DateOnly(request.PGDOBYear.Value, request.PGDOBMonth.Value, request.PGDOBDay.Value).ToString("yyyy-MM-dd")
-                   : null,
+                    ChildDateOfBirth = !string.IsNullOrWhiteSpace(request.ChildDobYear) ? new DateOnly(int.Parse(request.ChildDobYear), int.Parse(request.ChildDobMonth), int.Parse(request.ChildDobDay)).ToString("yyyy-MM-dd") : null,
+                    ParentDateOfBirth = !string.IsNullOrWhiteSpace(request.PGDobYear) ? new DateOnly(int.Parse(request.PGDobYear), int.Parse(request.PGDobMonth), int.Parse(request.PGDobDay)).ToString("yyyy-MM-dd") : null,
                 }
-            };
+            }; 
+
             if (request.Status != null)
             {
                 applicationSearch.Data.Statuses = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>() { request.Status.Value };

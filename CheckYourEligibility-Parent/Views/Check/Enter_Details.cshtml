@@ -45,9 +45,8 @@
         </div>
     </fieldset>
 
-    <div class="govuk-form-group" data-type="dob-form-group">
+    <div class="govuk-form-group">
         <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
-
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                 What is your date of birth?
             </legend>
@@ -56,46 +55,41 @@
                 For example, 31 3 1980
             </div>
 
-            <div class="govuk-date-input" id="dob">
+            <span asp-validation-for="DateOfBirth" class="govuk-error-message"></span>
 
+            <div class="govuk-date-input" id="DateOfBirth">
                 <div class="govuk-date-input__item">
-                    <div class="govuk-form-group" data-type="dob-input">
-                        <label class="govuk-label govuk-date-input__label" for="dob-day">
+                    <div class="govuk-form-group">
+                        <label class="govuk-label govuk-date-input__label" for="Day">
                             Day
                         </label>
-                        <p class="govuk-error-message">
-                            <span asp-validation-for="Day"></span>
-                        </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" type="text" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Day" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" id="Day" type="text" inputmode="numeric" maxlength="2" aria-label="Day" />
                     </div>
                 </div>
 
                 <div class="govuk-date-input__item">
-                    <div class="govuk-form-group" data-type="dob-input">
-                        <label class="govuk-label govuk-date-input__label" for="dob-month">
+                    <div class="govuk-form-group">
+                        <label class="govuk-label govuk-date-input__label" for="Month">
                             Month
                         </label>
-                        <p class="govuk-error-message">
-                            <span asp-validation-for="Month"></span>
-                        </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" type="text" inputmode="numeric" maxlength="2" data-type="dob" aria-label="Month" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" id="Month" type="text" inputmode="numeric" maxlength="2" aria-label="Month" />
                     </div>
                 </div>
 
                 <div class="govuk-date-input__item">
-                    <div class="govuk-form-group" data-type="dob-input">
-                        <label class="govuk-label govuk-date-input__label" for="dob-year">
+                    <div class="govuk-form-group">
+                        <label class="govuk-label govuk-date-input__label" for="Year">
                             Year
                         </label>
-                        <p class="govuk-error-message">
-                            <span asp-validation-for="Year"></span>
-                        </p>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" type="text" inputmode="numeric" maxlength="4" data-type="dob" aria-label="Year" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" id="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
                     </div>
                 </div>
             </div>
+
         </fieldset>
     </div>
+
+
 
     <div class="govuk-form-group">
         <fieldset class="govuk-fieldset" aria-describedby="ni-number-hint">

@@ -19,7 +19,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         }
 
         [TestCase(null, null, null, null, null)]
-        public void Given_NullRequiredFields_When_Validated_Should_ReturnRequiredFieldErrors(string? firstName, string? lastName, int? day, int? month, int? year)
+        public void Given_NullRequiredFields_When_Validated_Should_ReturnRequiredFieldErrors(string? firstName, string? lastName, string? day, string? month, string? year)
         {
             // Arrange
             _parent.FirstName = firstName;
@@ -32,12 +32,9 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             Validator.TryValidateObject(_parent, _validationContext, _validationResults);
 
             // Assert
-            _validationResults[0].ErrorMessage.Should().BeEquivalentTo("First Name is required");
-            _validationResults[1].ErrorMessage.Should().BeEquivalentTo("Last Name is required");
-            _validationResults[2].ErrorMessage.Should().BeEquivalentTo("Day is required");
-            _validationResults[3].ErrorMessage.Should().BeEquivalentTo("Month is required");
-            _validationResults[4].ErrorMessage.Should().BeEquivalentTo("Year is required");
-            _validationResults.Count().Should().Be(5);
+            _validationResults[0].ErrorMessage.Should().BeEquivalentTo("Enter a first name");
+            _validationResults[1].ErrorMessage.Should().BeEquivalentTo("Enter a last name");
+            _validationResults.Count().Should().Be(2);
         }
     }
 }

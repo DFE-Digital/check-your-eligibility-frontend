@@ -65,27 +65,26 @@
             </div>
 
             <div class="govuk-form-group" data-type="dob-form-group">
-                <fieldset class="govuk-fieldset" role="group">
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
 
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                        Date of birth
+                            Date of birth
                     </legend>
 
                     <div id="dob-hint" class="govuk-hint">
                         For example, 27 3 2007
                     </div>
 
-                    <div class="govuk-date-input" id="dob">
+                    <span asp-validation-for="ChildList[i].DateOfBirth" class="govuk-error-message"></span>
+
+                    <div class="govuk-date-input" id="ChildList[@i].DateOfBirth">
 
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group" data-type="dob-input">
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                <p class="govuk-error-message">
-                                    <span asp-validation-for="ChildList[i].Day"></span>
-                                </p>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric">
+                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Day">
                             </div>
                         </div>
 
@@ -94,10 +93,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-month">
                                     Month
                                 </label>
-                                <p class="govuk-error-message">
-                                    <span asp-validation-for="ChildList[i].Month"></span>
-                                </p>
-                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric">
+                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Month">
                             </div>
                         </div>
 
@@ -106,16 +102,12 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-year">
                                     Year
                                 </label>
-                                <p class="govuk-error-message">
-                                    <span asp-validation-for="ChildList[i].Year"></span>
-                                </p>
-                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4" type="text" inputmode="numeric">
+                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Year">
                             </div>
                         </div>
                     </div>
                 </fieldset>
             </div>
-        </fieldset>
         </div>
     }
 
