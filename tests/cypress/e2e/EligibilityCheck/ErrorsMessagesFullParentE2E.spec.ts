@@ -204,15 +204,11 @@ describe('After errors have been input initially a Parent with valid details can
         cy.contains('Submit application').click();
 
         cy.url().should('include', '/Check/Application_Sent');
-        cy.get('h1').should('contain.text', 'Children Details Added');
+        cy.get('h1').should('contain.text', 'Application complete');
 
-        cy.get('td')
-            .eq(1)
-            .should('contain.text', 'Timmy Smith');
+        cy.get('.govuk-table__header').should('contain.text', 'Timmy Smith');
         
-        cy.get('td')
-            .eq(2)
-            .should('contain.text', 'Hinde House 2-16 Academy');
+        cy.get('.govuk-table__cell').should('contain.text', 'Hinde House 2-16 Academy');
 
     });
 });
