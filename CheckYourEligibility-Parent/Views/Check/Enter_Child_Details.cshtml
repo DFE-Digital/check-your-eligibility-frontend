@@ -15,6 +15,22 @@
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
+<noscript>
+<div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" id="no-js-warning">
+  <div class="govuk-notification-banner__header">
+    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+      Important
+    </h2>
+  </div>
+  <div class="govuk-notification-banner__content">
+    <p class="govuk-notification-banner__heading">
+      You have JavaScript turned off. This will limit some search functionality.
+      <br />
+      If you can, turn JavaScript on by searching for ‘JavaScript’ in your web browser settings.
+    </p>
+  </div>
+</div>
+</noscript>
 
 <h1 class="govuk-heading-l" tabindex="-1">
     Provide details of your children
@@ -69,16 +85,11 @@
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" role="group" aria-describedby="school-picker-hint">
                     <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
-                        School
+                        School Unique Reference Number (URN)
                     </label>
 
                     <div id="school-picker-hint" class="govuk-hint" aria-label="Type to search">
-                        Type to search
-                        <noscript>
-                            <span class="govuk-error-message" aria-label="Your browser does not support JavaScript! please enter the URN in place of the school name">
-                                Your browser does not support JavaScript! please enter the URN in place of the school name.
-                            </span>
-                        </noscript>
+                        Enter the URN for the school
                     </div>
 
                     <p class="govuk-error-message">
@@ -90,6 +101,19 @@
                     <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
                     <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
                 </fieldset>
+                <noscript>
+                    <div govuk-body>
+                    <a href=https://www.get-information-schools.service.gov.uk/Search>Help with finding the URN</a>
+                    <p>You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
+                    <p>If you do not know the URN for your child’s school, you can: </p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name
+                            <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’
+                            <li>call your school and ask for the URN
+                            <li>ask your school to complete this application for you instead
+                        </ul>
+                    </div>
+                </noscript>
             </div>
 
         <div class="govuk-form-group" data-type="dob-form-group">
@@ -165,3 +189,19 @@
 <script src="/js/validationSummary.js"></script>
 <script src="/js/schoolSearch.js"></script>
 <script src="/js/focusChildNameInput.js"></script>
+<script type="text/javascript">
+   document.addEventListener('DOMContentLoaded', function() {
+    // Replace the label text
+    var label = document.querySelector('label[for="school-picker"]');
+    if (label) {
+        label.textContent = 'School';
+    }
+
+    // Replace the hint text
+    var hint = document.getElementById('school-picker-hint');
+    if (hint) {
+        hint.textContent = 'Type to search';
+    }
+});
+ 
+</script>
