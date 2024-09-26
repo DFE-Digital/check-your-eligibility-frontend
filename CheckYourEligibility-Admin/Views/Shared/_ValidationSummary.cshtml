@@ -5,6 +5,40 @@
     ? Context.Request.Form.Keys.ToList()
     : new List<string>();
 
+    List<string> desiredOrder;
+
+    if (Model.ContainsKey("FirstName"))
+    {
+        desiredOrder = new List<string>
+    {
+        "FirstName",
+        "LastName",
+        "EmailAddress",
+        "IsNassSelected",
+        "NationalAsylumSeekerServiceNumber",
+        "NationalInsuranceNumber",
+        "DateOfBirth",
+        "Day",
+        "Month",
+        "Year"
+    };
+    }
+    else
+    {
+        desiredOrder = new List<string>
+    {
+        "ChildList.FirstName",
+        "ChildList.LastName",
+        "ChildList.School.URN",
+        "ChildList.School.Name",
+        "ChildList.School.Postcode",
+        "ChildList.DateOfBirth",
+        "ChildList.Day",
+        "ChildList.Month",
+        "ChildList.Year"
+    };
+    }
+
     var flattenedErrors = Model
         .SelectMany(m => m.Value.Errors
             .Select(e =>
@@ -14,8 +48,19 @@
                     Error = e.ErrorMessage
                 }
         ))
-        .OrderBy(x => formFields.IndexOf(x.Field));
+        .OrderBy(x =>
+    {
+        var keyWithoutIndex = x.Field;
+        int startIndex = keyWithoutIndex.IndexOf('[');
+        int endIndex = keyWithoutIndex.IndexOf(']');
+        if (startIndex != -1 && endIndex != -1)
+        {
+            keyWithoutIndex = keyWithoutIndex.Substring(0, startIndex) + keyWithoutIndex.Substring(endIndex + 1);
+        }
+        return desiredOrder.IndexOf(keyWithoutIndex);
+    });
 }
+
 
 <div id="error-summary" class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
