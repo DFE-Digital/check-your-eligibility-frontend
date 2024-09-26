@@ -114,7 +114,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_Batch_Check_When_FileType_Invalid_Should_Return_BadRequestObjectResult()
+        public async Task Given_Batch_Check_When_FileType_Invalid_Should_Return_RedirectToActionResult()
         {
             // Arrange
             var content = "";
@@ -136,7 +136,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var result = await _sut.Batch_Check(file);
 
             // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
+            result.Should().BeOfType<RedirectToActionResult>();
         }
 
         [Test]

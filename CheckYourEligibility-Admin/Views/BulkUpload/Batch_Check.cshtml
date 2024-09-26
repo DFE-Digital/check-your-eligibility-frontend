@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Check Details";
     ViewData["ServiceName"] = "Check a family's eligibility";
+    var errorMessage = TempData["ErrorMessage"] as string;
 }
 
 <a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
@@ -28,8 +29,17 @@
             </ol>
             <h2 class="govuk-heading-m">Upload template </h2>
             <p>Please ensure you only upload a completed version of the batch check template, in csv format.  </p>
-            <div class="govuk-form-group">
-                <input class="govuk-file-upload" id="file-upload-1" name="fileUpload" type="file" accept=".csv">
+            <div class="govuk-form-group @(string.IsNullOrEmpty(errorMessage) ? "" : "govuk-form-group--error")">
+                <label class="govuk-label" for="file-upload-1">
+                    Upload a file
+                </label>
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p id="file-upload-1-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> @errorMessage
+                    </p>
+                }
+                <input class="govuk-file-upload @(string.IsNullOrEmpty(errorMessage) ? "" : "govuk-file-upload--error")" id="file-upload-1" name="fileUpload" type="file" accept=".csv" aria-describedby="file-upload-1-error">
             </div>
 
             <button class="govuk-button" data-module="govuk-button">

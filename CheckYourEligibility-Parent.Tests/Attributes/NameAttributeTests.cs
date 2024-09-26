@@ -7,8 +7,8 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
 {
     public class NameAttributeTests
     {
-        const string FirstNameFormatErrorMessage = "First Name field contains an invalid character";
-        const string LastNameFormatErrorMessage = "Last Name field contains an invalid character";
+        const string FirstNameFormatErrorMessage = "Enter a first name with valid characters";
+        const string LastNameFormatErrorMessage = "Enter a last name with valid characters";
 
         private TestableNameAttribute _nameAttribute { get; set; }
         private ValidationContext _validationContext { get; set; }

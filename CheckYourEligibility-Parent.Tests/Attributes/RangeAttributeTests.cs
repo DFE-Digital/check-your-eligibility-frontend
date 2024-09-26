@@ -24,12 +24,12 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             _validationResults = new List<ValidationResult>();
         }
 
-        [TestCase(01, 01, 2000, 0)]
-        [TestCase(00, 12, 2023, 2)]
-        [TestCase(32, 12, 1990, 2)]
-        [TestCase(50, 50, 1990, 3)]
-        [TestCase(32, 13, 9999, 4)]
-        public void Given_InvalidRangeValues_When_Validated_Should_ReturnExpectedNumberOfErrors(int? day, int? month, int? year, int numberOfErrors)
+        [TestCase("01", "01", "2000", 0)]
+        [TestCase("00", "12", "2023", 1)]
+        [TestCase("32", "12", "1990", 1)]
+        [TestCase("01", "50", "1990", 1)]
+        [TestCase("01", "08", "9999", 1)]
+        public void Given_InvalidRangeValues_When_Validated_Should_ReturnExpectedNumberOfErrors(string? day, string? month, string? year, int numberOfErrors)
         {
             // Arrange
             _parent.Day = day;

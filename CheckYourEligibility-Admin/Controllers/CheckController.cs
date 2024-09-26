@@ -82,7 +82,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd"),
+                        DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd"),
                     }
                 };
 
@@ -126,7 +126,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
-                        DateOfBirth = new DateOnly(request.Year.Value, request.Month.Value, request.Day.Value).ToString("yyyy-MM-dd")
+                        DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
                     }
                 };
 
@@ -193,6 +193,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
                 else
                 {
+                    TempData["Status"] = GetApplicationRegisteredText(status);                   
                     switch (status)
                     {
                         case CheckEligibilityStatus.eligible:
@@ -217,6 +218,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
         }
 
+        private string GetApplicationRegisteredText(CheckEligibilityStatus status)
+        { 
+            switch (status)
+            {
+                case CheckEligibilityStatus.eligible:
+                    return "As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.";
+                case CheckEligibilityStatus.notEligible:
+                    return "As these Children are not entitled to free school meals you'll need to add details of the appeal to your own system before finalising";
+                default:
+                    return "";
+            }    
+                }
 
 
         private string GetLaOutcomeText(CheckEligibilityStatus status)
@@ -352,7 +365,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(child.Year.Value, child.Month.Value, child.Day.Value).ToString("yyyy-MM-dd"),
+                        ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
                         School = int.Parse(_Claims.Organisation.Urn),
                         UserId = user.Data
                     }

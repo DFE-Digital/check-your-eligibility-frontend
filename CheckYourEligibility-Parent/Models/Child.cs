@@ -1,30 +1,28 @@
 ﻿using CheckYourEligibility_FrontEnd.Attributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CheckYourEligibility_FrontEnd.Models
 {
     public class Child
     { 
         [Name]
-        [Required(ErrorMessage = "First name is required")]
+        [Required(ErrorMessage = "Enter child's first name")]
         public string? FirstName { get; set; }
 
         [Name]
-        [Required(ErrorMessage = "Last name is required")]
+        [Required(ErrorMessage = "Enter child's last name")]
         public string? LastName { get; set; }
 
+        [NotMapped]
         [Dob]
-        [Required(ErrorMessage = "Day is required")]
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
-        public int? Day { get; set; }
+        public string? DateOfBirth { get; set; }
 
-        [Required(ErrorMessage = "Month is required")]
-        [Range(1, 12, ErrorMessage = "Invalid Month")]
-        public int? Month { get; set; }
+        public string? Day { get; set; }
 
-        [Year]
-        [Required(ErrorMessage = "Year is required")]
-        public int? Year { get; set; }
+        public string? Month { get; set; }
+
+        public string? Year { get; set; }
 
         public School School { get; set; }
     }

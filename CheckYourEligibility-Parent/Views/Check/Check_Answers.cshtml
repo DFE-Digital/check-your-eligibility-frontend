@@ -20,6 +20,12 @@
 
 <h1 class="govuk-heading-l">Check your answers before registering</h1>
 
+<noscript>
+<div class="govuk-body">
+    ! The school matches the URN you entered, but check this is your child's school
+</div>
+</noscript>
+
 <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
         <h2 class="govuk-summary-card__title">
@@ -90,6 +96,8 @@
 <!-- iterate child list and display data -->
 @for (var i = 0; i < Model.Children.ChildList.Count; i++)
 {
+    var child = Model.Children.ChildList[i];
+    string formattedChildDob = $"{child.Day.PadLeft(2, '0')}/{child.Month.PadLeft(2, '0')}/{child.Year}";
     <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
             <h2 class="govuk-summary-card__title">
@@ -131,7 +139,7 @@
                         Child's date of birth
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        @(new DateOnly((int)Model.Children.ChildList[i].Year, (int)Model.Children.ChildList[i].Month, (int)Model.Children.ChildList[i].Day).ToString("dd/MM/yyyy"))
+                        @formattedChildDob
                     </dd>
                 </div>
             </dl>

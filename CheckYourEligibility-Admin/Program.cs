@@ -1,6 +1,4 @@
-Admin
-
-using CheckYourEligibility_FrontEnd;
+using CheckYourEligibility_AdminFrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
 using System.Text;

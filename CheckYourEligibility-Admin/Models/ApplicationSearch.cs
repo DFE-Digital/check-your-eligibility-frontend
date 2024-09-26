@@ -1,6 +1,7 @@
 ﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility_FrontEnd.Attributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CheckYourEligibility_FrontEnd.Models
 {
@@ -23,23 +24,31 @@ namespace CheckYourEligibility_FrontEnd.Models
         [ReferenceNumber]
         public string? Reference { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
-        public int? ChildDOBDay { get; set; }
+        [NotMapped]
+        [Dob("ChildDobDay", "ChildDobMonth", "ChildDobYear", isRequired: false, applyAgeRange: true)]
+        public string? ChildDob { get; set; }
 
-        [Range(1, 12, ErrorMessage = "Invalid Month")]
-        public int? ChildDOBMonth { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
+        public string? ChildDobDay { get; set; }
 
-        [Year]
-        public int? ChildDOBYear { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
+        public string? ChildDobMonth { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Day")]
-        public int? PGDOBDay { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
+        public string? ChildDobYear { get; set; }
 
-        [Range(1, 31, ErrorMessage = "Invalid Month")]
-        public int? PGDOBMonth { get; set; }
+        [NotMapped]
+        [Dob("PGDobDay", "PGDobMonth", "PGDobYear", isRequired: false, applyAgeRange: false)]
+        public string? ParentDob { get; set; }
 
-        [Year]
-        public int? PGDOBYear { get; set; }
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
+        public string? PGDobDay { get; set; }
+
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
+        public string? PGDobMonth { get; set; }
+
+        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
+        public string? PGDobYear { get; set; }
         
 
     }

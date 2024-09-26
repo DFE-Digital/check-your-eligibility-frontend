@@ -132,9 +132,9 @@ describe('Admin journey search for application', () => {
     it('Will allow School users to search for an application with a selected Child DOB', () => {
 
         cy.contains('Search all records').click();
-        cy.get('#Child-DOB-Day').type('01');
-        cy.get('#Child-DOB-Month').type('01');
-        cy.get('#Child-DOB-Year').type('2007');
+        cy.get('#ChildDobDay').type('01');
+        cy.get('#ChildDobMonth').type('01');
+        cy.get('#ChildDobYear').type('2007');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
 
@@ -149,9 +149,9 @@ describe('Admin journey search for application', () => {
     it('Will allow School users to search for an application with a selected Parent of Guardian DOB', () => {
 
         cy.contains('Search all records').click();
-        cy.get('#PG-DOB-Day').type('01');
-        cy.get('#PG-DOB-Month').type('01');
-        cy.get('#PG-DOB-Year').type('1990');
+        cy.get('#PGDobDay').type('01');
+        cy.get('#PGDobMonth').type('01');
+        cy.get('#PGDobYear').type('1990');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
     });

@@ -77,9 +77,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 {
                     FirstName = "Homer",
                     LastName = "Simpson",
-                    Day = 1,
-                    Month = 1,
-                    Year = 1990,
+                    Day = "1",
+                    Month = "1",
+                    Year = "1990",
                     NationalInsuranceNumber = "AB123456C",
                     NationalAsylumSeekerServiceNumber = null,
                     IsNinoSelected = true,
@@ -93,27 +93,27 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         {
                             FirstName = "Bart",
                             LastName = "Simpson",
-                            Day = 1,
-                            Month = 1,
-                            Year = 2015,
+                            Day = "1",
+                            Month = "1",
+                            Year = "2015",
                             School = _schools[0]
                         },
                         new Child()
                         {
                             FirstName = "Lisa",
                             LastName = "Simpson",
-                            Day = 1,
-                            Month = 1,
-                            Year = 2018,
+                            Day = "1",
+                            Month = "1",
+                            Year = "2018",
                             School = _schools[0]
                         },
                         new Child()
                         {
                             FirstName = "Maggie",
                             LastName = "Simpson",
-                            Day = 1,
-                            Month = 1,
-                            Year = 2020,
+                            Day = "1",
+                            Month = "1",
+                            Year = "2020",
                             School = _schools[1]
                         }
                     ]
@@ -180,11 +180,12 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
                         ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
                         ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
-                        ChildDateOfBirth = new DateOnly(_fsmApplication.Children.ChildList[0].Year.Value, 
-                        _fsmApplication.Children.ChildList[0].Month.Value, _fsmApplication.Children.ChildList[0].Day.Value).ToString("dd/MM/yyyy"),
+                        ChildDateOfBirth = new DateOnly(int.Parse(_fsmApplication.Children.ChildList[0].Year),
+                        int.Parse(_fsmApplication.Children.ChildList[0].Month),
+                        int.Parse(_fsmApplication.Children.ChildList[0].Day)).ToString("dd/MM/yyyy"),
                         ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
                         Id = "",
-                        School = new ApplicationResponse.ApplicationSchool {Id = 10002,LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123} },
+                        School = new ApplicationResponse.ApplicationSchool { Id = 10002, LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123 } },
                         Reference = "",
                     },
                     Links = new ApplicationResponseLinks()
@@ -654,9 +655,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             {
                 FirstName = "Test",
                 LastName = "Test",
-                Day = 1,
-                Month = 1,
-                Year = 1990,
+                Day = "1",
+                Month = "1",
+                Year = "2010",
                 School = _schools[0]
             }).ToList();
 

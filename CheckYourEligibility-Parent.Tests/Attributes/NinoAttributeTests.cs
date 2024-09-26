@@ -18,6 +18,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
         public void Setup()
         {
             _parent = new Parent();
+            _parent.IsNinoSelected = true;
             _ninoAttribute = new TestableNinoAttribute();
             _validationContext = new ValidationContext(_parent);
         }
