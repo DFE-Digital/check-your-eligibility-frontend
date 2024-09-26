@@ -5,10 +5,27 @@ using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using System.Text;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationInsightsTelemetry();
+// ------------------------
+// 1. Configure Services
+// ------------------------
+
+// Application Insights Telemetry
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    // Disable adaptive sampling to capture all telemetry
+    options.EnableAdaptiveSampling = false;
+});
+
+// Add Application Insights as a Logging Provider
+builder.Logging.AddApplicationInsights();
+
+// Add Session
 builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true;
@@ -16,7 +33,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
 
-if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
+if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME") != null)
 {
     var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
     var kvUri = $"https://{keyVaultName}.vault.azure.net";
@@ -27,18 +44,19 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
 
+// Configure OneLogin Authentication
 builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.AuthenticationScheme)
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddOneLogin(options =>
     {
-        //specify the authentication scheme to persist user information with
+        // Specify the authentication scheme to persist user information with
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
-        //configue the endpoints for the One Login environment you're targeting
-        options.MetadataAddress = builder.Configuration["OneLogin:Host"]+"/.well-known/openid-configuration";
-        options.ClientAssertionJwtAudience = builder.Configuration["OneLogin:Host"]+"/token";
+        // Configure the endpoints for the One Login environment you're targeting
+        options.MetadataAddress = builder.Configuration["OneLogin:Host"] + "/.well-known/openid-configuration";
+        options.ClientAssertionJwtAudience = builder.Configuration["OneLogin:Host"] + "/token";
 
-        //configure client information
+        // Configure client information
         // CallbackPath and SignedOutCallbackPath must align with the redirect_uris and post_logout_redirect_uris configured in One Login.
 
         options.ClientId = builder.Configuration["OneLogin:ClientId"];
@@ -66,27 +84,68 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
     });
 
-//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-//builder.Services.AddProblemDetails();
+// Register IHttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
+// Add Controllers with Views
+builder.Services.AddControllersWithViews();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ------------------------
+// 2. Configure Middleware Pipeline
+// ------------------------
+
+// 2.1. Exception Handling
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
 
+// 2.2. HTTPS Redirection and Static Files
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseSession();
+
+// 2.3. Routing
 app.UseRouting();
-app.UseMiddleware<ResponseBodyLoggingMiddleware>();
+
+// 2.4. Session Middleware
+app.UseSession();
+
+// 2.5. Authentication & Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
+// 2.6. Set AuthenticatedUserId for Application Insights
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity.IsAuthenticated)
+    {
+        var userId = context.User.Identity.Name;
+
+        // Optional: Hash or anonymize the userId for privacy compliance
+        // For example:
+        // userId = HashUserId(userId);
+
+        var requestTelemetry = context.Features.Get<RequestTelemetry>();
+        if (requestTelemetry != null)
+        {
+            requestTelemetry.Context.User.AuthenticatedUserId = userId;
+        }
+    }
+
+    await next.Invoke();
+});
+
+// 2.7. Map Controller Routes
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// 2.8. Run the App
 app.Run();
