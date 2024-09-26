@@ -9,19 +9,10 @@
 
     if (Model.ContainsKey("FirstName"))
     {
-        desiredOrder = new List<string>
-    {
-        "FirstName",
-        "LastName",
-        "EmailAddress",
-        "IsNassSelected",
-        "NationalAsylumSeekerServiceNumber",
-        "NationalInsuranceNumber",
-        "DateOfBirth",
-        "Day",
-        "Month",
-        "Year"
-    };
+        var modelType = typeof(CheckYourEligibility_FrontEnd.Models.ParentGuardian);
+        desiredOrder = modelType.GetProperties()
+                                .Select(p => p.Name)
+                                .ToList();
     }
     else
     {
