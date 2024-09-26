@@ -161,8 +161,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-
-        public async Task<IActionResult> Poll_Status()
+        public async Task<IActionResult> Poll_Status(bool jsDisabled)
         {
             // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
@@ -195,13 +194,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return PartialView("Outcome/Eligible", url);
-                case "notEligible":
-                    return PartialView("Outcome/Not_Eligible");
+                    //return PartialView("Outcome/Eligible", url);
+                    return PartialView(jsDisabled ? "OutcomeNoJS/Eligible" : "Outcome/Eligible", url);
                 case "parentNotFound":
-                    return PartialView("Outcome/Not_Found");
+                    return PartialView(jsDisabled ? "OutcomeNoJS/Not_Found" : "Outcome/Not_Found");
                 case "DwpError":
-                    return PartialView("Outcome/Technical_Error");
+                    return PartialView(jsDisabled ? "OutcomeNoJS/Technical_Error" : "Outcome/Technical_Error");
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
                     TempData["Response"] = JsonConvert.SerializeObject(response);
