@@ -2,30 +2,11 @@ using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
 using System.Text;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Identity.Web;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------
-// 1. Configure Services
-// ------------------------
-
-// Application Insights Telemetry
-builder.Services.AddApplicationInsightsTelemetry(options =>
-{
-    // Disable adaptive sampling to capture all telemetry
-    options.EnableAdaptiveSampling = false;
-});
-
-// Add Application Insights as a Logging Provider
-builder.Logging.AddApplicationInsights();
-
-// Configure Azure Key Vault if environment variable is set
-if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME") != null)
+builder.Services.AddApplicationInsightsTelemetry();
+if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 {
     var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
     var kvUri = $"https://{keyVaultName}.vault.azure.net";
@@ -37,73 +18,69 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME") != null)
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddSession();
 
-// Configure DfE Sign-In Authentication
 var dfeSignInConfiguration = new DfeSignInConfiguration();
 builder.Configuration.GetSection("DfeSignIn").Bind(dfeSignInConfiguration);
 builder.Services.AddDfeSignInAuthentication(dfeSignInConfiguration);
 
-// Register IHttpContextAccessor
-builder.Services.AddHttpContextAccessor();
+//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+//builder.Services.AddProblemDetails();
 
-// Add Controllers with Views
-builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ------------------------
-// 2. Configure Middleware Pipeline
-// ------------------------
-
-// 2.1. Exception Handling
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-else
-{
-    app.UseDeveloperExceptionPage();
-}
 
-// 2.2. HTTPS Redirection
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// 2.3. Routing
 app.UseRouting();
-
-// 2.4. Authentication & Authorization
-app.UseAuthentication();
 app.UseAuthorization();
-
-// 2.5. Set AuthenticatedUserId for Application Insights
-app.Use(async (context, next) =>
-{
-    if (context.User.Identity.IsAuthenticated)
-    {
-        var userId = context.User.Identity.Name;
-
-        // Optional: Hash or anonymize the userId for privacy compliance
-        // For example:
-        // userId = HashUserId(userId);
-
-        var requestTelemetry = context.Features.Get<RequestTelemetry>();
-        if (requestTelemetry != null)
-        {
-            requestTelemetry.Context.User.AuthenticatedUserId = userId;
-        }
-    }
-
-    await next.Invoke();
-});
-
-// 2.6. Session Middleware
 app.UseSession();
-
-// 2.7. Map Controller Routes
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// 2.8. Run the App
+app.Use(async (httpContext, next) =>
+{
+    try
+    {
+        httpContext.Request.EnableBuffering();
+        string requestBody = await new StreamReader(httpContext.Request.Body, Encoding.UTF8).ReadToEndAsync();
+        httpContext.Request.Body.Position = 0;
+        app.Logger.LogInformation($"Request body: {requestBody}");
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogInformation($"Exception reading request: {ex.Message}");
+    }
+
+    Stream originalBody = httpContext.Response.Body;
+    try
+    {
+        using var memStream = new MemoryStream();
+        httpContext.Response.Body = memStream;
+
+        // call to the following middleware 
+        // response should be produced by one of the following middlewares
+        await next(httpContext);
+
+        memStream.Position = 0;
+        string responseBody = new StreamReader(memStream).ReadToEnd();
+
+        memStream.Position = 0;
+        await memStream.CopyToAsync(originalBody);
+        app.Logger.LogInformation($"Response body: {responseBody}");
+    }
+    finally
+    {
+        httpContext.Response.Body = originalBody;
+    }
+});
+
 app.Run();
