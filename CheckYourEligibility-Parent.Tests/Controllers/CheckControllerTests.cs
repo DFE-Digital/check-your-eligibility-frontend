@@ -486,20 +486,24 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Result.Should().BeOfType<JsonResult>();
         }
 
-        [TestCase("eligible", "Outcome/Eligible", typeof(PartialViewResult))]
-        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(PartialViewResult))]
-        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(PartialViewResult))]
-        [TestCase("DwpError", "Outcome/Technical_Error", typeof(PartialViewResult))]
-        [TestCase("queuedForProcessing", "Outcome/Technical_Error", typeof(JsonResult))]
-        [TestCase("notARealStatus", "Outcome/Technical_Error", typeof(JsonResult))]
-        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expectedView, Type expectedType)
+        [TestCase("eligible", "Outcome/Eligible", typeof(PartialViewResult), false)]
+        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(PartialViewResult), false)]
+        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(PartialViewResult), false)]
+        [TestCase("DwpError", "Outcome/Technical_Error", typeof(PartialViewResult), false)]
+        [TestCase("eligible", "Outcome/Eligible", typeof(ViewResult), true)]
+        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(ViewResult), true)]
+        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(ViewResult), true)]
+        [TestCase("DwpError", "Outcome/Technical_Error", typeof(ViewResult), true)]
+        [TestCase("queuedForProcessing", "Outcome/StillProcessing", typeof(ViewResult), true)]
+        [TestCase("notARealStatus", "Outcome/Technical_Error", typeof(ViewResult), true)]
+        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expectedView, Type expectedType, bool jsDisabled)
         {
             // Arrange
             _eligibilityStatusResponse.Data.Status = status;
             _sut.TempData["Response"] = JsonConvert.SerializeObject(_eligibilityResponse);
 
             // Act
-            var result = await _sut.Poll_Status();
+            var result = await _sut.Poll_Status(jsDisabled);
 
             // Assert
             result.Should().BeOfType(expectedType); // Use the type dynamically
@@ -522,9 +526,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 jsonResult.Should().NotBeNull();
             }
         }
-
-
-
 
         [Test]
         public async Task Given_AddChild_When_AddingNewChild_Should_AddNewChildToEnterChildDetailsPageModel()
