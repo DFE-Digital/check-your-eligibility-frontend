@@ -5,27 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CheckYourEligibility_FrontEnd.Models
 {
     public class Parent
-    {
-        [Nino]
-        [MaxLength(13)]
-        public string? NationalInsuranceNumber { get; set; }
-
-        [Nass]
-        [MaxLength(10)]
-        public string? NationalAsylumSeekerServiceNumber { get; set; }
-
-        public bool? IsNassSelected { get; set; }
-
-        public bool? IsNinoSelected { get; set; }
-
+    {   
         [Name]
         [Required(ErrorMessage = "Enter a first name")]
         public string? FirstName { get; set; }
-
+        
         [Name]
         [Required(ErrorMessage = "Enter a last name")]
         public string? LastName { get; set; }
-
 
         [NotMapped]
         [Dob]
@@ -39,6 +26,18 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Year using numbers only")]
         public string? Year { get; set; }
+
+        [Nino]
+        [MaxLength(13)]
+        public string? NationalInsuranceNumber { get; set; }
+
+        [Nass]
+        [MaxLength(10)]
+        public string? NationalAsylumSeekerServiceNumber { get; set; }
+
+        public bool? IsNassSelected { get; set; }
+
+        public bool? IsNinoSelected { get; set; }
 
         public bool NASSRedirect { get; set; }
 

@@ -1,9 +1,21 @@
 ﻿@model Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary
 
 @{
-    var formFields = Context.Request.HasFormContentType && Context.Request.Form != null
-    ? Context.Request.Form.Keys.ToList()
-    : new List<string>();
+    List<string> propertyOrder;
+
+    if (Model.ContainsKey("FirstName"))
+    {
+        propertyOrder = typeof(ParentGuardian).GetProperties().Select(p => p.Name).ToList();
+    }
+    else if (Model.ContainsKey("Reference"))
+    {
+        propertyOrder = typeof(ApplicationSearch).GetProperties().Select(p => p.Name).ToList();
+    }
+    else
+    {
+        propertyOrder = typeof(Child).GetProperties().Select(p => p.Name).ToList();
+    }
+    
 
     var flattenedErrors = Model
         .SelectMany(m => m.Value.Errors
@@ -14,8 +26,17 @@
                     Error = e.ErrorMessage
                 }
         ))
-        .OrderBy(x => formFields.IndexOf(x.Field));
+        .OrderBy(x =>
+        {
+            var extractedPropertyName = x.Field.Contains("ChildList")
+            ? x.Field.Substring(x.Field.LastIndexOf('.') + 1)
+            : x.Field;
+
+            return propertyOrder.IndexOf(extractedPropertyName);
+        })
+        .ToList();
 }
+
 
 <div id="error-summary" class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
