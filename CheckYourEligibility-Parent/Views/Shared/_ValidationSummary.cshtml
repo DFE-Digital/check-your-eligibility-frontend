@@ -1,34 +1,23 @@
 ﻿@model Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary
 
 @{
-    var formFields = Context.Request.HasFormContentType && Context.Request.Form != null
-    ? Context.Request.Form.Keys.ToList()
-    : new List<string>();
-
-    List<string> desiredOrder;
+    List<string> propertyOrder;
 
     if (Model.ContainsKey("FirstName"))
     {
-        var modelType = typeof(CheckYourEligibility_FrontEnd.Models.Parent);
-        desiredOrder = modelType.GetProperties()
-                                .Select(p => p.Name)
-                                .ToList();
+        propertyOrder = typeof(Parent).GetProperties().Select(p => p.Name).ToList();
     }
     else
     {
-        desiredOrder = new List<string>
-    {
-        "ChildList.FirstName",
-        "ChildList.LastName",
-        "ChildList.School.URN",
-        "ChildList.School.Name",
-        "ChildList.School.Postcode",
-        "ChildList.DateOfBirth",
-        "ChildList.Day",
-        "ChildList.Month",
-        "ChildList.Year"
-    };
+        propertyOrder = typeof(Child).GetProperties().Select(p => p.Name).ToList();
+        var schoolProperties = typeof(School).GetProperties().Select(p => p.Name).ToList();
+
+        int schoolIndex = propertyOrder.IndexOf("School");
+        propertyOrder.RemoveAt(schoolIndex);
+        propertyOrder.InsertRange(schoolIndex, schoolProperties);
+
     }
+
 
     var flattenedErrors = Model
         .SelectMany(m => m.Value.Errors
@@ -40,16 +29,14 @@
                 }
         ))
         .OrderBy(x =>
-    {
-        var keyWithoutIndex = x.Field;
-        int startIndex = keyWithoutIndex.IndexOf('[');
-        int endIndex = keyWithoutIndex.IndexOf(']');
-        if (startIndex != -1 && endIndex != -1)
         {
-            keyWithoutIndex = keyWithoutIndex.Substring(0, startIndex) + keyWithoutIndex.Substring(endIndex + 1);
-        }
-        return desiredOrder.IndexOf(keyWithoutIndex);
-    });
+            var extractedPropertyName = x.Field.Contains("ChildList")
+            ? x.Field.Substring(x.Field.LastIndexOf('.') + 1)
+            : x.Field;
+
+            return propertyOrder.IndexOf(extractedPropertyName);
+        })
+        .ToList();
 }
 
 <div id="error-summary" class="govuk-error-summary" data-module="govuk-error-summary">
