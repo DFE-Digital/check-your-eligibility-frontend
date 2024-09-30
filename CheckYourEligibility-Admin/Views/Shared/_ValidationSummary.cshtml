@@ -1,9 +1,10 @@
-﻿@model Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary
 
 @{
-    var formFields = Context.Request.HasFormContentType && Context.Request.Form != null
-    ? Context.Request.Form.Keys.ToList()
-    : new List<string>();
+
+
+    var parentModelProperties = typeof(ParentGuardian).GetProperties().Select(p => p.Name).ToList();
 
     var flattenedErrors = Model
         .SelectMany(m => m.Value.Errors
@@ -14,7 +15,7 @@
                     Error = e.ErrorMessage
                 }
         ))
-        .OrderBy(x => formFields.IndexOf(x.Field));
+    .OrderBy(x => parentModelProperties.IndexOf(x.Field));
 }
 
 <div id="error-summary" class="govuk-error-summary" data-module="govuk-error-summary">
