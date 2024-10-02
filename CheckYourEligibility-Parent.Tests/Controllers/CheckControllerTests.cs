@@ -382,7 +382,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             actionResult.ActionName.Should().Be("Nass");
         }
 
-       
+
         [Test]
         public async Task Given_Loader_When_LoadingPage_Should_LoadLoaderPage()
         {
@@ -490,23 +490,37 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [TestCase("notEligible", "Outcome/Not_Eligible", typeof(PartialViewResult), false)]
         [TestCase("parentNotFound", "Outcome/Not_Found", typeof(PartialViewResult), false)]
         [TestCase("DwpError", "Outcome/Technical_Error", typeof(PartialViewResult), false)]
-        [TestCase("eligible", "Outcome/Eligible", typeof(ViewResult), true)]
-        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(ViewResult), true)]
-        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(ViewResult), true)]
-        [TestCase("DwpError", "Outcome/Technical_Error", typeof(ViewResult), true)]
-        [TestCase("queuedForProcessing", "Outcome/StillProcessing", typeof(ViewResult), true)]
-        [TestCase("notARealStatus", "Outcome/Technical_Error", typeof(ViewResult), true)]
-        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(string status, string expectedView, Type expectedType, bool jsDisabled)
+        [TestCase("eligible", "OutcomeNoJS/Eligible", typeof(ViewResult), true)]
+        [TestCase("notEligible", "OutcomeNoJS/Not_Eligible", typeof(ViewResult), true)]
+        [TestCase("parentNotFound", "OutcomeNoJS/Not_Found", typeof(ViewResult), true)]
+        [TestCase("DwpError", "OutcomeNoJS/Technical_Error", typeof(ViewResult), true)]
+        [TestCase("queuedForProcessing", "Loader", typeof(RedirectToActionResult), true)]
+        [TestCase("notARealStatus", "OutcomeNoJS/Technical_Error", typeof(ViewResult), true)]
+        public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(
+    string status, string expectedView, Type expectedType, bool jsDisabled)
         {
             // Arrange
-            _eligibilityStatusResponse.Data.Status = status;
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(_eligibilityResponse);
+            var checkEligibilityResponse = new CheckEligibilityResponse
+            {
+                Data = new StatusValue { Status = status }
+            };
+
+            _sut.TempData["Response"] = JsonConvert.SerializeObject(checkEligibilityResponse);
+
+            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
+            {
+                Data = new StatusValue { Status = status }
+            };
+
+            _checkServiceMock
+                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(checkEligibilityStatusResponse);
 
             // Act
             var result = await _sut.Poll_Status(jsDisabled);
 
             // Assert
-            result.Should().BeOfType(expectedType); // Use the type dynamically
+            result.Should().BeOfType(expectedType);
 
             if (expectedType == typeof(ViewResult))
             {
@@ -520,12 +534,26 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 partialViewResult.Should().NotBeNull();
                 partialViewResult.ViewName.Should().Be(expectedView);
             }
+            else if (expectedType == typeof(RedirectToActionResult))
+            {
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.Should().NotBeNull();
+                redirectResult.ActionName.Should().Be(expectedView);
+            }
             else if (expectedType == typeof(JsonResult))
             {
                 var jsonResult = result as JsonResult;
                 jsonResult.Should().NotBeNull();
             }
+            else
+            {
+                Assert.Fail("Unexpected result type");
+            }
         }
+
+
+
+
 
         [Test]
         public async Task Given_AddChild_When_AddingNewChild_Should_AddNewChildToEnterChildDetailsPageModel()
@@ -694,7 +722,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             try
             {
-                _sut = new CheckController(null, _parentServiceMock.Object, _checkServiceMock.Object,_configMock.Object);
+                _sut = new CheckController(null, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object);
             }
             catch (ArgumentNullException ex)
             {
@@ -739,7 +767,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             // Assert
             _sut.ModelState.IsValid.Should().BeFalse();
-            
+
             var viewResult = result.Result as RedirectToActionResult;
             viewResult.ActionName = "Enter_Details";
         }

@@ -194,19 +194,45 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             switch (check.Data.Status)
             {
                 case "eligible":
-                    //return PartialView("Outcome/Eligible", url);
-                    return PartialView(jsDisabled ? "OutcomeNoJS/Eligible" : "Outcome/Eligible", url);
+                    return jsDisabled
+                        ? View("OutcomeNoJS/Eligible", url)
+                        : PartialView("Outcome/Eligible", url);
+
+                case "notEligible":
+                    return jsDisabled
+                        ? View("OutcomeNoJS/Not_Eligible")
+                        : PartialView("Outcome/Not_Eligible");
+
                 case "parentNotFound":
-                    return PartialView(jsDisabled ? "OutcomeNoJS/Not_Found" : "Outcome/Not_Found");
+                    return jsDisabled
+                        ? View("OutcomeNoJS/Not_Found")
+                        : PartialView("Outcome/Not_Found");
+
                 case "DwpError":
-                    return PartialView(jsDisabled ? "OutcomeNoJS/Technical_Error" : "Outcome/Technical_Error");
+                    return jsDisabled
+                        ? View("OutcomeNoJS/Technical_Error")
+                        : PartialView("Outcome/Technical_Error");
+
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
                     TempData["Response"] = JsonConvert.SerializeObject(response);
-                    return Json(new { status = "processing" }); // Return JSON to keep polling
+                    if (jsDisabled)
+                    {
+                        // Redirect back to Loader to continue polling via page refresh
+                        return RedirectToAction("Loader");
+                    }
+                    else
+                    {
+                        // Return JSON to keep polling via AJAX
+                        return Json(new { status = "processing" });
+                    }
+
                 default:
                     _logger.LogError("Unexpected status received.");
-                    return Json(new { status = "error", message = "Unexpected status" });
+                    if (jsDisabled)
+                        return View("OutcomeNoJS/Technical_Error");
+                    else
+                        return Json(new { status = "error", message = "Unexpected status" });
             }
 
         }
