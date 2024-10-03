@@ -74,11 +74,12 @@ namespace CheckYourEligibility_FrontEnd.Services
             else
             {
                 var method = "POST";
-                await LogApiError(task, method, uri, json);
+                
                 if (task.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     throw new UnauthorizedAccessException();
                 }
+                await LogApiError(task, method, uri, json);
             }
 
             return result;
@@ -201,7 +202,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         protected virtual async Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri, string data)
         {
             var guid = Guid.NewGuid().ToString();
-            if (task.Content != null)
+            if (task?.Content != null)
             {
                 var jsonString = await task.Content.ReadAsStringAsync();
                 _telemetry.TrackEvent($"API {method} failure",
