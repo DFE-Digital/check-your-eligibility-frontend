@@ -205,7 +205,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             if (task?.Content != null)
             {
                 var jsonString = await task.Content.ReadAsStringAsync();
-                _telemetry.TrackEvent($"API {method} failure",
+                _telemetry.TrackEvent($"Ui_Calling_API {method} failure",
                     new Dictionary<string, string>
                     {
                     {"LogId", guid},
@@ -217,10 +217,10 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             else
             {
-                _telemetry.TrackEvent($"API Failure:-{method}",
+                _telemetry.TrackEvent($"Ui_Calling_API Failure:-{method}",
                     new Dictionary<string, string> { { "LogId", guid }, { "Address", uri } });
             }
-            throw new Exception($"API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
+            throw new Exception($"Ui_Calling_API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
         }
 
         [ExcludeFromCodeCoverage(Justification = "Covered by the LogApiError methods marked as internal which are visible to the Tests project")]
@@ -230,7 +230,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             if (task.Content != null)
             {
                 var jsonString = await task.Content.ReadAsStringAsync();
-                _telemetry.TrackEvent($"API {method} failure",
+                _telemetry.TrackEvent($"Ui_Calling_API {method} failure",
                     new Dictionary<string, string>
                     {
                     {"LogId", guid},
@@ -241,10 +241,10 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             else
             {
-                _telemetry.TrackEvent($"API {method} failure",
+                _telemetry.TrackEvent($"Ui_Calling_API {method} failure",
                     new Dictionary<string, string> { { "LogId", guid }, { "Address", uri } });
             }
-            throw new Exception($"API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
+            throw new Exception($"Ui_Calling_API Failure:-{method} , your issue has been logged please use the following reference:- {guid}");
         }
     }
 }
