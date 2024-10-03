@@ -4,7 +4,6 @@
 @{
     Layout = "~/Views/Shared/_LayoutNoBackButton.cshtml";
     ViewData["Title"] = "Application Sent";
-    ViewData["ServiceName"] = "Check a family's eligibility";
 
     var responseJson = TempData["FsmApplicationResponses"] as string;
     var responses = JsonConvert.DeserializeObject<List<CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse>>(responseJson);
@@ -68,7 +67,7 @@
     <a href="#">What did you think about this service?</a> (takes 30 seconds)
 </p>
 
-<a href="../account/start-now" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+<a href="@Url.Action("Index", "Home")" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
     Finish and leave service
 </a>
 

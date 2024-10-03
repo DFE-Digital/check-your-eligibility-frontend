@@ -3,7 +3,6 @@
 
 @{
     ViewData["Title"] = "Check Answers";
-    ViewData["ServiceName"] = "Check a family's eligibility";
 
     DateTime parentDOB = DateTime.ParseExact(Model.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture);
     string formattedParentDOB = parentDOB.ToString("dd/MM/yyyy");

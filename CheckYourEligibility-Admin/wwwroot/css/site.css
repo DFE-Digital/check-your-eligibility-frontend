@@ -70,22 +70,24 @@
 /*END - back button overrides */
 
 
-/*BEGIN - Sign out link syling */
+/*BEGIN - Header account links */
 
-a.signOut:link, a.signOut:visited, a.signOut:hover, a.signOut:active {
+#content-header .dfe-header__action-links a,
+#content-header .dfe-header__action-links a:visited,
+#content-header .dfe-header__action-links a:active {
     color: white;
     text-decoration: none;
 }
 
-a.signOut:hover {
-    text-decoration: underline;
-}
+    #content-header .dfe-header__action-links a:hover {
+        text-decoration: underline;
+    }
 
 .govuk-pagination {
     justify-content: center;
 }
 
-/*END - Sign out link syling */
+/*END - Header account links */
 
 
 /*BEGIN - Accessible dashboard card links */
@@ -115,3 +117,70 @@ a.signOut:hover {
     .moj-button-menu__item:last-child {
         margin-right: 0;
     }
+/* END MENU ITEM */
+
+
+/*BEGIN - Header overrides */
+
+.dfe-header__container {
+    padding: 0;
+    padding-top: 20px;
+}
+
+.dfe-header__navigation {
+    background-color: #003a69;
+    display: block;
+    margin: 0 auto;
+    max-width: 1264px;
+}
+
+.dfe-header__navigation-link:visited {
+    color: white;
+}
+
+.dfe-header__link--service {
+    align-items: baseline;
+    display: flex;
+    -ms-flex-align: center;
+    margin-bottom: 0;
+    width: auto;
+}
+
+.dfe-header__navigation-list {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: flex-start;
+    padding: 0;
+    width: 100%;
+}
+
+img, svg {
+    vertical-align: baseline;
+}
+
+.dfe-header__navigation-item {
+    border-top: 0
+}
+
+.dfe-header__service-name {
+    max-width: 1264px;
+    display: inline;
+}
+
+@media (max-width: 61.865em) {
+    .dfe-header__service-name {
+        padding-left: 10px;
+        padding-top: 5px;
+    }
+}
+
+.dfe-header__navigation-link {
+    padding: 5px 10px;
+}
+
+@media (max-width: 48.0525em) {
+    .dfe-header__logo {
+        max-width: 100%;
+    }
+}
+/*END - Header overrides */
