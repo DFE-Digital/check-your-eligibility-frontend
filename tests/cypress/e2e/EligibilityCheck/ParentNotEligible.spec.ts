@@ -46,7 +46,7 @@ describe('Parents journey when not eligible', () => {
 
         cy.wait(2000);
         cy.url().should('include', '/Check/Loader');
-        cy.get('h1',{ timeout: 60000 }).should('include.text', "We could not check your children’s entitlement to free school meals");
+        cy.get('h1',{ timeout: 60000 }).should('include.text', "Your children may not be entitled to free school meals");
     });
 
     it('Will return the correct error response if the user inputs a NI number in the incorrect format', () => {
