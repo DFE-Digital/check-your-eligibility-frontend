@@ -197,13 +197,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return jsDisabled ? View("Outcome/Eligible", url) : PartialView("Outcome/Eligible", url);
 
                 case "notEligible":
-                    return jsDisabled ? View("OutcomeNoJS/Not_Eligible") : PartialView("Outcome/Not_Eligible");
+                    return jsDisabled ? View("Outcome/Not_Eligible") : PartialView("Outcome/Not_Eligible");
 
                 case "parentNotFound":
-                    return jsDisabled ? View("OutcomeNoJS/Not_Found") : PartialView("Outcome/Not_Found");
+                    return jsDisabled ? View("Outcome/Not_Found") : PartialView("Outcome/Not_Found");
 
                 case "DwpError":
-                    return jsDisabled ? View("OutcomeNoJS/Technical_Error") : PartialView("Outcome/Technical_Error");
+                    return jsDisabled ? View("Outcome/Technical_Error") : PartialView("Outcome/Technical_Error");
 
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
@@ -222,7 +222,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 default:
                     _logger.LogError("Unexpected status received.");
                     if (jsDisabled)
-                        return View("OutcomeNoJS/Technical_Error");
+                        return View("Outcome/Technical_Error");
                     else
                         return Json(new { status = "error", message = "Unexpected status" });
             }
