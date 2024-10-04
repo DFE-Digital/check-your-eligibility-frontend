@@ -69,7 +69,11 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
 
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 //builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+app.MapHealthChecks("/healthcheck");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

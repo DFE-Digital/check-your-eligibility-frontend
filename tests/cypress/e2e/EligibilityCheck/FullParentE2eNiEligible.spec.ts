@@ -18,7 +18,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('#IsNinoSelected').click();
 
-        cy.get('#NationalInsuranceNumber').should('be.visible').type('AB123456C');
+        cy.get('#NationalInsuranceNumber').should('be.visible').type('NN668767B');
 
         cy.contains('Save and continue').click();
         cy.url().should('include', '/Check/Loader');
@@ -90,7 +90,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('dt', 'National insurance number')
         .next('dd')
-        .contains('AB123456C');
+        .contains('NN668767B');
 
         cy.contains('dt', 'Email address')
         .next('dd')

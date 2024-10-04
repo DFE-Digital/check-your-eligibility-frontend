@@ -3,9 +3,9 @@
 
 Cypress.Commands.add('SignInLA', () => {
   cy.visit('/');
-  cy.get('h1').should('include.text', 'Department for Education Sign-in');
+  cy.get('h1').should('include.text', 'Access the DfE Sign-in service');
   cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
-  cy.contains('Continue').click();
+  cy.contains('Next').click();
 
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();
@@ -23,9 +23,9 @@ Cypress.Commands.add('SignInLA', () => {
 
 Cypress.Commands.add('SignInSchool', () => {
   cy.visit('/');
-  cy.get('h1').should('include.text', 'Department for Education Sign-in');
+  cy.get('h1').should('include.text', 'Access the DfE Sign-in service');
   cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
-  cy.contains('Continue').click();
+  cy.contains('Next').click();
 
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
   cy.contains('Sign in').click();

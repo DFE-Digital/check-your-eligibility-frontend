@@ -5,6 +5,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddApplicationInsightsTelemetry();
 if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 {
@@ -25,8 +26,11 @@ builder.Services.AddDfeSignInAuthentication(dfeSignInConfiguration);
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 //builder.Services.AddProblemDetails();
 
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+app.MapHealthChecks("/healthcheck");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -100,7 +100,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('#IsNinoSelected').click();
 
-        cy.get('#NationalInsuranceNumber').should('be.visible').type('AB123456C');
+        cy.get('#NationalInsuranceNumber').should('be.visible').type('NN668767B');
 
         cy.contains('Save and continue').click();
         cy.url().should('include', '/Check/Loader');
@@ -181,7 +181,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.contains('dt', 'National insurance number')
         .next('dd')
-        .contains('AB123456C');
+        .contains('NN668767B');
 
         cy.contains('dt', 'Email address')
         .next('dd')

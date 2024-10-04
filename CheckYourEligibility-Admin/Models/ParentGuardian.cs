@@ -6,16 +6,6 @@ namespace CheckYourEligibility_FrontEnd.Models
 {
     public class ParentGuardian
     {
-        [Nino]
-        [MaxLength(13)]
-        public string? NationalInsuranceNumber { get; set; }
-
-        [Nass]
-        [MaxLength(10)]
-        public string? NationalAsylumSeekerServiceNumber { get; set; }
-
-        public bool IsNassSelected { get; set; }
-
         [Name]
         [Required(ErrorMessage = "Enter a first name")]
         public string? FirstName { get; set; }
@@ -27,6 +17,16 @@ namespace CheckYourEligibility_FrontEnd.Models
         [EmailAddress]
         [Required(ErrorMessage = "Enter an email")]
         public string? EmailAddress { get; set; }
+
+        public bool IsNassSelected { get; set; }
+
+        [Nass]
+        [MaxLength(10)]
+        public string? NationalAsylumSeekerServiceNumber { get; set; }
+
+        [Nino]
+        [MaxLength(13)]
+        public string? NationalInsuranceNumber { get; set; }
 
         [NotMapped]
         [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]

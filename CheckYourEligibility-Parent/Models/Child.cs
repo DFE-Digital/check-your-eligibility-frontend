@@ -13,7 +13,9 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Name]
         [Required(ErrorMessage = "Enter child's last name")]
         public string? LastName { get; set; }
-
+        
+        public School School { get; set; }
+        
         [NotMapped]
         [Dob]
         public string? DateOfBirth { get; set; }
@@ -24,6 +26,5 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         public string? Year { get; set; }
 
-        public School School { get; set; }
     }
 }
