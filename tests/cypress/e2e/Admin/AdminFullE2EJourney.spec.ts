@@ -2,7 +2,7 @@ describe('Full journey of creating an application through school portal through 
     const parentFirstName = 'Tim';
     const parentLastName = 'Jones';
     const parentEmailAddress = 'TimJones@Example.com';
-    const NIN = 'AB123456C'
+    const NIN = 'PN668767B'
     const childFirstName = 'Timmy';
     const childLastName = 'Smith';
     var referenceNumber: string;
