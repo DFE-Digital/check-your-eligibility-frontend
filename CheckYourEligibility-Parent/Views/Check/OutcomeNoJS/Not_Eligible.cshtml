@@ -1,7 +1,4 @@
-﻿@*  **** Layout changes will need to be duplicated in Views/Check/OutcomeNoJS ****
-    **** as the header and footer is hard coded in those files.               **** *@
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="govuk-template">
 <head>
     <meta charset="utf-8">
@@ -15,7 +12,6 @@
     <link href="~/css/application.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-
 <body class="govuk-template__body">
     <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
@@ -27,25 +23,13 @@
                     <img src="~/images/dfe-logo.png" class="dfe-logo" alt="DfE Homepage">
                     <img src="~/images/dfe-logo-alt.png" class="dfe-logo-hover" alt="DfE Homepage">
                     <span class="dfe-header__service-name">
-                        @(ViewData["ServiceName"] != null ? ViewData["ServiceName"] : "Check a family's eligibility")
+                        @ViewData["ServiceName"]
                     </span>
                 </a>
             </div>
-            <nav id="header-navigation" class="dfe-header__navigation" aria-label="Primary navigation" aria-labelledby="label-navigation">
-                <div id="spacerForNoLinkContentRemoveWhenAddingLinksBelow" style="min-height: 10px;">
-                    @* Remove this content and surrounding div and style when adding in links. *@
-                </div>
-
-                @*<ul class="dfe-header__navigation-list" id="navigation">
-
-                <li class="dfe-header__navigation-item">
-                <a class="dfe-header__navigation-link" href="/">
-                Dashboard
-                </a>
-                </li>
-                </ul>*@
-
-            </nav>
+            <div class="dfe-header__content" id="content-header">
+                <ul class="dfe-header__action-links"></ul>
+            </div>
         </div>
     </header>
 
@@ -68,7 +52,54 @@
             <main class="govuk-main-wrapper " id="main-content" role="main">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-two-thirds">
-                        @RenderBody()
+
+
+
+
+
+                        @* Outcome Content Start *@
+
+                        @* <a class="govuk-back-link" href="/Back" onclick="history.back(); return false;">Back</a> *@
+                        <a class="govuk-back-link-nolink"></a>
+
+                        <div class="govuk-grid-column-full">
+                            <h1 class="govuk-heading-l">Your children may not be entitled to free school meals</h1>
+                            <p>From the information you’ve provided, we cannot confirm if your children are entitled to free school meals. </p>
+
+                            <p>If you think that they are entitled, you can;</p>
+
+                            <ol>
+                                <li>Find supporting evidence. Check the supporting evidence list to see what's accepted.</li>
+                                <li>Contact your childrens school(s) and send them the evidence.</li>
+                                <li>The school(s) will work with your local authority to re-assess your free school meal claim, then let you know the result.</li>
+                            </ol>
+
+                            <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+
+                            <h2 class="govuk-heading-m">Accepted supporting evidence</h2>
+                            <p>To support your claim for free school meals, you can send:</p>
+                            <ul>
+                                <li>up to three of your latest Universal Credit statements </li>
+                                <li>your latest tax credit statement form TC602A (Award Notices) or TC603R (Auto Renewal), showing you are receiving Working Tax Credit run-on</li>
+                                <li>your latest tax credit statement form TC602A (Award Notices) or TC603R (Auto Renewal), showing you are receiving Child Tax Credit</li>
+                                <li>a letter of Entitlement for Income Support</li>
+                                <li>a letter of Entitlement for income-based Jobseeker’s Allowance</li>
+                                <li>a letter of Entitlement for the guaranteed element of Pension Credit</li>
+                                <li>documents showing you are receiving relevant support under part VI of the Immigration and Asylum Act 1999</li>
+                            </ul>
+
+                            <h3 class="govuk-heading-m">Further guidance </h3>
+
+                            <p>More in-depth information on supporting evidence can be found in <a href="/Home/Parental_Guidance" class="govuk-link">the guidance notes for parents and guardians.</a></p>
+
+                            <p><a href="/Home/Index">Return to start</a></p>
+                        </div>
+
+                        @* Outcome Content End *@
+
+
+
+
                     </div>
                 </div>
             </main>
@@ -129,7 +160,5 @@
         import { initAll } from '../js/govuk-frontend.min.js'
         initAll()
     </script>
-
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

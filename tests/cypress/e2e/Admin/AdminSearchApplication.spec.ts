@@ -4,7 +4,7 @@ describe('Admin journey search for application', () => {
     const parentFirstName = 'Timothy';
     const parentLastName = 'Smith';
     const parentEmailAddress = 'TimJones@Example.com';
-    const NIN = 'AB123456C'
+    const NIN = 'NN668767B'
     const childFirstName = 'Tom';
     const childLastName = 'Jones';
     var referenceNumber: string;

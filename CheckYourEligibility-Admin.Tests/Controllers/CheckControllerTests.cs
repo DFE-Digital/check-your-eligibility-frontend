@@ -419,7 +419,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         [TestCase(CheckEligibilityStatus.eligible, "Outcome/Eligible")]
         [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible")]
         [TestCase(CheckEligibilityStatus.parentNotFound, "Outcome/Not_Found")]
-        [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Not_Found_Pending")]
+        [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Technical_Error")]
         public async Task Given_Poll_Status_With_Valid_Status_Returns_Correct_View(CheckEligibilityStatus status, string expectedView)
         {
             // Arrange

@@ -1,7 +1,4 @@
-﻿@*  **** Layout changes will need to be duplicated in Views/Check/OutcomeNoJS ****
-    **** as the header and footer is hard coded in those files.               **** *@
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="govuk-template">
 <head>
     <meta charset="utf-8">
@@ -15,7 +12,6 @@
     <link href="~/css/application.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-
 <body class="govuk-template__body">
     <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
@@ -27,25 +23,13 @@
                     <img src="~/images/dfe-logo.png" class="dfe-logo" alt="DfE Homepage">
                     <img src="~/images/dfe-logo-alt.png" class="dfe-logo-hover" alt="DfE Homepage">
                     <span class="dfe-header__service-name">
-                        @(ViewData["ServiceName"] != null ? ViewData["ServiceName"] : "Check a family's eligibility")
+                        @ViewData["ServiceName"]
                     </span>
                 </a>
             </div>
-            <nav id="header-navigation" class="dfe-header__navigation" aria-label="Primary navigation" aria-labelledby="label-navigation">
-                <div id="spacerForNoLinkContentRemoveWhenAddingLinksBelow" style="min-height: 10px;">
-                    @* Remove this content and surrounding div and style when adding in links. *@
-                </div>
-
-                @*<ul class="dfe-header__navigation-list" id="navigation">
-
-                <li class="dfe-header__navigation-item">
-                <a class="dfe-header__navigation-link" href="/">
-                Dashboard
-                </a>
-                </li>
-                </ul>*@
-
-            </nav>
+            <div class="dfe-header__content" id="content-header">
+                <ul class="dfe-header__action-links"></ul>
+            </div>
         </div>
     </header>
 
@@ -68,7 +52,37 @@
             <main class="govuk-main-wrapper " id="main-content" role="main">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-two-thirds">
-                        @RenderBody()
+
+
+
+
+
+                        @* Outcome Content Start *@
+
+                        @model string
+
+                        @* <a class="govuk-back-link" href="/Back" onclick="history.back(); return false;">Back</a> *@
+                        <a class="govuk-back-link-nolink"></a>
+
+                        <div class="govuk-grid-column-full">
+
+                            <h1 class="govuk-heading-l">There’s been a technical error</h1>
+
+                            <p>We could not check your children’s entitlement to free school meals.</p>
+
+                            <p>Please try again later, making sure you’ve entered your details accurately.</p>
+
+                            <p>If you’ve received this message multiple times, contact your school administrator. </p>
+
+                            <p><a href="javascript:window.history.back()">Try again</a></p>
+
+                        </div>
+
+                        @* Outcome Content End *@
+
+
+
+
                     </div>
                 </div>
             </main>
@@ -129,7 +143,5 @@
         import { initAll } from '../js/govuk-frontend.min.js'
         initAll()
     </script>
-
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
