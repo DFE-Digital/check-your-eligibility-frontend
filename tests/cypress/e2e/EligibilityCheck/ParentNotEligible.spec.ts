@@ -1,7 +1,7 @@
 
 describe('Parents journey when not eligible', () => {
 
-    it('Will not return the correct responses if the Parent is not eligible for free school meals', () => {
+    it('Will return the correct responses if the Parent is not eligible for free school meals', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start Now').click();
@@ -16,7 +16,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
-        cy.get('#NationalInsuranceNumber').type('AB123456C');
+        cy.get('#NationalInsuranceNumber').type('PN668767B');
 
         cy.contains('Save and continue').click();
 
@@ -40,7 +40,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('#Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
-        cy.get('#NationalInsuranceNumber').type('AB123456C');
+        cy.get('#NationalInsuranceNumber').type('PN668767B');
 
         cy.contains('Save and continue').click();
 
@@ -117,7 +117,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('h2').should('include.text', 'There is a problem');
         cy.get('a').should('include.text', 'National Insurance Number should contain no more than 9 alphanumeric characters');
 
-        cy.get('#NationalInsuranceNumber').clear().type('AB123456C');
+        cy.get('#NationalInsuranceNumber').clear().type('NN668767B');
         cy.contains('Save and continue').click();
         cy.url().should('include','/Check/Loader');
 

@@ -2,6 +2,7 @@
     ViewData["Title"] = "Checking Loader";
     ViewData["ServiceName"] = "Check a family's eligibility";
 }
+
 <div id="content">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -22,7 +23,7 @@
 </div>
 
 <noscript>
-    <meta http-equiv="refresh" content="5;url=@Url.Action("Poll_Status", "Check")" />
+    <meta http-equiv="refresh" content="5;url=@Url.Action("Poll_Status", "Check", new { jsDisabled = true })" />
 </noscript>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -64,4 +65,3 @@
         pollServer();
     });
 </script>
-
