@@ -156,8 +156,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("Loader");
         }
 
-        /// this method is called by AJAX
-        public async Task<IActionResult> Poll_Status()
+        public async Task<IActionResult> Poll_Status(bool jsDisabled = false)
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
@@ -189,21 +188,26 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
                 {
-                    return PartialView("Outcome/LA");
+                    if (jsDisabled)
+                        return View("OutcomeNoJS/LA");
+                    else
+                        return PartialView("Outcome/LA");
                 }
+
+
                 else
                 {
-                    TempData["Status"] = GetApplicationRegisteredText(status);                   
+                    TempData["Status"] = GetApplicationRegisteredText(status);
                     switch (status)
                     {
                         case CheckEligibilityStatus.eligible:
-                            return PartialView("Outcome/Eligible");
+                            return jsDisabled ? View("Outcome/Eligible") : PartialView("Outcome/Eligible");
                         case CheckEligibilityStatus.notEligible:
-                            return PartialView("Outcome/Not_Eligible");
+                            return jsDisabled ? View("Outcome/Not_Eligible") : PartialView("Outcome/Not_Eligible");
                         case CheckEligibilityStatus.parentNotFound:
-                            return PartialView("Outcome/Not_Found");
+                            return jsDisabled ? View("Outcome/Not_Found") : PartialView("Outcome/Not_Found");
                         case CheckEligibilityStatus.DwpError:
-                            return PartialView("Outcome/Not_Found_Pending");
+                            return jsDisabled ? View("Outcome/Technical_Error") : PartialView("Outcome/Technical_Error");
                         default:
                             _logger.LogError($"Unknown Status {status}");
                             return Json(new { status = "error", message = $"Unknown Status {status}" });
@@ -214,9 +218,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 _logger.LogInformation("Still queued for processing.");
                 TempData["Response"] = JsonConvert.SerializeObject(response);
-                return Json(new { status = "processing" }); // Return JSON to keep polling
+                if (jsDisabled)
+                {
+                    // Redirect back to the Loader view to continue polling
+                    return RedirectToAction("Loader");
+                }
+                else
+                {
+                    return Json(new { status = "processing" }); // Return JSON to keep polling
+                }
             }
         }
+
 
         private string GetApplicationRegisteredText(CheckEligibilityStatus status)
         { 
