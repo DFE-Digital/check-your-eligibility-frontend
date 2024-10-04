@@ -194,24 +194,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return jsDisabled
-                        ? View("OutcomeNoJS/Eligible", url)
-                        : PartialView("Outcome/Eligible", url);
+                    return jsDisabled ? View("Outcome/Eligible", url) : PartialView("Outcome/Eligible", url);
 
                 case "notEligible":
-                    return jsDisabled
-                        ? View("OutcomeNoJS/Not_Eligible")
-                        : PartialView("Outcome/Not_Eligible");
+                    return jsDisabled ? View("OutcomeNoJS/Not_Eligible") : PartialView("Outcome/Not_Eligible");
 
                 case "parentNotFound":
-                    return jsDisabled
-                        ? View("OutcomeNoJS/Not_Found")
-                        : PartialView("Outcome/Not_Found");
+                    return jsDisabled ? View("OutcomeNoJS/Not_Found") : PartialView("Outcome/Not_Found");
 
                 case "DwpError":
-                    return jsDisabled
-                        ? View("OutcomeNoJS/Technical_Error")
-                        : PartialView("Outcome/Technical_Error");
+                    return jsDisabled ? View("OutcomeNoJS/Technical_Error") : PartialView("Outcome/Technical_Error");
 
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
