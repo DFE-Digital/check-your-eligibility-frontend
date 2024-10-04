@@ -97,7 +97,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.contains('dt', 'Email address')
             .next('dd')
-            .contains('sam.fallowfield@education.gov.uk');
+            .contains(Cypress.env('ONEGOV_EMAIL'));
 
 
         cy.get('h2').should('contain.text', 'Child 1')
