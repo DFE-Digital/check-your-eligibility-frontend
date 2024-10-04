@@ -185,7 +185,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.contains('dt', 'Email address')
         .next('dd')
-        .contains('sam.fallowfield@education.gov.uk');
+        .contains(Cypress.env('ONEGOV_EMAIL'));
 
 
         cy.get('h2').should('contain.text', 'Child 1')
