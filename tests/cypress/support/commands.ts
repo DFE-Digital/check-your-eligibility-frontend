@@ -3,12 +3,11 @@
 
 Cypress.Commands.add('SignInLA', () => {
   cy.visit('/');
-  cy.get('h1').should('include.text', 'Access the DfE Sign-in service');
   cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
-  cy.contains('Next').click();
+  cy.get('button[type="submit"]').click()
 
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
-  cy.contains('Sign in').click();
+  cy.get('button[type="submit"]').click()
 
   cy.contains('Telford and Wrekin Council')
   .parent()
@@ -23,12 +22,11 @@ Cypress.Commands.add('SignInLA', () => {
 
 Cypress.Commands.add('SignInSchool', () => {
   cy.visit('/');
-  cy.get('h1').should('include.text', 'Access the DfE Sign-in service');
   cy.get('#username').type(Cypress.env('DFE_ADMIN_EMAIL_ADDRESS'));
-  cy.contains('Next').click();
+  cy.get('button[type="submit"]').click()
 
   cy.get('#password').type(Cypress.env('DFE_ADMIN_PASSWORD'));
-  cy.contains('Sign in').click();
+  cy.get('button[type="submit"]').click()
 
   cy.contains('The Telford Park School')
     .parent()
