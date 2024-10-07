@@ -487,15 +487,17 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [TestCase("eligible", "Outcome/Eligible", typeof(PartialViewResult), false)]
+        [TestCase("eligible", "Outcome/Eligible", typeof(ViewResult), true)]
         [TestCase("notEligible", "Outcome/Not_Eligible", typeof(PartialViewResult), false)]
+        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(ViewResult), true)]
         [TestCase("parentNotFound", "Outcome/Not_Found", typeof(PartialViewResult), false)]
+        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(ViewResult), true)]
         [TestCase("DwpError", "Outcome/Technical_Error", typeof(PartialViewResult), false)]
-        [TestCase("eligible", "OutcomeNoJS/Eligible", typeof(ViewResult), true)]
-        [TestCase("notEligible", "OutcomeNoJS/Not_Eligible", typeof(ViewResult), true)]
-        [TestCase("parentNotFound", "OutcomeNoJS/Not_Found", typeof(ViewResult), true)]
-        [TestCase("DwpError", "OutcomeNoJS/Technical_Error", typeof(ViewResult), true)]
+        [TestCase("DwpError", "Outcome/Technical_Error", typeof(ViewResult), true)]
+        [TestCase("queuedForProcessing", "Loader", typeof(JsonResult), false)]
         [TestCase("queuedForProcessing", "Loader", typeof(RedirectToActionResult), true)]
-        [TestCase("notARealStatus", "OutcomeNoJS/Technical_Error", typeof(ViewResult), true)]
+        [TestCase("notARealStatus", "Outcome/Technical_Error", typeof(JsonResult), false)]
+        [TestCase("notARealStatus", "Outcome/Technical_Error", typeof(ViewResult), true)]
         public async Task Given_PollStatus_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(
     string status, string expectedView, Type expectedType, bool jsDisabled)
         {

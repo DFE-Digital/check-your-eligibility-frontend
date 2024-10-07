@@ -4,7 +4,6 @@
 @{
     Layout = "~/Views/Shared/_LayoutNoBackButton.cshtml";
     ViewData["Title"] = "Application Sent";
-    ViewData["ServiceName"] = "Check a family's eligibility";
 
     var responseJson = TempData["FsmApplicationResponses"] as string;
     var responses = JsonConvert.DeserializeObject<List<CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse>>(responseJson);

@@ -63,3 +63,118 @@ table {
     caption-side: top;
     border-collapse: collapse;
 }
+
+/*BEGIN - Header account links */
+
+#content-header .dfe-header__action-links a,
+#content-header .dfe-header__action-links a:visited,
+#content-header .dfe-header__action-links a:active {
+    color: white;
+    text-decoration: none;
+}
+
+    #content-header .dfe-header__action-links a:hover {
+        text-decoration: underline;
+    }
+
+.govuk-pagination {
+    justify-content: center;
+}
+
+/*END - Header account links */
+
+
+/*BEGIN - Accessible dashboard card links */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/*END - Accessible dashboard card links */
+
+
+/* MENU ITEM */
+.moj-button-menu__item {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: auto;
+}
+
+    .moj-button-menu__item:last-child {
+        margin-right: 0;
+    }
+/* END MENU ITEM */
+
+
+/*BEGIN - Header overrides */
+
+.dfe-header__container {
+    padding: 0;
+    padding-top: 20px;
+}
+
+.dfe-header__navigation {
+    background-color: #003a69;
+    display: block;
+    margin: 0 auto;
+    max-width: 1264px;
+}
+
+.dfe-header__navigation-link:visited {
+    color: white;
+}
+
+.dfe-header__link--service {
+    align-items: baseline;
+    display: flex;
+    -ms-flex-align: center;
+    margin-bottom: 0;
+    width: auto;
+}
+
+.dfe-header__navigation-list {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: flex-start;
+    padding: 0;
+    width: 100%;
+}
+
+img, svg {
+    vertical-align: baseline;
+}
+
+.dfe-header__navigation-item {
+    border-top: 0
+}
+
+.dfe-header__service-name {
+    max-width: 1264px;
+    display: inline;
+}
+
+@media (max-width: 61.865em) {
+    .dfe-header__service-name {
+        padding-left: 10px;
+        padding-top: 5px;
+    }
+}
+
+.dfe-header__navigation-link {
+    padding: 5px 10px;
+}
+
+@media (max-width: 48.0525em) {
+    .dfe-header__logo {
+        max-width: 100%;
+    }
+}
+/*END - Header overrides */
