@@ -18,9 +18,6 @@ namespace CheckYourEligibility_FrontEnd.Middleware
             var originalBodyStream = context.Response.Body;
             try
             {
-                //if (context.Response.ContentLength != null)
-                //{
-
                 using (var memStream = new MemoryStream())
                 {
                     context.Response.Body = memStream;
@@ -44,11 +41,10 @@ namespace CheckYourEligibility_FrontEnd.Middleware
 
                     await memStream.CopyToAsync(originalBodyStream);
                 }
-                // }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Response Middleware");
+                _logger.LogInformation(ex, "UI Parent Response Middleware");
             }
 
         }
