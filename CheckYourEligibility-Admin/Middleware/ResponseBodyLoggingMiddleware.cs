@@ -48,7 +48,7 @@ namespace CheckYourEligibility_FrontEnd.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Response Middleware");
+                _logger.LogInformation(ex, "UI Admin Response Middleware");
             }
 
         }
