@@ -9,6 +9,7 @@ using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
+using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -22,7 +23,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
         DfeClaims? _Claims;
-        
+
         public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IEcsCheckService ecsCheckService, IConfiguration configuration)
         {
             _config = configuration;
@@ -76,9 +77,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
                 // build object for api soft-check
-                var checkEligibilityRequest = new CheckEligibilityRequest()
+                var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
                 {
-                    Data = new CheckEligibilityRequestDataFsm
+                    Data = new CheckEligibilityRequestData_Fsm
                     {
                         LastName = request.LastName,
                         NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
@@ -120,10 +121,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
                 // build object for api soft-check
-                var checkEligibilityRequest = new CheckEligibilityRequest()
+                var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
                 {
-                    Data = new CheckEligibilityRequestDataFsm
-                    {
+                    Data = new CheckEligibilityRequestData_Fsm{                  
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
                         DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
@@ -369,6 +369,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     Data = new ApplicationRequestData()
                     {
+                        Type = CheckEligibilityType.FreeSchoolMeals,
                         // Set the properties for each child
                         ParentFirstName = request.ParentFirstName,
                         ParentLastName = request.ParentLastName,
@@ -385,7 +386,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application individually
-                var responseApplication = await _parentService.PostApplication(fsmApplication);
+                var responseApplication = await _parentService.PostApplication_Fsm(fsmApplication);
                 response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
                 { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }

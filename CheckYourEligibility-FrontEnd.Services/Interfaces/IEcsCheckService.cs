@@ -8,9 +8,9 @@ namespace CheckYourEligibility_FrontEnd.Services
         // bulk
         Task<CheckEligibilityBulkStatusResponse> GetBulkCheckProgress(string batchCheckUrl);
         Task<CheckEligibilityBulkResponse> GetBulkCheckResults(string resultsUrl);
-        Task<CheckEligibilityResponseBulk> PostBulkCheck(CheckEligibilityRequestBulk requestBody);
+        Task<CheckEligibilityResponseBulk> PostBulkCheck(CheckEligibilityRequestBulk_Fsm requestBody);
         // single
-        Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest requestBody);
+        Task<CheckEligibilityResponse> PostCheck(CheckEligibilityRequest_Fsm requestBody);
         Task<CheckEligibilityStatusResponse> GetStatus(CheckEligibilityResponse responseBody);  
     }
 }

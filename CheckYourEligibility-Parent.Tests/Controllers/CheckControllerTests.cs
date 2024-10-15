@@ -7,13 +7,13 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
+using Child = CheckYourEligibility_FrontEnd.Models.Child;
 using ChildsSchool = CheckYourEligibility_FrontEnd.Models.School;
 using School = CheckYourEligibility.Domain.Responses.School;
-using Microsoft.Extensions.Configuration;
-using Azure.Core;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -241,13 +241,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _checkServiceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
                     .ReturnsAsync(_eligibilityStatusResponse);
 
-                _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest>()))
+                _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
                             .ReturnsAsync(_eligibilityResponse);
 
                 _parentServiceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
                             .ReturnsAsync(_schoolSearchResponse);
 
-                _parentServiceMock.Setup(s => s.PostApplication(It.IsAny<ApplicationRequest>()))
+                _parentServiceMock.Setup(s => s.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
                             .ReturnsAsync(_applicationSaveItemResponse);
             }
         }

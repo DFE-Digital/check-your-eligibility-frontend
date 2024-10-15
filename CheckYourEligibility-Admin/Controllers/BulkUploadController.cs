@@ -1,8 +1,4 @@
-﻿using CheckYourEligibility.Domain.Constants;
-using CheckYourEligibility.Domain.Enums;
-using CheckYourEligibility.Domain.Requests;
-using CheckYourEligibility.Domain.Responses;
-using CheckYourEligibility_DfeSignIn.Models;
+﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
 using CsvHelper;
@@ -10,7 +6,6 @@ using CsvHelper.Configuration;
 using FeatureManagement.Domain.Validation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Globalization;
 using System.Text;
 
@@ -43,7 +38,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             TempData["Response"] = "data_issue";
             List<CheckRow> DataLoad;
             var errorCount = 0;
-            var requestItems = new List<CheckEligibilityRequestDataFsm>();
+            var requestItems = new List<CheckEligibilityRequestData_Fsm>();
             var validationResultsItems = new StringBuilder();
             if (fileUpload == null || fileUpload.ContentType.ToLower() != "text/csv")
             {
@@ -70,14 +65,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         throw new InvalidDataException("Invalid file content.");
                     }
                 }
-                var validator = new CheckEligibilityRequestDataValidator();
+                var validator = new CheckEligibilityRequestDataValidator_Fsm();
                 var sequence = 1;
                
                 
                 foreach (var item in DataLoad)
                 {
 
-                    var requestItem = new CheckEligibilityRequestDataFsm()
+                    var requestItem = new CheckEligibilityRequestData_Fsm()
                     {
                         LastName = item.LastName,
                         DateOfBirth = DateTime.TryParse(item.DOB, out var dtval) ? dtval.ToString("yyyy-MM-dd") : string.Empty,
@@ -116,7 +111,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                var result = await _checkService.PostBulkCheck(new CheckEligibilityRequestBulk { Data = requestItems});
+                var result = await _checkService.PostBulkCheck(new CheckEligibilityRequestBulk_Fsm{ Data = requestItems});
                 HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
                 HttpContext.Session.SetString("Get_BulkCheck_Results", result.Links.Get_BulkCheck_Results);
                 return RedirectToAction("Batch_Loader");
@@ -189,14 +184,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 switch (item.ErrorMessage)
                 {
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.LastName:
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.LastName:
                     case "'LastName' must not be empty.":
                         {
                             message = $"<li>Line {sequence}: Issue with Surname</li>";
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
                         }
                         break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.DOB
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.DOB
                     :
                     case "'Date Of Birth' must not be empty.":
                         {
@@ -204,21 +199,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
                         }
                         break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI:
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.NI:
                         {
                             message = $"<li>Line {sequence}: Issue with National Insurance number</li>";
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
                         }
                         break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_and_NASS:
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.NI_and_NASS:
                         {
-                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_and_NASS}</li>";
+                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.NI_and_NASS}</li>";
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
                         }
                         break;
-                    case CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_or_NASS:
+                    case CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.NI_or_NASS:
                         {
-                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.FSM.NI_or_NASS}</li>";
+                            message = $"<li>Line {sequence}: Issue {CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.NI_or_NASS}</li>";
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
                         }
                         break;

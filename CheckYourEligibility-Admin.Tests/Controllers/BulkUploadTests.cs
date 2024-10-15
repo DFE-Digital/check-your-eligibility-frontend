@@ -149,7 +149,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                     Data = new StatusValue { Status = "processing" },
                     Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" }
                 };
-            _checkServiceMock.Setup(s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk>()))
+            _checkServiceMock.Setup(s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
                     .ReturnsAsync(response);
 
             var content = Resources.batchchecktemplate_small_Valid;

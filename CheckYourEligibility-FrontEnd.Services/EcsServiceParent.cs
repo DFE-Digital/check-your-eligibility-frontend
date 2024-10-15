@@ -9,14 +9,14 @@ namespace CheckYourEligibility_FrontEnd.Services
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
-        private readonly string _FsmUrl;
+        private readonly string _ApplicationUrl;
         private readonly string _schoolUrl;
 
         public  EcsServiceParent(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _FsmUrl = "FreeSchoolMeals";
+            _ApplicationUrl = "Application";
             _schoolUrl = "Schools";
         }
 
@@ -34,16 +34,17 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
         }
 
-        public async Task<ApplicationSaveItemResponse> PostApplication(ApplicationRequest requestBody)
+        public async Task<ApplicationSaveItemResponse> PostApplication_Fsm(ApplicationRequest requestBody)
         {
             try
             {
-                var response = await ApiDataPostAsynch($"{_FsmUrl}/Application", requestBody, new ApplicationSaveItemResponse());
+                requestBody.Data.Type = CheckYourEligibility.Domain.Enums.CheckEligibilityType.FreeSchoolMeals;
+                var response = await ApiDataPostAsynch($"{_ApplicationUrl}/FreeSchoolMeals", requestBody, new ApplicationSaveItemResponse());
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Post Application failed. uri-{_httpClient.BaseAddress}{_FsmUrl}/Application");
+                _logger.LogError(ex, $"Post Application failed. uri-{_httpClient.BaseAddress}{_ApplicationUrl}");
                 throw;
             }
         }
