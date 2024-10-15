@@ -94,7 +94,8 @@
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.Name"></span>
                     </p>
-                    <input asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
+                    <input id="school-search-@i" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search">
+                    <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
                     <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
                     <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
                     <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
