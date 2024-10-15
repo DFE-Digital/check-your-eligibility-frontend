@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
 using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
@@ -15,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using Child = CheckYourEligibility_FrontEnd.Models.Child;
 using School = CheckYourEligibility_FrontEnd.Models.School;
 
 namespace CheckYourEligibility_Admin.Tests.Controllers
@@ -108,7 +108,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             request.Year = "1990";
 
             var response = _fixture.Create<CheckEligibilityResponse>();
-            _checkServiceMock.Setup(x => x.PostCheck(It.IsAny<CheckEligibilityRequest>())).ReturnsAsync(response);
+            _checkServiceMock.Setup(x => x.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>())).ReturnsAsync(response);
 
             // Act
             var result = _sut.Enter_Details(request);
@@ -350,7 +350,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
             _parentServiceMock.Setup(x => x.CreateUser(It.IsAny<UserCreateRequest>()))
                 .ReturnsAsync(userCreateResponse);
-            _parentServiceMock.Setup(x => x.PostApplication(It.IsAny<ApplicationRequest>()))
+            _parentServiceMock.Setup(x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
                 .Returns(serviceMockResponse);
 
             // Act
@@ -370,7 +370,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var request = new FsmApplication(); // Invalid request with missing required fields
 
-            _parentServiceMock.Setup(x => x.PostApplication(It.IsAny<ApplicationRequest>()))
+            _parentServiceMock.Setup(x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
                 .Throws(new NullReferenceException("Invalid request"));
 
             // Act & Assert

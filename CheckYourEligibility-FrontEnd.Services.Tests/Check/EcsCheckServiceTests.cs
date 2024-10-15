@@ -1,7 +1,5 @@
-﻿using Azure.Core;
-using CheckYourEligibility.Domain.Requests;
+﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using CheckYourEligibility_FrontEnd.Services.Tests.Parent;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -83,7 +81,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
         public async Task Given_PostCheck_When_CalledWithValidRequest_Should_ReturnCheckEligibilityResponse()
         {
             // Arrange
-            var requestBody = new CheckEligibilityRequest();
+            var requestBody = new CheckEligibilityRequest_Fsm();
             var responseContent = new CheckEligibilityResponse();
             var responseMessage = new HttpResponseMessage
             {
@@ -147,7 +145,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Check
         public async Task Given_PostCheck_When_ApiReturnsUnauthorized_Should_LogApiErrorAnd_Throw_UnauthorizedAccessException()
         {
             // Arrange
-            var requestBody = new CheckEligibilityRequest();
+            var requestBody = new CheckEligibilityRequest_Fsm();
             var responseMessage = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.Unauthorized,

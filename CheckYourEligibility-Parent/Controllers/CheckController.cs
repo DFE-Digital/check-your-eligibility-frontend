@@ -6,7 +6,7 @@ using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -97,9 +97,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
 
             // build object for api soft-check
-            var checkEligibilityRequest = new CheckEligibilityRequest()
+            var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
             {
-                Data = new CheckEligibilityRequestDataFsm
+                Data = new CheckEligibilityRequestData_Fsm
                 {
                     LastName = request.LastName,
                     NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
@@ -444,7 +444,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application as an individual check
-                var response = await _parentService.PostApplication(fsmApplication);
+                var response = await _parentService.PostApplication_Fsm(fsmApplication);
                 responses.Add(response);
             }
 

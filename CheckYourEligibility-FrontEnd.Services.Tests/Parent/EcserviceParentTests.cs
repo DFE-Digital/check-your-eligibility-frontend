@@ -77,7 +77,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         public async Task Given_PostApplication_When_CalledWithValidRequest_Should_ReturnApplicationSaveItemResponse()
         {
             // Arrange
-            var requestBody = new ApplicationRequest();
+            var requestBody = new ApplicationRequest() { Data = new ApplicationRequestData() };
             var responseContent = new ApplicationSaveItemResponse();
             var responseMessage = new HttpResponseMessage
             {
@@ -93,7 +93,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = await _sut.PostApplication(requestBody);
+            var result = await _sut.PostApplication_Fsm(requestBody);
 
             // Assert
             result.Should().NotBeNull();
@@ -133,7 +133,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         public async Task Given_PostApplication_When_ApiReturnsServerError_Should_ReturnNullAndLogAPIError()
         {
             // Arrange
-            var requestBody = new ApplicationRequest();
+            var requestBody = new ApplicationRequest() { Data = new ApplicationRequestData()};
             var responseMessage = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.InternalServerError,
@@ -148,7 +148,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
                 .ReturnsAsync(responseMessage);
 
             // Act
-            var result = await _sut.PostApplication(requestBody);
+            var result = await _sut.PostApplication_Fsm(requestBody);
 
             // Assert
             result.Data.Should().BeNull();
