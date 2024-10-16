@@ -35,20 +35,23 @@ function selectSchool(school, urn, la, postcode, index) {
     var schoolURN = `ChildList[${index}].School.URN`;
     var schoolPostcode = `ChildList[${index}].School.Postcode`;
     var schoolLA = `ChildList[${index}].School.LA`;
+    var schoolSearch = `school-search-${index}`;
 
     // set values
     document.getElementById(schoolName).value = school;
     document.getElementById(schoolURN).value = urn;
     document.getElementById(schoolPostcode).value = postcode;
     document.getElementById(schoolLA).value = la;
+    document.getElementById(schoolSearch).value = school;
 
     // set in local storage
     localStorage.setItem(`schoolName${index}`, school);
     localStorage.setItem(`schoolURN${index}`, urn);
-    localStorage.setItem(`schoolPostcode${index}`, la);
-    localStorage.setItem(`schoolLA${index}`, postcode);
+    localStorage.setItem(`schoolPostcode${index}`, postcode);
+    localStorage.setItem(`schoolLA${index}`, la);
 
     // clear options
     document.getElementById(`schoolList${index}`).innerHTML = '';
 }
+
 

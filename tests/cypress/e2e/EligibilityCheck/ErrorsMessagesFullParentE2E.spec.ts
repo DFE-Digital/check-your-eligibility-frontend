@@ -62,7 +62,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('[id="ChildList[0].FirstName"]').type('123456');
         cy.get('[id="ChildList[0].LastName"]').type('123456');
-        cy.get('[id="ChildList[0].School.Name"]').clear();
+        cy.get('[id="school-search-0"]').clear();
 
         cy.get('[id="ChildList[0].Day"]').clear().type('32');
         cy.get('[id="ChildList[0].Month"]').clear().type('13');
@@ -156,7 +156,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
         cy.get('[id="ChildList[0].LastName"]').type('Smith');
-        cy.get('[id="ChildList[0].School.Name"]').type('Hinde House 2-16 Academy');
+        cy.get('[id="school-search-0"]').type('Hinde House 2-16 Academy');
 
         cy.get('#schoolList0', {timeout: 5000})
             .contains('Hinde House 2-16 Academy, 139856, S5 6AG, Sheffield')
