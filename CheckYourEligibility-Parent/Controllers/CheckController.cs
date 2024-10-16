@@ -429,7 +429,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     Data = new ApplicationRequestData()
                     {
-                        Type = CheckEligibilityType.FreeSchoolMeals,
                         // Set the properties for each child
                         ParentFirstName = request.ParentFirstName,
                         ParentLastName = request.ParentLastName,
