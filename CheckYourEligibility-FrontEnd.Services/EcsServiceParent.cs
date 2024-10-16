@@ -39,7 +39,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             try
             {
                 requestBody.Data.Type = CheckYourEligibility.Domain.Enums.CheckEligibilityType.FreeSchoolMeals;
-                var response = await ApiDataPostAsynch($"{_ApplicationUrl}/FreeSchoolMeals", requestBody, new ApplicationSaveItemResponse());
+                var response = await ApiDataPostAsynch($"{_ApplicationUrl}", requestBody, new ApplicationSaveItemResponse());
                 return response;
             }
             catch (Exception ex)
