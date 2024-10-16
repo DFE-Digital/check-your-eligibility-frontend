@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility.Domain.Requests;
+﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
@@ -428,6 +429,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     Data = new ApplicationRequestData()
                     {
+                        Type = CheckEligibilityType.FreeSchoolMeals,
                         // Set the properties for each child
                         ParentFirstName = request.ParentFirstName,
                         ParentLastName = request.ParentLastName,
