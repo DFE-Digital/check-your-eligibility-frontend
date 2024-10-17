@@ -71,7 +71,7 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203d.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-dev-as-admin-frontend'
+                WebAppName: 'ece-dev-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
   - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
@@ -142,7 +142,7 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-test-as-admin-frontend'
+                WebAppName: 'ece-test-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
   - stage: RunCypressTestsTestEnv
     displayName: Run Cypress Tests On Test Env
@@ -213,6 +213,6 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-pp-as-admin-frontend'
+                WebAppName: 'ece-pp-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
  

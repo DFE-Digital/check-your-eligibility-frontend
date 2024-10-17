@@ -85,7 +85,7 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203d.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-dev-as-frontend'
+                WebAppName: 'ece-dev-as-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
   - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
@@ -157,7 +157,7 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-test-as-frontend'
+                WebAppName: 'ece-test-as-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
   - stage: RunCypressTestsTestEnv
     displayName: Run Cypress Tests On Test Env
@@ -227,5 +227,5 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ecs-pp-as-frontend'
+                WebAppName: 'ece-pp-as-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
