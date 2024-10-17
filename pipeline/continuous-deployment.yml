@@ -69,7 +69,7 @@ stages:
       pool:
         name: Azure Pipelines
         vmImage: 'windows-latest'
-      environment: DEVELOPMENT
+      environment: DEV
       strategy:
         runOnce:
           preDeploy:
