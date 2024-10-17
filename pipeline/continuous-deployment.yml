@@ -253,7 +253,7 @@ stages:
                 - task: AzureRmWebAppDeployment@4
                   inputs:
                     ConnectionType: 'AzureRM'
-                    azureSubscription: 's203t.azdo.deployment'
+                    azureSubscription: 's203p.azdo.deployment'
                     appType: 'webApp'
-                    WebAppName: 'ece-pp-as-frontend'
+                    WebAppName: 'ece-as-frontend'
                     packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
