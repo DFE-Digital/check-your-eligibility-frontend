@@ -55,7 +55,7 @@ stages:
       pool:
         name: Azure Pipelines
         vmImage: 'windows-latest'
-      environment: DEVELOPMENT
+      environment: DEV
       strategy:
         runOnce:
           preDeploy:
@@ -215,4 +215,33 @@ stages:
                 appType: 'webApp'
                 WebAppName: 'ece-pp-as-admin-frontend'
                 packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
+
+
+
+  - stage: DeployAppProd
+    displayName: Deploy App Production
+    jobs:
+      - deployment: ppdeploy
+        displayName: Deploy App Production
+        pool:
+          name: Azure Pipelines
+          vmImage: 'windows-latest'
+        environment: PROD
+        strategy:
+          runOnce:
+            preDeploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: 'current'
+                    targetPath: '$(Pipeline.Workspace)'
+            deploy:
+              steps:
+                - task: AzureRmWebAppDeployment@4
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: 's203p.azdo.deployment'
+                    appType: 'webApp'
+                    WebAppName: 'ece-as-admin-frontend'
+                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
  
