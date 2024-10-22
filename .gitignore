@@ -411,3 +411,7 @@ FodyWeavers.xsd
 /CheckYourEligibility-Parent/appsettings.Development.json
 /CheckYourEligibility-Parent/appsettings.Development.json
 /CheckYourEligibility-Parent/appsettings.Development.json
+/CheckYourEligibility-Admin/CheckYourEligibility-Admin.csproj
+/CheckYourEligibility-DfeSignIn/CheckYourEligibility-DfeSignIn.csproj
+/CheckYourEligibility-FrontEnd.Services/CheckYourEligibility-FrontEnd.Services.csproj
+/CheckYourEligibility-Parent/CheckYourEligibility-Parent.csproj
