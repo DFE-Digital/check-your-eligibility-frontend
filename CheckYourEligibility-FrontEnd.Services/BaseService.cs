@@ -74,10 +74,14 @@ namespace CheckYourEligibility_FrontEnd.Services
             else
             {
                 var method = "POST";
-                
+
                 if (task.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     throw new UnauthorizedAccessException();
+                }
+                if (task.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    throw new ArgumentException();
                 }
                 await LogApiError(task, method, uri, json);
             }

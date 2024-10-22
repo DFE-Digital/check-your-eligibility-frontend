@@ -6,6 +6,7 @@ using CheckYourEligibility_FrontEnd.Services;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
@@ -303,6 +304,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
             }
 
+            if (TempData["ValidationMessage"] != null)
+            {
+                // NoJS route does not reload all entered child data, only returns original form and shows validation
+                // message so message is displayed on child 1 regardless of where the error orginated.
+                ModelState.AddModelError($"ChildList[0].School.URN", TempData["ValidationMessage"].ToString());
+            }
+
             return View(children);
         }
 
@@ -321,9 +329,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 //disable JS has been used
                 if (string.IsNullOrEmpty(item.School.URN) && !string.IsNullOrEmpty(item.School.Name))
                 {
-                    item.School.URN = item.School.Name;
-                    ModelState.Remove($"ChildList[{idx}].School.URN");
-                    _logger.LogWarning($"JavaScript Disabled URN Used for SchoolSearch");
+                    if (item.School.Name.Length == 6 && int.TryParse(item.School.Name, out _))
+                    {
+                        item.School.URN = item.School.Name;
+                        ModelState.Remove($"ChildList[{idx}].School.URN");
+                        _logger.LogWarning($"JavaScript Disabled URN Used for SchoolSearch");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError($"ChildList[{idx}].School.URN", "URN should be a 6 digit number.");
+                    }
                 }
                 idx++;
             }
@@ -444,10 +459,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }
                 };
-
-                // Send each application as an individual check
-                var response = await _parentService.PostApplication_Fsm(fsmApplication);
-                responses.Add(response);
+                try
+                {
+                    // Send each application as an individual check
+                    var response = await _parentService.PostApplication_Fsm(fsmApplication);
+                    responses.Add(response);
+                }
+                catch (Exception ex)
+                {
+                    // Set a validation message in TempData for Enter_Child_Details to read
+                    TempData["ValidationMessage"] = "The URN provided could not be matched to a school.";
+                    return RedirectToAction("Enter_Child_Details");
+                }
             }
 
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
