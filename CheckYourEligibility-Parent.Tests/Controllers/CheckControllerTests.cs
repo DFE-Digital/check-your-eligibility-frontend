@@ -62,14 +62,14 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         Name = "Springfield Elementary",
                         LA = "Springfield",
                         Postcode = "SP1 3LE",
-                        URN = "10002"
+                        URN = "100021"
                     },
                     new ChildsSchool()
                     {
                         Name = "Springfield Nursery",
                         LA = "Springfield",
                         Postcode = "SP1 3NU",
-                        URN = "10001"
+                        URN = "100011"
                     }
                 };
 
@@ -637,7 +637,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = _sut.Enter_Child_Details(_children);
 
             // Assert
-            var viewResult = result as ViewResult;
+            var viewResult = await result as ViewResult;
             viewResult.ViewName.Should().Be("Check_Answers");
             ; viewResult.Model.Should().BeAssignableTo<FsmApplication>();
         }
@@ -653,7 +653,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = _sut.Enter_Child_Details(_children);
 
             // assert
-            var viewResult = result as ViewResult;
+            var viewResult = await result as ViewResult;
             viewResult.Model.Should().Be(_children);
         }
 
