@@ -84,13 +84,30 @@
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" role="group" aria-describedby="school-picker-hint">
                     <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
-                        School Unique Reference Number (URN)
+                        School
                     </label>
 
                     <div id="school-picker-hint" class="govuk-hint" aria-label="Type to search">
-                        Enter the URN for the school
+                        Type to search
                     </div>
+                    <noscript>
+                        <style>
+                            div[aria-label="Type to search"],
+                            label[for="school-picker"] {
+                                display: none; /* Hides both elements */
+                            }
 
+                        </style>
+
+                        <label class="govuk-label govuk-!-font-weight-bold" for="school-urn">
+                        School Unique Reference Number (URN)
+                        </label>
+                        
+                        <div id="school-picker-hint" class="govuk-hint" aria-label="Etner the URN for the School">
+                        Enter the URN for the school
+                        </div>
+                    </noscript>
+                    
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.Name"></span>
                     </p>
@@ -182,19 +199,3 @@
 <script src="/js/validationSummary.js"></script>
 <script src="/js/schoolSearch.js"></script>
 <script src="/js/focusChildNameInput.js"></script>
-<script type="text/javascript">
-   document.addEventListener('DOMContentLoaded', function() {
-    // Replace the label text
-    var label = document.querySelector('label[for="school-picker"]');
-    if (label) {
-        label.textContent = 'School';
-    }
-
-    // Replace the hint text
-    var hint = document.getElementById('school-picker-hint');
-    if (hint) {
-        hint.textContent = 'Type to search';
-    }
-});
- 
-</script>
