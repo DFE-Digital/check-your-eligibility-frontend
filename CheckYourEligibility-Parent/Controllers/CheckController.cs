@@ -434,7 +434,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
-            var errorsExist = false;
             List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
             
             foreach (var child in request.Children.ChildList)
@@ -463,11 +462,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 var response = await _parentService.PostApplication_Fsm(fsmApplication);
                 responses.Add(response);
             }
-            if(errorsExist)
-            {
-                return RedirectToAction("Enter_Child_Details");
-            }
-            HttpContext.Session.SetString("ApplicationResponse", string.Empty);
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
             return RedirectToAction("Application_Sent");
         }
