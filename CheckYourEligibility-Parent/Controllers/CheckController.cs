@@ -317,7 +317,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
 
         [HttpPost]
-        public IActionResult Enter_Child_Details(Children request)
+        public async Task<IActionResult> Enter_Child_Details(Children request)
         {
             if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
@@ -327,19 +327,25 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var idx = 0;
             foreach (var item in request.ChildList)
             {
-                //disable JS has been used
-                if (string.IsNullOrEmpty(item.School.URN) && !string.IsNullOrEmpty(item.School.Name))
+                if (item.School.URN == null) continue;
+                if (item.School.URN.Length == 6 && int.TryParse(item.School.URN, out _))
                 {
-                    if (item.School.Name.Length == 6 && int.TryParse(item.School.Name, out _))
+                    var schools = await _parentService.GetSchool(item.School.URN);
+
+                    if (schools!=null)
                     {
-                        item.School.URN = item.School.Name;
+                        item.School.Name = schools.Data.First().Name;
                         ModelState.Remove($"ChildList[{idx}].School.URN");
-                        _logger.LogWarning($"JavaScript Disabled URN Used for SchoolSearch");
                     }
+
                     else
                     {
-                        ModelState.AddModelError($"ChildList[{idx}].School.URN", "URN should be a 6 digit number.");
+                        ModelState.AddModelError($"ChildList[{idx}].School.URN", "The selected school does not exist in our service.");
                     }
+                }
+                else
+                {
+                    ModelState.AddModelError($"ChildList[{idx}].School.URN", "School URN should be a 6 digit number.");
                 }
                 idx++;
             }
