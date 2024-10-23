@@ -308,7 +308,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
 
         [HttpPost]
-        public IActionResult Enter_Child_Details(Children request)
+        public async Task<IActionResult> Enter_Child_Details(Children request)
         {
             if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
@@ -318,12 +318,25 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var idx = 0;
             foreach (var item in request.ChildList)
             {
-                //disable JS has been used
-                if (string.IsNullOrEmpty(item.School.URN) && !string.IsNullOrEmpty(item.School.Name))
+                if (item.School.URN == null) continue;
+                if (item.School.URN.Length == 6 && int.TryParse(item.School.URN, out _))
                 {
-                    item.School.URN = item.School.Name;
-                    ModelState.Remove($"ChildList[{idx}].School.URN");
-                    _logger.LogWarning($"JavaScript Disabled URN Used for SchoolSearch");
+                    var schools = await _parentService.GetSchool(item.School.URN);
+
+                    if (schools!=null)
+                    {
+                        item.School.Name = schools.Data.First().Name;
+                        ModelState.Remove($"ChildList[{idx}].School.URN");
+                    }
+
+                    else
+                    {
+                        ModelState.AddModelError($"ChildList[{idx}].School.URN", "The selected school does not exist in our service.");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError($"ChildList[{idx}].School.URN", "School URN should be a 6 digit number.");
                 }
                 idx++;
             }
@@ -421,8 +434,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
-            var responses = new List<ApplicationSaveItemResponse>();
-
+            List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
+            
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -444,12 +457,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }
                 };
-
+                
                 // Send each application as an individual check
                 var response = await _parentService.PostApplication_Fsm(fsmApplication);
                 responses.Add(response);
             }
-
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
             return RedirectToAction("Application_Sent");
         }
