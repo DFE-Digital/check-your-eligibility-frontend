@@ -6,7 +6,6 @@ using CheckYourEligibility_FrontEnd.Services;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
@@ -286,7 +285,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             HttpContext.Session.SetString("Email", email);
             HttpContext.Session.SetString("UserId", user.Data);
-            HttpContext.Session.SetString("ApplicationResponse", string.Empty);
 
             return RedirectToAction("Enter_Child_Details");
         }
@@ -303,13 +301,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 // Retrieve Children from TempData
                 var childDetails = TempData["ChildList"] as string;
                 children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
-            }
-
-            if (TempData["ValidationMessage"] != null)
-            {
-                // NoJS route does not reload all entered child data, only returns original form and shows validation
-                // message so message is displayed on child 1 regardless of where the error orginated.
-                ModelState.AddModelError($"ChildList[0].School.URN", TempData["ValidationMessage"].ToString());
             }
 
             return View(children);
@@ -445,10 +436,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             var errorsExist = false;
             List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
-            if (HttpContext.Session.GetString("ApplicationResponse") != string.Empty)
-            {
-                responses = JsonConvert.DeserializeObject<List<ApplicationSaveItemResponse>> (HttpContext.Session.GetString("ApplicationResponse"));
-            }
+            
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -470,19 +458,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }
                 };
-                try
-                {
-                    // Send each application as an individual check
-                    var response = await _parentService.PostApplication_Fsm(fsmApplication);
-                    responses.Add(response);
-                    HttpContext.Session.SetString("ApplicationResponse", JsonConvert.SerializeObject(responses));
-                }
-                catch (Exception ex)
-                {
-                    errorsExist = true;
-                    // Set a validation message in TempData for Enter_Child_Details to read
-                    TempData["ValidationMessage"] = $"There has been an issue creating the application {fsmApplication.Data.ChildFirstName} {fsmApplication.Data.ChildLastName}";
-                }
+                
+                // Send each application as an individual check
+                var response = await _parentService.PostApplication_Fsm(fsmApplication);
+                responses.Add(response);
             }
             if(errorsExist)
             {
