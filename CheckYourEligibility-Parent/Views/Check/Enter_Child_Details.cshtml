@@ -52,11 +52,11 @@
             @if (i > 0){
             <button asp-controller="Check" asp-action="Remove_Child" asp-route-index="@i" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4 delete-button" data-module="govuk-button">
                 Remove Child @(i + 1)
-            </button button>
+            </button>
             }
 
             <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold" for="ch1-first-name">
+                <label class="govuk-label govuk-!-font-weight-bold" for="ChildList[@i].FirstName">
                     First name
                 </label>
                 <p class="govuk-error-message">
@@ -84,20 +84,24 @@
 
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" role="group" aria-describedby="school-picker-hint">
-                    <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
-                        School Unique Reference Number (URN)
+                    <label class="govuk-label govuk-!-font-weight-bold noJsRemove" for="school-picker">
+                        School
                     </label>
 
-                    <div id="school-picker-hint" class="govuk-hint" aria-label="Type to search">
-                        Enter the URN for the school
+                    <div id="school-picker-hint" class="govuk-hint noJsRemove" aria-label="Type to search">
+                        Type to search
                     </div>
 
                     <p class="govuk-error-message">
-                        <span asp-validation-for="ChildList[i].School.Name"></span>
+                        <span asp-validation-for="ChildList[i].School.URN"></span>
                     </p>
-                    <input id="school-search-@i" class="noJsRemove govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search">
-                    <input asp-for="ChildList[i].School.Name" style="display:none;" id="ChildList[@i].School.Name" class="noJsShow govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
-                    <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
+                    <input id="school-search-@i" class="noJsRemove govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search" />
+                    <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" />
+                    
+                    <label class="govuk-label govuk-!-font-weight-bold noJsShow" style="display: none;" for="ChildList[@i].School.URN">
+                        School Unique Reference Number (URN)
+                    </label>
+                    <input asp-for="ChildList[i].School.URN" style="display:none;" id="ChildList[@i].School.URN" class="noJsShow govuk-search govuk-input govuk-!-width-two-thirds" aria-label="School" />
                     <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
                     <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
                     <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
@@ -127,14 +131,14 @@
                 </noscript>
             </div>
 
-        <div class="govuk-form-group" data-type="dob-form-group">
-            <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
+            <div class="govuk-form-group" data-type="dob-form-group">
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
 
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                         Date of birth
                     </legend>
 
-                <div id="dob-hint" class="govuk-hint">
+                    <div id="dob-hint" class="govuk-hint">
                         For example, 27 3 2007
                     </div>
 
@@ -171,6 +175,7 @@
                     </div>
                 </fieldset>
             </div>
+        </fieldset>
         </div>
     }
 
@@ -192,19 +197,3 @@
 
 <script src="/js/validationSummary.js"></script>
 <script src="/js/schoolSearch.js"></script>
-<script type="text/javascript">
-   document.addEventListener('DOMContentLoaded', function() {
-    // Replace the label text
-    var label = document.querySelector('label[for="school-picker"]');
-    if (label) {
-        label.textContent = 'School';
-    }
-
-    // Replace the hint text
-    var hint = document.getElementById('school-picker-hint');
-    if (hint) {
-        hint.textContent = 'Type to search';
-    }
-});
- 
-</script>
