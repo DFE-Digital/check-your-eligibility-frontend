@@ -42,7 +42,7 @@ function selectSchool(school, urn, la, postcode, index) {
     document.getElementById(schoolURN).value = urn;
     document.getElementById(schoolPostcode).value = postcode;
     document.getElementById(schoolLA).value = la;
-    document.getElementById(schoolSearch).value = school;
+    document.getElementById(schoolSearch).value = `${school},${urn}, ${postcode}, ${la}`;
 
     // set in local storage
     localStorage.setItem(`schoolName${index}`, school);
