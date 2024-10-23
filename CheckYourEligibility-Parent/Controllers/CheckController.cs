@@ -286,6 +286,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             HttpContext.Session.SetString("Email", email);
             HttpContext.Session.SetString("UserId", user.Data);
+            HttpContext.Session.SetString("ApplicationResponse", string.Empty);
 
             return RedirectToAction("Enter_Child_Details");
         }
@@ -436,8 +437,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
-            var responses = new List<ApplicationSaveItemResponse>();
-
+            var errorsExist = false;
+            List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
+            if (HttpContext.Session.GetString("ApplicationResponse") != string.Empty)
+            {
+                responses = JsonConvert.DeserializeObject<List<ApplicationSaveItemResponse>> (HttpContext.Session.GetString("ApplicationResponse"));
+            }
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -464,15 +469,20 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     // Send each application as an individual check
                     var response = await _parentService.PostApplication_Fsm(fsmApplication);
                     responses.Add(response);
+                    HttpContext.Session.SetString("ApplicationResponse", JsonConvert.SerializeObject(responses));
                 }
                 catch (Exception ex)
                 {
+                    errorsExist = true;
                     // Set a validation message in TempData for Enter_Child_Details to read
-                    TempData["ValidationMessage"] = "The URN provided could not be matched to a school.";
-                    return RedirectToAction("Enter_Child_Details");
+                    TempData["ValidationMessage"] = $"There has been an issue creating the application {fsmApplication.Data.ChildFirstName} {fsmApplication.Data.ChildLastName}";
                 }
             }
-
+            if(errorsExist)
+            {
+                return RedirectToAction("Enter_Child_Details");
+            }
+            HttpContext.Session.SetString("ApplicationResponse", string.Empty);
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
             return RedirectToAction("Application_Sent");
         }

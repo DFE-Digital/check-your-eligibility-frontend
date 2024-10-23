@@ -79,10 +79,6 @@ namespace CheckYourEligibility_FrontEnd.Services
                 {
                     throw new UnauthorizedAccessException();
                 }
-                if (task.StatusCode == HttpStatusCode.InternalServerError)
-                {
-                    throw new ArgumentException();
-                }
                 await LogApiError(task, method, uri, json);
             }
 
