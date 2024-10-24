@@ -12,9 +12,9 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('Simpson');
-        cy.get('#Day').should('be.visible').type('01');
-        cy.get('#Month').should('be.visible').type('01');
-        cy.get('#Year').should('be.visible').type('1990');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
 
         cy.get('input[type="radio"][value="false"]').click();
 

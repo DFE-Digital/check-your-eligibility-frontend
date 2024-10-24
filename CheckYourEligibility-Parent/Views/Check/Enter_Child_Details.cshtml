@@ -64,10 +64,10 @@
                    
                     @if (childIndex ==i)
                     {
-                        <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name" autofocus/>
+                        <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="First name" autofocus/>
                     } else 
                     {
-                       <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name"/>
+                       <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="First name"/>
                     }
             </div>
 
@@ -78,7 +78,7 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="ChildList[i].LastName"></span>
                 </p>
-                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="Last Name">
+                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].LastName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="Last Name">
             </div>
 
             <div class="govuk-form-group">
@@ -94,7 +94,7 @@
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.Name"></span>
                     </p>
-                    <input id="school-search-@i" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search">
+                    <input id="school-search-@i" class="govuk-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].School.Name"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search">
                     <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
                     <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
                     <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
@@ -136,7 +136,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Day">
+                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" aria-label="Day">
                             </div>
                         </div>
 
@@ -145,7 +145,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-month">
                                     Month
                                 </label>
-                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Month">
+                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Month"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" aria-label="Month">
                             </div>
                         </div>
 
@@ -154,7 +154,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-year">
                                     Year
                                 </label>
-                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Year">
+                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Year"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" aria-label="Year">
                             </div>
                         </div>
                     </div>

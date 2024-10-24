@@ -35,20 +35,20 @@ describe('After errors have been input initially a Parent with valid details can
 
     it('returns the correct error message when invalid dates are added to the date fields', () => {
         cy.visit('/Check/Enter_Details');
-        cy.get('#Day').should('be.visible').type('32');
-        cy.get('#Month').should('be.visible').type('32');
-        cy.get('#Year').should('be.visible').type('4001');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('32');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('32');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('4001');
 
         cy.contains('Save and continue').click();
 
         cy.get('li').should('contain.text', 'Enter a valid day');
 
-        cy.get('#Day').clear().type('01');
+        cy.get('#DateOfBirth\\.Day').clear().type('01');
         cy.contains('Save and continue').click();
 
         cy.get('li').should('contain.text', 'Enter a valid month');
 
-        cy.get('#Month').clear().type('01');
+        cy.get('#DateOfBirth\\.Month').clear().type('01');
         cy.contains('Save and continue').click();
         cy.get('li').should('contain.text', 'Enter a date in the past');
 
@@ -94,9 +94,9 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('Smith');
-        cy.get('#Day').should('be.visible').type('01');
-        cy.get('#Month').should('be.visible').type('01');
-        cy.get('#Year').should('be.visible').type('1990');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
 
         cy.get('#IsNinoSelected').click();
 

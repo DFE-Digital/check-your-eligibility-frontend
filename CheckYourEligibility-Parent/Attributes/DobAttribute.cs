@@ -9,14 +9,6 @@ public class DobAttribute : ValidationAttribute
     {
         var model = validationContext.ObjectInstance;
 
-        //var dayProperty = model.GetType().GetProperty("Day");
-        //var monthProperty = model.GetType().GetProperty("Month");
-        //var yearProperty = model.GetType().GetProperty("Year");
-
-        //var dayString = dayProperty?.GetValue(model) as string;
-        //var monthString = monthProperty?.GetValue(model) as string;
-        //var yearString = yearProperty?.GetValue(model) as string;
-
         var dayString = GetPropertyValue(model, "Day");
         var monthString = GetPropertyValue(model, "Month");
         var yearString = GetPropertyValue(model, "Year");
@@ -34,15 +26,6 @@ public class DobAttribute : ValidationAttribute
         {
             return new ValidationResult("Enter a complete date of birth", missingFields.ToArray() );
         }
-
-        //if (string.IsNullOrWhiteSpace(dayString) && string.IsNullOrWhiteSpace(monthString) && string.IsNullOrWhiteSpace(yearString))
-        //{
-        //    return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth", "Day", "Month", "Year" });
-        //}
-        //if (string.IsNullOrWhiteSpace(dayString) || string.IsNullOrWhiteSpace(monthString) || string.IsNullOrWhiteSpace(yearString))
-        //{
-        //    return new ValidationResult("Enter a complete date of birth", new[] { "DateOfBirth" });
-        //}
 
         if (!int.TryParse(dayString, out int dayInt))
         {
@@ -69,6 +52,11 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth", "Year" });
         }
 
+        if (dayInt > DateTime.DaysInMonth(yearInt, monthInt))
+        {
+            return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
+        }
+
         var dob = new DateTime(yearInt, monthInt, dayInt);
 
         if (dob > DateTime.Now)
@@ -79,11 +67,6 @@ public class DobAttribute : ValidationAttribute
         if (yearInt < 1900 || yearInt > DateTime.Now.Year)
         {
             return new ValidationResult("Enter a valid year", new[] { "DateOfBirth", "Year" });
-        }
-
-        if (dayInt > DateTime.DaysInMonth(yearInt, monthInt))
-        {
-            return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
         }
 
         if (model is Child)

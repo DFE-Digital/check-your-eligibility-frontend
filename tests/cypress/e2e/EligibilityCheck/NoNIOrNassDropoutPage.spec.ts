@@ -13,9 +13,9 @@ describe('Parent or Guardian without an NI or NASS will be redirected to correct
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('GRIFFIN');
-        cy.get('#Day').should('be.visible').type('31');
-        cy.get('#Month').should('be.visible').type('12');
-        cy.get('#Year').should('be.visible').type('2000');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('31');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('12');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('2000');
 
         cy.get('input[type="radio"][value="false"]').click();
         cy.contains('Save and continue').click();
