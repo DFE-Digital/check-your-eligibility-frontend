@@ -36,6 +36,7 @@
 
             return propertyOrder.IndexOf(extractedPropertyName);
         })
+        .DistinctBy(e => e.Error)
         .ToList();
 }
 

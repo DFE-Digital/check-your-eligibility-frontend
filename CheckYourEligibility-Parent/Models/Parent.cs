@@ -18,13 +18,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Dob]
         public string? DateOfBirth { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
         public string? Day { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Month using numbers only")]
         public string? Month { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Year using numbers only")]
         public string? Year { get; set; }
 
         [Nino]
