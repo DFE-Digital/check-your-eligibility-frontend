@@ -363,6 +363,32 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var model = viewResult.Model as Parent;
             model.Should().BeEquivalentTo(new Parent());
         }
+        [Test]
+        public async Task Given_QueuedForProcessingStatus_When_LoaderIsCalled_Should_ReturnLoaderView()
+        {
+            // Arrange
+            var response = new CheckEligibilityResponse
+            {
+                Data = new StatusValue { Status = "queuedForProcessing" }
+            };
+            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
+
+            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
+            {
+                Data = new StatusValue { Status = "queuedForProcessing" }
+            };
+            _checkServiceMock
+                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(checkEligibilityStatusResponse);
+
+            // Act
+            var result = await _sut.Loader();
+
+            // Assert
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("Loader");
+        }
 
         [Test]
         public async Task Given_Nass_When_ValidDataProvided_Should_RedirectToNass()
@@ -408,6 +434,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             redirectResult.ActionName.Should().Be("NotFound");
         }
         
+
+
         [Test]
         public async Task Given_Loader_When_StatusIsUnrecognized_Should_ReturnTechnicalErrorView()
         {
