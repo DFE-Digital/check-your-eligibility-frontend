@@ -157,19 +157,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(parent);
         }
 
-        public IActionResult Loader()
-        {
-            return View();
-        }
 
-        public async Task<IActionResult> Poll_Status(bool jsDisabled)
+        public async Task<IActionResult> Loader()
         {
             // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
             if (responseJson == null)
             {
                 _logger.LogWarning("No response data found in TempData.");
-                return Json(new { status = "error", message = "No response data found" });
+                return View("Outcome/Technical_Error");
             }
 
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
@@ -182,53 +178,41 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (check == null || check.Data == null)
             {
                 _logger.LogWarning("Null response received from GetStatus.");
-                return Json(new { status = "error", message = "Null response from service" });
+                return View("Outcome/Technical_Error");
             }
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
 
             SetSessionCheckResult(check.Data.Status);
 
-            // Handle final statuses and return appropriate views
-            string url = "/check/signIn"; // The URL to pass as a model
-
+            // Handle final statuses and redirect appropriately
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return jsDisabled ? View("Outcome/Eligible", url) : PartialView("Outcome/Eligible", url);
+                    return RedirectToAction("Eligible");
 
                 case "notEligible":
-                    return jsDisabled ? View("Outcome/Not_Eligible") : PartialView("Outcome/Not_Eligible");
+                    return RedirectToAction("NotEligible");
 
                 case "parentNotFound":
-                    return jsDisabled ? View("Outcome/Not_Found") : PartialView("Outcome/Not_Found");
+                    return RedirectToAction("NotFound");
 
                 case "DwpError":
-                    return jsDisabled ? View("Outcome/Technical_Error") : PartialView("Outcome/Technical_Error");
+                    return RedirectToAction("TechnicalError");
 
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
+                    // Save the response back to TempData for the next poll
                     TempData["Response"] = JsonConvert.SerializeObject(response);
-                    if (jsDisabled)
-                    {
-                        // Redirect back to Loader to continue polling via page refresh
-                        return RedirectToAction("Loader");
-                    }
-                    else
-                    {
-                        // Return JSON to keep polling via AJAX
-                        return Json(new { status = "processing" });
-                    }
+                    // Render the loader view which will auto-refresh
+                    return View("Loader");
 
                 default:
                     _logger.LogError("Unexpected status received.");
-                    if (jsDisabled)
-                        return View("Outcome/Technical_Error");
-                    else
-                        return Json(new { status = "error", message = "Unexpected status" });
+                    return View("Outcome/Technical_Error");
             }
-
         }
+
 
 
 
@@ -487,5 +471,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // populate enter_child_details page with children model
             return View("Enter_Child_Details", children);
         }
+
+
     }
 }
