@@ -16,7 +16,7 @@ describe('Admin journey search for application', () => {
 
     it('Will create an application that can be used for searches', () => {
 
-        cy.contains('Check free school meals - single student').click();
+        cy.get('#individual').click()
         
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
