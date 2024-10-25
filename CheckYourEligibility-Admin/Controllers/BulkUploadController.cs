@@ -19,7 +19,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
         private ILogger<BulkUploadController> _loggerMock;
-                
+
         public BulkUploadController(ILogger<BulkUploadController> logger, IEcsCheckService ecsCheckService, IConfiguration configuration)
         {
             _config = configuration;
@@ -35,6 +35,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Batch_Check(IFormFile fileUpload)
         {
+            var timeNow = DateTime.UtcNow;
+            if (!string.IsNullOrEmpty(HttpContext.Session.GetString("FirstSubmissionTimeStamp")))
+            {
+                var firstSubmissionTimeStampString = HttpContext.Session.GetString("FirstSubmissionTimeStamp");
+                DateTime.TryParse(firstSubmissionTimeStampString, out DateTime firstSubmissionTimeStamp);
+                var timein1Hour = firstSubmissionTimeStamp.AddHours(1);
+
+                if (timeNow >= timein1Hour)
+                {
+                    HttpContext.Session.Remove("BatchSubmissions");
+                }
+            }
+
             TempData["Response"] = "data_issue";
             List<CheckRow> DataLoad;
             var errorCount = 0;
@@ -45,6 +58,35 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["ErrorMessage"] = "Select a CSV File";
                 return RedirectToAction("Batch_Check");
             }
+            
+            // limit csv submission attempts
+            int sessionCount = 0;
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("BatchSubmissions")))
+            {
+                // set session value as 0 if it didnt exist
+                HttpContext.Session.SetInt32("BatchSubmissions", 0);
+                // Set time in its own session value
+                HttpContext.Session.SetString("FirstSubmissionTimeStamp", DateTime.UtcNow.ToString());
+            }
+            else
+            {
+                // if it exists, get the value
+                sessionCount = (int)HttpContext.Session.GetInt32("BatchSubmissions");
+            }
+
+            // increment
+            sessionCount++;
+
+            // validate
+            if (sessionCount >= int.Parse(_config["Limits:Hourly"]))
+            {
+                TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
+                return RedirectToAction("Batch_Check");
+            }
+
+            // check not more than 10, if it is return Batch_Check() with ErrorMessage == too many requests made, wait a bit longer
+
+
             try
             {
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -60,6 +102,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     csv.Context.RegisterClassMap<CheckRowRowMap>();
                     DataLoad = csv.GetRecords<CheckRow>().ToList();
 
+                    // if it has a header record add one to the limit
+                    int checkRowLimit = config.HasHeaderRecord == true ? int.Parse(_config["Limits:MaxRows"] + 1) : int.Parse(_config["Limits:MaxRows"]);
+                    if (DataLoad.Count > checkRowLimit)
+                    {
+                        TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
+                        return RedirectToAction("Batch_Check");
+                    }
+
                     if (DataLoad == null || !DataLoad.Any())
                     {
                         throw new InvalidDataException("Invalid file content.");
@@ -67,8 +117,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
                 var validator = new CheckEligibilityRequestDataValidator_Fsm();
                 var sequence = 1;
-               
-                
+
+
                 foreach (var item in DataLoad)
                 {
 
@@ -83,7 +133,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     var validationResults = validator.Validate(requestItem);
                     if (!validationResults.IsValid)
                     {
-                        errorCount = checkIfExists(sequence, validationResultsItems, validationResults,errorCount);
+                        errorCount = checkIfExists(sequence, validationResultsItems, validationResults, errorCount);
                     }
                     else
                     {
@@ -92,7 +142,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     }
                     sequence++;
                 }
-
             }
             catch (Exception ex)
             {
@@ -103,7 +152,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 if ((errorCount - TotalErrorsToDisplay) > 0)
                 {
-                    TempData["BatchParentCheckItemsLineMoreErrors"] = errorCount- TotalErrorsToDisplay;
+                    TempData["BatchParentCheckItemsLineMoreErrors"] = errorCount - TotalErrorsToDisplay;
                 }
 
                 TempData["BatchParentCheckItemsErrors"] = validationResultsItems.ToString();
@@ -111,7 +160,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                var result = await _checkService.PostBulkCheck(new CheckEligibilityRequestBulk_Fsm{ Data = requestItems});
+                var result = await _checkService.PostBulkCheck(new CheckEligibilityRequestBulk_Fsm { Data = requestItems });
                 HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
                 HttpContext.Session.SetString("Get_BulkCheck_Results", result.Links.Get_BulkCheck_Results);
                 return RedirectToAction("Batch_Loader");
@@ -120,7 +169,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Batch_Loader()
         {
-            
+
             var result = await _checkService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
             if (result != null)
             {
@@ -131,7 +180,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return RedirectToAction("Batch_check_success");
                 }
             }
-            
+
             return View();
         }
 
@@ -143,9 +192,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Batch_check_download()
         {
             var resultData = await _checkService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
-            var exportData = resultData.Data.Select(x=> new BatchFSMExport {
+            var exportData = resultData.Data.Select(x => new BatchFSMExport
+            {
                 LastName = x.LastName,
-                DOB =x.DateOfBirth,
+                DOB = x.DateOfBirth,
                 NI = x.NationalInsuranceNumber,
                 NASS = x.NationalAsylumSeekerServiceNumber,
                 Outcome = x.Status.GetFsmStatusDescription()
@@ -162,7 +212,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             using (var memoryStream = new MemoryStream())
             using (var streamWriter = new StreamWriter(memoryStream))
-            using (var csvWriter = new CsvWriter(streamWriter,CultureInfo.InvariantCulture))
+            using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
             {
                 csvWriter.WriteRecords(records);
                 streamWriter.Flush();
