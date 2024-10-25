@@ -10,6 +10,11 @@
   <ItemGroup>
     <Content Remove="appsettings.development.json" />
     <Content Remove="appsettings.json" />
+    <Content Remove="web.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="web.config" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +25,7 @@
   <ItemGroup>
     <None Include="appsettings.Development.json" />
     <None Include="appsettings.json" />
+    <None Include="Web.config" />
   </ItemGroup>
 
   <ItemGroup>
