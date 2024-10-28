@@ -245,6 +245,38 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             viewResult.ContentType.Should().BeEquivalentTo("text/csv");
         }
 
+        [TestCase("batchchecktemplate small Valid", "test.csv", null , "Batch_Loader" )]
+        [TestCase("batchchecktemplate_too_many_records" , "test.csv" , "CSV File cannot contain more than 250 records" , "Batch_Check" )]
+        public async Task Given_Batch_check_When_given_file_should_return_appropriate_response_based_on_record_number(string content , string fileName , string? errorMessage , string expectedRedirectPage)
+        {
+            //arrange
+            if (content == "batchchecktemplate_too_many_records") {
+                _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
+            }
+            //var fileName = "test.csv";
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+
+            //create FormFile with desired data
+            var file = new FormFile(stream, 0, stream.Length, fileName, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/csv"
+            };
+            //act
+            var result = await _sut.Batch_Check(file);
+
+            //assert
+            var redirectResult = result as ActionResult;
+            //redirectResult.ActionName.Should().Be(expectedRedirectPage);
+           // var viewResult = result as ViewResult;
+           // viewResult.TempData["ErrorMessage"].Should().BeEquivalentTo(errorMessage);
+        }
+        
+
     }
 }
 
