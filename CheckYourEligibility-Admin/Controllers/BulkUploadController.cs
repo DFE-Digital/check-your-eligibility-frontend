@@ -76,9 +76,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             // increment
             sessionCount++;
+            HttpContext.Session.SetInt32("BatchSubmissions", sessionCount);
 
             // validate
-            if (sessionCount >= int.Parse(_config["Limits:Hourly"]))
+            if (sessionCount > int.Parse(_config["Limits:Hourly"]))
             {
                 TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
                 return RedirectToAction("Batch_Check");
