@@ -61,7 +61,7 @@ namespace CheckYourEligibility.TestBase.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent asylum seeker reference number
+        ///   Looks up a localized string similar to Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent Asylum Support Reference Number
         ///tom,SIMPSON,01/01/1990,AB123456C,
         ///dave,smith,01/01/1990,AB123456D,
         ///.
@@ -73,7 +73,7 @@ namespace CheckYourEligibility.TestBase.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent asylum seeker reference number
+        ///   Looks up a localized string similar to Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent Asylum Support Reference Number
         ///tom,SIMPSON,1990-01-01,AB123456C,
         ///fred,Jones,1990-01-01,ABCD,
         ///dave,smith,32/01/1990,AB123456D,

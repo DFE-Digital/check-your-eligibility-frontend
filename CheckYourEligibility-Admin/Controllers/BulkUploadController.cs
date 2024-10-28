@@ -201,7 +201,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         break;
                     case CheckYourEligibility.Domain.Constants.ErrorMessages.ValidationMessages.NI:
                         {
-                            message = $"<li>Line {sequence}: Issue with National Insurance number</li>";
+                            message = $"<li>Line {sequence}: Issue with National Insurance Number</li>";
                             errorCount = AddLineIfNotExist(validationResultsItems, errorCount, message);
                         }
                         break;

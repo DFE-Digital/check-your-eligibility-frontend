@@ -8,7 +8,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Name("Parent NI Number")]
         public string NI { get; set; }
 
-        [Name("Parent Asylum Seeker Reference Number")]
+        [Name("Parent Asylum Support Reference Number")]
         public string NASS { get; set; }
 
         [Name("Parent Date of Birth")]

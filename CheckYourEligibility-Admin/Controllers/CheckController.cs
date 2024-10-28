@@ -8,6 +8,8 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Reflection;
 using System.Text;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
@@ -15,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 {
     public class CheckController : BaseController
     {
-      
+
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsCheckService _checkService;
         private readonly IEcsServiceParent _parentService;
@@ -61,7 +63,35 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Enter_Details(ParentGuardian request)
         {
-            if (request.IsNassSelected == true)
+            if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.None)
+            {
+                if (!ModelState.IsValid)
+                {
+                    // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
+                    TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                    var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                    if (errors.ContainsKey("NationalInsuranceNumber") && errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
+                    {
+                        string targetValue = "Please select one option";
+
+                        if (errors["NationalInsuranceNumber"].Contains(targetValue) && errors["NationalAsylumSeekerServiceNumber"].Contains(targetValue))
+                        {
+                            errors.Remove("NationalInsuranceNumber");
+                            errors.Remove("NationalAsylumSeekerServiceNumber");
+
+                            // Add the new key with the target value
+                            errors["NINAS"] = new List<string> { targetValue };
+                        }
+                    }
+                    TempData["Errors"] = JsonConvert.SerializeObject(errors);
+                    return RedirectToAction("Enter_Details");
+                }
+            }
+
+            if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.AsrnSelected)
             {
                 ModelState.Remove("NationalInsuranceNumber");
 
@@ -102,11 +132,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["Response"] = JsonConvert.SerializeObject(response);
 
                 _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
             }
             else
             {
-
                 ModelState.Remove("NationalAsylumSeekerServiceNumber");
 
                 if (!ModelState.IsValid)
@@ -123,7 +151,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 // build object for api soft-check
                 var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
                 {
-                    Data = new CheckEligibilityRequestData_Fsm{                  
+                    Data = new CheckEligibilityRequestData_Fsm
+                    {
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
                         DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
@@ -232,7 +261,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
 
         private string GetApplicationRegisteredText(CheckEligibilityStatus status)
-        { 
+        {
             switch (status)
             {
                 case CheckEligibilityStatus.eligible:
@@ -241,8 +270,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return "As these Children are not entitled to free school meals you'll need to add details of the appeal to your own system before finalising";
                 default:
                     return "";
-            }    
-                }
+            }
+        }
 
 
         private string GetLaOutcomeText(CheckEligibilityStatus status)
@@ -255,7 +284,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return "The children of this parent or guardian may not be entitled to free school meals";
                 case CheckEligibilityStatus.parentNotFound:
                     return "We could not check if this applicant’s children are entitled to free school meals";
-                 case CheckEligibilityStatus.DwpError:
+                case CheckEligibilityStatus.DwpError:
                     return "We could not check if this applicant’s children are entitled to free school meals";
 
                 default:
@@ -391,7 +420,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }
             TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
-           return RedirectToAction("ApplicationsRegistered");
+            return RedirectToAction("ApplicationsRegistered");
         }
 
         [HttpGet]

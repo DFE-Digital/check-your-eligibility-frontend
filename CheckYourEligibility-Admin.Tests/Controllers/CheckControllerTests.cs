@@ -74,7 +74,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = _fixture.Create<ParentGuardian>();
             request.NationalInsuranceNumber = nino;
             request.NationalAsylumSeekerServiceNumber = nass;
-            request.IsNassSelected = isNassSelected;
+            request.NinAsrSelection = ParentGuardian.NinAsrSelect.NinSelected;
             request.Day = "1";
             request.Month = "1";
             request.Year = "1990";
@@ -102,7 +102,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = _fixture.Create<ParentGuardian>();
             request.NationalInsuranceNumber = nino;
             request.NationalAsylumSeekerServiceNumber = nass;
-            request.IsNassSelected = isNassSelected;
+            request.NinAsrSelection = ParentGuardian.NinAsrSelect.NinSelected;
             request.Day = "01";
             request.Month = "01";
             request.Year = "1990";

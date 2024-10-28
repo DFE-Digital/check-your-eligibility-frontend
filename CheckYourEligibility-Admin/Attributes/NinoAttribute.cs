@@ -1,7 +1,7 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using static CheckYourEligibility_FrontEnd.Models.ParentGuardian;
 
 namespace CheckYourEligibility_FrontEnd.Attributes
 {
@@ -21,23 +21,26 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         {
             var model = (ParentGuardian)validationContext.ObjectInstance;
 
-            if (model.NationalAsylumSeekerServiceNumber != null)
-            {
-                model.IsNassSelected = true;
-            }
-
-
-            if (model.IsNassSelected == true)
+            //If ASR is selected stop validating NIN option
+            if (model.NinAsrSelection == NinAsrSelect.AsrnSelected)
             {
                 return ValidationResult.Success;
             }
 
-            if (value == null)
+            //Neither option selected
+            if (model.NinAsrSelection == NinAsrSelect.None)
             {
-                return new ValidationResult("National Insurance Number or Asylum Support Reference Number is required");
+                return new ValidationResult("Please select one option");
             }
 
-            if (value != null)
+            //Nin Selected but not provided
+            if (model.NinAsrSelection == NinAsrSelect.NinSelected && value == null)
+            {
+                return new ValidationResult("National Insurance Number is required");
+            }
+
+            //Nin selected and completed - validate against regex
+            if (model.NinAsrSelection == NinAsrSelect.NinSelected && value != null)
             {
                 string nino = value.ToString().ToUpper();
                 nino = String.Concat(nino
@@ -62,6 +65,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                     return new ValidationResult("Invalid National Insurance Number format");
                 }
             }
+
             return ValidationResult.Success;
         }
     }
