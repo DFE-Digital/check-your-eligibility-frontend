@@ -306,7 +306,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
                 .ReturnsAsync(response);
 
-            _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
             var content = Resources.batchchecktemplate_small_Valid;
 
             var stream = new MemoryStream();
@@ -334,7 +333,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             // Arrange
             var content = Resources.batchchecktemplate_too_many_records;
-
+            _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
             writer.Write(content);
@@ -354,6 +353,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             result.Should().BeOfType<RedirectToActionResult>();
             var viewResult = result as RedirectToActionResult;
             viewResult.ActionName.Should().BeEquivalentTo("Batch_Check");
+            _sut.TempData["ErrorMessage"].Should().BeEquivalentTo("CSV File cannot contain more than 250 records");
         }
     }
 }
