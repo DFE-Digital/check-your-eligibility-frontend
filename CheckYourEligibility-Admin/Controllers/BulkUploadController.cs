@@ -104,7 +104,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     DataLoad = csv.GetRecords<CheckRow>().ToList();
 
                     // if it has a header record add one to the limit
-                    int checkRowLimit = config.HasHeaderRecord == true ? int.Parse(_config["BulkEligibilityCheckLimit"] + 1) : int.Parse(_config["BulkEligibilityCheckLimit"]);
+                    int checkRowLimit = int.Parse(_config["BulkEligibilityCheckLimit"]);
+
                     if (DataLoad.Count > checkRowLimit)
                     {
                         TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";

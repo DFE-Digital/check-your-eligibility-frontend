@@ -7,6 +7,7 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_Parent.Tests.Properties;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -29,7 +30,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _checkServiceMock = new Mock<IEcsCheckService>();
             _loggerMock = Mock.Of<ILogger<BulkUploadController>>();
             _sut = new BulkUploadController(_loggerMock, _checkServiceMock.Object, _configMock.Object);
-      
+
             base.SetUp();
 
             _sut.TempData = _tempData;
@@ -245,14 +246,80 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             viewResult.ContentType.Should().BeEquivalentTo("text/csv");
         }
 
-        [TestCase("batchchecktemplate small Valid", "test.csv", null , "Batch_Loader" )]
-        [TestCase("batchchecktemplate_too_many_records" , "test.csv" , "CSV File cannot contain more than 250 records" , "Batch_Check" )]
-        public async Task Given_Batch_check_When_given_file_should_return_appropriate_response_based_on_record_number(string content , string fileName , string? errorMessage , string expectedRedirectPage)
+
+        [TestCase]
+        public async Task Given_11_Successive_Batch_Checks_In_1_Hour_11th_Check_Returns_Error()
+        {
+            // arrange
+            var response = new CheckEligibilityResponseBulk
+            {
+                Data = new StatusValue { Status = "processing" },
+                Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" }
+            };
+
+            _checkServiceMock.Setup(
+                s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
+                .ReturnsAsync(response);
+
+            _sut.TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
+            var content = Resources.batchchecktemplate_small_Valid;
+
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+
+            //create FormFile with desired data
+            var file = new FormFile(stream, 0, stream.Length, "test.csv", "test.csv")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/csv"
+            };
+
+            //act
+            for (int i = 0; i < 10; i++)
+            {
+                var result = await _sut.Batch_Check(file);
+                result.Should().BeOfType<RedirectToActionResult>();
+                var viewResult = result as RedirectToActionResult;
+                viewResult.ActionName.Should().BeEquivalentTo("Batch_Loader");
+
+                if (i == 10)
+                {
+                    // assert
+                    viewResult.ActionName.Should().BeEquivalentTo("Batch_Check");
+                }
+            }
+        }
+
+        [TestCase(1, "Batch_Loader")]
+        [TestCase(2, "Batch_Check")]
+        public async Task Given_Batch_check_When_given_file_should_return_appropriate_response_based_on_record_number(int testCase, string expectedActionName)
         {
             //arrange
-            if (content == "batchchecktemplate_too_many_records") {
+            string? content;
+
+            if (testCase == 1)
+            {
+                var response = new CheckEligibilityResponseBulk
+                {
+                    Data = new StatusValue { Status = "processing" },
+                    Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" }
+                };
+
+                _checkServiceMock.Setup(
+                    s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
+                    .ReturnsAsync(response);
+
                 _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
+                content = Resources.batchchecktemplate_small_Valid;
             }
+            else
+            {
+                content = Resources.batchchecktemplate_too_many_records;
+            }
+
             //var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -261,22 +328,20 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             stream.Position = 0;
 
             //create FormFile with desired data
-            var file = new FormFile(stream, 0, stream.Length, fileName, fileName)
+            var file = new FormFile(stream, 0, stream.Length, "test.csv", "test.csv")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "text/csv"
             };
+
             //act
             var result = await _sut.Batch_Check(file);
 
             //assert
-            var redirectResult = result as ActionResult;
-            //redirectResult.ActionName.Should().Be(expectedRedirectPage);
-           // var viewResult = result as ViewResult;
-           // viewResult.TempData["ErrorMessage"].Should().BeEquivalentTo(errorMessage);
+            result.Should().BeOfType<RedirectToActionResult>();
+            var viewResult = result as RedirectToActionResult;
+            viewResult.ActionName.Should().BeEquivalentTo(expectedActionName);
         }
-        
-
     }
 }
 
