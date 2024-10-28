@@ -292,55 +292,68 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 }
             }
         }
-
-        [TestCase(1, "Batch_Loader")]
-        [TestCase(2, "Batch_Check")]
-        public async Task Given_Batch_check_When_given_file_should_return_appropriate_response_based_on_record_number(int testCase, string expectedActionName)
+        [Test]
+        public async Task Given_Batch_Check_When_FileIsValid_Should_ReturnBatchLoaderPage()
         {
-            //arrange
-            string? content;
-
-            if (testCase == 1)
+            // Arrange
+            var response = new CheckEligibilityResponseBulk
             {
-                var response = new CheckEligibilityResponseBulk
-                {
-                    Data = new StatusValue { Status = "processing" },
-                    Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" }
-                };
+                Data = new StatusValue { Status = "processing" },
+                Links = new CheckEligibilityResponseBulkLinks { Get_BulkCheck_Results = "someUrl", Get_Progress_Check = "someUrl" }
+            };
 
-                _checkServiceMock.Setup(
-                    s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
-                    .ReturnsAsync(response);
+            _checkServiceMock.Setup(
+                s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
+                .ReturnsAsync(response);
 
-                _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
-                content = Resources.batchchecktemplate_small_Valid;
-            }
-            else
-            {
-                content = Resources.batchchecktemplate_too_many_records;
-            }
+            _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
+            var content = Resources.batchchecktemplate_small_Valid;
 
-            //var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
 
-            //create FormFile with desired data
             var file = new FormFile(stream, 0, stream.Length, "test.csv", "test.csv")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "text/csv"
             };
 
-            //act
+            // Act
             var result = await _sut.Batch_Check(file);
 
-            //assert
+            // Assert
             result.Should().BeOfType<RedirectToActionResult>();
             var viewResult = result as RedirectToActionResult;
-            viewResult.ActionName.Should().BeEquivalentTo(expectedActionName);
+            viewResult.ActionName.Should().BeEquivalentTo("Batch_Loader");
+        }
+        [Test]
+        public async Task Given_Batch_Check_When_FileHasTooManyRecords_Should_ReturnBatchCheckPage()
+        {
+            // Arrange
+            var content = Resources.batchchecktemplate_too_many_records;
+
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+
+            var file = new FormFile(stream, 0, stream.Length, "test.csv", "test.csv")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/csv"
+            };
+
+            // Act
+            var result = await _sut.Batch_Check(file);
+
+            // Assert
+            result.Should().BeOfType<RedirectToActionResult>();
+            var viewResult = result as RedirectToActionResult;
+            viewResult.ActionName.Should().BeEquivalentTo("Batch_Check");
         }
     }
 }

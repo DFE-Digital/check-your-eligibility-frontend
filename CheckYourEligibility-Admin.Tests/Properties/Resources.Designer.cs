@@ -100,7 +100,8 @@ namespace CheckYourEligibility_Parent.Tests.Properties {
         ///AC123456D,,10/01/2000,GRIFFIN
         ///AB123456C,,11/01/2000,SIMPSON
         ///AC123456D,,12/01/2000,GRIFFIN
-        ///AB123456C,,13/01/2000,SIMPSON        /// [rest of string was truncated]&quot;;.
+        ///AB123456C,,13/01/2000,SIMPSON
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string batchchecktemplate_too_many_records {
             get {
