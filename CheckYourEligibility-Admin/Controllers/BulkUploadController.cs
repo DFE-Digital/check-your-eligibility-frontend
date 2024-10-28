@@ -79,7 +79,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             HttpContext.Session.SetInt32("BatchSubmissions", sessionCount);
 
             // validate
-            if (sessionCount > int.Parse(_config["Limits:Hourly"]))
+            if (sessionCount > int.Parse(_config["BulkUploadAttemptLimit"]))
             {
                 TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
                 return RedirectToAction("Batch_Check");
@@ -104,7 +104,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     DataLoad = csv.GetRecords<CheckRow>().ToList();
 
                     // if it has a header record add one to the limit
-                    int checkRowLimit = config.HasHeaderRecord == true ? int.Parse(_config["Limits:MaxRows"] + 1) : int.Parse(_config["Limits:MaxRows"]);
+                    int checkRowLimit = config.HasHeaderRecord == true ? int.Parse(_config["BulkEligibilityCheckLimit"] + 1) : int.Parse(_config["BulkEligibilityCheckLimit"]);
                     if (DataLoad.Count > checkRowLimit)
                     {
                         TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
