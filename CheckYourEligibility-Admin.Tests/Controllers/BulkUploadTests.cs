@@ -111,7 +111,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().BeEquivalentTo("BatchOutcome/Error_Data_Issue");
-            viewResult.TempData["BatchParentCheckItemsErrors"].Should().BeEquivalentTo("Invalid file content.\r\n");
+            viewResult.TempData["BatchParentCheckItemsErrors"].Should().BeEquivalentTo("Invalid file content.\n");
         }
 
         [Test]
