@@ -10,13 +10,18 @@ describe('Admin journey search for application', () => {
     var referenceNumber: string;
 
     beforeEach(() => {
-        cy.SignInSchool();
+        cy.session("Session 4", () => {
+            cy.SignInSchool();
 
+            cy.wait(1);
+        });
     });
 
     it('Will create an application that can be used for searches', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
-        cy.contains('Check free school meals - single student').click();
+        
+        cy.contains('Run a check for one parent or guardian').click();
         
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
@@ -63,6 +68,7 @@ describe('Admin journey search for application', () => {
     });
 
     it('Will allow School users to search for an application with any status', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.contains('Generate results').click();
@@ -72,6 +78,7 @@ describe('Admin journey search for application', () => {
     });
 
     it('Will allow School users to search for an application with a selected status', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#Status').select('Entitled');
@@ -82,6 +89,7 @@ describe('Admin journey search for application', () => {
     });
 
     it('Will allow School users to search for an application with a selected Child name', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#ChildLastName').type(childLastName);
@@ -97,6 +105,7 @@ describe('Admin journey search for application', () => {
     });
 
     it('Will allow School users to search for an application with a selected Parent or Guardian name', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#ParentLastName').type(parentLastName);
@@ -113,6 +122,7 @@ describe('Admin journey search for application', () => {
 
 
     it('Will allow School users to search for an application with a selected reference', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#Reference').type(referenceNumber);
@@ -130,6 +140,7 @@ describe('Admin journey search for application', () => {
     });
 
     it('Will allow School users to search for an application with a selected Child DOB', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#ChildDobDay').type('01');
@@ -147,6 +158,7 @@ describe('Admin journey search for application', () => {
     });
 
     it('Will allow School users to search for an application with a selected Parent of Guardian DOB', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#PGDobDay').type('01');
@@ -158,6 +170,7 @@ describe('Admin journey search for application', () => {
 
     
     it('Will allow a School to view an application from the results page by selecting the reference number link', () => {
+        cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
         cy.get('#ParentLastName').type('Smith');
