@@ -31,7 +31,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
             //ASR Selected but not provided
             if (model.NinAsrSelection == NinAsrSelect.AsrnSelected && value == null)
             {
-                return new ValidationResult("Asylum Support Reference Number is required");
+                return new ValidationResult("Asylum support reference number is required");
             }
 
             //Asr selected and completed - validate against regex

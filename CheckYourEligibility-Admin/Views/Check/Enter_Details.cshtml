@@ -96,7 +96,7 @@
             <fieldset class="govuk-fieldset" role="group" aria-describedby="NINAS-hint">
 
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    National Insurance Number or Asylum Support Reference Number
+                    National Insurance number or asylum support reference number
                 </legend>
 
                 <div id="NINAS-hint" class="govuk-hint">
@@ -110,34 +110,34 @@
 
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" asp-for="NinAsrSelection" type="radio" value="NinSelected" aria-controls="conditional-ni-number" aria-expanded="false" aria-label="National Insurance Number">
+                        <input class="govuk-radios__input" asp-for="NinAsrSelection" type="radio" value="NinSelected" aria-controls="conditional-ni-number" aria-expanded="false" aria-label="National Insurance number">
                         <label class="govuk-label govuk-radios__label" for="NationalInsuranceNumber">
-                            National Insurance Number
+                            National Insurance number
                         </label>
                     </div>
 
                     <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-ni-number">
                         <div class="govuk-form-group">
                             <label class="govuk-label" for="ni-number-entered">
-                                Parent or guardian National Insurance Number
+                                Parent or guardian National Insurance number
                             </label>
-                            <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" autocomplete="text" aria-label="Parent or guardian National Insurance Number">
+                            <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" autocomplete="text" aria-label="Parent or guardian National Insurance number">
                         </div>
                     </div>
 
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" asp-for="NinAsrSelection" type="radio" value="AsrnSelected" aria-controls="conditional-ni-number-2" aria-expanded="false" aria-label="Asylum Support Reference Number">
+                        <input class="govuk-radios__input" asp-for="NinAsrSelection" type="radio" value="AsrnSelected" aria-controls="conditional-ni-number-2" aria-expanded="false" aria-label="asylum support reference number">
                         <label class="govuk-label govuk-radios__label" for="ni-number-2">
-                            Asylum Support Reference Number
+                            Asylum support reference number
                         </label>
                     </div>
 
                     <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-ni-number-2">
                         <div class="govuk-form-group">
                             <label class="govuk-label" for="ni-number-entered">
-                                Parent or guardian Asylum Support Reference Number
+                                Parent or guardian asylum support reference number
                             </label>
-                            <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalAsylumSeekerServiceNumber" type="text" spellcheck="false" autocomplete="text" aria-label="Parent or guardian Asylum Support Reference Number">
+                            <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalAsylumSeekerServiceNumber" type="text" spellcheck="false" autocomplete="text" aria-label="Parent or guardian asylum support reference number">
                         </div>
                     </div>
 
@@ -154,22 +154,22 @@
         <div class="govuk-form-group" data-type="NINAS-input">
 
         <label class="govuk-label" for="NationalInsuranceNumber">
-        Parent or guardian National Insurance Number
+        Parent or guardian National Insurance number
         </label>
         <p class="govuk-error-message">
         <span asp-validation-for="NationalInsuranceNumber"></span>
         </p>
-        <input class="govuk-input govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text" data-type="NINAS" aria-label="Parent or guardian National Insurance Number" />
+        <input class="govuk-input govuk-input govuk-input--width-20" asp-for="NationalInsuranceNumber" type="text" data-type="NINAS" aria-label="Parent or guardian National Insurance number" />
 
         <p class="paragraph-add-margin-ingroup">Or</p>
 
         <label class="govuk-label" for="NationalAsylumSeekerServiceNumber">
-        Parent or guardian Asylum Support Reference Number
+        Parent or guardian asylum support reference number
         </label>
         <p class="govuk-error-message">
         <span asp-validation-for="NationalAsylumSeekerServiceNumber"></span>
         </p>
-        <input class="govuk-input govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text" data-type="NINAS" aria-label="Parent or guardian Asylum Support Reference Number" />
+        <input class="govuk-input govuk-input govuk-input--width-20" asp-for="NationalAsylumSeekerServiceNumber" type="text" data-type="NINAS" aria-label="Parent or guardian asylum support reference number" />
         </div>
         </div>
         </div> *@

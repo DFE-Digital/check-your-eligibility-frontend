@@ -36,7 +36,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
             //Nin Selected but not provided
             if (model.NinAsrSelection == NinAsrSelect.NinSelected && value == null)
             {
-                return new ValidationResult("National Insurance Number is required");
+                return new ValidationResult("National Insurance number is required");
             }
 
             //Nin selected and completed - validate against regex
@@ -48,12 +48,12 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
                 if (nino.Length > 9)
                 {
-                    return new ValidationResult("National Insurance Number should contain no more than 9 alphanumeric characters");
+                    return new ValidationResult("National Insurance number should contain no more than 9 alphanumeric characters");
                 }
 
                 if (!regex.IsMatch(nino))
                 {
-                    return new ValidationResult("Invalid National Insurance Number format");
+                    return new ValidationResult("Invalid National Insurance number format");
                 }
                 else
                 {
@@ -62,7 +62,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
                 if (!regex.IsMatch(nino))
                 {
-                    return new ValidationResult("Invalid National Insurance Number format");
+                    return new ValidationResult("Invalid National Insurance number format");
                 }
             }
 
