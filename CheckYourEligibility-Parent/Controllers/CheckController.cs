@@ -189,16 +189,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return RedirectToAction("Eligible");
+                    return View("Outcome/Eligible", "/check/signIn");
 
                 case "notEligible":
-                    return RedirectToAction("NotEligible");
+                    return View("Outcome/Not_Eligible");
 
                 case "parentNotFound":
-                    return RedirectToAction("NotFound");
+                    return View("Outcome/Not_Found");
 
                 case "DwpError":
-                    return RedirectToAction("TechnicalError");
+                    return View("Outcome/Technical_Error");
 
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
@@ -211,31 +211,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     _logger.LogError("Unexpected status received.");
                     return View("Outcome/Technical_Error");
             }
-        }
-
-
-
-
-
-
-        public IActionResult Eligible()
-        {
-            return View("Outcome/Eligible");
-        }
-
-        public IActionResult NotEligible()
-        {
-            return View("Outcome/Not_Eligible");
-        }
-
-        public IActionResult NotFound()
-        {
-            return View("Outcome/Not_Found");
-        }
-
-        public IActionResult TechnicalError()
-        {
-            return View("Outcome/Technical_Error");
         }
 
         public void SetSessionCheckResult(string status)
