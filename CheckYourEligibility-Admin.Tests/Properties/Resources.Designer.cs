@@ -61,9 +61,9 @@ namespace CheckYourEligibility_Parent.Tests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent asylum seeker reference number
-        ///tom,SIMPSON,01/01/1990,AB123456C,
-        ///dave,smith,01/01/1990,AB123456D,
+        ///   Looks up a localized string similar to Parent National Insurance Number,Parent asylum seeker reference number,Parent Date of Birth,Parent Last Name
+        ///AB123456C,,01/01/1990,SIMPSON
+        ///AB123456D,,01/01/1990,smith
         ///.
         /// </summary>
         internal static string batchchecktemplate_small_Valid {
@@ -73,16 +73,39 @@ namespace CheckYourEligibility_Parent.Tests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parent First Name,Parent Last Name,Parent Date of Birth,Parent National Insurance Number,Parent asylum seeker reference number
-        ///tom,SIMPSON,1990-01-01,AB123456C,
-        ///fred,Jones,1990-01-01,ABCD,
-        ///dave,smith,32/01/1990,AB123456D,
-        ///,flower,1990-01-01,,
+        ///   Looks up a localized string similar to Parent National Insurance Number,Parent asylum seeker reference number,Parent Date of Birth,Parent Last Name
+        ///AB123456C,,1990-01-01,SIMPSON,
+        ///ABCD,,1990-01-01,Jones
+        ///AB123456D,,32/01/1990,smith,
+        ///,,1990-01-01,flower
         ///.
         /// </summary>
         internal static string batchchecktemplate_some_invalid_items {
             get {
                 return ResourceManager.GetString("batchchecktemplate some invalid items", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parent National Insurance Number,Parent asylum seeker reference number,Parent Date of Birth,Parent Last Name
+        ///AB123456E,,01/01/2000,SIMPSON
+        ///AC123456D,,02/01/2000,GRIFFIN
+        ///AB123456C,,03/01/2000,SIMPSON
+        ///AC123456D,,04/01/2000,GRIFFIN
+        ///AB123456C,,05/01/2000,SIMPSON
+        ///AC123456D,,06/01/2000,GRIFFIN
+        ///AB123456C,,07/01/2000,SIMPSON
+        ///AC123456D,,08/01/2000,GRIFFIN
+        ///AB123456C,,09/01/2000,SIMPSON
+        ///AC123456D,,10/01/2000,GRIFFIN
+        ///AB123456C,,11/01/2000,SIMPSON
+        ///AC123456D,,12/01/2000,GRIFFIN
+        ///AB123456C,,13/01/2000,SIMPSON
+        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string batchchecktemplate_too_many_records {
+            get {
+                return ResourceManager.GetString("batchchecktemplate_too_many_records", resourceCulture);
             }
         }
         

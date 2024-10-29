@@ -83,7 +83,16 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.Use((context, next) =>
+{
+    context.Response.Headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
+    context.Response.Headers["Content-Security-Policy"] = "default-src 'self'";
+    context.Response.Headers["X-Frame-Options"] = "sameorigin";
+    context.Response.Headers["Cache-Control"] = "Private";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    return next.Invoke();
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();

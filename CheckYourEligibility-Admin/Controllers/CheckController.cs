@@ -151,12 +151,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Loader");
         }
 
-        public IActionResult Loader()
-        {
-            return View("Loader");
-        }
-
-        public async Task<IActionResult> Poll_Status(bool jsDisabled = false)
+        public async Task<IActionResult> Loader()
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
@@ -165,7 +160,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (responseJson == null)
             {
                 _logger.LogWarning("No response data found in TempData.");
-                return Json(new { status = "error", message = "No response data found" });
+                return View("Outcome/Technical_Error");
             }
 
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
@@ -176,56 +171,41 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (check == null || check.Data == null)
             {
                 _logger.LogWarning("Null response received from GetStatus.");
-                return Json(new { status = "error", message = "Null response from service" });
+                return View("Outcome/Technical_Error");
             }
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
             Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
 
-            if (status != CheckEligibilityStatus.queuedForProcessing)
+            TempData["OutcomeText"] = GetLaOutcomeText(status);
+
+            if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
             {
-                TempData["OutcomeText"] = GetLaOutcomeText(status);
-
-                if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
-                {
-                    if (jsDisabled)
-                        return View("OutcomeNoJS/LA");
-                    else
-                        return PartialView("Outcome/LA");
-                }
-
-
-                else
-                {
-                    TempData["Status"] = GetApplicationRegisteredText(status);
-                    switch (status)
-                    {
-                        case CheckEligibilityStatus.eligible:
-                            return jsDisabled ? View("Outcome/Eligible") : PartialView("Outcome/Eligible");
-                        case CheckEligibilityStatus.notEligible:
-                            return jsDisabled ? View("Outcome/Not_Eligible") : PartialView("Outcome/Not_Eligible");
-                        case CheckEligibilityStatus.parentNotFound:
-                            return jsDisabled ? View("Outcome/Not_Found") : PartialView("Outcome/Not_Found");
-                        case CheckEligibilityStatus.DwpError:
-                            return jsDisabled ? View("Outcome/Technical_Error") : PartialView("Outcome/Technical_Error");
-                        default:
-                            _logger.LogError($"Unknown Status {status}");
-                            return Json(new { status = "error", message = $"Unknown Status {status}" });
-                    }
-                }
+                return View("Outcome/Eligible_LA");
             }
+
             else
             {
-                _logger.LogInformation("Still queued for processing.");
-                TempData["Response"] = JsonConvert.SerializeObject(response);
-                if (jsDisabled)
+                TempData["Status"] = GetApplicationRegisteredText(status);
+                switch (status)
                 {
-                    // Redirect back to the Loader view to continue polling
-                    return RedirectToAction("Loader");
-                }
-                else
-                {
-                    return Json(new { status = "processing" }); // Return JSON to keep polling
+                    case CheckEligibilityStatus.eligible:
+                        return View("Outcome/Eligible");
+                    case CheckEligibilityStatus.notEligible:
+                        return View("Outcome/Not_Eligible");
+                    case CheckEligibilityStatus.parentNotFound:
+                        return View("Outcome/Not_Found");
+                    case CheckEligibilityStatus.DwpError:
+                        return View("Outcome/Technical_Error");
+                    case CheckEligibilityStatus.queuedForProcessing:
+                        _logger.LogInformation("Still queued for processing.");
+                        // Save the response back to TempData for the next poll
+                        TempData["Response"] = JsonConvert.SerializeObject(response);
+                        // Render the loader view which will auto-refresh
+                        return View("Loader");
+                    default:
+                        _logger.LogError($"Unknown Status {status}");
+                        return View("Outcome/Technical_Error");
                 }
             }
         }
