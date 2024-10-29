@@ -14,9 +14,6 @@
 </head>
 
 <body class="govuk-template__body  js-enabled">
-    <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
-    @*         <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
-    *@
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
     <header class="dfe-header" role="banner">
@@ -137,10 +134,8 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script type="module" src="~/js/govuk-frontend.min.js"></script>
     <script src="~/js/dfefrontend.js"></script>
-    <script type="module">
-        import { initAll } from '../js/govuk-frontend.min.js'
-        initAll()
-    </script>
+
+    <script type="module" src="~/js/javascript-starter.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
