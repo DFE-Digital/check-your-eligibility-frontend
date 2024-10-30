@@ -36,14 +36,13 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         }).as('interceptForGET');
 
         cy.contains('Continue to GOV.UK One Login', { timeout: 60000 }).click();
-
-        cy.origin('https://signin.integration.account.gov.uk', () => {
+        
+        cy.wait(3);
             let currentUrl = "";
+
             cy.url().then((url) => {
                 currentUrl = url;
             });
-            cy.wait(2000);
-
             cy.visit(currentUrl, {
                 auth: {
                     username: Cypress.env('AUTH_USERNAME'),
@@ -51,15 +50,35 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
                 },
             });
 
-            cy.contains('Sign in').click();
+        cy.origin('https://signin.integration.account.gov.uk', () => {
+                let currentUrl = "";
+                cy.url().then((url) => {
+                    currentUrl = url;
+                });
+                cy.wait(2000);
 
-            cy.get('input[name=email]').type(Cypress.env('ONEGOV_EMAIL'));
-            cy.contains('Continue').click();
+                cy.visit(currentUrl, {
+                    auth: {
+                        username: Cypress.env('AUTH_USERNAME'),
+                        password: Cypress.env('AUTH_PASSWORD')
+                    },
+                });
 
-            cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
-            cy.contains('Continue').click();
+                cy.wait(2000);
 
-        });
+                cy.contains('Sign in').click();
+
+                cy.log(":)");
+                
+                cy.get('input[name=email]').type(Cypress.env('ONEGOV_EMAIL'));
+                cy.contains('Continue').click();
+                
+                cy.log(":(");
+
+                cy.get('input[name=password]').type(Cypress.env('ONEGOV_PASSWORD'));
+                cy.contains('Continue').click();
+            });
+
         cy.wait(2000);
         cy.url().should('include', '/Check/Enter_Child_Details');
         cy.get('h1').should('include.text', 'Provide details of your children');

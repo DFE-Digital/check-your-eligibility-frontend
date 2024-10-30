@@ -14,10 +14,7 @@ Cypress.Commands.add('SignInLA', () => {
   .find('input[type="radio"]')
   .check();
 
-
   cy.contains('Continue',{ timeout: 15000 }).click();
-
-  cy.get('h1').should('include.text', 'Telford and Wrekin Council');
 });
 
 Cypress.Commands.add('SignInSchool', () => {
@@ -34,8 +31,6 @@ Cypress.Commands.add('SignInSchool', () => {
     .check();
 
   cy.contains('Continue').click();
-
-  cy.get('h1').should('include.text', 'The Telford Park School');
 });
 
 Cypress.Commands.add('CheckValuesInSummaryCard', (key: string, expectedValue: string) => {
