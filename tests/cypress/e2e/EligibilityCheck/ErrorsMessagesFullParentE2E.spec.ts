@@ -52,11 +52,22 @@ describe('After errors have been input initially a Parent with valid details can
         cy.contains('Save and continue').click();
         cy.get('li').should('contain.text', 'Enter a date in the past');
 
-
     });
 
+    it('returns the correct error message when letters are used instead of numbers in the date field', () => {
+        cy.visit('/Check/Enter_Details');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('ff');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('ff');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('ff');
 
-    it('returns the correct error message when invalid charaters are used in the input fields', () => {
+        cy.contains('Save and continue').click();
+
+        cy.get('li').should('contain.text', 'Enter a date of birth using numbers only');
+
+    })
+
+
+    it('returns the correct error message when invalid characters are used in the input fields', () => {
 
         cy.visit('/Check/Enter_Child_Details');
 
@@ -179,7 +190,7 @@ describe('After errors have been input initially a Parent with valid details can
         .next('dd')
         .contains('01/01/1990');
 
-        cy.contains('dt', 'National insurance number')
+        cy.contains('dt', 'National Insurance number')
         .next('dd')
         .contains('NN668767B');
 
