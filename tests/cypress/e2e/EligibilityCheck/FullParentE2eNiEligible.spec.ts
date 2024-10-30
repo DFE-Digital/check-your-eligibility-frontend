@@ -88,7 +88,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         .next('dd')
         .contains('01/01/1990');
 
-        cy.contains('dt', 'National insurance number')
+        cy.contains('dt', 'National Insurance number')
         .next('dd')
         .contains('NN668767B');
 
