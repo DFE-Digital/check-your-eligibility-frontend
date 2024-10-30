@@ -95,26 +95,16 @@
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.URN"></span>
                     </p>
-                        <input id="school-search-@i" class="noJsRemove govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search" />
+                    <input id="school-search-@i" class="noJsRemove govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School Search" />
                     <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" />
                     
-                    <label class="govuk-label govuk-!-font-weight-bold noJsShow" style="display: none;" for="ChildList[@i].School.URN">
+                    <label class="govuk-label govuk-!-font-weight-bold noJsShow" for="ChildList[@i].School.URN">
                         School Unique Reference Number (URN)
                     </label>
-                        <input asp-for="ChildList[i].School.URN" style="display:none;" id="ChildList[@i].School.URN" class="noJsShow govuk-search govuk-input govuk-!-width-two-thirds" aria-label="School" />
+                    <input asp-for="ChildList[i].School.URN" style="display:none;" id="ChildList[@i].School.URN" class="noJsShow govuk-search govuk-input govuk-!-width-two-thirds" aria-label="School" />
                     <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
                     <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
                     <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
-                    <noscript>
-                        <style>
-                            .noJsRemove {
-                                display: none;
-                            }
-                            .noJsShow {
-                                display: inline-block!important;
-                            }
-                        </style>
-                    </noscript>
                 </fieldset>
                 <noscript>
                     <div govuk-body>
