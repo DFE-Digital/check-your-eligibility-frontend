@@ -13,7 +13,6 @@
 </head>
 
 <body class="govuk-template__body js-enabled">
-    <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
     <header class="govuk-header " role="banner" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
             <div class="govuk-header__logo">
@@ -95,10 +94,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="~/js/govuk-frontend.min.js"></script>
-    <script type="module">
-        import { initAll } from '../js/govuk-frontend.min.js'
-        initAll()
-    </script>
+    <script type="module" src="~/js/javascript-starter.js"></script>
 </body>
 </html>
 

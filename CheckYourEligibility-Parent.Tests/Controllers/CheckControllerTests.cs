@@ -429,9 +429,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = await _sut.Loader();
 
             // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = result as RedirectToActionResult;
-            redirectResult.ActionName.Should().Be("NotFound");
+            result.Should().BeOfType<ViewResult>();
+            var redirectResult = result as ViewResult;
+            redirectResult.ViewName.Should().Be("Outcome/Not_Found");
         }
         
 
@@ -486,9 +486,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = await _sut.Loader();
 
             // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = result as RedirectToActionResult;
-            redirectResult.ActionName.Should().Be("TechnicalError");
+            result.Should().BeOfType<ViewResult>();
+            var redirectResult = result as ViewResult;
+            redirectResult.ViewName.Should().Be("Outcome/Technical_Error");
         }
 
         [Test]
@@ -513,9 +513,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = await _sut.Loader();
 
             // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = result as RedirectToActionResult;
-            redirectResult.ActionName.Should().Be("NotEligible");
+            result.Should().BeOfType<ViewResult>();
+            var redirectResult = result as ViewResult;
+            redirectResult.ViewName.Should().Be("Outcome/Not_Eligible");
         }
 
 
@@ -541,9 +541,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var result = await _sut.Loader();
 
             // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = result as RedirectToActionResult;
-            redirectResult.ActionName.Should().Be("Eligible");
+            result.Should().BeOfType<ViewResult>();
+            var redirectResult = result as ViewResult;
+            redirectResult.ViewName.Should().Be("Outcome/Eligible");
         }
 
 
@@ -667,10 +667,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Result.Should().BeOfType<JsonResult>();
         }
 
-        [TestCase("eligible", "Eligible", typeof(RedirectToActionResult))]
-        [TestCase("notEligible", "NotEligible", typeof(RedirectToActionResult))]
-        [TestCase("parentNotFound", "NotFound", typeof(RedirectToActionResult))]
-        [TestCase("DwpError", "TechnicalError", typeof(RedirectToActionResult))]
+        [TestCase("eligible", "Outcome/Eligible", typeof(ViewResult))]
+        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(ViewResult))]
+        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(ViewResult))]
+        [TestCase("DwpError", "Outcome/Technical_Error", typeof(ViewResult))]
         [TestCase("queuedForProcessing", "Loader", typeof(ViewResult))]
         [TestCase("unknownStatus", "Outcome/Technical_Error", typeof(ViewResult))]
         public async Task Given_Loader_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(
@@ -704,7 +704,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 var viewResult = result as ViewResult;
                 viewResult.Should().NotBeNull();
                 viewResult.ViewName.Should().Be(expectedView);
-                viewResult.Model.Should().BeNull();
             }
             else if (expectedType == typeof(RedirectToActionResult))
             {

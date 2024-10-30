@@ -136,18 +136,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public void Given_Loader_PageLoads()
-        {
-            // Act
-            var result = _sut.Loader();
-
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Loader");
-            viewResult.Model.Should().BeNull();
-        }
-
-        [Test]
         public void Enter_Child_Details_TempData_IsChildAddOrRemove_False_Returns_View_With_Empty_ChildList()
         {
             _tempData["IsChildAddOrRemove"] = false;
@@ -455,13 +443,13 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
     }));
 
             // Act
-            var result = await _sut.Poll_Status();
+            var result = await _sut.Loader();
 
             // Assert
-            if (result is PartialViewResult partialViewResult)
+            if (result is ViewResult viewResult)
             {
-                partialViewResult.ViewName.Should().Be(expectedView);
-            }
+                viewResult.ViewName.Should().Be(expectedView);
+            } 
             else if (result is RedirectToActionResult redirectResult)
             {
                 redirectResult.ActionName.Should().Be("Application_Sent"); // Adjust this if you expect a different action
@@ -479,16 +467,16 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _tempData["Response"] = null;
 
             // Act
-            var result = await _sut.Poll_Status();
+            var result = await _sut.Loader();
 
             // Assert
-            var jsonResult = result as JsonResult;
-            jsonResult.Should().NotBeNull();
-            jsonResult.Value.Should().BeEquivalentTo(new { status = "error", message = "No response data found" });
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("Outcome/Technical_Error");
         }
 
         [Test]
-        public async Task Given_Poll_Status_When_Status_Is_Processing_Returns_JsonResult_Processing()
+        public async Task Given_Poll_Status_When_Status_Is_Processing_Returns_Processing()
         {
             // Arrange
             var response = new CheckEligibilityResponse
@@ -501,12 +489,12 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 .ReturnsAsync(new CheckEligibilityStatusResponse { Data = response.Data });
 
             // Act
-            var result = await _sut.Poll_Status();
+            var result = await _sut.Loader();
 
             // Assert
-            var jsonResult = result as JsonResult;
-            jsonResult.Should().NotBeNull();
-            jsonResult.Value.Should().BeEquivalentTo(new { status = "processing" });
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("Loader");
         }
 
 

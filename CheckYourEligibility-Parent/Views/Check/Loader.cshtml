@@ -7,7 +7,7 @@
     <meta http-equiv="refresh" content="5;url=@Url.Action("Loader", "Check")" />
 </noscript>
 
-<div id="content" data-type="loader">
+<div id="content" data-type="Loader">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div class="flex-container">
@@ -32,27 +32,4 @@
 </div>
 
 <!-- JavaScript for Polling the Status and Updating Only #content if Necessary -->
-<script>
-    function checkStatus() {
-        fetch("@Url.Action("Loader", "Check")")
-            .then(response => response.text())
-            .then(html => {
-                // Parse the fetched HTML and extract the #content section
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(html, 'text/html');
-                var newContent = doc.getElementById("content");
-
-                // Only update the content if the data-type has changed
-                if (newContent.getAttribute("data-type") !== document.getElementById("content").getAttribute("data-type")) {
-                    document.getElementById("content").innerHTML = newContent.innerHTML;
-                    document.getElementById("content").setAttribute("data-type", newContent.getAttribute("data-type"));
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching status:', error);
-            });
-    }
-
-    // Poll the server for status if JavaScript is enabled
-    setInterval(checkStatus, 5000);
-</script>
+<script src="/js/eligibility-loader.js"></script>
