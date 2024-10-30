@@ -178,3 +178,11 @@ img, svg {
     }
 }
 /*END - Header overrides */
+
+body.js-enabled .noJsShow, body:not(.js-enabled) input.noJsRemove {
+    display: none;
+}
+
+.centerer {
+    text-align: center;
+}
