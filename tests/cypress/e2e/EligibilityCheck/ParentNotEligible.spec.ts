@@ -11,9 +11,9 @@ describe('Parents journey when not eligible', () => {
         cy.get('#FirstName').type('Tim');
         cy.get('#LastName').type('Jones');
 
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
+        cy.get('#DateOfBirth\\.Day').type('01');
+        cy.get('#DateOfBirth\\.Month').type('01');
+        cy.get('#DateOfBirth\\.Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('PN668767B');
@@ -35,9 +35,9 @@ describe('Parents journey when not eligible', () => {
         cy.get('#FirstName').type('Tim');
         cy.get('#LastName').type('Stevens');
 
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
+        cy.get('#DateOfBirth\\.Day').type('01');
+        cy.get('#DateOfBirth\\.Month').type('01');
+        cy.get('#DateOfBirth\\.Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('PN668767B');
@@ -59,9 +59,9 @@ describe('Parents journey when not eligible', () => {
         cy.get('#FirstName').type('Tim');
         cy.get('#LastName').type('Smith');
 
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
+        cy.get('#DateOfBirth\\.Day').type('01');
+        cy.get('#DateOfBirth\\.Month').type('01');
+        cy.get('#DateOfBirth\\.Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('ABCDE456C');
@@ -82,9 +82,9 @@ describe('Parents journey when not eligible', () => {
         cy.get('#FirstName').type('Tim');
         cy.get('#LastName').type('Smith');
 
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
+        cy.get('#DateOfBirth\\.Day').type('01');
+        cy.get('#DateOfBirth\\.Month').type('01');
+        cy.get('#DateOfBirth\\.Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('0123456789');
@@ -105,9 +105,9 @@ describe('Parents journey when not eligible', () => {
         cy.get('#FirstName').type('Tim');
         cy.get('#LastName').type('Smith');
 
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
+        cy.get('#DateOfBirth\\.Day').type('01');
+        cy.get('#DateOfBirth\\.Month').type('01');
+        cy.get('#DateOfBirth\\.Year').type('1990');
 
         cy.get('#IsNinoSelected').click();
         cy.get('#NationalInsuranceNumber').type('0123456789');

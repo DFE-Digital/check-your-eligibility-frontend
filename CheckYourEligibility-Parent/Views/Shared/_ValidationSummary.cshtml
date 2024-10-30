@@ -18,6 +18,13 @@
 
     }
 
+    var dobMappings = new Dictionary<string, string>
+    {
+        {"DateOfBirth.Day", "Day"},
+        {"DateOfBirth.Month", "Month"},
+        {"DateOfBirth.Year", "Year"}
+    };
+
 
     var flattenedErrors = Model
         .SelectMany(m => m.Value.Errors
@@ -34,8 +41,14 @@
             ? x.Field.Substring(x.Field.LastIndexOf('.') + 1)
             : x.Field;
 
+            if (dobMappings.ContainsKey(x.Field))
+            {
+                extractedPropertyName = dobMappings[x.Field];
+            }
+
             return propertyOrder.IndexOf(extractedPropertyName);
         })
+        .DistinctBy(e => e.Error)
         .ToList();
 }
 
