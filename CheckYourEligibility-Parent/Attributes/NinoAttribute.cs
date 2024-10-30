@@ -19,7 +19,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             var model = (Parent)validationContext.ObjectInstance;
-            if( model.IsNassSelected == null && model.IsNinoSelected == null  && value == null)
+            if (model.IsNassSelected == null && model.IsNinoSelected == null && value == null)
             {
                 return new ValidationResult("Please select if you have a National Insurance number");
             }
@@ -31,7 +31,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (value == null)
             {
-                return new ValidationResult("National Insurance Number is required");
+                return new ValidationResult("National Insurance number is required");
             }
 
             string nino = value.ToString().ToUpper();
@@ -40,12 +40,12 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (nino.Length > 9)
             {
-                return new ValidationResult("National Insurance Number should contain no more than 9 alphanumeric characters");
+                return new ValidationResult("National Insurance number should contain no more than 9 alphanumeric characters");
             }
 
             if (!regex.IsMatch(nino))
             {
-                return new ValidationResult("Invalid National Insurance Number format");
+                return new ValidationResult("Invalid National Insurance number format");
             }
             else
             {

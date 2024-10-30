@@ -2,6 +2,7 @@
 using CheckYourEligibility_FrontEnd.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using static CheckYourEligibility_FrontEnd.Models.ParentGuardian;
 
 namespace CheckYourEligibility_FrontEnd.Attributes
 {
@@ -14,12 +15,27 @@ namespace CheckYourEligibility_FrontEnd.Attributes
         {
             var model = (ParentGuardian)validationContext.ObjectInstance;
 
-            if (model.NationalAsylumSeekerServiceNumber != null)
+            //If NIN is selected stop validating ASR option
+            if (model.NinAsrSelection == NinAsrSelect.NinSelected)
             {
-                model.IsNassSelected = true;
+                return ValidationResult.Success;
             }
 
-            if (model.IsNassSelected == true)
+            //Neither option selected
+            //Handled in NINO. Allow success result here to avoid double validation message
+            if (model.NinAsrSelection == NinAsrSelect.None)
+            {
+                return new ValidationResult("Please select one option");
+            }
+
+            //ASR Selected but not provided
+            if (model.NinAsrSelection == NinAsrSelect.AsrnSelected && value == null)
+            {
+                return new ValidationResult("Asylum support reference number is required");
+            }
+
+            //Asr selected and completed - validate against regex
+            if (model.NinAsrSelection == NinAsrSelect.AsrnSelected)
             {
                 if (!regex.IsMatch(value.ToString()))
                 {

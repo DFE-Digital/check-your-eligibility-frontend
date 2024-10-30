@@ -7,6 +7,7 @@ using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
+using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -74,7 +75,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = _fixture.Create<ParentGuardian>();
             request.NationalInsuranceNumber = nino;
             request.NationalAsylumSeekerServiceNumber = nass;
-            request.IsNassSelected = isNassSelected;
+            request.NinAsrSelection = ParentGuardian.NinAsrSelect.NinSelected;
             request.Day = "1";
             request.Month = "1";
             request.Year = "1990";
@@ -94,15 +95,15 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        [TestCase(false, "AB123456C", null)]
-        [TestCase(true, null, "2407001")]
-        public void Given_Enter_Details_When_ModelState_IsValid_Should_SetSessionData_CreateEligibilityRequest_And_LoadLoaderPage(bool isNassSelected, string? nino, string? nass)
+        [TestCase(ParentGuardian.NinAsrSelect.NinSelected, "AB123456C", null)]
+        [TestCase(ParentGuardian.NinAsrSelect.AsrnSelected, null, "2407001")]
+        public void Given_Enter_Details_When_ModelState_IsValid_Should_SetSessionData_CreateEligibilityRequest_And_LoadLoaderPage(ParentGuardian.NinAsrSelect NINAS, string? nino, string? nass)
         {
             // Arrange
             var request = _fixture.Create<ParentGuardian>();
             request.NationalInsuranceNumber = nino;
             request.NationalAsylumSeekerServiceNumber = nass;
-            request.IsNassSelected = isNassSelected;
+            request.NinAsrSelection = NINAS;
             request.Day = "01";
             request.Month = "01";
             request.Year = "1990";
@@ -125,7 +126,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             _checkServiceMock.Invocations.Should().HaveCount(1); // PostCheck should have been called on the mocked service once
 
-            if (isNassSelected)
+            if (NINAS == ParentGuardian.NinAsrSelect.AsrnSelected)
             {
                 _sut.HttpContext.Session.GetString("ParentNASS").Should().Be(request.NationalAsylumSeekerServiceNumber);
             }
