@@ -81,8 +81,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         {
                             errors.Remove("NationalInsuranceNumber");
                             errors.Remove("NationalAsylumSeekerServiceNumber");
-
-                            // Add the new key with the target value
                             errors["NINAS"] = new List<string> { targetValue };
                         }
                     }
