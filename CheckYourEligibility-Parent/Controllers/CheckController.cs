@@ -88,7 +88,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
                 if (request.NASSRedirect)
                 {
-                    return View("Nass");
+                    return RedirectToAction("Nass");
                 }
                 else if (request.IsNassSelected == false)
                 {
