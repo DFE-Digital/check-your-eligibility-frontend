@@ -16,7 +16,7 @@ namespace CheckYourEligibility_Parent.Tests.Attributes
             _parent = new Parent()
             {
                 NationalInsuranceNumber = "AB123456C",
-                NationalAsylumSeekerServiceNumber = "232300001",
+                IsNinoSelected = true,
                 FirstName = "Homer",
                 LastName = "Simpson"
             };
