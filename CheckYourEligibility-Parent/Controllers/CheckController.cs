@@ -95,6 +95,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             if (request.IsNassSelected == false)
             {
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 return View("Outcome/Could_Not_Check");
             }
 
