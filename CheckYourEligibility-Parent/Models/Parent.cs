@@ -34,6 +34,7 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         public bool? IsNassSelected { get; set; }
 
+        [IsNinoSelected]
         public bool? IsNinoSelected { get; set; }
 
         public bool NASSRedirect { get; set; }
