@@ -3,7 +3,7 @@
 @{
     List<string> propertyOrder;
 
-    if (Model.ContainsKey("FirstName"))
+    if (Model.ContainsKey("NationalInsuranceNumber") || Model.ContainsKey("NationalAsylumSeekerServiceNumber") || Model.ContainsKey("IsNinoSelected"))
     {
         propertyOrder = typeof(Parent).GetProperties().Select(p => p.Name).ToList();
     }
