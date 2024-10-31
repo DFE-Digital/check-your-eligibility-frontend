@@ -81,7 +81,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Day">
+                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" maxlength="2" aria-label="Day">
                             </div>
                         </div>
 
@@ -90,7 +90,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-month">
                                     Month
                                 </label>
-                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Month">
+                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" maxlength="2" aria-label="Month">
                             </div>
                         </div>
 
@@ -99,7 +99,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-year">
                                     Year
                                 </label>
-                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Year">
+                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-4" type="text" inputmode="numeric" maxlength="4" aria-label="Year">
                             </div>
                         </div>
                     </div>
