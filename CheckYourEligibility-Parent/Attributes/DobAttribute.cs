@@ -27,6 +27,11 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a complete date of birth", missingFields.ToArray() );
         }
 
+        if (!int.TryParse(dayString, out _) && !int.TryParse(monthString, out _) && !int.TryParse(yearString, out _))
+        {
+            return new ValidationResult("Enter a date of birth using numbers only", new[] { "DateOfBirth", "Day", "Year", "Month" });
+        }
+
         if (!int.TryParse(dayString, out int dayInt))
         {
             return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth", "Day" });
