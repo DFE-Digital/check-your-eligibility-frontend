@@ -24,93 +24,21 @@
 
 }
 
-
 <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
-
         <h2 class="govuk-summary-card__title">
-            Child details Reference :- @Model.Reference
+            Parent or guardian
         </h2>
 
-
-
-        <div class="govuk-summary-card__actions">
-            <a class="govuk-link" href="#"><span class="govuk-visually-hidden"> of University of Gloucestershire (Parent or guardian details)</span></a>
-        </div>
-
-
+        <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+                @* //action link placeholder *@
+            </li>
+        </ul>
     </div>
 
     <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
-
-
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Name
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    @Model.ChildName
-                </dd>
-
-            </div>
-
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Date of birth
-                </dt>
-                <dd class="govuk-summary-list__value">
-                  @Model.ChildDob
-                </dd>
-
-            </div>
-            @if (Model.Status != "SentForReview")
-            {
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Status of application
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    <strong class="govuk-tag @statusColor[Model.Status]">
-                        @statusName[Model.Status]
-                    </strong>
-                </dd>
-                <dd class="govuk-summary-list__value">
-                    @if (Model.Status == "EvidenceNeeded")
-                    {
-                        @Html.ActionLink("Send for review", "ApplicationDetailAppealConfirmation", "application", new { id = Model.Id }, new { @class = "govuk-button govuk-button--primary" })
-                    }
-                </dd>
-                
-            </div>
-}
-        </dl>
-    </div>
-</div>
-
-
-<div class="govuk-!-padding-bottom-5"></div>
-
-<div class="govuk-summary-card">
-    <div class="govuk-summary-card__title-wrapper">
-
-        <h2 class="govuk-summary-card__title">
-            Parent or guardian details
-        </h2>
-
-
-
-        <div class="govuk-summary-card__actions">
-            <a class="govuk-link" href="#"><span class="govuk-visually-hidden"> of University of Gloucestershire (Parent or guardian details)</span></a>
-        </div>
-
-
-    </div>
-
-    <div class="govuk-summary-card__content">
-        <dl class="govuk-summary-list">
-
-
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Name
@@ -118,7 +46,6 @@
                 <dd class="govuk-summary-list__value">
                     @Model.ParentName
                 </dd>
-
             </div>
 
             <div class="govuk-summary-list__row">
@@ -126,12 +53,9 @@
                     Date of birth
                 </dt>
                 <dd class="govuk-summary-list__value">
-                   @Model.ParentDob
+                    @Model.ParentDob
                 </dd>
-
             </div>
-
-
 
             <div class="govuk-summary-list__row">
                 @if (!string.IsNullOrEmpty(Model.ParentNI))
@@ -142,7 +66,6 @@
                     <dd class="govuk-summary-list__value">
                         @Model.ParentNI
                     </dd>
-
                 }
                 else
                 {
@@ -152,9 +75,7 @@
                     <dd class="govuk-summary-list__value">
                         @Model.ParentNas
                     </dd>
-
                 }
-
             </div>
 
 
@@ -166,10 +87,70 @@
                 <dd class="govuk-summary-list__value">
                     @Model.ParentEmail
                 </dd>
-
             </div>
-
 
         </dl>
     </div>
 </div>
+
+<div class="govuk-!-padding-bottom-5"></div>
+
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+
+        <h2 class="govuk-summary-card__title">
+            Child details Reference :- @Model.Reference
+        </h2>
+
+        <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+                @* //change link placeholder *@
+            </li>
+        </ul>
+
+    </div>
+
+    <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    @Model.ChildName
+                </dd>
+            </div>
+
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Date of birth
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    @Model.ChildDob
+                </dd>
+            </div>
+
+            @if (Model.Status != "SentForReview")
+            {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Status of application
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <strong class="govuk-tag @statusColor[Model.Status]">
+                            @statusName[Model.Status]
+                        </strong>
+                    </dd>
+                    <dd class="govuk-summary-list__value">
+                        @if (Model.Status == "EvidenceNeeded")
+                        {
+                            @Html.ActionLink("Send for review", "ApplicationDetailAppealConfirmation", "application", new { id = Model.Id }, new { @class = "govuk-button govuk-button--primary" })
+                        }
+                    </dd>
+                </div>
+            }
+        </dl>
+    </div>
+</div>
+
+
