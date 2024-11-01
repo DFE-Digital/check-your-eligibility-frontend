@@ -2,26 +2,28 @@
 <a class="govuk-back-link-nolink"></a>
 
 <div class="govuk-!-padding-bottom-3"></div>
-    <main class="govuk-main-wrapper" id="main-content">
-
-
-        <div class="govuk-width-container">
-            <div class="govuk-grid-row">
+<main class="govuk-main-wrapper" id="main-content">
+    <div class="govuk-width-container">
+        <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-heading-l">Are you sure?</p>
-                <p class="govuk-body">Make sure you want to decline this application. </p>
-                <p class="govuk-body">If a mistake is made, the parent will have to start a new application with their children’s school.</p>
-
-            </div>
+                <h1 class="govuk-heading-l">Decline this application?</h1>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        The parent or guardian will have to start a new application if you make a mistake.
+                    </strong>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="govuk-!-padding-bottom-3"></div>
+    <div class="govuk-!-padding-bottom-3"></div>
 
-    @Html.ActionLink("Yes, finalise now", "ApplicationDeclineSend", "application", new { id = @TempData["AppApproveId"] }, new { @class = "govuk-button govuk-button--primary" })
+    @Html.ActionLink("Yes, decline now", "ApplicationDeclineSend", "application", new { id = @TempData["AppApproveId"] }, new { @class = "govuk-button govuk-button--primary" })
 
     @Html.ActionLink("No, return to table", "PendingApplications", "application", new { id = @TempData["AppApproveId"] }, new { @class = "govuk-button govuk-button--secondary" })
 
-        <div class="govuk-!-padding-bottom-3"></div>
+    <div class="govuk-!-padding-bottom-3"></div>
 
 </main>
