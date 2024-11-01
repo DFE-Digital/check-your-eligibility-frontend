@@ -60,7 +60,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Enter_Details(Parent request)
         {
             // dont want to validate nass on this page 
-            if (request.IsNinoSelected == false)
+            if (request.IsNinoSelected == false || request.IsNinoSelected == null)
             {
                 ModelState.Remove("NationalInsuranceNumber");
                 if (!request.NASSRedirect)
@@ -68,6 +68,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     ModelState.Remove("NationalAsylumSeekerServiceNumber");
                 }
 
+            }
+            if (!request.IsNinoSelected == null)
+            {
+                ModelState.Remove("IsNassSelected"); 
             }
             else
             {
@@ -93,6 +97,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 else if (request.IsNassSelected == false)
                 {
                     return View("Outcome/Could_Not_Check");
+                }
+                else if (errors.ContainsKey("IsNassSelected") || errors.ContainsKey("NationalAslyumSeekerServiceNumber"))
+                {
+                    return View("Nass");
                 }
                 return RedirectToAction("Enter_Details");
             }
