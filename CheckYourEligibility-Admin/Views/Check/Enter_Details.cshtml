@@ -84,7 +84,7 @@
                             <label class="govuk-label govuk-date-input__label" for="Year">
                                 Year
                             </label>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-4 @(ViewData.ModelState["DateOfBirth.Month"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Year" id="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-4 @(ViewData.ModelState["DateOfBirth.Year"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Year" id="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
                         </div>
                     </div>
                 </div>
