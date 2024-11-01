@@ -88,13 +88,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
                 if (request.NASSRedirect)
                 {
-                    return View("Nass");
-                }
-                else if (request.IsNassSelected == false)
-                {
-                    return View("Outcome/Could_Not_Check");
+                    return RedirectToAction("Nass");
                 }
                 return RedirectToAction("Enter_Details");
+            }
+
+            if (request.IsNassSelected == false)
+            {
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                return View("Outcome/Could_Not_Check");
             }
 
             // build object for api soft-check
