@@ -32,9 +32,9 @@ public class DobAttribute : ValidationAttribute
         //var type = model.GetType();
         //var memberName = validationContext.MemberName;
 
-        var dayString = GetPropertyValue(model, "Day");
-        var monthString = GetPropertyValue(model, "Month");
-        var yearString = GetPropertyValue(model, "Year");
+        var dayString = GetPropertyValue(model, _dayPropertyName);
+        var monthString = GetPropertyValue(model, _monthPropertyName);
+        var yearString = GetPropertyValue(model, _yearPropertyName);
 
         bool allFieldsEmpty = string.IsNullOrEmpty(dayString) &&
                       string.IsNullOrEmpty(monthString) &&
@@ -50,66 +50,65 @@ public class DobAttribute : ValidationAttribute
         if (string.IsNullOrWhiteSpace(monthString)) missingFields.Add("Month");
         if (string.IsNullOrWhiteSpace(yearString)) missingFields.Add("Year");
 
+        if (missingFields.Count == 4)
+        {
+            return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth", "Day", "Month", "Year" });
+        }
+
+        if (missingFields.Count > 1)
+        {
+            return new ValidationResult("Enter a complete date of birth", missingFields.ToArray());
+        }
+
         var invalidFields = new List<string> { "DateOfBirth" };
 
-        if (_isRequired || !allFieldsEmpty)
+        bool isDayInvalid = !int.TryParse(dayString, out int dayInt);
+        if (isDayInvalid) invalidFields.Add("Day");
+
+        bool isMonthInvalid = !int.TryParse(monthString, out int monthInt);
+        if (isMonthInvalid) invalidFields.Add("Month");
+
+        bool isYearInvalid = !int.TryParse(yearString, out int yearInt);
+        if (isYearInvalid) invalidFields.Add("Year");
+
+        if (!int.TryParse(dayString, out _) && !int.TryParse(monthString, out _) && !int.TryParse(yearString, out _))
         {
-            if (missingFields.Count == 4)
-            {
-                return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth", "Day", "Month", "Year" });
-            }
+            return new ValidationResult("Enter a date of birth using numbers only", new[] { "DateOfBirth", "Day", "Month", "Year" });
+        }
 
-            if (missingFields.Count > 1)
-            {
-                return new ValidationResult("Enter a complete date of birth", missingFields.ToArray());
-            }
+        if (invalidFields.Count > 2)
+        {
+            return new ValidationResult("Enter a date using numbers only", invalidFields.ToArray());
+        }
 
-            if (!int.TryParse(dayString, out _) && !int.TryParse(monthString, out _) && !int.TryParse(yearString, out _))
-            {
-                return new ValidationResult("Enter a date of birth using numbers only", new[] { "DateOfBirth", "Day", "Month", "Year" });
-            }
+        if (isDayInvalid)
+        {
+            return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth", "Day" });
+        }
 
+        if (dayInt < 1 || dayInt > 31)
+        {
+            return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
+        }
 
-            bool isDayInvalid = !int.TryParse(dayString, out int dayInt);
-            if (isDayInvalid) invalidFields.Add("Day");
+        if (isMonthInvalid)
+        {
+            return new ValidationResult("Enter a month using numbers only", new[] { "DateOfBirth", "Month" });
+        }
 
-            bool isMonthInvalid = !int.TryParse(monthString, out int monthInt);
-            if (isMonthInvalid) invalidFields.Add("Month");
+        if (monthInt < 1 || monthInt > 12)
+        {
+            return new ValidationResult("Enter a valid month", new[] { "DateOfBirth", "Month" });
+        }
 
-            bool isYearInvalid = !int.TryParse(yearString, out int yearInt);
-            if (isYearInvalid) invalidFields.Add("Year");
-
-            if (invalidFields.Count > 2)
-            {
-                return new ValidationResult("Enter a date using numbers only", invalidFields.ToArray());
-            }
-
-            if (isDayInvalid)
-            {
-                return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth", "Day" });
-            }
-
-            if (dayInt < 1 || dayInt > 31)
-            {
-                return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
-            }
-
-            if (isMonthInvalid)
-            {
-                return new ValidationResult("Enter a month using numbers only", new[] { "DateOfBirth", "Month" });
-            }
-
-            if (monthInt < 1 || monthInt > 12)
-            {
-                return new ValidationResult("Enter a valid month", new[] { "DateOfBirth", "Month" });
-            }
-
-            if (isYearInvalid)
-            {
-                return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth", "Year" });
-            }
+        if (isYearInvalid)
+        {
+            return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth", "Year" });
+        }
 
 
+        try
+        {
             var dob = new DateTime(yearInt, monthInt, dayInt);
 
             if (dob > DateTime.Now)
@@ -137,6 +136,11 @@ public class DobAttribute : ValidationAttribute
                 }
             }
         }
+        catch
+        {
+            return new ValidationResult("Enter a valid date of birth");
+        }
+
 
         return ValidationResult.Success;
     }
