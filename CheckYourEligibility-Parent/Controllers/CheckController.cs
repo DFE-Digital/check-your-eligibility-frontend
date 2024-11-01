@@ -90,11 +90,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     return RedirectToAction("Nass");
                 }
-                else if (request.IsNassSelected == false)
-                {
-                    return View("Outcome/Could_Not_Check");
-                }
                 return RedirectToAction("Enter_Details");
+            }
+
+            if (request.IsNassSelected == false)
+            {
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                return View("Outcome/Could_Not_Check");
             }
 
             // build object for api soft-check
