@@ -90,11 +90,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                if (request.NASSRedirect)
+                if (request.NASSRedirect && request.IsNinoSelected == false)
                 {
                     return RedirectToAction("Nass");
                 }
-                else if (errors.ContainsKey("IsNassSelected") || errors.ContainsKey("NationalAslyumSeekerServiceNumber"))
+                else if (errors.ContainsKey("IsNinoSelected") || request.NASSRedirect == true)
                 {
                     return View("Nass");
                 }
