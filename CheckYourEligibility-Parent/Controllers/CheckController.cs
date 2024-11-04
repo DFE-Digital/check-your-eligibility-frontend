@@ -94,7 +94,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     return RedirectToAction("Nass");
                 }
-                else if (errors.ContainsKey("IsNinoSelected") && request.NASSRedirect == true)
+                else if ((errors.ContainsKey("IsNinoSelected") && request.NASSRedirect == true) || errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
                 {
                     return View("Nass");
                 }
