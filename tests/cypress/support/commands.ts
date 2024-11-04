@@ -33,16 +33,20 @@ Cypress.Commands.add('SignInSchool', () => {
   cy.contains('Continue').click();
 });
 
-Cypress.Commands.add('CheckValuesInSummaryCard', (key: string, expectedValue: string) => {
-  cy.get('.govuk-summary-list__row').contains('.govuk-summary-list__key', key )
+Cypress.Commands.add('CheckValuesInSummaryCard', (sectionTitle: string, key: string, expectedValue: string) => {
+  cy.contains('.govuk-summary-card__title', sectionTitle)
+  .parents('.govuk-summary-card')
+  .within(() => {
+    cy.contains('.govuk-summary-list__key', key)
     .siblings('.govuk-summary-list__value')
     .should('include.text', expectedValue)
+  });
 });
 
 Cypress.Commands.add('scanPagesForValue', (value: string) => {
   cy.get('body').then((body) => {
-    if (body.find(`td:contains("${value}")`).length > 0) {
-      cy.get(`td:contains("${value}")`).click();
+    if (body.find(`td a:contains("${value}")`).length > 0) {
+      cy.get(`td a:contains("${value}")`).click();
     }
     else {
       cy.contains('.govuk-link', 'Next').click();
@@ -60,15 +64,14 @@ Cypress.Commands.add('findApplicationFinalise', (value: string) => {
           if (text.trim() === value) {
               referenceFound = true;
               cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
-              cy.log('found it!');
               return false;
           }
       });
     }).then(() => {
       if (!referenceFound){
         cy.get('body').then((body) => {
-          if(body.find('.govuk-link').length > 0) {
-            cy.contains('.govuk-link', 'Next').click();
+          if(body.find('.govuk-pagination__link:contains("Next")}').length > 0) {
+            cy.contains('.govuk-pagination__link', 'Next').click();
             cy.findApplicationFinalise(value);
           }
           else{
