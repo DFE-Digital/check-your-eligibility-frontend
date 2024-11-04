@@ -69,9 +69,12 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
     });
 
-builder.Services.AddAuthentication("BasicAuthentication")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
-        ("BasicAuthentication", null);
+if (!String.IsNullOrEmpty(builder.Configuration["BasicPassword"]))
+{
+    builder.Services.AddAuthentication("BasicAuthentication")
+        .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+            ("BasicAuthentication", null);
+}
 
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 //builder.Services.AddProblemDetails();
