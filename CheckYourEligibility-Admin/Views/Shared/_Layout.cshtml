@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+<!DOCTYPE html>
 <html lang="en" class="govuk-template">
 <head>
     <meta charset="utf-8">
@@ -108,10 +109,11 @@
                         </li>
 
                         <li class="govuk-footer__inline-list-item">
-                            <a class="govuk-footer__link" href="https://forms.office.com/Pages/ResponsePage.aspx?id=yXfS-grGoU2187O4s0qC-URYbNo1-R1EubHA0gNJis5UOVo3VU1KV0E0QkxTMFQ0RFZQUUZCR0E0WC4u" target="_blank">
+                            <a class="govuk-footer__link" href="@Configuration["ContactUsUrl"]" target="_blank">
                                 Contact us
                             </a>
                         </li>
+
 
                     </ul>
                     <svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 483.2 195.7" height="17" width="41">
