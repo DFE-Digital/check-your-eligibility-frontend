@@ -49,13 +49,12 @@ describe('Full journey of creating an application through school portal through 
 
             cy.get('h1').should('include.text', 'Check your answers before submitting');
 
-            cy.CheckValuesInSummaryCard('Name', `${parentFirstName} ${parentLastName}`);
-            cy.CheckValuesInSummaryCard('Date of birth', '1990-01-01');
-            cy.CheckValuesInSummaryCard('National Insurance number', NIN);
-            cy.CheckValuesInSummaryCard('Email address', parentEmailAddress);
-            cy.pause();
-            cy.CheckValuesInSummaryCard("Name", childFirstName + " " + childLastName);
-            cy.contains('button', 'Submit application').click();
+            cy.CheckValuesInSummaryCard('Parent or guardian details','Name', `${parentFirstName} ${parentLastName}`);
+            cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '1990-01-01');
+            cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', NIN);
+            cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', parentEmailAddress);
+            cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
+            cy.contains('button', 'Add details').click();
 
             cy.url().should('include', '/Check/ApplicationsRegistered');
             cy.get('.govuk-table')
