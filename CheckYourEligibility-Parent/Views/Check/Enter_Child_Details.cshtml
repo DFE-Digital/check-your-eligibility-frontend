@@ -107,17 +107,25 @@
                     <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
                 </fieldset>
                 <noscript>
-                    <div govuk-body>
-                    <a href=https://www.get-information-schools.service.gov.uk/Search>Help with finding the URN</a>
-                    <p>You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
-                    <p>If you do not know the URN for your child’s school, you can: </p>
-                        <ul class="govuk-list govuk-list--bullet">
-                            <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name
-                            <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’
-                            <li>call your school and ask for the URN
-                            <li>ask your school to complete this application for you instead
-                        </ul>
-                    </div>
+                        <details class="govuk-details" open="">
+                            <summary class="govuk-details__summary">
+                                <span class="govuk-details__summary-text">
+                                    Help with finding the URN
+                                </span>
+                            </summary>
+                            <div class="govuk-details__text">
+                                <p class="govuk-body">You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
+                                <p class="govuk-body">If you do not know the URN for your child’s school, you can:</p>
+                                <ul class="govuk-list govuk-list--bullet">
+                                    <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name</li>
+                                    <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’</li>
+                                    <li>call your child's school and ask for the URN</li>
+                                    <li>
+                                        ask your child's school to complete this application for you instead
+                                    </li>
+                                </ul>
+                            </div>
+                        </details>
                 </noscript>
             </div>
 
