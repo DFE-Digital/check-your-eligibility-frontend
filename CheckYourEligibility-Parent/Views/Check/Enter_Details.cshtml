@@ -1,5 +1,4 @@
-﻿
-@model CheckYourEligibility_FrontEnd.Models.Parent
+﻿@model CheckYourEligibility_FrontEnd.Models.Parent
 
 @{
     ViewData["Title"] = "Check Details";
@@ -16,7 +15,16 @@
 
 <h1 class="govuk-heading-l">Enter your details</h1>
 
-<p>The information you provide will be compared with other government departments records to check for your eleigibility. For further information, please check our <a href="@Url.Action("Privacy", "Home")">Privacy statement</a>.</p>
+<p>The information you provide will be compared with other government departments records to check for your eligibility.</p>
+<p>For further information, please check our <a href="@Url.Action("Privacy", "Home")">Privacy statement</a>.</p>
+
+<div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+        <span class="govuk-visually-hidden">Warning</span>
+        Use the details on your passport, driving licence, birth certificate or Biometric Residence Permit.
+    </strong>
+</div>
 
 <form asp-controller="Check" asp-action="Enter_Details" method="post">
     <fieldset class="govuk-fieldset">
@@ -26,7 +34,7 @@
 
         <div class="govuk-form-group">
             <label class="govuk-label" for="first-name">
-                Your first name
+                First name
             </label>
             <p class="govuk-error-message">
                 <span asp-validation-for="FirstName"></span>
@@ -36,7 +44,7 @@
 
         <div class="govuk-form-group">
             <label class="govuk-label" for="surname">
-                Your last name
+                Last name
             </label>
             <p class="govuk-error-message">
                 <span asp-validation-for="LastName"></span>
@@ -113,7 +121,7 @@
 
                     <div class="govuk-form-group">
                         <label class="govuk-label" for="ni-number-entered">
-                            Your National Insurance number
+                            Parent's National Insurance number
                         </label>
                         <div id="ni-number-entered-hint" class="govuk-hint">
                             For example, ‘QQ 12 34 56 C’
