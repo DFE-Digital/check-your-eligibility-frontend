@@ -69,7 +69,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
             }
-            if (!request.IsNinoSelected == null)
+            if (request.IsNinoSelected != null)
             {
                 ModelState.Remove("IsNassSelected"); 
             }
@@ -104,6 +104,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (request.IsNassSelected == false)
             {
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                TempData.Remove("Errors");
                 ModelState.Clear();
                 return View("Outcome/Could_Not_Check");
             }
