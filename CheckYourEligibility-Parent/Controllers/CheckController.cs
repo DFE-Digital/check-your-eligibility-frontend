@@ -94,7 +94,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     return RedirectToAction("Nass");
                 }
-                else if (errors.ContainsKey("IsNinoSelected") || request.NASSRedirect == true)
+                else if (errors.ContainsKey("IsNinoSelected") && request.NASSRedirect == true)
                 {
                     return View("Nass");
                 }
@@ -104,6 +104,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (request.IsNassSelected == false)
             {
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                ModelState.Clear();
                 return View("Outcome/Could_Not_Check");
             }
 
