@@ -17,21 +17,19 @@
 <form asp-controller="BulkUpload" asp-action="Batch_Check" method="post" enctype="multipart/form-data">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Check free school meals – multiple students </h1>
-            <p>Use this page to batch check free school meal entitlement for the children of multiple parents.</p>
-            <h2 class="govuk-heading-m">How it works </h2>
+            <h1 class="govuk-heading-l">Run a batch check for multiple parents or guardians</h1>
+            <p>Upload a template with details of the parents or guardians who applied for free school meals.</p>
+            <h2 class="govuk-heading-m">Running a batch check</h2>
             <ol class="govuk-list govuk-list--number">
-                <li>Download the <a href="~/documents/batchchecktemplate.csv" class="govuk-link">batch check template</a> (XXkb) </li>
-                <li>Complete the template by adding the details of all parents you wish to check: Name, Date of birth, National Insurance number or asylum support reference number. Make sure you save it as a csv file. </li>
-                <li>Upload the completed template using the ‘Upload template’ function on this page.  </li>
-                <li>You’ll be given a file to download containing results. </li>
+                <li>Download the <a href="~/documents/batchchecktemplate.csv" class="govuk-link">batch check template</a> (0.11 kb) </li>
+                <li>Add the details of all parents you need to check, including: Name, Date of birth, National Insurance number or Asylum support reference number.</li>
+                <li>Save it as a CSV file.</li>
+                <li>Upload the completed template on this page on this page and perform checks.</li>
+                <li>You’ll be given a file to download containing results.</li>
             </ol>
-            <h2 class="govuk-heading-m">Upload template </h2>
-            <p>Please ensure you only upload a completed version of the batch check template, in csv format.  </p>
+            <h2 class="govuk-heading-m">Upload a completed template and run a check</h2>
+            <p>The batch check template must be fully completed and in CSV format.</p>
             <div class="govuk-form-group @(string.IsNullOrEmpty(errorMessage) ? "" : "govuk-form-group--error")">
-                <label class="govuk-label" for="file-upload-1">
-                    Upload a file
-                </label>
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <p id="file-upload-1-error" class="govuk-error-message">
@@ -42,7 +40,7 @@
             </div>
 
             <button class="govuk-button" data-module="govuk-button">
-                Run checks
+                Run check
             </button>
         </div>
     </div>
