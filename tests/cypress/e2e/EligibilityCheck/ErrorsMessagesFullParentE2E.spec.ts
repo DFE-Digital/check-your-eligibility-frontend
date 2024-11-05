@@ -187,6 +187,7 @@ describe('After errors have been input initially a Parent with valid details can
         cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '01/01/1990');
         cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', 'NN668767B');
         cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', (Cypress.env('ONEGOV_EMAIL')));
+
         cy.CheckValuesInSummaryCard('Child 1','Name', 'Timmy Smith');
         cy.CheckValuesInSummaryCard('Child 1','School', 'Hinde House 2-16 Academy');
         cy.CheckValuesInSummaryCard('Child 1','Date of birth', '01/01/2007');
