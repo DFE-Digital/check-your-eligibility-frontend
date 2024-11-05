@@ -69,9 +69,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
             }
-            if (request.IsNinoSelected != null)
+            if (request.IsNassSelected != null)
             {
-                ModelState.Remove("IsNassSelected"); 
+                request.NASSRedirect = true; 
+            }
+            else if (request.IsNinoSelected == null && request.NASSRedirect == true)
+            {
+                ModelState.Remove("IsNassSelected");
             }
             else
             {
