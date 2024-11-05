@@ -28,13 +28,10 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Dob("ChildDobDay", "ChildDobMonth", "ChildDobYear", isRequired: false, applyAgeRange: true)]
         public string? ChildDob { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
         public string? ChildDobDay { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a month using numbers only")]
         public string? ChildDobMonth { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year using numbers only")]
         public string? ChildDobYear { get; set; }
 
         [NotMapped]

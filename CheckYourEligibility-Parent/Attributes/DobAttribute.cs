@@ -18,6 +18,8 @@ public class DobAttribute : ValidationAttribute
         if (string.IsNullOrWhiteSpace(monthString)) missingFields.Add("Month");
         if (string.IsNullOrWhiteSpace(yearString)) missingFields.Add("Year");
 
+        var invalidFields = new List<string> { "DateOfBirth" };
+
         if (missingFields.Count == 4)
         {
             return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth", "Day", "Year", "Month" });
@@ -32,7 +34,22 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a date of birth using numbers only", new[] { "DateOfBirth", "Day", "Year", "Month" });
         }
 
-        if (!int.TryParse(dayString, out int dayInt))
+        bool isDayInvalid = !int.TryParse(dayString, out int dayInt);
+        if (isDayInvalid) invalidFields.Add("Day");
+
+        bool isMonthInvalid = !int.TryParse(monthString, out int monthInt);
+        if (isMonthInvalid) invalidFields.Add("Month");
+
+        bool isYearInvalid = !int.TryParse(yearString, out int yearInt);
+        if (isYearInvalid) invalidFields.Add("Year");
+
+
+        if (invalidFields.Count > 2)
+        {
+            return new ValidationResult("Enter a date using numbers only", invalidFields.ToArray());
+        }
+
+        if (isDayInvalid)
         {
             return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth", "Day" });
         }
@@ -42,7 +59,7 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
         }
 
-        if (!int.TryParse(monthString, out int monthInt))
+        if (isMonthInvalid)
         {
             return new ValidationResult("Enter a month using numbers only", new[] { "DateOfBirth", "Month" });
         }
@@ -52,7 +69,7 @@ public class DobAttribute : ValidationAttribute
             return new ValidationResult("Enter a valid month", new[] { "DateOfBirth", "Month" });
         }
 
-        if (!int.TryParse(yearString, out int yearInt))
+        if (isYearInvalid)
         {
             return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth", "Year" });
         }

@@ -4,8 +4,8 @@
 @{
     Layout = "~/Views/Shared/_Layout_StartNow.cshtml";
     ViewData["Title"] = "Home Page";
-    var url = UriHelper.GetDisplayUrl(HttpContextAccessor.HttpContext.Request);
-    url = url.Replace("as", "as-admin");
+    // var url = UriHelper.GetDisplayUrl(HttpContextAccessor.HttpContext.Request);
+    // url = url.Replace("as", "as-admin");
 }
 
 <div class="govuk-width-container ">
@@ -78,7 +78,7 @@
                 <div>
                     <div class="blue-line"></div>
                     <h3 class="govuk-heading-s">Related Content</h3>
-                    <a href="@url">If you are a School or Local Authority, you can log in to the service here </a>
+                    <a href="https://check-your-eligibility-prototype.azurewebsites.net/mvp2/account/DSI-startnow">If you are a School or Local Authority, you can log in to the service here </a>
                 </div>
             </div>
         </div>

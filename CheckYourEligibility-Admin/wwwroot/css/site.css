@@ -195,3 +195,12 @@ img, svg {
 }
 
 /*END - Child Details form title width extention override */
+
+
+/*BEGIN - Remove whitespace from ApplicationDetailLA below name and actions */
+
+.whitespaceDelete {
+    margin-bottom: 0;
+}
+
+/*END - Remove whitespace from ApplicationDetailLA below name and actions */

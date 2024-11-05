@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using CheckYourEligibility_FrontEnd.Middleware;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,11 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
 
-builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(opt =>
+    {
+        opt.DefaultScheme = "UNKNOWN";
+        opt.DefaultChallengeScheme = "UNKNOWN";
+    })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddOneLogin(options =>
     {
@@ -66,7 +71,20 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         // Override the cookie name prefixes (optional)
         options.CorrelationCookie.Name = "check-your-eligibility-onelogin-correlation.";
         options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
-    });
+    }).AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+        ("BasicAuthentication", null).AddPolicyScheme("UNKNOWN", "UNKNOWN", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+        {
+            if(context.Request.Path=="/Check/CreateUser") {
+                return "OneLogin";
+            }
+            
+            Console.WriteLine(context.Request.Path);
+
+            return "BasicAuthentication";
+        };
+    });;
 
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 //builder.Services.AddProblemDetails();

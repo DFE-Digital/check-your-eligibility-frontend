@@ -27,10 +27,12 @@ describe('Admin journey search for application', () => {
         cy.get('#FirstName').type(parentFirstName);
         cy.get('#LastName').type(parentLastName);
         cy.get('#EmailAddress').type(parentEmailAddress);
-        cy.get('#NationalInsuranceNumber').type(NIN);
         cy.get('#Day').type('01');
         cy.get('#Month').type('01');
         cy.get('#Year').type('1990');
+
+        cy.get('#NinAsrSelection').click();
+        cy.get('#NationalInsuranceNumber').type(NIN);
 
         cy.contains('button', 'Perform check').click();
 
@@ -46,14 +48,14 @@ describe('Admin journey search for application', () => {
         cy.get('[id="ChildList[0].Year"]').type('2007');
         cy.contains('button', 'Save and continue').click();
 
-        cy.get('h1').should('include.text', 'Check your answers before registering');
+        cy.get('h1').should('include.text', 'Check your answers before submitting');
 
-        cy.CheckValuesInSummaryCard('Parent or guardian name', `${parentFirstName} ${parentLastName}`);
-        cy.CheckValuesInSummaryCard('Parent or guardian date of birth', '1990-01-01');
-        cy.CheckValuesInSummaryCard('National insurance number', NIN);
-        cy.CheckValuesInSummaryCard('Email address', parentEmailAddress);
-        cy.CheckValuesInSummaryCard("Child's name", childFirstName + " " + childLastName);
-        cy.contains('button', 'Submit application').click();
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', `${parentFirstName} ${parentLastName}`);
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '1990-01-01');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', NIN);
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', parentEmailAddress);
+        cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
+        cy.contains('button', 'Add details').click();
 
         cy.url().should('include', '/Check/ApplicationsRegistered');
         cy.get('.govuk-table')

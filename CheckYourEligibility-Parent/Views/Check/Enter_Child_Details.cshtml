@@ -1,7 +1,7 @@
 ﻿@model CheckYourEligibility_FrontEnd.Models.Children
 
 @{
-    ViewData["Title"] = "Provide details of your children";
+    ViewData["Title"] = "Add details of your children";
     var childIndex = TempData["childIndex"] as int?;
     var validationMessage = TempData["ValidationMessage"] as string;
  }
@@ -33,10 +33,10 @@
 </noscript>
 
 <h1 class="govuk-heading-l" tabindex="-1">
-    Provide details of your children
+    Add details of your children
 </h1>
 
-<p>Include all your children who are in compulsory education. You can use the add another option, if you have more than one child.</p>
+<p>Include all children who are in compulsory education..</p>
 
 <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
    <input type="hidden" id="ChildIndex" />
@@ -95,7 +95,7 @@
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.URN"></span>
                     </p>
-                        <input id="school-search-@i" class="noJsRemove govuk-search school-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].LastName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" autocomplete="off" aria-label="School Search" />
+                        <input id="school-search-@i" class="noJsRemove govuk-search school-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].School.URN"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" autocomplete="off" aria-label="School Search" />
                     <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" />
                     
                     <label class="govuk-label govuk-!-font-weight-bold noJsShow" for="ChildList[@i].School.URN">
@@ -107,17 +107,25 @@
                     <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
                 </fieldset>
                 <noscript>
-                    <div govuk-body>
-                    <a href=https://www.get-information-schools.service.gov.uk/Search>Help with finding the URN</a>
-                    <p>You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
-                    <p>If you do not know the URN for your child’s school, you can: </p>
-                        <ul class="govuk-list govuk-list--bullet">
-                            <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name
-                            <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’
-                            <li>call your school and ask for the URN
-                            <li>ask your school to complete this application for you instead
-                        </ul>
-                    </div>
+                        <details class="govuk-details" open="">
+                            <summary class="govuk-details__summary">
+                                <span class="govuk-details__summary-text">
+                                    Help with finding the URN
+                                </span>
+                            </summary>
+                            <div class="govuk-details__text">
+                                <p class="govuk-body">You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
+                                <p class="govuk-body">If you do not know the URN for your child’s school, you can:</p>
+                                <ul class="govuk-list govuk-list--bullet">
+                                    <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name</li>
+                                    <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’</li>
+                                    <li>call your child's school and ask for the URN</li>
+                                    <li>
+                                        ask your child's school to complete this application for you instead
+                                    </li>
+                                </ul>
+                            </div>
+                        </details>
                 </noscript>
             </div>
 
