@@ -376,7 +376,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                return Json(new List<CheckYourEligibility.Domain.Responses.School>());
+                return Json(new List<CheckYourEligibility.Domain.Responses.Establishment>());
             }
         }
 
@@ -413,7 +413,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
-                        School = int.Parse(child.School.URN),
+                        Establishment = int.Parse(child.School.URN),
                         UserId = HttpContext.Session.GetString("UserId"),
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }

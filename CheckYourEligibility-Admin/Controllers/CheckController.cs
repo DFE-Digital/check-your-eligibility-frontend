@@ -387,7 +387,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
-                        School = int.Parse(_Claims.Organisation.Urn),
+                        Establishment = int.Parse(_Claims.Organisation.Urn),
                         UserId = user.Data
                     }
                 };

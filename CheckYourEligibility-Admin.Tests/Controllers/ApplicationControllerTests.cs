@@ -117,7 +117,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             response.Data.ChildDateOfBirth = "2007-08-14";
             response.Data.ParentDateOfBirth = "2007-08-14";
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -144,7 +144,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(default(ApplicationItemResponse));
@@ -163,7 +163,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
-            response.Data.School.Id = -99;
+            response.Data.Establishment.Id = -99;
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -258,7 +258,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             response.Data.ChildDateOfBirth = "2007-08-14";
             response.Data.ParentDateOfBirth = "2007-08-14";
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -284,7 +284,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(default(ApplicationItemResponse));
@@ -303,7 +303,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
-            response.Data.School.Id = -99;
+            response.Data.Establishment.Id = -99;
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -338,7 +338,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //Arrange
             var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
             var response = _fixture.Create<Task<ApplicationItemResponse>>();
-            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Establishment.Id = 123456;
             response.Result.Data.Id = id;
 
             _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
@@ -358,7 +358,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //Arrange
             var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
             var response = _fixture.Create<Task<ApplicationItemResponse>>();
-            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Establishment.Id = 123456;
             response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
 
             _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
@@ -430,7 +430,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             response.Data.ChildDateOfBirth = "2007-08-14";
             response.Data.ParentDateOfBirth = "2007-08-14";
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -456,7 +456,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(default(ApplicationItemResponse));
@@ -475,7 +475,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
-            response.Data.School.Id = -99;
+            response.Data.Establishment.Id = -99;
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -617,7 +617,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             response.Data.ChildDateOfBirth = "2007-08-14";
             response.Data.ParentDateOfBirth = "2007-08-14";
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -643,7 +643,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
             var claims = DfeSignInExtensions.GetDfeClaims(_httpContext.Object.User.Claims);
-            response.Data.School.Id = Convert.ToInt32(claims.Organisation.Urn);
+            response.Data.Establishment.Id = Convert.ToInt32(claims.Organisation.Urn);
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(default(ApplicationItemResponse));
@@ -662,7 +662,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //arrange
             var response = _fixture.Create<ApplicationItemResponse>();
-            response.Data.School.Id = -99;
+            response.Data.Establishment.Id = -99;
 
             _adminServiceMock.Setup(s => s.GetApplication(It.IsAny<string>()))
                    .ReturnsAsync(response);
@@ -711,7 +711,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //Arrange
             var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
             var response = _fixture.Create<Task<ApplicationItemResponse>>();
-            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Establishment.Id = 123456;
             response.Result.Data.Id = id;
 
 
@@ -731,7 +731,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //Arrange
             var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
             var response = _fixture.Create<Task<ApplicationItemResponse>>();
-            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Establishment.Id = 123456;
             response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
 
             _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);
@@ -749,7 +749,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //Arrange
             var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
             var response = _fixture.Create<Task<ApplicationItemResponse>>();
-            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Establishment.Id = 123456;
             response.Result.Data.Id = id;
 
 
@@ -768,7 +768,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //Arrange
             var id = "f41e59a2-9847-4084-9e17-0511e77571fb";
             var response = _fixture.Create<Task<ApplicationItemResponse>>();
-            response.Result.Data.School.Id = 123456;
+            response.Result.Data.Establishment.Id = 123456;
             response.Result.Data.Id = "ddac4084-f9d7-4414-8d39-d07a24be82a2";
 
             _adminServiceMock.Setup(x => x.GetApplication(It.IsAny<string>())).Returns(response);

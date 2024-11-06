@@ -5,7 +5,7 @@ namespace CheckYourEligibility_FrontEnd.Services
 {
     public interface IEcsServiceParent
     {
-        Task<SchoolSearchResponse> GetSchool(string name);
+        Task<EstablishmentSearchResponse> GetSchool(string name);
        
         Task<UserSaveItemResponse> CreateUser(UserCreateRequest requestBody);
 
