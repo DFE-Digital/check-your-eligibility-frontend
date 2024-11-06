@@ -64,8 +64,37 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('li').should('contain.text', 'Enter a date of birth using numbers only');
 
-    })
+    });
 
+    it('returns the correct error message when radio selection is blank on Nass page', () => {
+        cy.goToNassPage();
+        cy.contains('Save and continue').click();
+        cy.get('li').should('contain.text', 'Select yes if you have a National Asylum Seeker Service number');
+    });
+
+    it('returns the correct error message when radio selection is yes on Nass page', () => {
+        cy.goToNassPage();
+        cy.get('input#IsNinoSelected[value="true"]').click();
+        cy.contains('Save and continue').click();
+        cy.get('li').should('contain.text', 'Nass is required');
+    });
+
+    it('returns to the Could not check page when radio selection is no on Nass page', () =>{
+        cy.visit('/Check/Enter_Details');
+        cy.get('#FirstName').should('be.visible').type('Tim');
+        cy.get('#LastName').should('be.visible').type('Smith');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
+
+        cy.get('input#IsNinoSelected[value="false"]').click();
+        cy.contains('Save and continue').click();
+        cy.wait(200);
+
+        cy.get('input#IsNinoSelected[value="false"]').click();
+        cy.contains('Save and continue').click();
+        cy.get('h1').should('contain.text' , "We could not check your children’s entitlement to free school meals");
+    });
 
     it('returns the correct error message when invalid characters are used in the input fields', () => {
 
@@ -154,7 +183,7 @@ describe('After errors have been input initially a Parent with valid details can
         cy.url().should('include', '/Check/Enter_Child_Details');
         cy.get('h1').should('include.text', 'Provide details of your children');
 
-        // Blank fields
+         //Blank fields
         cy.contains('Save and continue').click();
 
         cy.get('h2').should('contain.text', 'There is a problem');
