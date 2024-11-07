@@ -30,7 +30,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="FirstName"></span>
             </p>
-            <input class="govuk-input govuk-!-width-two-thirds" asp-for="FirstName" type="text">
+            <input class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState["DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="FirstName" type="text">
         </div>
 
         <div class="govuk-form-group">
@@ -40,7 +40,7 @@
             <p class="govuk-error-message">
                 <span asp-validation-for="LastName"></span>
             </p>
-            <input class="govuk-input govuk-!-width-two-thirds" asp-for="LastName" type="text">
+            <input class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState["DateOfBirth.Month"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="LastName" type="text">
         </div>
     </fieldset>
 
@@ -62,7 +62,7 @@
                         <label class="govuk-label govuk-date-input__label" for="Day">
                             Day
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Day" id="Day" type="text" inputmode="numeric" maxlength="2" aria-label="Day" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState["DateOfBirth.Day"]?.Errors.Count > 0 && ViewData.ModelState["DateOfBirth"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Day" id="Day" type="text" inputmode="numeric" maxlength="2" aria-label="Day" />
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@
                         <label class="govuk-label govuk-date-input__label" for="Month">
                             Month
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2" asp-for="Month" id="Month" type="text" inputmode="numeric" maxlength="2" aria-label="Month" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState["DateOfBirth.Month"]?.Errors.Count > 0 && ViewData.ModelState["DateOfBirth"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Month" id="Month" type="text" inputmode="numeric" maxlength="2" aria-label="Month" />
                     </div>
                 </div>
 
@@ -80,7 +80,7 @@
                         <label class="govuk-label govuk-date-input__label" for="Year">
                             Year
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-4" asp-for="Year" id="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-4 @(ViewData.ModelState["DateOfBirth.Year"]?.Errors.Count > 0 && ViewData.ModelState["DateOfBirth"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Year" id="Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
 
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false" aria-controls="conditional-ni-number" aria-expanded="false">
+                    <input class="govuk-radios__input" asp-for="NinAsrSelection" type="radio" value="NinSelected" aria-controls="conditional-ni-number" aria-expanded="false">
                     <label class="govuk-label govuk-radios__label" for="ni-number">
                         Yes
                     </label>
@@ -118,11 +118,11 @@
                         <p class="govuk-error-message">
                             <span asp-validation-for="NationalInsuranceNumber"></span>
                         </p>
-                        <input class="govuk-input govuk-!-width-one-third" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text">
+                        <input class="govuk-input govuk-!-width-one-third @(ViewData.ModelState["NationalInsuranceNumber"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text">
                     </div>
                 </div>
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true">
+                    <input class="govuk-radios__input" asp-for="NinAsrSelection" type="radio" value="AsrnSelected">
                     <label class="govuk-label govuk-radios__label" for="ni-number-2">
                         No, I do not have one
                     </label>

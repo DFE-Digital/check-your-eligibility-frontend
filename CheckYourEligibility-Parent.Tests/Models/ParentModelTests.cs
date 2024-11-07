@@ -22,7 +22,7 @@ namespace CheckYourEligibility_Parent.Tests.ViewModels
         [TestCase(null, null, false, true, null, null, null, null, null, 4, "Expected 4 validation errors")]
         [TestCase("AB123456C", null, false, null, "Homer", "Simpson", "32", "01", "1990", 1, "Expected 1 validation error for invalid day")]
         [TestCase("AB123456C", null, false, null, "Homer", "Simpson", "31", "13", "1990", 1, "Expected 1 validation error for invalid month")]
-        [TestCase("GB123456A", null, false, null, "Homer", "Simpson", "32", "13", "1990", 2, "Expected 2 validation error for nino and date")]
+        [TestCase("GB123456A", null, true, null, "Homer", "Simpson", "32", "13", "1990", 2, "Expected 2 validation error for nino and date")]
         public void Given_InvalidParentModel_When_Validated_Should_ReturnExpectedNumberOfErrors(string? nino, string? nass, bool? isNinoSelected, bool? isNassSelected , string? firstName, string? lastName, string? day, string? month, string? year, int numberOfErrors, string reason)
         {
             // Arrange

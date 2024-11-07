@@ -8,6 +8,8 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Reflection;
 using System.Text;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
@@ -15,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 {
     public class CheckController : BaseController
     {
-      
+
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsCheckService _checkService;
         private readonly IEcsServiceParent _parentService;
@@ -61,7 +63,33 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Enter_Details(ParentGuardian request)
         {
-            if (request.IsNassSelected == true)
+            if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.None)
+            {
+                if (!ModelState.IsValid)
+                {
+                    // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
+                    TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                    var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                    if (errors.ContainsKey("NationalInsuranceNumber") && errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
+                    {
+                        string targetValue = "Please select one option";
+
+                        if (errors["NationalInsuranceNumber"].Contains(targetValue) && errors["NationalAsylumSeekerServiceNumber"].Contains(targetValue))
+                        {
+                            errors.Remove("NationalInsuranceNumber");
+                            errors.Remove("NationalAsylumSeekerServiceNumber");
+                            errors["NINAS"] = new List<string> { targetValue };
+                        }
+                    }
+                    TempData["Errors"] = JsonConvert.SerializeObject(errors);
+                    return RedirectToAction("Enter_Details");
+                }
+            }
+
+            if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.AsrnSelected)
             {
                 ModelState.Remove("NationalInsuranceNumber");
 
@@ -102,11 +130,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["Response"] = JsonConvert.SerializeObject(response);
 
                 _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
             }
             else
             {
-
                 ModelState.Remove("NationalAsylumSeekerServiceNumber");
 
                 if (!ModelState.IsValid)
@@ -123,7 +149,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 // build object for api soft-check
                 var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
                 {
-                    Data = new CheckEligibilityRequestData_Fsm{                  
+                    Data = new CheckEligibilityRequestData_Fsm
+                    {
                         LastName = request.LastName,
                         NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
                         DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
@@ -151,12 +178,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Loader");
         }
 
-        public IActionResult Loader()
-        {
-            return View("Loader");
-        }
-
-        public async Task<IActionResult> Poll_Status(bool jsDisabled = false)
+        public async Task<IActionResult> Loader()
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
@@ -165,7 +187,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (responseJson == null)
             {
                 _logger.LogWarning("No response data found in TempData.");
-                return Json(new { status = "error", message = "No response data found" });
+                return View("Outcome/Technical_Error");
             }
 
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
@@ -176,63 +198,48 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (check == null || check.Data == null)
             {
                 _logger.LogWarning("Null response received from GetStatus.");
-                return Json(new { status = "error", message = "Null response from service" });
+                return View("Outcome/Technical_Error");
             }
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
             Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
 
-            if (status != CheckEligibilityStatus.queuedForProcessing)
+            TempData["OutcomeText"] = GetLaOutcomeText(status);
+
+            if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
             {
-                TempData["OutcomeText"] = GetLaOutcomeText(status);
-
-                if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
-                {
-                    if (jsDisabled)
-                        return View("OutcomeNoJS/LA");
-                    else
-                        return PartialView("Outcome/LA");
-                }
-
-
-                else
-                {
-                    TempData["Status"] = GetApplicationRegisteredText(status);
-                    switch (status)
-                    {
-                        case CheckEligibilityStatus.eligible:
-                            return jsDisabled ? View("Outcome/Eligible") : PartialView("Outcome/Eligible");
-                        case CheckEligibilityStatus.notEligible:
-                            return jsDisabled ? View("Outcome/Not_Eligible") : PartialView("Outcome/Not_Eligible");
-                        case CheckEligibilityStatus.parentNotFound:
-                            return jsDisabled ? View("Outcome/Not_Found") : PartialView("Outcome/Not_Found");
-                        case CheckEligibilityStatus.DwpError:
-                            return jsDisabled ? View("Outcome/Technical_Error") : PartialView("Outcome/Technical_Error");
-                        default:
-                            _logger.LogError($"Unknown Status {status}");
-                            return Json(new { status = "error", message = $"Unknown Status {status}" });
-                    }
-                }
+                return View("Outcome/Eligible_LA");
             }
+
             else
             {
-                _logger.LogInformation("Still queued for processing.");
-                TempData["Response"] = JsonConvert.SerializeObject(response);
-                if (jsDisabled)
+                TempData["Status"] = GetApplicationRegisteredText(status);
+                switch (status)
                 {
-                    // Redirect back to the Loader view to continue polling
-                    return RedirectToAction("Loader");
-                }
-                else
-                {
-                    return Json(new { status = "processing" }); // Return JSON to keep polling
+                    case CheckEligibilityStatus.eligible:
+                        return View("Outcome/Eligible");
+                    case CheckEligibilityStatus.notEligible:
+                        return View("Outcome/Not_Eligible");
+                    case CheckEligibilityStatus.parentNotFound:
+                        return View("Outcome/Not_Found");
+                    case CheckEligibilityStatus.DwpError:
+                        return View("Outcome/Technical_Error");
+                    case CheckEligibilityStatus.queuedForProcessing:
+                        _logger.LogInformation("Still queued for processing.");
+                        // Save the response back to TempData for the next poll
+                        TempData["Response"] = JsonConvert.SerializeObject(response);
+                        // Render the loader view which will auto-refresh
+                        return View("Loader");
+                    default:
+                        _logger.LogError($"Unknown Status {status}");
+                        return View("Outcome/Technical_Error");
                 }
             }
         }
 
 
         private string GetApplicationRegisteredText(CheckEligibilityStatus status)
-        { 
+        {
             switch (status)
             {
                 case CheckEligibilityStatus.eligible:
@@ -241,8 +248,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return "As these Children are not entitled to free school meals you'll need to add details of the appeal to your own system before finalising";
                 default:
                     return "";
-            }    
-                }
+            }
+        }
 
 
         private string GetLaOutcomeText(CheckEligibilityStatus status)
@@ -255,7 +262,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return "The children of this parent or guardian may not be entitled to free school meals";
                 case CheckEligibilityStatus.parentNotFound:
                     return "We could not check if this applicant’s children are entitled to free school meals";
-                 case CheckEligibilityStatus.DwpError:
+                case CheckEligibilityStatus.DwpError:
                     return "We could not check if this applicant’s children are entitled to free school meals";
 
                 default:
@@ -391,7 +398,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }
             TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
-           return RedirectToAction("ApplicationsRegistered");
+            return RedirectToAction("ApplicationsRegistered");
         }
 
         [HttpGet]

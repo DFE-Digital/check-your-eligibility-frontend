@@ -1,9 +1,10 @@
 ﻿@model CheckYourEligibility_FrontEnd.Models.Children
 
 @{
-    ViewData["Title"] = "Provide details of your children";
+    ViewData["Title"] = "Add details of your children";
     var childIndex = TempData["childIndex"] as int?;
-    }
+    var validationMessage = TempData["ValidationMessage"] as string;
+ }
 
 @* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a> *@
 <a class="govuk-back-link-nolink"></a>
@@ -32,10 +33,10 @@
 </noscript>
 
 <h1 class="govuk-heading-l" tabindex="-1">
-    Provide details of your children
+    Add details of your children
 </h1>
 
-<p>Include all your children who are in compulsory education. You can use the add another option, if you have more than one child.</p>
+<p>Include all children who are in compulsory education..</p>
 
 <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
    <input type="hidden" id="ChildIndex" />
@@ -51,11 +52,11 @@
             @if (i > 0){
             <button asp-controller="Check" asp-action="Remove_Child" asp-route-index="@i" class="govuk-button govuk-button--secondary moj-add-another__add-button govuk-!-margin-bottom-4 delete-button" data-module="govuk-button">
                 Remove Child @(i + 1)
-            </button button>
+            </button>
             }
 
             <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold" for="ch1-first-name">
+                <label class="govuk-label govuk-!-font-weight-bold" for="ChildList[@i].FirstName">
                     First name
                 </label>
                 <p class="govuk-error-message">
@@ -64,10 +65,10 @@
                    
                     @if (childIndex ==i)
                     {
-                        <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name" autofocus/>
+                        <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="First name" autofocus/>
                     } else 
                     {
-                       <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="First name"/>
+                       <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="First name"/>
                     }
             </div>
 
@@ -78,55 +79,64 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="ChildList[i].LastName"></span>
                 </p>
-                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds" type="text" aria-label="Last Name">
+                <input asp-for="ChildList[i].LastName" id="ChildList[@i].LastName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].LastName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="Last Name">
             </div>
 
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" role="group" aria-describedby="school-picker-hint">
-                    <label class="govuk-label govuk-!-font-weight-bold" for="school-picker">
-                        School Unique Reference Number (URN)
+                    <label class="govuk-label govuk-!-font-weight-bold noJsRemove" for="school-picker">
+                        School
                     </label>
 
-                    <div id="school-picker-hint" class="govuk-hint" aria-label="Type to search">
-                        Enter the URN for the school
+                    <div id="school-picker-hint" class="govuk-hint noJsRemove" aria-label="Type to search">
+                        Type to search
                     </div>
 
                     <p class="govuk-error-message">
-                        <span asp-validation-for="ChildList[i].School.Name"></span>
+                        <span asp-validation-for="ChildList[i].School.URN"></span>
                     </p>
-                    <input id="school-search-@i" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)"
-                    value="@(Model.ChildList[i].School != null 
-                    ? Model.ChildList[i].School.Name + ", " + Model.ChildList[i].School.URN + ", " + Model.ChildList[i].School.Postcode + ", " + Model.ChildList[i].School.LA 
-                    : "")" autocomplete="off" aria-label="School Search">
-                    <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" class="govuk-search govuk-input govuk-!-width-two-thirds" type="text" oninput="searchSchool(this.value, @i)" autocomplete="off" aria-label="School">
-                    <input hidden asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" />
+                        <input id="school-search-@i" class="noJsRemove govuk-search school-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].School.URN"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" autocomplete="off" aria-label="School Search" />
+                    <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" />
+                    
+                    <label class="govuk-label govuk-!-font-weight-bold noJsShow" for="ChildList[@i].School.URN">
+                        School Unique Reference Number (URN)
+                    </label>
+                    <input asp-for="ChildList[i].School.URN" id="ChildList[@i].School.URN" class="noJsShow govuk-search govuk-input govuk-!-width-two-thirds" aria-label="School" />
                     <input hidden asp-for="ChildList[i].School.Postcode" id="ChildList[@i].School.Postcode" />
                     <input hidden asp-for="ChildList[i].School.LA" id="ChildList[@i].School.LA" />
                     <ul id="schoolList@(@i)" class="govuk-!-width-two-thirds"></ul>
                 </fieldset>
                 <noscript>
-                    <div govuk-body>
-                    <a href=https://www.get-information-schools.service.gov.uk/Search>Help with finding the URN</a>
-                    <p>You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
-                    <p>If you do not know the URN for your child’s school, you can: </p>
-                        <ul class="govuk-list govuk-list--bullet">
-                            <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name
-                            <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’
-                            <li>call your school and ask for the URN
-                            <li>ask your school to complete this application for you instead
-                        </ul>
-                    </div>
+                        <details class="govuk-details" open="">
+                            <summary class="govuk-details__summary">
+                                <span class="govuk-details__summary-text">
+                                    Help with finding the URN
+                                </span>
+                            </summary>
+                            <div class="govuk-details__text">
+                                <p class="govuk-body">You have JavaScript turned off, so we can only find your child’s school using the school URN.</p>
+                                <p class="govuk-body">If you do not know the URN for your child’s school, you can:</p>
+                                <ul class="govuk-list govuk-list--bullet">
+                                    <li>turn JavaScript on by searching for ‘JavaScript’ in your web browser settings - you’ll then be able to search by school name</li>
+                                    <li>do a web search for the URN, for example ‘Ilkley Grammar School URN’</li>
+                                    <li>call your child's school and ask for the URN</li>
+                                    <li>
+                                        ask your child's school to complete this application for you instead
+                                    </li>
+                                </ul>
+                            </div>
+                        </details>
                 </noscript>
             </div>
 
-        <div class="govuk-form-group" data-type="dob-form-group">
-            <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
+            <div class="govuk-form-group" data-type="dob-form-group">
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-hint">
 
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                         Date of birth
                     </legend>
 
-                <div id="dob-hint" class="govuk-hint">
+                    <div id="dob-hint" class="govuk-hint">
                         For example, 27 3 2007
                     </div>
 
@@ -139,7 +149,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Day">
+                                    <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="2" aria-label="Day">
                             </div>
                         </div>
 
@@ -148,7 +158,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-month">
                                     Month
                                 </label>
-                                <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Month">
+                                    <input asp-for="ChildList[i].Month" id="ChildList[@i].Month" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Month"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="2" aria-label="Month">
                             </div>
                         </div>
 
@@ -157,12 +167,13 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-year">
                                     Year
                                 </label>
-                                <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob"  class="govuk-input govuk-date-input__input govuk-input--width-2" type="text" inputmode="numeric" aria-label="Year">
+                                    <input asp-for="ChildList[i].Year" id="ChildList[@i].Year" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-4 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Year"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="4" aria-label="Year">
                             </div>
                         </div>
                     </div>
                 </fieldset>
             </div>
+        </fieldset>
         </div>
     }
 
@@ -184,20 +195,3 @@
 
 <script src="/js/validationSummary.js"></script>
 <script src="/js/schoolSearch.js"></script>
-<script src="/js/focusChildNameInput.js"></script>
-<script type="text/javascript">
-   document.addEventListener('DOMContentLoaded', function() {
-    // Replace the label text
-    var label = document.querySelector('label[for="school-picker"]');
-    if (label) {
-        label.textContent = 'School';
-    }
-
-    // Replace the hint text
-    var hint = document.getElementById('school-picker-hint');
-    if (hint) {
-        hint.textContent = 'Type to search';
-    }
-});
- 
-</script>

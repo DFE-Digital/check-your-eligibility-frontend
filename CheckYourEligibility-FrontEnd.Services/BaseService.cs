@@ -74,7 +74,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             else
             {
                 var method = "POST";
-                
+
                 if (task.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     throw new UnauthorizedAccessException();

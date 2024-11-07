@@ -35,28 +35,39 @@ describe('After errors have been input initially a Parent with valid details can
 
     it('returns the correct error message when invalid dates are added to the date fields', () => {
         cy.visit('/Check/Enter_Details');
-        cy.get('#Day').should('be.visible').type('32');
-        cy.get('#Month').should('be.visible').type('32');
-        cy.get('#Year').should('be.visible').type('4001');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('32');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('32');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('4001');
 
         cy.contains('Save and continue').click();
 
         cy.get('li').should('contain.text', 'Enter a valid day');
 
-        cy.get('#Day').clear().type('01');
+        cy.get('#DateOfBirth\\.Day').clear().type('01');
         cy.contains('Save and continue').click();
 
         cy.get('li').should('contain.text', 'Enter a valid month');
 
-        cy.get('#Month').clear().type('01');
+        cy.get('#DateOfBirth\\.Month').clear().type('01');
         cy.contains('Save and continue').click();
         cy.get('li').should('contain.text', 'Enter a date in the past');
 
-
     });
 
+    it('returns the correct error message when letters are used instead of numbers in the date field', () => {
+        cy.visit('/Check/Enter_Details');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('ff');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('ff');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('ff');
 
-    it('returns the correct error message when invalid charaters are used in the input fields', () => {
+        cy.contains('Save and continue').click();
+
+        cy.get('li').should('contain.text', 'Enter a date of birth using numbers only');
+
+    })
+
+
+    it('returns the correct error message when invalid characters are used in the input fields', () => {
 
         cy.visit('/Check/Enter_Child_Details');
 
@@ -94,9 +105,9 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('Smith');
-        cy.get('#Day').should('be.visible').type('01');
-        cy.get('#Month').should('be.visible').type('01');
-        cy.get('#Year').should('be.visible').type('1990');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
 
         cy.get('#IsNinoSelected').click();
 
@@ -141,7 +152,7 @@ describe('After errors have been input initially a Parent with valid details can
         });
 
         cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('h1').should('include.text', 'Provide details of your children');
+        cy.get('h1').should('include.text', 'Add details of your children');
 
         // Blank fields
         cy.contains('Save and continue').click();
@@ -168,40 +179,20 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.contains('Save and continue').click();
 
-        cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before registering');
+        cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before sending');
 
         cy.get('h2').should('contain.text', 'Parent or guardian details')
-        cy.contains('dt', 'Parent or guardian name')
-            .next('dd')
-            .contains('Tim Smith');
 
-        cy.contains('dt', 'Parent or guardian date of birth')
-        .next('dd')
-        .contains('01/01/1990');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', 'Tim Smith');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '01/01/1990');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', 'NN668767B');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', (Cypress.env('ONEGOV_EMAIL')));
 
-        cy.contains('dt', 'National insurance number')
-        .next('dd')
-        .contains('NN668767B');
+        cy.CheckValuesInSummaryCard('Child 1','Name', 'Timmy Smith');
+        cy.CheckValuesInSummaryCard('Child 1','School', 'Hinde House 2-16 Academy');
+        cy.CheckValuesInSummaryCard('Child 1','Date of birth', '01/01/2007');
 
-        cy.contains('dt', 'Email address')
-        .next('dd')
-        .contains(Cypress.env('ONEGOV_EMAIL'));
-
-
-        cy.get('h2').should('contain.text', 'Child 1')
-        cy.contains('dt', "Child's name")
-            .next('dd')
-            .contains('Timmy Smith');
-
-        cy.contains('dt', 'School')
-        .next('dd')
-        .contains('Hinde House 2-16 Academy');
-
-        cy.contains('dt', "Child's date of birth")
-        .next('dd')
-        .contains('01/01/2007');
-
-        cy.contains('Submit application').click();
+        cy.contains('Send to the school').click();
 
         cy.url().should('include', '/Check/Application_Sent');
         cy.get('h1').should('contain.text', 'Application complete');

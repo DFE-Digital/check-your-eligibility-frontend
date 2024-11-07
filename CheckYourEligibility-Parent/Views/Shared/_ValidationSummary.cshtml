@@ -3,7 +3,7 @@
 @{
     List<string> propertyOrder;
 
-    if (Model.ContainsKey("FirstName"))
+    if (Model.ContainsKey("NationalInsuranceNumber") || Model.ContainsKey("NationalAsylumSeekerServiceNumber") || Model.ContainsKey("IsNinoSelected"))
     {
         propertyOrder = typeof(Parent).GetProperties().Select(p => p.Name).ToList();
     }
@@ -17,6 +17,13 @@
         propertyOrder.InsertRange(schoolIndex, schoolProperties);
 
     }
+
+    var dobMappings = new Dictionary<string, string>
+    {
+        {"DateOfBirth.Day", "Day"},
+        {"DateOfBirth.Month", "Month"},
+        {"DateOfBirth.Year", "Year"}
+    };
 
 
     var flattenedErrors = Model
@@ -34,8 +41,14 @@
             ? x.Field.Substring(x.Field.LastIndexOf('.') + 1)
             : x.Field;
 
+            if (dobMappings.ContainsKey(x.Field))
+            {
+                extractedPropertyName = dobMappings[x.Field];
+            }
+
             return propertyOrder.IndexOf(extractedPropertyName);
         })
+        .DistinctBy(e => e.Error)
         .ToList();
 }
 

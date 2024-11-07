@@ -18,27 +18,36 @@ namespace CheckYourEligibility_FrontEnd.Models
         [Required(ErrorMessage = "Enter an email")]
         public string? EmailAddress { get; set; }
 
-        public bool IsNassSelected { get; set; }
+        [NotMapped]
+        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
+        public string? DateOfBirth { get; set; }
 
-        [Nass]
-        [MaxLength(10)]
-        public string? NationalAsylumSeekerServiceNumber { get; set; }
+        public string? Day { get; set; }
+
+        public string? Month { get; set; }
+
+        public string? Year { get; set; }
 
         [Nino]
         [MaxLength(13)]
         public string? NationalInsuranceNumber { get; set; }
 
+        [Nass]
+        [MaxLength(10)]
+        public string? NationalAsylumSeekerServiceNumber { get; set; }
+
         [NotMapped]
-        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
-        public string? DateOfBirth { get; set; }
+        public bool? NINAS { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a day using numbers only")]
-        public string? Day { get; set; }
+        public enum NinAsrSelect
+        {
+            None,
+            NinSelected,
+            AsrnSelected
+        }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Month using numbers only")]
-        public string? Month { get; set; }
+        public NinAsrSelect NinAsrSelection { get; set; }
 
-        [RegularExpression(@"^\d+$", ErrorMessage = "Enter a Year using numbers only")]
-        public string? Year { get; set; }
+
     }
 }

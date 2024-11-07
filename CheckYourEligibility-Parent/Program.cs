@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using CheckYourEligibility_FrontEnd.Middleware;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,11 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
 
-builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(opt =>
+    {
+        opt.DefaultScheme = "UNKNOWN";
+        opt.DefaultChallengeScheme = "UNKNOWN";
+    })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddOneLogin(options =>
     {
@@ -66,7 +71,20 @@ builder.Services.AddAuthentication(defaultScheme: OneLoginDefaults.Authenticatio
         // Override the cookie name prefixes (optional)
         options.CorrelationCookie.Name = "check-your-eligibility-onelogin-correlation.";
         options.NonceCookie.Name = "check-your-eligibility-onelogin-nonce.";
-    });
+    }).AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+        ("BasicAuthentication", null).AddPolicyScheme("UNKNOWN", "UNKNOWN", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+        {
+            if(context.Request.Path=="/Check/CreateUser") {
+                return "OneLogin";
+            }
+            
+            Console.WriteLine(context.Request.Path);
+
+            return "BasicAuthentication";
+        };
+    });;
 
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 //builder.Services.AddProblemDetails();
@@ -83,7 +101,16 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.Use((context, next) =>
+{
+    context.Response.Headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
+    context.Response.Headers["Content-Security-Policy"] = "default-src 'self'";
+    context.Response.Headers["X-Frame-Options"] = "sameorigin";
+    context.Response.Headers["Cache-Control"] = "Private";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    return next.Invoke();
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();

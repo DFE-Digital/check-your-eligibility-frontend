@@ -88,13 +88,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
                 if (request.NASSRedirect)
                 {
-                    return View("Nass");
-                }
-                else if (request.IsNassSelected == false)
-                {
-                    return View("Outcome/Could_Not_Check");
+                    return RedirectToAction("Nass");
                 }
                 return RedirectToAction("Enter_Details");
+            }
+
+            if (request.IsNassSelected == false)
+            {
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                return View("Outcome/Could_Not_Check");
             }
 
             // build object for api soft-check
@@ -157,19 +159,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(parent);
         }
 
-        public IActionResult Loader()
-        {
-            return View();
-        }
 
-        public async Task<IActionResult> Poll_Status(bool jsDisabled)
+        public async Task<IActionResult> Loader()
         {
             // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
             if (responseJson == null)
             {
                 _logger.LogWarning("No response data found in TempData.");
-                return Json(new { status = "error", message = "No response data found" });
+                return View("Outcome/Technical_Error");
             }
 
             var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
@@ -182,76 +180,39 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (check == null || check.Data == null)
             {
                 _logger.LogWarning("Null response received from GetStatus.");
-                return Json(new { status = "error", message = "Null response from service" });
+                return View("Outcome/Technical_Error");
             }
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
 
             SetSessionCheckResult(check.Data.Status);
 
-            // Handle final statuses and return appropriate views
-            string url = "/check/signIn"; // The URL to pass as a model
-
+            // Handle final statuses and redirect appropriately
             switch (check.Data.Status)
             {
                 case "eligible":
-                    return jsDisabled ? View("Outcome/Eligible", url) : PartialView("Outcome/Eligible", url);
+                    return View("Outcome/Eligible", "/check/signIn");
 
                 case "notEligible":
-                    return jsDisabled ? View("Outcome/Not_Eligible") : PartialView("Outcome/Not_Eligible");
+                    return View("Outcome/Not_Eligible");
 
                 case "parentNotFound":
-                    return jsDisabled ? View("Outcome/Not_Found") : PartialView("Outcome/Not_Found");
+                    return View("Outcome/Not_Found");
 
                 case "DwpError":
-                    return jsDisabled ? View("Outcome/Technical_Error") : PartialView("Outcome/Technical_Error");
+                    return View("Outcome/Technical_Error");
 
                 case "queuedForProcessing":
                     _logger.LogInformation("Still queued for processing.");
+                    // Save the response back to TempData for the next poll
                     TempData["Response"] = JsonConvert.SerializeObject(response);
-                    if (jsDisabled)
-                    {
-                        // Redirect back to Loader to continue polling via page refresh
-                        return RedirectToAction("Loader");
-                    }
-                    else
-                    {
-                        // Return JSON to keep polling via AJAX
-                        return Json(new { status = "processing" });
-                    }
+                    // Render the loader view which will auto-refresh
+                    return View("Loader");
 
                 default:
                     _logger.LogError("Unexpected status received.");
-                    if (jsDisabled)
-                        return View("Outcome/Technical_Error");
-                    else
-                        return Json(new { status = "error", message = "Unexpected status" });
+                    return View("Outcome/Technical_Error");
             }
-
-        }
-
-
-
-
-
-        public IActionResult Eligible()
-        {
-            return View("Outcome/Eligible");
-        }
-
-        public IActionResult NotEligible()
-        {
-            return View("Outcome/Not_Eligible");
-        }
-
-        public IActionResult NotFound()
-        {
-            return View("Outcome/Not_Found");
-        }
-
-        public IActionResult TechnicalError()
-        {
-            return View("Outcome/Technical_Error");
         }
 
         public void SetSessionCheckResult(string status)
@@ -308,7 +269,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
 
         [HttpPost]
-        public IActionResult Enter_Child_Details(Children request)
+        public async Task<IActionResult> Enter_Child_Details(Children request)
         {
             if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
             {
@@ -318,12 +279,25 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var idx = 0;
             foreach (var item in request.ChildList)
             {
-                //disable JS has been used
-                if (string.IsNullOrEmpty(item.School.URN) && !string.IsNullOrEmpty(item.School.Name))
+                if (item.School.URN == null) continue;
+                if (item.School.URN.Length == 6 && int.TryParse(item.School.URN, out _))
                 {
-                    item.School.URN = item.School.Name;
-                    ModelState.Remove($"ChildList[{idx}].School.URN");
-                    _logger.LogWarning($"JavaScript Disabled URN Used for SchoolSearch");
+                    var schools = await _parentService.GetSchool(item.School.URN);
+
+                    if (schools!=null)
+                    {
+                        item.School.Name = schools.Data.First().Name;
+                        ModelState.Remove($"ChildList[{idx}].School.URN");
+                    }
+
+                    else
+                    {
+                        ModelState.AddModelError($"ChildList[{idx}].School.URN", "The selected school does not exist in our service.");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError($"ChildList[{idx}].School.URN", "School URN should be a 6 digit number.");
                 }
                 idx++;
             }
@@ -421,8 +395,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
-            var responses = new List<ApplicationSaveItemResponse>();
-
+            List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
+            
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -444,12 +418,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }
                 };
-
+                
                 // Send each application as an individual check
                 var response = await _parentService.PostApplication_Fsm(fsmApplication);
                 responses.Add(response);
             }
-
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
             return RedirectToAction("Application_Sent");
         }
@@ -475,5 +448,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // populate enter_child_details page with children model
             return View("Enter_Child_Details", children);
         }
+
+
     }
 }

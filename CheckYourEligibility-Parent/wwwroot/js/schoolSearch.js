@@ -54,4 +54,5 @@ function selectSchool(school, urn, la, postcode, index) {
     document.getElementById(`schoolList${index}`).innerHTML = '';
 }
 
-
+let schoolSearch = document.getElementsByClassName("school-search");
+for(let i=0;i<schoolSearch.length; i++) schoolSearch[i].oninput = function() {searchSchool(this.value, i)}

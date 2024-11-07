@@ -1,9 +1,11 @@
 
 describe('Admin journey search for application', () => {
     beforeEach(() => {
-        cy.SignInLA();
-        cy.contains('Search all records').click();
-
+        cy.session("Session 5", () => {
+            cy.SignInLA();
+            
+            cy.wait(1);
+        });
     });
 
     // it('Returns the correct warning message when invalid characters are used in the Child last name field', () => {
@@ -37,7 +39,11 @@ describe('Admin journey search for application', () => {
     // });
 
     it('Returns the correct warning message when an invalid Child data of birth is input', () => {
-        
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+
         cy.get('#ChildDobDay').type('35');
         cy.get('#ChildDobMonth').type('35');
         cy.get('#ChildDobYear').type('2090');
@@ -62,7 +68,11 @@ describe('Admin journey search for application', () => {
     });
 
     it('Returns the correct warning message when an invalid Parent data of birth is input', () => {
-        
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+
         cy.get('#PGDobDay').type('35');
         cy.get('#PGDobMonth').type('35');
         cy.get('#PGDobYear').type('2090');

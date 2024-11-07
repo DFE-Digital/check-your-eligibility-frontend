@@ -178,3 +178,23 @@ img, svg {
     }
 }
 /*END - Header overrides */
+
+
+/*BEGIN - Child Details form title width extention override */
+
+@media (min-width: 40.0625em) {
+    .govuk-summary-list__key {
+        width: 45%; /*to fit NIN/ASRN title*/
+    }
+}
+
+/*END - Child Details form title width extention override */
+
+
+body.js-enabled .noJsShow, body:not(.js-enabled) input.noJsRemove {
+    display: none;
+}
+
+.centerer {
+    text-align: center;
+}

@@ -12,9 +12,9 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('Smith');
-        cy.get('#Day').should('be.visible').type('01');
-        cy.get('#Month').should('be.visible').type('01');
-        cy.get('#Year').should('be.visible').type('1990');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
 
         cy.get('#IsNinoSelected').click();
 
@@ -59,7 +59,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         });
 
         cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('h1').should('include.text', 'Provide details of your children');
+        cy.get('h1').should('include.text', 'Add details of your children');
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
@@ -77,40 +77,18 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Save and continue').click();
 
-        cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before registering');
+        cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before sending');
 
-        cy.get('h2').should('contain.text', 'Parent or guardian details')
-        cy.contains('dt', 'Parent or guardian name')
-            .next('dd')
-            .contains('Tim Smith');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', 'Tim Smith');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '01/01/1990');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', 'NN668767B');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', (Cypress.env('ONEGOV_EMAIL')));
+        
+        cy.CheckValuesInSummaryCard('Child 1','Name', 'Timmy Smith');
+        cy.CheckValuesInSummaryCard('Child 1','School', 'Hinde House 2-16 Academy');
+        cy.CheckValuesInSummaryCard('Child 1','Date of birth', '01/01/2007');
 
-        cy.contains('dt', 'Parent or guardian date of birth')
-        .next('dd')
-        .contains('01/01/1990');
-
-        cy.contains('dt', 'National insurance number')
-        .next('dd')
-        .contains('NN668767B');
-
-        cy.contains('dt', 'Email address')
-        .next('dd')
-        .contains(Cypress.env('ONEGOV_EMAIL'));
-
-
-        cy.get('h2').should('contain.text', 'Child 1')
-        cy.contains('dt', "Child's name")
-            .next('dd')
-            .contains('Timmy Smith');
-
-        cy.contains('dt', 'School')
-        .next('dd')
-        .contains('Hinde House 2-16 Academy');
-
-        cy.contains('dt', "Child's date of birth")
-        .next('dd')
-        .contains('01/01/2007');
-
-        cy.contains('Submit application').click();
+        cy.contains('Send to the school').click();
 
         cy.url().should('include', '/Check/Application_Sent');
         cy.get('h1').should('contain.text', 'Application complete');

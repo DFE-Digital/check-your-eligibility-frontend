@@ -17,7 +17,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-        <h1 class="govuk-heading-l">Check your answers before registering</h1>
+        <h1 class="govuk-heading-l">Check your answers before submitting</h1>
 
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
@@ -31,7 +31,7 @@
 
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
-                            Parent or guardian name
+                            Name
                         </dt>
                         <dd class="govuk-summary-list__value">
                             @Model.ParentFirstName @Model.ParentLastName
@@ -40,7 +40,7 @@
 
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
-                            Parent or guardian date of birth
+                            Date of birth
                         </dt>
                         <dd class="govuk-summary-list__value">
                             @Model.ParentDateOfBirth
@@ -62,7 +62,7 @@
                     {
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                National insurance number
+                                National Insurance number
                             </dt>
                             <dd class="govuk-summary-list__value">
                                 @Model.ParentNino
@@ -91,7 +91,7 @@
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
                     <h2 class="govuk-summary-card__title">
-                        Child @(@i + 1)
+                        Child @(@i + 1) details
                     </h2>
                     <ul class="govuk-summary-card__actions">
                         <li class="govuk-summary-card__action">
@@ -103,10 +103,8 @@
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
                         <div class="govuk-summary-list__row">
-                        </div>
-                        <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                Child's name
+                                Name
                             </dt>
                             <dd class="govuk-summary-list__value">
                                 @Model.Children.ChildList[i].FirstName @Model.Children.ChildList[i].LastName
@@ -115,7 +113,7 @@
 
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                Child's date of birth
+                                Date of birth
                             </dt>
                             <dd class="govuk-summary-list__value">
                                 @formattedChildDob
@@ -127,10 +125,9 @@
             </div>
         }
 
-        <h2 class="govuk-heading-m">Confirm details and send to the school</h2>
+        <h2 class="govuk-heading-m">Confirm and add children's details</h2>
 
-        <p class="govuk-body">By sending this information on to the school you confirm that, to the best of your knowledge, it is correct.</p>
-        <p>Your details are only used to register and will not be stored.</p>
+        <p class="govuk-body">By submitting this information, you confirm that, to the best of your knowledge, the details are correct.</p>
 
         <form asp-action="Check_Answers" asp-controller="Check" method="post" novalidate="">
             <!-- Parent Details -->
@@ -155,7 +152,7 @@
             }
 
             <button type="submit" class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
-                Submit application
+                Add details
             </button>
         </form>
     </div>

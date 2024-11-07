@@ -30,6 +30,8 @@ namespace CheckYourEligibility.TestBase
             SetUpSessionData();
             SetUpHTTPContext();
             _configMock = new Mock<IConfiguration>();
+            _configMock.Setup(x => x["BulkUploadAttemptLimit"]).Returns("10");
+            _configMock.Setup(x => x["BulkEligibilityCheckLimit"]).Returns("250");
         }
 
         protected void SetUpTempData()
@@ -61,6 +63,7 @@ namespace CheckYourEligibility.TestBase
             _httpContext = new Mock<HttpContext>();
             _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
             _httpContext.Setup(ctx => ctx.User).Returns(_userMock.Object);
+
         }
 
         protected void SetUpClaimsData()
