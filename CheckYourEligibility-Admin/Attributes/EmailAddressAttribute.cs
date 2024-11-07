@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class CustomEmailAddressAttribute : ValidationAttribute
+public class CuEmailAddressAttribute : ValidationAttribute
 {
     private static bool EnableFullDomainLiterals { get; } =
         AppContext.TryGetSwitch("System.Net.AllowFullDomainLiterals", out bool enable) ? enable : false;
