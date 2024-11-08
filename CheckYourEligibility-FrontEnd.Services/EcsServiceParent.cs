@@ -20,11 +20,11 @@ namespace CheckYourEligibility_FrontEnd.Services
             _schoolUrl = "Schools";
         }
 
-        public async Task<SchoolSearchResponse> GetSchool(string name)
+        public async Task<EstablishmentSearchResponse> GetSchool(string name)
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}", new SchoolSearchResponse());
+                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}", new EstablishmentSearchResponse());
                 return response;
             }
             catch (Exception ex)
