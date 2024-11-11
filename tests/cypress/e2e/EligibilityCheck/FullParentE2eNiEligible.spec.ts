@@ -24,7 +24,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Save and continue').click();
 
-        cy.get('h1',{ timeout: 60000 }).should('include.text', 'Your children are entitled to free school meals');
+        cy.get('h1',{ timeout: 60000 }).should('include.text', 'Apply for free school meals for your children');
 
 
 
@@ -60,7 +60,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         });
 
         cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('h1').should('include.text', 'Provide details of your children');
+        cy.get('h1').should('include.text', 'Add details of your children');
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');

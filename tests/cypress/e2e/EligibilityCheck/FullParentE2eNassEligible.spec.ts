@@ -23,12 +23,12 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.contains('Save and continue').click();
 
         cy.get('h1').should('include.text', 'Do you have an asylum support reference number?');
-        cy.get('#IsNassSelected').click();
+        cy.get('#IsNinoSelected').click();
         cy.get('#NationalAsylumSeekerServiceNumber').type('240712349')
 
         cy.contains('Save and continue').click();
 
-        cy.get('h1',{ timeout: 60000 }).should('include.text', 'Your children are entitled to free school meals');
+        cy.get('h1',{ timeout: 60000 }).should('include.text', 'Apply for free school meals for your children');
 
 
 
@@ -83,7 +83,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.wait(2000);
         cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('h1').should('include.text', 'Provide details of your children');
+        cy.get('h1').should('include.text', 'Add details of your children');
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Tim');
