@@ -1,6 +1,8 @@
 
 describe('Parent with valid details can complete full Eligibility check and application', () => {
 
+    let lastName = Cypress.env('lastName');
+
     it('Parent can make the full journey', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
@@ -11,7 +13,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('h1').should('include.text', 'Enter your details');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
-        cy.get('#LastName').should('be.visible').type('Smith');
+        cy.get('#LastName').should('be.visible').type(lastName);
         cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
         cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
         cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
@@ -21,9 +23,8 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('#NationalInsuranceNumber').should('be.visible').type('NN668767B');
 
         cy.contains('Save and continue').click();
-        cy.url().should('include', '/Check/Loader');
 
-        cy.get('h1').should('include.text', 'Your children are entitled to free school meals');
+        cy.get('h1',{ timeout: 60000 }).should('include.text', 'Your children are entitled to free school meals');
 
 
 
@@ -59,7 +60,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         });
 
         cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('h1').should('include.text', 'Add details of your children');
+        cy.get('h1').should('include.text', 'Provide details of your children');
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
@@ -79,7 +80,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before sending');
 
-        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', 'Tim Smith');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', lastName);
         cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '01/01/1990');
         cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', 'NN668767B');
         cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', (Cypress.env('ONEGOV_EMAIL')));

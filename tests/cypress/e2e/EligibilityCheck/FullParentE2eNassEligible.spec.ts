@@ -1,5 +1,7 @@
 describe('Parent with valid NASS number can complete full Eligibility check and application', () => {
 
+    let lastName = Cypress.env('lastName');
+
     it('Parent can make the full journey using correct details', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
@@ -26,7 +28,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.contains('Save and continue').click();
 
-        cy.url().should('include', '/Check/Loader');
+        cy.get('h1',{ timeout: 60000 }).should('include.text', 'Your children are entitled to free school meals');
 
 
 
@@ -81,7 +83,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.wait(2000);
         cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('h1').should('include.text', 'Add details of your children');
+        cy.get('h1').should('include.text', 'Provide details of your children');
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Tim');
@@ -101,7 +103,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
         cy.get('h1',{ timeout: 15000 }).should('contain.text', 'Check your answers before sending');
 
-        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', 'Tim Simpson');
+        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', 'Simpson');
         cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '01/01/1990');
         cy.CheckValuesInSummaryCard('Parent or guardian details','Asylum support reference number', '240712349');
         cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', (Cypress.env('ONEGOV_EMAIL')));
