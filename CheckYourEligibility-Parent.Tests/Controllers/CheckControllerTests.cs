@@ -13,7 +13,7 @@ using Moq;
 using Newtonsoft.Json;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
 using ChildsSchool = CheckYourEligibility_FrontEnd.Models.School;
-using School = CheckYourEligibility.Domain.Responses.School;
+using School = CheckYourEligibility.Domain.Responses.Establishment;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -31,7 +31,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
         private CheckEligibilityStatusResponse _eligibilityStatusResponse;
-        private SchoolSearchResponse _schoolSearchResponse;
+        private EstablishmentSearchResponse _schoolSearchResponse;
         private ApplicationSaveItemResponse _applicationSaveItemResponse;
 
         // test data entities
@@ -151,7 +151,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     }
                 };
 
-                _schoolSearchResponse = new SchoolSearchResponse()
+                _schoolSearchResponse = new EstablishmentSearchResponse()
                 {
                     Data =
                     [
@@ -185,7 +185,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         int.Parse(_fsmApplication.Children.ChildList[0].Day)).ToString("dd/MM/yyyy"),
                         ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
                         Id = "",
-                        School = new ApplicationResponse.ApplicationSchool { Id = 10002, LocalAuthority = new ApplicationResponse.ApplicationSchool.SchoolLocalAuthority { Id = 123 } },
+                        Establishment = new ApplicationResponse.ApplicationEstablishment { Id = 10002, LocalAuthority = new ApplicationResponse.ApplicationEstablishment.EstablishmentLocalAuthority { Id = 123 } },
                         Reference = "",
                     },
                     Links = new ApplicationResponseLinks()

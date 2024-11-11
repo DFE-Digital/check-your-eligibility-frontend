@@ -139,4 +139,3 @@ Cypress.Commands.add('retainAuthOnRedirect', (initialUrl, authHeader, alias) => 
   });
 });
 
-

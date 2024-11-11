@@ -60,7 +60,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Enter_Details(Parent request)
         {
             // dont want to validate nass on this page 
-            if (request.IsNinoSelected == false)
+            if (request.IsNinoSelected == false || request.IsNinoSelected == null)
             {
                 ModelState.Remove("NationalInsuranceNumber");
                 if (!request.NASSRedirect)
@@ -68,6 +68,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     ModelState.Remove("NationalAsylumSeekerServiceNumber");
                 }
 
+            }
+            if (request.IsNassSelected != null)
+            {
+                request.NASSRedirect = true; 
+            }
+            else if (request.IsNinoSelected == null && request.NASSRedirect == true)
+            {
+                ModelState.Remove("IsNassSelected");
             }
             else
             {
@@ -86,9 +94,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                if (request.NASSRedirect)
+                if (request.NASSRedirect && request.IsNinoSelected == false)
                 {
                     return RedirectToAction("Nass");
+                }
+                else if ((errors.ContainsKey("IsNinoSelected") && request.NASSRedirect == true) || errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
+                {
+                    return View("Nass");
                 }
                 return RedirectToAction("Enter_Details");
             }
@@ -96,6 +108,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (request.IsNassSelected == false)
             {
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                TempData.Remove("Errors");
+                ModelState.Clear();
                 return View("Outcome/Could_Not_Check");
             }
 
@@ -376,7 +390,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                return Json(new List<CheckYourEligibility.Domain.Responses.School>());
+                return Json(new List<CheckYourEligibility.Domain.Responses.Establishment>());
             }
         }
 
@@ -413,7 +427,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ChildFirstName = child.FirstName,
                         ChildLastName = child.LastName,
                         ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
-                        School = int.Parse(child.School.URN),
+                        Establishment = int.Parse(child.School.URN),
                         UserId = HttpContext.Session.GetString("UserId"),
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }
