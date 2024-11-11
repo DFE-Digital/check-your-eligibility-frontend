@@ -41,11 +41,13 @@
                     <div id="nass-number-hint" class="govuk-hint">
                         This can be found on letters from the Home Office. It was previously known as a NASS number.
                     </div>
-
+                    <p class="govuk-error-message">
+                        <span asp-validation-for="IsNinoSelected"></span>
+                    </p>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="true" data-aria-controls="conditional-nass-number" aria-expanded="false">
-                            <label class="govuk-label govuk-radios__label" for="nass-number">
+                            <input class="govuk-radios__input" id="IsNinoSelected" asp-for="IsNassSelected" type="radio" value="true" aria-controls="conditional-nass-number" aria-expanded="false" aria-label="Yes">
+                            <label class="govuk-label govuk-radios__label" for="NationalAsylumSeekerServiceNumber">
                                 Yes
                             </label>
                         </div>
@@ -66,7 +68,7 @@
                         </div>
 
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" asp-for="IsNassSelected" type="radio" value="false">
+                            <input class="govuk-radios__input" id="IsNinoSelected" asp-for="IsNassSelected" type="radio" value="false">
                             <label class="govuk-label govuk-radios__label" for="nass-number-2">
                                 No, I do not have one
                             </label>

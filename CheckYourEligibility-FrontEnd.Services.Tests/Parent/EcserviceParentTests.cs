@@ -51,7 +51,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
         {
             // Arrange
             var query = "Test";
-            var responseContent = new SchoolSearchResponse();
+            var responseContent = new EstablishmentSearchResponse();
             var responseMessage = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,

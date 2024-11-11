@@ -83,7 +83,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Data = new ApplicationRequestSearchData
                 {
                     LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                    School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                     ChildLastName = request.ChildLastName,
                     ParentLastName = request.ParentLastName,
                     Reference = request.Reference,
@@ -237,7 +237,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
 
                         LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                        School = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                        Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
                         Statuses = statuses
                     }
                 };
@@ -443,17 +443,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
             if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
             {
-                if (response.Data.School.Id.ToString() != _Claims.Organisation.Urn)
+                if (response.Data.Establishment.Id.ToString() != _Claims.Organisation.Urn)
                 {
-                    _logger.LogError($"Invalid School access attempt {response.Data.School.Id} organisation Urn:-{_Claims.Organisation.Urn}");
+                    _logger.LogError($"Invalid School access attempt {response.Data.Establishment.Id} organisation Urn:-{_Claims.Organisation.Urn}");
                     return false;
                 }
             }
             if ((_Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.Urn) : null) != null)
             {
-                if (response.Data.School.LocalAuthority.Id.ToString() != _Claims.Organisation.EstablishmentNumber)
+                if (response.Data.Establishment.LocalAuthority.Id.ToString() != _Claims.Organisation.EstablishmentNumber)
                 {
-                    _logger.LogError($"Invalid Local Authority access attempt {response.Data.School.LocalAuthority.Id} organisation Urn:-{_Claims.Organisation.Urn}");
+                    _logger.LogError($"Invalid Local Authority access attempt {response.Data.Establishment.LocalAuthority.Id} organisation Urn:-{_Claims.Organisation.Urn}");
                     return false;
                 }
             }

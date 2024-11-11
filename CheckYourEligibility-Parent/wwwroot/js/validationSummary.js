@@ -15,7 +15,7 @@
 
             try {
                 element = document.querySelector(href)
-            } catch {
+            } catch(error) {
                 if (element == null) {
                     var hrefwithoutHash = href.replace("#", "")
                     element = document.getElementById(hrefwithoutHash)

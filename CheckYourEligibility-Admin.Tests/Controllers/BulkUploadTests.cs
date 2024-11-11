@@ -231,8 +231,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var response =
               new CheckEligibilityBulkResponse
               {
-                  Data = new List<CheckEligibilityItemFsm>() {
-                  new CheckEligibilityItemFsm() {Status = CheckEligibilityStatus.eligible.ToString() } }
+                  Data = new List<CheckEligibilityItem>() {
+                  new CheckEligibilityItem() {Status = CheckEligibilityStatus.eligible.ToString() } }
               };
 
             _checkServiceMock.Setup(s => s.GetBulkCheckResults(It.IsAny<string>()))

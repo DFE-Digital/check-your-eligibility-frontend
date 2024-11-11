@@ -44,7 +44,7 @@
     <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
     @if(Model.ShowSchool)
     {
-        <td class="govuk-table__cell">@(@Model.Person.School.Name)</td>
+        <td class="govuk-table__cell">@(@Model.Person.Establishment.Name)</td>
     }
     else
     {
