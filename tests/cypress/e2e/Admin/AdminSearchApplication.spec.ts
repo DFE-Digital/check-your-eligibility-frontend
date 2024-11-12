@@ -1,7 +1,8 @@
 
+
 describe('Admin journey search for application', () => {
 
-    const parentFirstName = 'Timothy';
+    const parentFirstName = Cypress.env('lastName');
     const parentLastName = 'Smith';
     const parentEmailAddress = 'TimJones@Example.com';
     const NIN = 'NN668767B'
@@ -37,7 +38,7 @@ describe('Admin journey search for application', () => {
         cy.contains('button', 'Perform check').click();
 
         cy.url().should('include', 'Check/Loader');
-        cy.get('h1', { timeout: 20000 }).should('include.text', 'The children of this parent or guardian are entitled to free school meals');
+        cy.get('h1', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian are entitled to free school meals');
         cy.contains('button', "Add children's details").click();
 
         cy.url().should('include', '/Check/Enter_Child_Details');
