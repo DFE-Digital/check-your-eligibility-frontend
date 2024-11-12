@@ -32,9 +32,9 @@
 </div>
 </noscript>
 
-<h1 class="govuk-heading-l" tabindex="-1">
-    Add details of your children
-</h1>
+<h2 class="govuk-heading-l" tabindex="-1">
+    Add your childrens details
+</h2>
 
 <p>Include all children who are in compulsory education..</p>
 
@@ -149,7 +149,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                    <input asp-for="ChildList[i].Days" id="ChildList[@i].Days" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="2" aria-label="Day">
+                                    <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="2" aria-label="Day">
                             </div>
                         </div>
 
