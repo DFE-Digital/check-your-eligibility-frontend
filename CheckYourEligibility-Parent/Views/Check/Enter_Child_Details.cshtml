@@ -18,9 +18,9 @@
 <noscript>
 <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" id="no-js-warning">
   <div class="govuk-notification-banner__header">
-    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+    <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
       Important
-    </h2>
+    </h1>
   </div>
   <div class="govuk-notification-banner__content">
     <p class="govuk-notification-banner__heading">
@@ -149,7 +149,7 @@
                                 <label class="govuk-label govuk-date-input__label" for="ch1-day">
                                     Day
                                 </label>
-                                    <input asp-for="ChildList[i].Day" id="ChildList[@i].Day" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="2" aria-label="Day">
+                                    <input asp-for="ChildList[i].Days" id="ChildList[@i].Days" data-type="dob" class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState[$"ChildList[{@i}].DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" inputmode="numeric" maxlength="2" aria-label="Day">
                             </div>
                         </div>
 
@@ -187,7 +187,7 @@
 
     <div class="moj-button-action">
         <button class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
-            Save and continue
+            Save
         </button>
     </div>
 </form>
