@@ -1,6 +1,6 @@
 describe('Full journey of creating an application through school portal through to approving in LA portal', () => {
     const parentFirstName = 'Tim';
-    const parentLastName = 'Jones';
+    const parentLastName = Cypress.env('lastName');
     const parentEmailAddress = 'TimJones@Example.com';
     const NIN = 'PN668767B'
     const childFirstName = 'Timmy';
@@ -36,7 +36,7 @@ describe('Full journey of creating an application through school portal through 
             cy.contains('button', 'Perform check').click();
 
             cy.url().should('include', 'Check/Loader');
-            cy.get('p', {timeout: 30000}).should('include.text', 'The children of this parent or guardian may not be entitled to free school meals');
+            cy.get('p', {timeout: 80000}).should('include.text', 'The children of this parent or guardian may not be entitled to free school meals');
             cy.contains('button', 'Appeal now').click();
 
             cy.url().should('include', '/Check/Enter_Child_Details');

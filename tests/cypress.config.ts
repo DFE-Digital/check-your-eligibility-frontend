@@ -1,9 +1,14 @@
 import { defineConfig } from "cypress";
+import { faker } from "@faker-js/faker";
 
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
+
+      const generatedLastName = faker.person.lastName().toUpperCase();
+      config.env.lastName = generatedLastName;
+      return config;
     },
     baseUrl: process.env.CYPRESS_BASE_URL,
     chromeWebSecurity: false,

@@ -17,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
             _ApplicationUrl = "Application";
-            _schoolUrl = "Schools";
+            _schoolUrl = "Establishments";
         }
 
         public async Task<EstablishmentSearchResponse> GetSchool(string name)

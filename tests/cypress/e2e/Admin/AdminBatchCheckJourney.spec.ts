@@ -5,7 +5,7 @@ describe("Admin Portal journey for checking parent eligibility using the Batch C
         cy.SignInSchool()
         cy.contains('Run a batch check').click()
         cy.get('input[type=file]').selectFile('batchchecktemplate_too_many_records.csv')
-        cy.contains('Perform Checks').click()
+        cy.contains('Run check').click()
 
         cy.get('#file-upload-1-error').as('errorMessage')
         cy.get('@errorMessage').should(($p) => {
@@ -19,7 +19,7 @@ describe("Admin Portal journey for checking parent eligibility using the Batch C
         cy.contains('Run a batch check').click()
         for (let i = 0; i < 11; i++) {
             cy.get('input[type=file]').selectFile('batchchecktemplate_too_many_records.csv')
-            cy.contains('Perform Checks').click()
+            cy.contains('Run check').click()
         }
 
         cy.get('#file-upload-1-error').as('errorMessage')

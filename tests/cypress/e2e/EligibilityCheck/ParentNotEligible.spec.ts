@@ -22,7 +22,7 @@ describe('Parents journey when not eligible', () => {
 
         cy.url().should('include', '/Check/Loader');
         cy.wait(2000);
-        cy.get('h1').should('include.text', 'Your children may not be entitled to free school meals');
+        cy.get('.govuk-notification-banner__heading').should('include.text', 'Your children may not be eligible for free school meals');
     });
 
     it('Will return the correct response if we cannot find the user', () => {
@@ -46,7 +46,7 @@ describe('Parents journey when not eligible', () => {
 
         cy.wait(2000);
         cy.url().should('include', '/Check/Loader');
-        cy.get('h1',{ timeout: 60000 }).should('include.text', "Your children may not be entitled to free school meals");
+        cy.get('.govuk-notification-banner__heading').should('include.text', 'Your children may not be eligible for free school meals');
     });
 
     it('Will return the correct error response if the user inputs a NI number in the incorrect format', () => {

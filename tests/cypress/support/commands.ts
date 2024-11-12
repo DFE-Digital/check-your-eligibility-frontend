@@ -56,6 +56,37 @@ Cypress.Commands.add('scanPagesForValue', (value: string) => {
 });
 
 
+// Cypress.Commands.add('findApplicationFinalise', (value: string) => {
+//   let referenceFound = false;
+//   function searchOnPage() {
+//     cy.get('.govuk-table tbody tr').each(($row) => {
+//       cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
+//           if (text.trim() === value) {
+//               referenceFound = true;
+//               cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
+//               return false;
+//           }
+//       });
+//     }).then(() => {
+//       if (!referenceFound){
+//         cy.contains('.govuk-link', 'Next').click();
+//         searchOnPage();
+//         cy.debug();
+//         // cy.get('body').then((body) => {
+//           // if(body.find('.govuk-pagination__link:contains("Next")}').length > 0) {
+//           //   cy.contains('.govuk-pagination__link', 'Next').click();
+//           //   cy.findApplicationFinalise(value);
+//           // }
+//           // else{
+//           //   cy.log('Reference number not found')
+//           // }
+//         // });
+//       }
+//     });
+//   }
+//   searchOnPage();
+// })
+
 Cypress.Commands.add('findApplicationFinalise', (value: string) => {
   let referenceFound = false;
   function searchOnPage() {
@@ -69,20 +100,21 @@ Cypress.Commands.add('findApplicationFinalise', (value: string) => {
       });
     }).then(() => {
       if (!referenceFound){
-        cy.get('body').then((body) => {
-          if(body.find('.govuk-pagination__link:contains("Next")}').length > 0) {
-            cy.contains('.govuk-pagination__link', 'Next').click();
-            cy.findApplicationFinalise(value);
+        cy.get('.govuk-link').contains('Next').then(($nextButton) => {
+          if($nextButton.length > 0){
+            cy.wrap($nextButton).click().then(() => {
+              cy.wait(500);
+              searchOnPage();
+            })
+          } else {
+            cy.log('Reference number could not be found');
           }
-          else{
-            cy.log('Reference number not found')
-          }
-        });
+        })
       }
     });
   }
   searchOnPage();
-})
+});
 
 
 Cypress.Commands.add('verifyFieldVisibility', (selector: string, isVisible: boolean) => {
