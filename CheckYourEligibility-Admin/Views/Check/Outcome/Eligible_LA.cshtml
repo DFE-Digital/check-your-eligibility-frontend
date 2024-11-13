@@ -3,13 +3,24 @@
 
 <div class="govuk-grid-row" id="content" data-type="Eligible_LA">
     <div class="govuk-grid-column-full">
-        <h1 class="govuk-heading-l">@TempData["OutcomeText"]</h1>
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" data-govuk-notification-banner-init="">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Children eligible
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <h3 class="govuk-notification-banner__heading">
+                    The children of this parent or guardian are eligible for free school meals.
+                </h3>
+            </div>
+        </div>
+        <h1 class="govuk-heading-l">Tell their school</h1>
+        <p class="govuk-body">Tell the school that the children of this parent or guardian are eligible for free school meals and ask them to make an application.</p>
 
-        <p>This information should be passed on to their school.</p>
+        @Html.ActionLink("Run another check", "Enter_Details", "check", null, new { @class = "govuk-button" })
         <p>
-            @Html.ActionLink("Do another check", "Enter_Details", "check",null, new { @class = "govuk-button" })
+            @Html.ActionLink("Return to dashboard", "index", "home")
         </p>
-        <p> @Html.ActionLink("Return to dashboard", "index", "home")</p>
-        <p> @Html.ActionLink("Sign Out", "SignOut", "Account")</p>
     </div>
 </div>
