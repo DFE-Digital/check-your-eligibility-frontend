@@ -104,7 +104,7 @@ if (!app.Environment.IsDevelopment())
 app.Use((context, next) =>
 {
     context.Response.Headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
-    context.Response.Headers["Content-Security-Policy"] = "default-src 'self'";
+    context.Response.Headers["Content-Security-Policy"] = "default-src 'self' https://*.clarity.ms https://c.bing.com";
     context.Response.Headers["X-Frame-Options"] = "sameorigin";
     context.Response.Headers["Cache-Control"] = "Private";
     context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
