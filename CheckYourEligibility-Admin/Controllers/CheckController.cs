@@ -204,19 +204,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _logger.LogInformation($"Received status: {check.Data.Status}");
             Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
 
-            TempData["OutcomeText"] = GetLaOutcomeText(status);
-
-            TempData["Status"] = GetApplicationRegisteredText(status);
+            bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
             switch (status)
             {
                 case CheckEligibilityStatus.eligible:
-                    if (_Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA)
-                    {
-                        return View("Outcome/Eligible_LA");
-                    }
-                    else return View("Outcome/Eligible");
+                    return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
                 case CheckEligibilityStatus.notEligible:
-                    return View("Outcome/Not_Eligible");
+                    return (isLA ? View("Outcome/Not_Eligible_LA") : View("Outcome/Not_Eligible"));
                 case CheckEligibilityStatus.parentNotFound:
                     return View("Outcome/Not_Found");
                 case CheckEligibilityStatus.DwpError:
@@ -230,39 +224,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 default:
                     _logger.LogError($"Unknown Status {status}");
                     return View("Outcome/Technical_Error");
-            }
-        }
-
-
-        private string GetApplicationRegisteredText(CheckEligibilityStatus status)
-        {
-            switch (status)
-            {
-                case CheckEligibilityStatus.eligible:
-                    return "As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.";
-                case CheckEligibilityStatus.notEligible:
-                    return "As these Children are not entitled to free school meals you'll need to add details of the appeal to your own system before finalising";
-                default:
-                    return "";
-            }
-        }
-
-
-        private string GetLaOutcomeText(CheckEligibilityStatus status)
-        {
-            switch (status)
-            {
-                case CheckEligibilityStatus.eligible:
-                    return "The children of this parent or guardian are entitled to free school meals";
-                case CheckEligibilityStatus.notEligible:
-                    return "The children of this parent or guardian may not be entitled to free school meals";
-                case CheckEligibilityStatus.parentNotFound:
-                    return "We could not check if this applicant’s children are entitled to free school meals";
-                case CheckEligibilityStatus.DwpError:
-                    return "We could not check if this applicant’s children are entitled to free school meals";
-
-                default:
-                    return $"Unknown Status {status}";
             }
         }
 
