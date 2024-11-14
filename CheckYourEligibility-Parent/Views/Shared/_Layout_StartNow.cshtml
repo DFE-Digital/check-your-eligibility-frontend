@@ -1,5 +1,4 @@
-﻿@*  **** Layout changes will need to be duplicated in Views/Check/OutcomeNoJS ****
-    **** as the header and footer is hard coded in those files.               **** *@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
@@ -12,7 +11,7 @@
     <link href="~/css/application.css" rel="stylesheet" />
 </head>
 
-<body class="govuk-template__body js-enabled">
+<body class="govuk-template__body js-enabled" data-clarity="@Configuration["Clarity:Parent"]">
     <header class="govuk-header " role="banner" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
             <div class="govuk-header__logo">

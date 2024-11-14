@@ -1,5 +1,4 @@
-﻿@*  **** Layout changes will need to be duplicated in Views/Check/OutcomeNoJS ****
-    **** as the header and footer is hard coded in those files.               **** *@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
@@ -16,7 +15,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 
-<body class="govuk-template__body">
+<body class="govuk-template__body" data-clarity="@Configuration["Clarity:Parent"]">
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
     <header class="dfe-header" role="banner">
