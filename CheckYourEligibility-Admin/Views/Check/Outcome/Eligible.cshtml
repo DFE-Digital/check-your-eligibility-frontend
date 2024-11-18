@@ -1,4 +1,4 @@
-﻿<a class="govuk-back-link" @Html.ActionLink("Back", "Enter_Details", "check")</a>
+﻿<a class="govuk-back-link" @Html.ActionLink("Back", "Enter_Details", "Check")</a>
 @* <a class="govuk-back-link-nolink"></a> *@
 
 <div class="govuk-grid-row" id="content" data-type="Eligible_LA">
@@ -18,7 +18,7 @@
         <h1 class="govuk-heading-l">Continue to add children's details</h1>
         <p class="govuk-body">Continue to the next page to add these children's details.</p>
 
-        @Html.ActionLink("Add children's details", "Enter_Child_Details", "check", null, new { @class = "govuk-button" })
+        @Html.ActionLink("Add children's details", "Enter_Child_Details", "Check", null, new { @class = "govuk-button" })
         <p>@Html.ActionLink("Return to dashboard", "index", "home")</p>
         <p> @Html.ActionLink("Sign Out", "SignOut", "Account")</p>
     </div>
