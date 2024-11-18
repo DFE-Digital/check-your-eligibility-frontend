@@ -18,7 +18,7 @@ describe('Full journey of creating an application through school portal through 
         it('Will allow a school user to create an application that may not be elligible and send it for appeal', () => {
             cy.visit(Cypress.config().baseUrl ?? "");
             cy.wait(1);
-            cy.get('h1').should('include.text', 'Telford Park School');
+            cy.get('h1').should('include.text', 'The Telford Park School');
 
             cy.contains('Run a check for one parent or guardian').click();
 
