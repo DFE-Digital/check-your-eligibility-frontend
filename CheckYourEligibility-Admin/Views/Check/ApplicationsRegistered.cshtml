@@ -47,10 +47,10 @@
         <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">What to do next</h2>
             <p> @TempData["Status"]</p>
-            <p> Go to <a href="../checker/applications" class="govuk-link">@Html.ActionLink("Finalise applications", "FinaliseApplications","application")</a> and follow the instructions there. </p>
+            <p> Go to <a href="../checker/applications" class="govuk-link">@Html.ActionLink("Finalise applications", "FinaliseApplications", "application")</a> and follow the instructions there. </p>
         </div>
     </div>
 </div>
 
-<p> @Html.ActionLink("Return to dashboard", "index", "home")</p>
+<p>@Html.ActionLink("Return to dashboard", "Index", "Home")</p>
 <p> @Html.ActionLink("Sign Out", "SignOut", "Account")</p>
