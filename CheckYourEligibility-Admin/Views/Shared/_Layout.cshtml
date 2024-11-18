@@ -1,4 +1,16 @@
 ﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@using System.Threading;
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using System.Security.Claims
+@using CheckYourEligibility_DfeSignIn
+@using CheckYourEligibility_DfeSignIn.Models
+@inject IHttpContextAccessor _httpContext
+@{
+    DfeClaims claims = DfeSignInExtensions.GetDfeClaims(_httpContext.HttpContext.User.Claims);
+
+    var clarityId = claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA ? Configuration["Clarity:LA"] : Configuration["Clarity:School"] ;
+}
+
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
 <head>
@@ -14,7 +26,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 
-<body class="govuk-template__body  js-enabled">
+<body class="govuk-template__body  js-enabled" data-clarity="@clarityId">
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
     <header class="dfe-header" role="banner">
