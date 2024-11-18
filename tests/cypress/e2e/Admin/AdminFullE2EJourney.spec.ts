@@ -18,7 +18,7 @@ describe('Full journey of creating an application through school portal through 
         it('Will allow a school user to create an application that may not be elligible and send it for appeal', () => {
             cy.visit(Cypress.config().baseUrl ?? "");
             cy.wait(1);
-            cy.get('h1').should('include.text', 'The Telford Park School');
+            cy.get('h1').should('include.text', 'Hollinswood Primary School');
 
             cy.contains('Run a check for one parent or guardian').click();
 
@@ -36,10 +36,10 @@ describe('Full journey of creating an application through school portal through 
             cy.contains('button', 'Perform check').click();
 
             cy.url().should('include', 'Check/Loader');
-            cy.get('p', {timeout: 80000}).should('include.text', 'The children of this parent or guardian may not be entitled to free school meals');
-            cy.contains('button', 'Appeal now').click();
+            cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+            cy.contains('a.govuk-button', 'Appeal now').click();
 
-            cy.url().should('include', '/Check/Enter_Child_Details');
+            cy.url().should('include', '/Enter_Child_Details');
             cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
             cy.get('[id="ChildList[0].LastName"]').type(childLastName);
             cy.get('[id="ChildList[0].Day"]').type('01');

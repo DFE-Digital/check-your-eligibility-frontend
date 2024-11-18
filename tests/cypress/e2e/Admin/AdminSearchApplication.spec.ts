@@ -38,8 +38,8 @@ describe('Admin journey search for application', () => {
         cy.contains('button', 'Perform check').click();
 
         cy.url().should('include', 'Check/Loader');
-        cy.get('h1', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian are entitled to free school meals');
-        cy.contains('button', "Add children's details").click();
+        cy.get('h3.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian are eligible for free school meals.');
+        cy.contains('a.govuk-button', "Add children's details").click();
 
         cy.url().should('include', '/Check/Enter_Child_Details');
         cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
@@ -97,7 +97,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Search all records').click();
         cy.get('#ChildLastName').type(childLastName);
         cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/SearchResults');
+        cy.url().should('include', 'Application/Search');
 
         cy.get('.govuk-table')
             .find('tbody tr')
@@ -120,7 +120,7 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(2)
-            .should('include.text', parentLastName);
+            .should('include.text', parentFirstName + " " + parentLastName);
     });
 
 
@@ -185,7 +185,7 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(2)
-            .should('include.text', 'Smith');
+            .should('include.text', parentFirstName + " " + parentLastName);
 
         cy.get('.govuk-table')
             .find('tbody tr')
