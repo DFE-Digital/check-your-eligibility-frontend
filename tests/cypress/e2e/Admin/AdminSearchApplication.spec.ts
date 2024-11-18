@@ -3,7 +3,7 @@
 describe('Admin journey search for application', () => {
 
     const parentFirstName = Cypress.env('lastName');
-    const parentLastName = 'Smith';
+    const parentLastName = Cypress.env('lastName');
     const parentEmailAddress = 'TimJones@Example.com';
     const NIN = 'NN668767B'
     const childFirstName = 'Tom';
