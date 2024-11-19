@@ -2,7 +2,7 @@
 
 describe('Admin journey search for application', () => {
 
-    const parentFirstName = Cypress.env('lastName');
+    const parentFirstName = "Tim";
     const parentLastName = Cypress.env('lastName');
     const parentEmailAddress = 'TimJones@Example.com';
     const NIN = 'NN668767B'
@@ -176,7 +176,7 @@ describe('Admin journey search for application', () => {
         cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
-        cy.get('#ParentLastName').type('Smith');
+        cy.get('#ParentLastName').type(parentLastName);
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
 
