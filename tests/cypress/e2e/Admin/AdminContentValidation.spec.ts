@@ -22,7 +22,7 @@ describe("Links on not eligible page route to the intended locations", () => {
             cy.get('#NationalInsuranceNumber').type(NIN);
             cy.get('#EmailAddress').clear().type(parentEmailAddress);
             cy.contains('Perform check').click();
-            cy.contains('a.govuk-link', 'guidance for reviewing evidence page', { timeout: 8000 }).then(($link) => {
+            cy.contains('a.govuk-link', 'See a complete list of acceptable evidence', { timeout: 8000 }).then(($link) => {
                 
                 const url = $link.prop('href');
                 cy.visit(url); 
@@ -41,9 +41,6 @@ describe("Links on not eligible page route to the intended locations", () => {
             cy.get('#NationalInsuranceNumber').type(NIN);
             cy.get('#EmailAddress').clear().type(parentEmailAddress);
             cy.contains('Perform check').click();
-            cy.get('a' , {timeout: 80000}).contains("Check a Family's FSM Eligibility Query Form").click();
-            cy.get('div[data-automation-id="formTitle"] .text-format-content')
-            .should('contain.text', "Check a Family's FSM Eligibility Query Form");
-
+            cy.get('a' , {timeout: 80000}).contains("ecs.admin@education.gov.uk");
     });
 });
