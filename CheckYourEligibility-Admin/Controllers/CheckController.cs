@@ -205,6 +205,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
 
             bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
+            TempData["Status"] = GetApplicationRegisteredText(status);
             switch (status)
             {
                 case CheckEligibilityStatus.eligible:
@@ -224,6 +225,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 default:
                     _logger.LogError($"Unknown Status {status}");
                     return View("Outcome/Technical_Error");
+            }
+        }
+
+        private string GetApplicationRegisteredText(CheckEligibilityStatus status)
+        {
+            switch (status)
+            {
+                case CheckEligibilityStatus.eligible:
+                    return "As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.";
+                case CheckEligibilityStatus.notEligible:
+                    return "As these Children are not entitled to free school meals you'll need to add details of the appeal to your own system before finalising";
+                default:
+                    return "";
             }
         }
 
