@@ -1,4 +1,6 @@
-﻿using CheckYourEligibility_FrontEnd.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.AspNetCore.Authentication;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -63,12 +65,15 @@ public class DobAttribute : ValidationAttribute
         var invalidFields = new List<string> { "DateOfBirth" };
 
         bool isDayInvalid = !int.TryParse(dayString, out int dayInt);
+        if (dayInt < 1 || dayInt > 31) isDayInvalid = true;
         if (isDayInvalid) invalidFields.Add("Day");
 
         bool isMonthInvalid = !int.TryParse(monthString, out int monthInt);
+        if (monthInt < 1 || monthInt > 12) isMonthInvalid = true;
         if (isMonthInvalid) invalidFields.Add("Month");
-
+        
         bool isYearInvalid = !int.TryParse(yearString, out int yearInt);
+        if (yearInt < 1900 || yearInt > DateTime.Now.Year) isYearInvalid = true;
         if (isYearInvalid) invalidFields.Add("Year");
 
         if (!int.TryParse(dayString, out _) && !int.TryParse(monthString, out _) && !int.TryParse(yearString, out _))
@@ -83,29 +88,20 @@ public class DobAttribute : ValidationAttribute
 
         if (isDayInvalid)
         {
-            return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth", "Day" });
+            return new ValidationResult("Enter a day using numbers only", new[] { "DateOfBirth", "Day", });
         }
 
-        if (dayInt < 1 || dayInt > 31)
-        {
-            return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
-        }
-
+        
         if (isMonthInvalid)
         {
-            return new ValidationResult("Enter a month using numbers only", new[] { "DateOfBirth", "Month" });
+            return new ValidationResult("Enter a month using numbers only", invalidFields.ToArray());
         }
 
-        if (monthInt < 1 || monthInt > 12)
-        {
-            return new ValidationResult("Enter a valid month", new[] { "DateOfBirth", "Month" });
-        }
-
+        
         if (isYearInvalid)
         {
-            return new ValidationResult("Enter a year using numbers only", new[] { "DateOfBirth", "Year" });
+            return new ValidationResult("Enter a valid year", invalidFields.ToArray());
         }
-
 
         try
         {
@@ -116,10 +112,7 @@ public class DobAttribute : ValidationAttribute
                 return new ValidationResult("Enter a date in the past", new[] { "DateOfBirth", "Day", "Month", "Year" });
             }
 
-            if (yearInt < 1900 || yearInt > DateTime.Now.Year)
-            {
-                return new ValidationResult("Enter a valid year", new[] { "DateOfBirth", "Year" });
-            }
+
 
             if (dayInt > DateTime.DaysInMonth(yearInt, monthInt))
             {
