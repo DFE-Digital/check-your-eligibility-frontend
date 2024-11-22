@@ -1,5 +1,6 @@
 function checkStatus() {
-    fetch("/Check/Loader")
+    let url = document.getElementById("content").getAttribute("data-url");
+    fetch(url)
 .then(response => response.text())
         .then(html => {
             // Parse the fetched HTML and extract the #content section
@@ -11,7 +12,7 @@ function checkStatus() {
             if (newContent.getAttribute("data-type") !== document.getElementById("content").getAttribute("data-type")) {
                 document.getElementById("content").innerHTML = newContent.innerHTML;
                 document.getElementById("content").setAttribute("data-type", newContent.getAttribute("data-type"));
-                clearInterval(loaderTimer);
+                if(!newContent.getAttribute("data-url")) clearInterval(loaderTimer);
             }
         })
         .catch(error => {
