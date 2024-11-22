@@ -18,7 +18,7 @@ describe("Admin Portal pages contain recommended network security related header
         // check for network headers on a error page
         cy.request({
             method: 'GET',
-            url: '/home/error'
+            url: '/error'
         }).then((response) => {
             console.log(response.headers)
             expect(response.headers).to.have.property('content-security-policy', `default-src 'self' https://*.clarity.ms https://c.bing.com`);
