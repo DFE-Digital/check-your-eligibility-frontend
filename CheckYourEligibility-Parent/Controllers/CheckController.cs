@@ -17,7 +17,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
 
         public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration)
@@ -41,9 +40,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 request = JsonConvert.DeserializeObject<Parent>(TempData["ParentDetails"].ToString());
             }
+
             if (TempData["Errors"] != null)
             {
-                var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
+                var errors =
+                    JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
                 foreach (var kvp in errors)
                 {
                     foreach (var error in kvp.Value)
@@ -199,7 +200,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
 
-            SetSessionCheckResult(check.Data.Status);
+            HttpContext.Session.SetString("CheckResult", check.Data.Status);
 
             // Handle final statuses and redirect appropriately
             switch (check.Data.Status)
@@ -227,11 +228,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     _logger.LogError("Unexpected status received.");
                     return View("Outcome/Technical_Error");
             }
-        }
-
-        public void SetSessionCheckResult(string status)
-        {
-            HttpContext.Session.SetString("CheckResult", status);
         }
 
         public IActionResult SignIn()

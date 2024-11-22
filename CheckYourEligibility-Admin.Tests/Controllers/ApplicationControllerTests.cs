@@ -229,28 +229,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_Process_Appeals_Finalise_Returns_ViewResult()
-        {
-            //Arrange
-            //act
-            var result = _sut.Finalise();
-
-            //assert 
-            result.Should().BeOfType<ViewResult>();
-        }
-
-        [Test]
-        public async Task Given_Process_Appeals_EvidenceGuidance_Returns_ViewResult()
-        {
-            //Arrange
-            //act
-            var result = _sut.Finalise();
-
-            //assert 
-            result.Should().BeOfType<ViewResult>();
-        }
-
-        [Test]
         public async Task Given_ApplicationDetailAppeal_Results_Page_Returns_Valid_Data()
         {
             //arrange

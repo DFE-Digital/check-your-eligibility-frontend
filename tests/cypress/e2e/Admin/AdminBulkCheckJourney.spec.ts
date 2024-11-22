@@ -1,10 +1,10 @@
 
-describe("Admin Portal journey for checking parent eligibility using the Batch Checking Service", () => {
+describe("Admin Portal journey for checking parent eligibility using the Bulk Checking Service", () => {
 
-    it("will return an error message if the batch file contains more than 250 rows of data", () => {
+    it("will return an error message if the bulk file contains more than 250 rows of data", () => {
         cy.SignInSchool()
         cy.contains('Run a batch check').click()
-        cy.get('input[type=file]').selectFile('batchchecktemplate_too_many_records.csv')
+        cy.get('input[type=file]').selectFile('bulkchecktemplate_too_many_records.csv')
         cy.contains('Run check').click()
 
         cy.get('#file-upload-1-error').as('errorMessage')
@@ -16,9 +16,9 @@ describe("Admin Portal journey for checking parent eligibility using the Batch C
 
     it("will return an error message if more than 10 batches are attempted within an hour", () => {
         cy.SignInSchool()
-        cy.contains('Run a batch check').click()
+        cy.contains('Run a bulk check').click()
         for (let i = 0; i < 11; i++) {
-            cy.get('input[type=file]').selectFile('batchchecktemplate_too_many_records.csv')
+            cy.get('input[type=file]').selectFile('bulkchecktemplate_too_many_records.csv')
             cy.contains('Run check').click()
         }
 
