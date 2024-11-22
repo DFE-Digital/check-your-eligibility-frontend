@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Reflection;
+using CheckYourEligibility_DfeSignIn.Models;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -20,6 +21,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     {
         private readonly ILogger<ApplicationController> _logger;
         private readonly IEcsServiceAdmin _adminService;
+        protected DfeClaims? _Claims;
 
         public ApplicationController(ILogger<ApplicationController> logger, IEcsServiceAdmin ecsServiceAdmin)
         {
@@ -199,11 +201,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
             return null;
-        }
-
-        public IActionResult Finalise()
-        {
-            return View();
         }
 
         #endregion
