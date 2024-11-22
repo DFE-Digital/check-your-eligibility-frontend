@@ -16,7 +16,7 @@ describe("Admin Portal journey for checking parent eligibility using the Bulk Ch
 
     it("will return an error message if more than 10 batches are attempted within an hour", () => {
         cy.SignInSchool()
-        cy.contains('Run a bulk check').click()
+        cy.contains('Run a batch check').click()
         for (let i = 0; i < 11; i++) {
             cy.get('input[type=file]').selectFile('bulkchecktemplate_too_many_records.csv')
             cy.contains('Run check').click()
