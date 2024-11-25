@@ -2,7 +2,7 @@
 
 namespace CheckYourEligibility_FrontEnd.Models
 {
-    public class BatchFSMExport
+    public class BulkFSMExport
     {
 
         [Name("Parent NI Number")]

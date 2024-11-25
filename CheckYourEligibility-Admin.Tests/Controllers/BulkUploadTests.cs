@@ -18,18 +18,18 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
     public class BulkUploadTests : TestBase
     {
         // mocks
-        private ILogger<BulkUploadController> _loggerMock;
+        private ILogger<BulkCheckController> _loggerMock;
         private Mock<IEcsCheckService> _checkServiceMock;
 
         // system under test
-        private BulkUploadController _sut;
+        private BulkCheckController _sut;
 
         [SetUp]
         public void SetUp()
         {
             _checkServiceMock = new Mock<IEcsCheckService>();
-            _loggerMock = Mock.Of<ILogger<BulkUploadController>>();
-            _sut = new BulkUploadController(_loggerMock, _checkServiceMock.Object, _configMock.Object);
+            _loggerMock = Mock.Of<ILogger<BulkCheckController>>();
+            _sut = new BulkCheckController(_loggerMock, _checkServiceMock.Object, _configMock.Object);
 
             base.SetUp();
 
@@ -45,10 +45,10 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
 
         [Test]
-        public async Task Given_Batch_Check_Should_Load_BatchCheckPage()
+        public async Task Given_Bulk_Check_Should_Load_BulkCheckPage()
         {
             // Act
-            var result = _sut.Batch_Check();
+            var result = _sut.Bulk_Check();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
@@ -57,10 +57,10 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_Batch_Check_When_FileData_Invalid_Should_Return_Error_Data_Issue()
+        public async Task Given_Bulk_Check_When_FileData_Invalid_Should_Return_Error_Data_Issue()
         {
             // Arrange
-            var content = Resources.batchchecktemplate_some_invalid_items;
+            var content = Resources.bulkchecktemplate_some_invalid_items;
             var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -76,17 +76,17 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
 
             // Act
-            var result = await _sut.Batch_Check(file);
+            var result = await _sut.Bulk_Check(file);
 
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().BeEquivalentTo("BatchOutcome/Error_Data_Issue");
-            viewResult.TempData["BatchParentCheckItemsErrors"].Should().NotBeNull();
+            viewResult.ViewName.Should().BeEquivalentTo("BulkOutcome/Error_Data_Issue");
+            viewResult.TempData["BulkParentCheckItemsErrors"].Should().NotBeNull();
         }
 
         [Test]
-        public async Task Given_Batch_Check_When_FileData_Empty_Should_Return_Error_Data_Issue()
+        public async Task Given_Bulk_Check_When_FileData_Empty_Should_Return_Error_Data_Issue()
         {
             // Arrange
             var content = "";
@@ -105,17 +105,18 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
 
             // Act
-            var result = await _sut.Batch_Check(file);
+            var result = await _sut.Bulk_Check(file);
 
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().BeEquivalentTo("BatchOutcome/Error_Data_Issue");
-            viewResult.TempData["BatchParentCheckItemsErrors"].Should().BeEquivalentTo("Invalid file content.\r\n");
+            viewResult.ViewName.Should().BeEquivalentTo("BulkOutcome/Error_Data_Issue");
+            string output = viewResult.TempData["BulkParentCheckItemsErrors"].ToString();
+            output.Replace("\r", "").Replace("\n", "").Should().BeEquivalentTo("Invalid file content.");
         }
 
         [Test]
-        public async Task Given_Batch_Check_When_FileType_Invalid_Should_Return_RedirectToActionResult()
+        public async Task Given_Bulk_Check_When_FileType_Invalid_Should_Return_RedirectToActionResult()
         {
             // Arrange
             var content = "";
@@ -134,14 +135,14 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
 
             // Act
-            var result = await _sut.Batch_Check(file);
+            var result = await _sut.Bulk_Check(file);
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
         }
 
         [Test]
-        public async Task Given_Batch_Check_When_FileData_Valid_Should_Return_ValidData()
+        public async Task Given_Bulk_Check_When_FileData_Valid_Should_Return_ValidData()
         {
             // Arrange
             var response =
@@ -153,7 +154,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _checkServiceMock.Setup(s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
                     .ReturnsAsync(response);
 
-            var content = Resources.batchchecktemplate_small_Valid;
+            var content = Resources.bulkchecktemplate_small_Valid;
             var fileName = "test.csv";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -169,12 +170,12 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
 
             // Act
-            var result = await _sut.Batch_Check(file);
+            var result = await _sut.Bulk_Check(file);
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
             var viewResult = result as RedirectToActionResult;
-            viewResult.ActionName.Should().BeEquivalentTo("Batch_Loader");
+            viewResult.ActionName.Should().BeEquivalentTo("Bulk_Loader");
 
         }
 
@@ -183,7 +184,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public async Task Given_Loader_When_LoadingPage_Should_return_LoadLoaderPage()
         {
             // Act
-            var result = await _sut.Batch_Loader();
+            var result = await _sut.Bulk_Loader();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
@@ -204,28 +205,28 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             // Act
 
-            var result = await _sut.Batch_Loader();
+            var result = await _sut.Bulk_Loader();
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
             var viewResult = result as RedirectToActionResult;
-            viewResult.ActionName.Should().BeEquivalentTo("Batch_check_success");
+            viewResult.ActionName.Should().BeEquivalentTo("Bulk_check_success");
         }
 
         [Test]
-        public async Task Given_Batch_check_success_When_LoadingPage_Should_return_Batch_check_success()
+        public async Task Given_Bulk_check_success_When_LoadingPage_Should_return_Bulk_check_success()
         {
             // Act
-            var result = await _sut.Batch_check_success();
+            var result = await _sut.Bulk_check_success();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().BeEquivalentTo("BatchOutcome/Success");
+            viewResult.ViewName.Should().BeEquivalentTo("BulkOutcome/Success");
         }
 
         [Test]
-        public async Task Given_Batch_check_download_When_LoadingPage_Should_return_csvFile()
+        public async Task Given_Bulk_check_download_When_LoadingPage_Should_return_csvFile()
         {
             //arrange
             var response =
@@ -238,7 +239,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _checkServiceMock.Setup(s => s.GetBulkCheckResults(It.IsAny<string>()))
                    .ReturnsAsync(response);
             // Act
-            var result = await _sut.Batch_check_download();
+            var result = await _sut.Bulk_check_download();
 
             // Assert
             result.Should().BeOfType<FileStreamResult>();
@@ -248,7 +249,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
 
         [TestCase]
-        public async Task Given_11_Successive_Batch_Checks_In_1_Hour_11th_Check_Returns_Error()
+        public async Task Given_11_Successive_Bulk_Checks_In_1_Hour_11th_Check_Returns_Error()
         {
             // arrange
             var response = new CheckEligibilityResponseBulk
@@ -262,7 +263,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 .ReturnsAsync(response);
 
             _sut.TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
-            var content = Resources.batchchecktemplate_small_Valid;
+            var content = Resources.bulkchecktemplate_small_Valid;
 
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -280,20 +281,20 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //act
             for (int i = 0; i < 10; i++)
             {
-                var result = await _sut.Batch_Check(file);
+                var result = await _sut.Bulk_Check(file);
                 result.Should().BeOfType<RedirectToActionResult>();
                 var viewResult = result as RedirectToActionResult;
-                viewResult.ActionName.Should().BeEquivalentTo("Batch_Loader");
+                viewResult.ActionName.Should().BeEquivalentTo("Bulk_Loader");
 
                 if (i == 10)
                 {
                     // assert
-                    viewResult.ActionName.Should().BeEquivalentTo("Batch_Check");
+                    viewResult.ActionName.Should().BeEquivalentTo("Bulk_Check");
                 }
             }
         }
         [Test]
-        public async Task Given_Batch_Check_When_FileIsValid_Should_ReturnBatchLoaderPage()
+        public async Task Given_Bulk_Check_When_FileIsValid_Should_ReturnBulkLoaderPage()
         {
             // Arrange
             var response = new CheckEligibilityResponseBulk
@@ -306,7 +307,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
                 .ReturnsAsync(response);
 
-            var content = Resources.batchchecktemplate_small_Valid;
+            var content = Resources.bulkchecktemplate_small_Valid;
 
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -321,18 +322,18 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
 
             // Act
-            var result = await _sut.Batch_Check(file);
+            var result = await _sut.Bulk_Check(file);
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
             var viewResult = result as RedirectToActionResult;
-            viewResult.ActionName.Should().BeEquivalentTo("Batch_Loader");
+            viewResult.ActionName.Should().BeEquivalentTo("Bulk_Loader");
         }
         [Test]
-        public async Task Given_Batch_Check_When_FileHasTooManyRecords_Should_ReturnBatchCheckPage()
+        public async Task Given_Bulk_Check_When_FileHasTooManyRecords_Should_ReturnBulkCheckPage()
         {
             // Arrange
-            var content = Resources.batchchecktemplate_too_many_records;
+            var content = Resources.bulkchecktemplate_too_many_records;
             _sut.TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -347,12 +348,12 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
 
             // Act
-            var result = await _sut.Batch_Check(file);
+            var result = await _sut.Bulk_Check(file);
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
             var viewResult = result as RedirectToActionResult;
-            viewResult.ActionName.Should().BeEquivalentTo("Batch_Check");
+            viewResult.ActionName.Should().BeEquivalentTo("Bulk_Check");
             _sut.TempData["ErrorMessage"].Should().BeEquivalentTo("CSV File cannot contain more than 250 records");
         }
     }

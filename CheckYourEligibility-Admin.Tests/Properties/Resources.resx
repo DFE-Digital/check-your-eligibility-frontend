@@ -118,14 +118,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="batchchecktemplate some invalid items" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\batchchecktemplate some invalid items.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="bulkchecktemplate some invalid items" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\bulkchecktemplate some invalid items.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="batchchecktemplate_small_Valid" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\batchchecktemplate small Valid.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="bulkchecktemplate_small_Valid" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\bulkchecktemplate small Valid.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="batchchecktemplate_too_many_records" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\batchchecktemplate_too_many_records.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="bulkchecktemplate_too_many_records" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\bulkchecktemplate_too_many_records.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="ClaimSchool" xml:space="preserve">
     <value>{"id":"4579AE90-8B2B-4C02-AC08-756CBBB1C567","name":"Hollinswood Primary School","LegalName":"HOLLINSWOOD PRIMARY SCHOOL","category":{"id":"001","name":"Establishment"},"type":{"id":"01","name":"Community School"},"urn":"123456","uid":null,"upin":null,"ukprn":"10069246","establishmentNumber":"2200","status":{"id":1,"name":"Open"},"closedOn":null,"address":"Dale Acre Way, Hollinswood, Telford, Shropshire, TF3 2EP","telephone":"01952386920","region":{"id":"F","name":"West Midlands"},"localAuthority":{"id":"2480ED46-1864-4422-A8E9-68CA7DF60FC7","name":"Telford and Wrekin Council","code":"894"},"phaseOfEducation":{"id":2,"name":"Primary"},"statutoryLowAge":2,"statutoryHighAge":11,"legacyId":"6970607","companyRegistrationNumber":null,"SourceSystem":"GIAS","providerTypeName":"Community","ProviderTypeCode":8,"GIASProviderType":"Community school","PIMSProviderType":null,"PIMSProviderTypeCode":null,"PIMSStatusName":null,"pimsStatus":null,"GIASStatusName":"Open","GIASStatus":1,"MasterProviderStatusName":"Active","MasterProviderStatusCode":2,"OpenedOn":null,"DistrictAdministrativeName":"Telford and Wrekin","DistrictAdministrativeCode":"E06000020","DistrictAdministrative_code":null,"IsOnAPAR":"NO"}</value>

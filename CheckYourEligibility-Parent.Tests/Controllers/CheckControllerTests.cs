@@ -592,7 +592,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange 
 
-            _sut.SetSessionCheckResult(CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString());
+            _sut.ControllerContext.HttpContext.Session.SetString("CheckResult", (CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString()));
             _sut.TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(_applicationSaveItemResponse);
 
             // Act

@@ -2,20 +2,12 @@ using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
-    [ExcludeFromCodeCoverage(Justification = "Class not in use for web app parent journey at the moment")]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
             return View();
@@ -34,12 +26,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public IActionResult Cookies()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
         public IActionResult fsm_print_version()
