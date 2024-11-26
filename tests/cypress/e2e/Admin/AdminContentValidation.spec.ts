@@ -50,8 +50,8 @@ describe('Date of Birth Validation Tests', () => {
     const parentEmailAddress = 'TimJones@Example.com';
     const NIN = 'PN668767B';
     beforeEach(() => {
-        cy.SignInSchool();
-        cy.wait(1); // Ensure session/login completes
+        
+        
         cy.visit('/Check/Enter_Details'); // Ensure we are on the correct page
     });
 
