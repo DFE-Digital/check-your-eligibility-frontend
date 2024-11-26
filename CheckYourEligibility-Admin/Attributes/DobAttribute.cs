@@ -73,7 +73,7 @@ public class DobAttribute : ValidationAttribute
         if (isMonthInvalid) invalidFields.Add("Month");
         
         bool isYearInvalid = !int.TryParse(yearString, out int yearInt);
-        if (yearInt < 1900 || yearInt > DateTime.Now.Year) isYearInvalid = true;
+        if (yearInt < 1900) isYearInvalid = true;
         if (isYearInvalid) invalidFields.Add("Year");
 
         if (!int.TryParse(dayString, out _) && !int.TryParse(monthString, out _) && !int.TryParse(yearString, out _))
