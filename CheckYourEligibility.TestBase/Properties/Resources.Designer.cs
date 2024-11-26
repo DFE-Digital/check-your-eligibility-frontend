@@ -66,9 +66,9 @@ namespace CheckYourEligibility.TestBase.Properties {
         ///dave,smith,01/01/1990,AB123456D,
         ///.
         /// </summary>
-        internal static string batchchecktemplate_small_Valid {
+        internal static string bulkchecktemplate_small_Valid {
             get {
-                return ResourceManager.GetString("batchchecktemplate_small_Valid", resourceCulture);
+                return ResourceManager.GetString("bulkchecktemplate_small_Valid", resourceCulture);
             }
         }
         
@@ -80,9 +80,9 @@ namespace CheckYourEligibility.TestBase.Properties {
         ///,flower,1990-01-01,,
         ///.
         /// </summary>
-        internal static string batchchecktemplate_some_invalid_items {
+        internal static string bulkchecktemplate_some_invalid_items {
             get {
-                return ResourceManager.GetString("batchchecktemplate some invalid items", resourceCulture);
+                return ResourceManager.GetString("bulkchecktemplate some invalid items", resourceCulture);
             }
         }
         

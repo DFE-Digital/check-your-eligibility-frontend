@@ -51,11 +51,11 @@ namespace CheckYourEligibility_FrontEnd.Services
             return null;
         }
 
-        public async Task<CheckEligibilityBulkStatusResponse> GetBulkCheckProgress(string batchCheckUrl)
+        public async Task<CheckEligibilityBulkStatusResponse> GetBulkCheckProgress(string bulkCheckUrl)
         {
             try
             {
-                var result = await ApiDataGetAsynch(batchCheckUrl, new CheckEligibilityBulkStatusResponse());
+                var result = await ApiDataGetAsynch(bulkCheckUrl, new CheckEligibilityBulkStatusResponse());
                 return result;
             }
             catch (Exception ex)

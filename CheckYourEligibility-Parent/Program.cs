@@ -1,12 +1,9 @@
-using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
-using System.Text;
-using CheckYourEligibility_FrontEnd.Middleware;
 using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,15 +89,24 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-app.MapHealthChecks("/healthcheck");
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseExceptionHandler("/Error");
 }
+
+app.Use(async (ctx, next) =>
+{
+    await next();
+    if (ctx.Response.StatusCode == 404 && !ctx.Response.HasStarted)
+    {
+        //Re-execute the request so the user gets the error page
+        ctx.Request.Path = "/Error/NotFound";
+        await next();
+    }
+});
+
+app.MapHealthChecks("/healthcheck");
+
 app.Use((context, next) =>
 {
     context.Response.Headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
@@ -120,10 +126,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// 2.4. Custom Middlewares
-app.UseMiddleware<ExceptionLoggingMiddleware>();
-app.UseMiddleware<RequestBodyLoggingMiddleware>();
-app.UseMiddleware<ResponseBodyLoggingMiddleware>();
 
 app.Run();

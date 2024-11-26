@@ -11,13 +11,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
     {
 
         private HomeController _sut;
-        private ILogger<HomeController> _logger;
 
         [SetUp]
         public void SetUp()
         {
-            _logger = Mock.Of<ILogger<HomeController>>();
-            _sut = new HomeController(_logger);
+            _sut = new HomeController();
         }
 
         [TearDown]
@@ -30,7 +28,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public void Given_Accessibility_LoadsWithEmptyModel()
         {
             // Arrange
-            var controller = new HomeController(_logger);
+            var controller = new HomeController();
 
             // Act
             var result = controller.Accessibility();
@@ -45,7 +43,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public void Given_Privacy_LoadsWithEmptyModel()
         {
             // Arrange
-            var controller = new HomeController(_logger);
+            var controller = new HomeController();
 
             // Act
             var result = controller.Privacy();
@@ -60,7 +58,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public void Given_Cookies_LoadsWithEmptyModel()
         {
             // Arrange
-            var controller = new HomeController(_logger);
+            var controller = new HomeController();
 
             // Act
             var result = controller.Cookies();

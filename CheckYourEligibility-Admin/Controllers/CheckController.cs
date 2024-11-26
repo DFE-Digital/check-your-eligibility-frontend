@@ -8,9 +8,6 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Reflection;
-using System.Text;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
 namespace CheckYourEligibility_FrontEnd.Controllers

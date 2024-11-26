@@ -11,29 +11,29 @@ using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
-    public class BulkUploadController : BaseController
+    public class BulkCheckController : BaseController
     {
         const int TotalErrorsToDisplay = 20;
 
-        private readonly ILogger<BulkUploadController> _logger;
+        private readonly ILogger<BulkCheckController> _logger;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private ILogger<BulkUploadController> _loggerMock;
+        private ILogger<BulkCheckController> _loggerMock;
 
-        public BulkUploadController(ILogger<BulkUploadController> logger, IEcsCheckService ecsCheckService, IConfiguration configuration)
+        public BulkCheckController(ILogger<BulkCheckController> logger, IEcsCheckService ecsCheckService, IConfiguration configuration)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
         }
 
-        public IActionResult Batch_Check()
+        public IActionResult Bulk_Check()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Batch_Check(IFormFile fileUpload)
+        public async Task<IActionResult> Bulk_Check(IFormFile fileUpload)
         {
             var timeNow = DateTime.UtcNow;
             if (!string.IsNullOrEmpty(HttpContext.Session.GetString("FirstSubmissionTimeStamp")))
@@ -44,7 +44,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                 if (timeNow >= timein1Hour)
                 {
-                    HttpContext.Session.Remove("BatchSubmissions");
+                    HttpContext.Session.Remove("BulkSubmissions");
                 }
             }
 
@@ -56,36 +56,36 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (fileUpload == null || fileUpload.ContentType.ToLower() != "text/csv")
             {
                 TempData["ErrorMessage"] = "Select a CSV File";
-                return RedirectToAction("Batch_Check");
+                return RedirectToAction("Bulk_Check");
             }
             
             // limit csv submission attempts
             int sessionCount = 0;
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("BatchSubmissions")))
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("BulkSubmissions")))
             {
                 // set session value as 0 if it didnt exist
-                HttpContext.Session.SetInt32("BatchSubmissions", 0);
+                HttpContext.Session.SetInt32("BulkSubmissions", 0);
                 // Set time in its own session value
                 HttpContext.Session.SetString("FirstSubmissionTimeStamp", DateTime.UtcNow.ToString());
             }
             else
             {
                 // if it exists, get the value
-                sessionCount = (int)HttpContext.Session.GetInt32("BatchSubmissions");
+                sessionCount = (int)HttpContext.Session.GetInt32("BulkSubmissions");
             }
 
             // increment
             sessionCount++;
-            HttpContext.Session.SetInt32("BatchSubmissions", sessionCount);
+            HttpContext.Session.SetInt32("BulkSubmissions", sessionCount);
 
             // validate
             if (sessionCount > int.Parse(_config["BulkUploadAttemptLimit"]))
             {
                 TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
-                return RedirectToAction("Batch_Check");
+                return RedirectToAction("Bulk_Check");
             }
 
-            // check not more than 10, if it is return Batch_Check() with ErrorMessage == too many requests made, wait a bit longer
+            // check not more than 10, if it is return Bulk_Check() with ErrorMessage == too many requests made, wait a bit longer
 
 
             try
@@ -109,7 +109,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     if (DataLoad.Count > checkRowLimit)
                     {
                         TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
-                        return RedirectToAction("Batch_Check");
+                        return RedirectToAction("Bulk_Check");
                     }
 
                     if (DataLoad == null || !DataLoad.Any())
@@ -154,22 +154,22 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 if ((errorCount - TotalErrorsToDisplay) > 0)
                 {
-                    TempData["BatchParentCheckItemsLineMoreErrors"] = errorCount - TotalErrorsToDisplay;
+                    TempData["BulkParentCheckItemsLineMoreErrors"] = errorCount - TotalErrorsToDisplay;
                 }
 
-                TempData["BatchParentCheckItemsErrors"] = validationResultsItems.ToString();
-                return View("BatchOutcome/Error_Data_Issue");
+                TempData["BulkParentCheckItemsErrors"] = validationResultsItems.ToString();
+                return View("BulkOutcome/Error_Data_Issue");
             }
             else
             {
                 var result = await _checkService.PostBulkCheck(new CheckEligibilityRequestBulk_Fsm { Data = requestItems });
                 HttpContext.Session.SetString("Get_Progress_Check", result.Links.Get_Progress_Check);
                 HttpContext.Session.SetString("Get_BulkCheck_Results", result.Links.Get_BulkCheck_Results);
-                return RedirectToAction("Batch_Loader");
+                return RedirectToAction("Bulk_Loader");
             }
         }
 
-        public async Task<IActionResult> Batch_Loader()
+        public async Task<IActionResult> Bulk_Loader()
         {
 
             var result = await _checkService.GetBulkCheckProgress(HttpContext.Session.GetString("Get_Progress_Check"));
@@ -179,22 +179,22 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 TempData["currentCounter"] = result.Data.Complete;
                 if (result.Data.Complete >= result.Data.Total)
                 {
-                    return RedirectToAction("Batch_check_success");
+                    return RedirectToAction("Bulk_check_success");
                 }
             }
 
             return View();
         }
 
-        public async Task<IActionResult> Batch_check_success()
+        public async Task<IActionResult> Bulk_check_success()
         {
-            return View("BatchOutcome/Success");
+            return View("BulkOutcome/Success");
         }
 
-        public async Task<IActionResult> Batch_check_download()
+        public async Task<IActionResult> Bulk_check_download()
         {
             var resultData = await _checkService.GetBulkCheckResults(HttpContext.Session.GetString("Get_BulkCheck_Results"));
-            var exportData = resultData.Data.Select(x => new BatchFSMExport
+            var exportData = resultData.Data.Select(x => new BulkFSMExport
             {
                 LastName = x.LastName,
                 DOB = x.DateOfBirth,
@@ -210,7 +210,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return new FileStreamResult(memoryStream, "text/csv") { FileDownloadName = fileName };
         }
 
-        private byte[] WriteCsvToMemory(IEnumerable<BatchFSMExport> records)
+        private byte[] WriteCsvToMemory(IEnumerable<BulkFSMExport> records)
         {
             using (var memoryStream = new MemoryStream())
             using (var streamWriter = new StreamWriter(memoryStream))
