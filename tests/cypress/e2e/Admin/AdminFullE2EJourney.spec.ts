@@ -61,7 +61,7 @@ describe('Full journey of creating an application through school portal through 
                 .find('tbody tr')
                 .eq(0)
                 .find('td')
-                .eq(2)
+                .eq(1)
                 .invoke('text')
                 .then((text) => {
                     referenceNumber = text;
