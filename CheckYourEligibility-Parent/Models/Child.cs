@@ -17,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public School School { get; set; }
         
         [NotMapped]
-        [Dob]
+        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: true)]
         public string? DateOfBirth { get; set; }
 
         public string? Day { get; set; }
