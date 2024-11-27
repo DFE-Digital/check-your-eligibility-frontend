@@ -13,6 +13,7 @@ describe("Links on not eligible page route to the intended locations", () => {
 
     it("Guidance link should route to guidance page", () => {
         cy.visit("/Check/Enter_Details");
+
         cy.get('#FirstName').type(parentFirstName);
         cy.get('#LastName').type(parentLastName);
         cy.get('#Day').type('01');

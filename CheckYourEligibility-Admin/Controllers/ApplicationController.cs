@@ -416,7 +416,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Status = response.Data.Status,
                 ChildName = $"{response.Data.ChildFirstName} {response.Data.ChildLastName}",
             };
-            viewData.ParentDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
             viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
            
             return viewData;

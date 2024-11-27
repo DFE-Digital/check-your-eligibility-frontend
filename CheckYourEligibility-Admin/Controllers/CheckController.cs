@@ -200,7 +200,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             _logger.LogInformation($"Received status: {check.Data.Status}");
             Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
-
+            TempData["Status"] = status;
             bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
             switch (status)
             {
