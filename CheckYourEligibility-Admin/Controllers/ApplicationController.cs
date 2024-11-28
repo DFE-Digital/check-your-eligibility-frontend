@@ -60,7 +60,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             var applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
             applicationSearch.PageNumber = PageNumber;
-            return await GetResults(applicationSearch, "ApplicationDetail", false, false);
+            return await GetResults(applicationSearch, "ApplicationDetail", false, false, false);
         }
 
         [HttpPost]
@@ -100,7 +100,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
 
             
-            return await GetResults(applicationSearch, "ApplicationDetail",false, false);
+            return await GetResults(applicationSearch, "ApplicationDetail",false, false, false);
         }
 
         [HttpGet]
@@ -131,7 +131,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded,
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview},
                 PageNumber, 10);
-            return await GetResults( applicationSearch, "ApplicationDetailAppeal", false, false);
+            return await GetResults( applicationSearch, "ApplicationDetailAppeal", false, false, false);
         }
 
         [HttpGet]
@@ -216,7 +216,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.Entitled,
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled},
                 PageNumber, 10);
-            return await GetResults(applicationSearch, "ApplicationDetailFinalise", true, false);
+            return await GetResults(applicationSearch, "ApplicationDetailFinalise", true, false, false);
         }
 
 
@@ -321,7 +321,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 new List<CheckYourEligibility.Domain.Enums.ApplicationStatus> {
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview },
                 PageNumber, 10);
-            return await GetResults(applicationSearch, "ApplicationDetailLa", false, true);
+            return await GetResults(applicationSearch, "ApplicationDetailLa", false, true, true);
         }
 
 
@@ -382,7 +382,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
-        private async Task<IActionResult> GetResults(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector, bool showSchool)
+        private async Task<IActionResult> GetResults(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
         {
             var response = await _adminService.PostApplicationSearch(applicationSearch);
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
@@ -397,7 +397,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.CurrentPage = applicationSearch.PageNumber;
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
-            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = detailView, ShowSelectorCheck = showSelector, Person = x, ShowSchool = showSchool });
+            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = detailView, ShowSelectorCheck = showSelector, Person = x, ShowSchool = showSchool, ShowParentDob = showParentDob });
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
             
             return View(viewData);
