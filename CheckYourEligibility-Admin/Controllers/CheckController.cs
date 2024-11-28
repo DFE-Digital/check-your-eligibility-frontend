@@ -207,11 +207,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 case CheckEligibilityStatus.eligible:
                     return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
                 case CheckEligibilityStatus.notEligible:
-                    if (isLA)
-                    {
-                        ViewData["ContactUsURL"] = _config["ContactUsURL"];
-
-                    }
                     return (isLA ? View("Outcome/Not_Eligible_LA")  : View("Outcome/Not_Eligible"));
                 case CheckEligibilityStatus.parentNotFound:
                     return View("Outcome/Not_Found");
