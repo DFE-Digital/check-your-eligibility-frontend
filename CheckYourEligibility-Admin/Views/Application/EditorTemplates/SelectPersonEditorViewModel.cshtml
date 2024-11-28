@@ -41,7 +41,14 @@
      
     <td class="govuk-table__cell">@(@Model.Person.ParentFirstName + " " + @Model.Person.ParentLastName)</td>
     <td class="govuk-table__cell">@(@Model.Person.ChildFirstName + " " + Model.Person.ChildLastName)</td>
-    <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
+    @if (Model.ShowParentDob)
+    {
+        <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ParentDateOfBirth).ToString("dd MMM yyyy")</td>
+    }
+    else
+    {
+        <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
+    }
     @if(Model.ShowSchool)
     {
         <td class="govuk-table__cell">@(@Model.Person.Establishment.Name)</td>

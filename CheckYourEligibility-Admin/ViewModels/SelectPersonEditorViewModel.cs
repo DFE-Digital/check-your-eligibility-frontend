@@ -9,6 +9,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
         public string DetailView { get; set; }
         public bool ShowSelectorCheck { get; internal set; }
         public bool ShowSchool { get; internal set; }
+        public bool ShowParentDob {  get; internal set; }
 
     }
 
