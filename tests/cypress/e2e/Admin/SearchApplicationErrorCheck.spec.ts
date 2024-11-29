@@ -56,13 +56,13 @@ describe('Admin journey search for application', () => {
 
         cy.get('h2').should('include.text', 'There is a problem');
 
-        cy.get('li').should('contain.text', 'Enter a valid day');
+        cy.get('li').should('contain.text', 'Enter a valid date');
         cy.get('#ChildDobDay').clear().type('01');
         cy.get('#ChildDobMonth').type('35');
         cy.get('#ChildDobYear').type('2090');
         cy.contains('Generate results').click();
 
-        cy.get('li').should('contain.text', 'Enter a valid month');
+        cy.get('li').should('contain.text', 'Enter a valid date');
         cy.get('#ChildDobDay').clear().type('01');
         cy.get('#ChildDobMonth').clear().type('01');
         cy.get('#ChildDobYear').type('2090');
@@ -85,13 +85,13 @@ describe('Admin journey search for application', () => {
 
         cy.get('h2').should('include.text', 'There is a problem');
 
-        cy.get('li').should('include.text', 'Enter a valid day');
+        cy.get('li').should('include.text', 'Enter a valid date');
         cy.get('#PGDobDay').clear().type('01');
         cy.get('#PGDobMonth').type('35');
         cy.get('#PGDobYear').type('2090');
         cy.contains('Generate results').click();
 
-        cy.get('li').should('include.text', 'Enter a valid month');
+        cy.get('li').should('include.text', 'Enter a valid date');
         cy.get('#PGDobDay').clear().type('01');
         cy.get('#PGDobMonth').clear().type('01');
         cy.get('#PGDobYear').type('2090');
