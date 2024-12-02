@@ -1,4 +1,5 @@
 ﻿<a class="govuk-back-link" @Html.ActionLink("Back", "Enter_Details", "Check")</a>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @* <a class="govuk-back-link-nolink"></a> *@
 
 <div class="govuk-grid-row">
@@ -16,6 +17,6 @@
         </div>
 
         <h1 class="govuk-heading-l">If the check keeps failing</h1>
-        <p>Contact the Department for Education support desk at ecs.admin@education.gov.uk.</p>
+        <a>Contact the <a href="@Configuration["ContactUsUrl"]"> Department for Education support desk.</a>
     </div>
 </div>
