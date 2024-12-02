@@ -60,19 +60,39 @@
         </div>
     </div>
 
-
-    <main role="main">
-        <div class="govuk-width-container ">
-            <main class="govuk-main-wrapper " id="main-content" role="main">
-                <div class="govuk-grid-row">
+    <div class="govuk-width-container ">
+        <main class="govuk-main-wrapper " id="main-content" role="main">
+            @if (ViewBag.Message != null)
+            {
+                <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            Notice
+                        </h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-notification-banner__heading">
+                            @ViewBag.Message
+                        </p>
+                    </div>
+                </div>
+            }
+            <div class="govuk-grid-row">
+                @if (ViewData["Layout"] != null && ViewData["Layout"].ToString() == "two_thirds")
+                {
                     <div class="govuk-grid-column-two-thirds">
                         @RenderBody()
                     </div>
-                </div>
-            </main>
-        </div>
-    </main>
-
+                }
+                else //Default - ViewData["Layout"].ToString() == "full"
+                {
+                    <div class="govuk-grid-column-full">
+                        @RenderBody()
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
 
     <footer class="govuk-footer " role="contentinfo">
         <div class="govuk-width-container ">
@@ -87,9 +107,9 @@
                         <li class="govuk-footer__inline-list-item">
                             <a class="govuk-footer__link" href="@Url.Action("Privacy", "Home")">Privacy policy</a>
                         </li>
-@* 
+                        @*
                         <li class="govuk-footer__inline-list-item">
-                            <a class="govuk-footer__link" href="@Url.Action("Accessibility", "Home")">Accessibility</a>
+                        <a class="govuk-footer__link" href="@Url.Action("Accessibility", "Home")">Accessibility</a>
                         </li> *@
 
                         <li class="govuk-footer__inline-list-item">

@@ -8,7 +8,7 @@
 @{
     DfeClaims claims = DfeSignInExtensions.GetDfeClaims(_httpContext.HttpContext.User.Claims);
 
-    var clarityId = claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA ? Configuration["Clarity:LA"] : Configuration["Clarity:School"] ;
+    var clarityId = claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA ? Configuration["Clarity:LA"] : Configuration["Clarity:School"];
 }
 
 <!DOCTYPE html>
@@ -43,7 +43,7 @@
             <div class="dfe-header__content" id="content-header">
                 <ul class="dfe-header__action-links">
                     @* <li>
-                        <a href="#">My account</a>
+                    <a href="#">My account</a>
                     </li> *@
                     <li>
                         @Html.ActionLink("Sign out", "SignOut", "Account", null, new { @class = "signOut" })
@@ -75,7 +75,6 @@
         </div>
     </div>
 
-
     <div class="govuk-width-container ">
         <main class="govuk-main-wrapper " id="main-content" role="main">
             @if (ViewBag.Message != null)
@@ -93,10 +92,22 @@
                     </div>
                 </div>
             }
-            @RenderBody()
+            <div class="govuk-grid-row">
+                @if (ViewData["Layout"] != null && ViewData["Layout"].ToString() == "two_thirds")
+                {
+                    <div class="govuk-grid-column-two-thirds">
+                        @RenderBody()
+                    </div>
+                }
+                else //Default - ViewData["Layout"].ToString() == "full"
+                {
+                    <div class="govuk-grid-column-full">
+                        @RenderBody()
+                    </div>
+                }
+            </div>
         </main>
     </div>
-
 
     <footer class="govuk-footer " role="contentinfo">
         <div class="govuk-width-container ">
@@ -111,9 +122,9 @@
                         <li class="govuk-footer__inline-list-item">
                             <a class="govuk-footer__link" href="@Url.Action("Privacy", "Home")">Privacy policy</a>
                         </li>
-@* 
+                        @*
                         <li class="govuk-footer__inline-list-item">
-                            <a class="govuk-footer__link" href="@Url.Action("Accessibility", "Home")">Accessibility</a>
+                        <a class="govuk-footer__link" href="@Url.Action("Accessibility", "Home")">Accessibility</a>
                         </li> *@
 
                         <li class="govuk-footer__inline-list-item">
