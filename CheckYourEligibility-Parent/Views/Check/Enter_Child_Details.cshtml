@@ -95,9 +95,13 @@
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.URN"></span>
                     </p>
-                        <input id="school-search-@i" class="noJsRemove govuk-search school-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].School.URN"]?.Errors.Count > 0 ? "govuk-input--error" : "")" value="@(Model.ChildList[i].School != null
-                    ? Model.ChildList[i].School.Name + ", " + Model.ChildList[i].School.URN + ", " + Model.ChildList[i].School.Postcode + ", " + Model.ChildList[i].School.LA
-                    : "")" type="text" autocomplete="off" aria-label="School Search" />
+                        <input id="school-search-@i"
+                               class="noJsRemove govuk-search school-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].School.URN"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                               value="@(Model.ChildList[i].School != null ? string.Join(", ", new[] { Model.ChildList[i].School.Name, Model.ChildList[i].School.URN, Model.ChildList[i].School.Postcode, Model.ChildList[i].School.LA }) : "")"
+                               type="text"
+                               autocomplete="off"
+                               aria-label="School Search" />
+
                     <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" />
                     
                     <label class="govuk-label govuk-!-font-weight-bold noJsShow" for="ChildList[@i].School.URN">
