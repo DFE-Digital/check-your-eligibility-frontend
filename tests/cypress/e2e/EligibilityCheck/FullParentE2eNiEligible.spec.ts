@@ -7,7 +7,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
-        cy.contains('Start Now').click()
+        cy.contains('Start now').click()
         cy.url().should('include', '/Check/Enter_Details');
 
         cy.get('h1').should('include.text', 'Enter your details');
