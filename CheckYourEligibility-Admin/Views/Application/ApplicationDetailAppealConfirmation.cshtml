@@ -5,9 +5,14 @@
     ViewData["Layout"] = "two_thirds";
 }
 
-<p class="govuk-heading-l">Are you sure?</p>
-<p class="govuk-body">Sending this record on to the local authority for review will also prompt them to check the evidence you send them separately. </p>
-
+<p class="govuk-heading-l">Send this record to the local authority?</p>
+<div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+        <span class="govuk-visually-hidden">Warning</span>
+        This will prompt them to check the evidence you send them separately.
+    </strong>
+</div>
 <div class="govuk-!-padding-bottom-3"></div>
 
 @Html.ActionLink("Yes, send now", "ApplicationDetailAppealSend", "application", new { id = @TempData["AppAppealID"] }, new { @class = "govuk-button govuk-button--primary" })

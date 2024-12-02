@@ -82,7 +82,7 @@ describe('Full journey of creating an application through school portal through 
             cy.get('.govuk-button').click();
 
             cy.url().should('contain', 'ApplicationDetailAppealConfirmation');
-            cy.get('p').should('include.text', 'Are you sure?');
+            cy.get('p').should('include.text', 'Send this record to the local authority?');
             cy.contains('.govuk-button', 'Yes, send now').click();
 
         });
