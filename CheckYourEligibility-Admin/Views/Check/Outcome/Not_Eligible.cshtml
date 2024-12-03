@@ -26,15 +26,12 @@
         @Html.ActionLink("Appeal now", "Enter_Child_Details", "Check", null, new { @class = "govuk-button" })
 
         <p class="govuk-body">
-            Alternatively, you can contact the
+            Alternatively, you can
             <a href="@Configuration["ContactUsUrl"]" class="govuk-link">
-                Department for Education support desk
+                contact the Department for Education support desk
             </a>
             or email them at
-            <a href="mailto:@Configuration["SupportEmail"]" class="govuk-link">
-                @Configuration["SupportEmail"]
-            </a>
-            to request a separate check.
+            <a href="mailto:ecs.admin@education.gov.uk">ecs.admin@education.gov.uk</a> to request a separate check.
         </p>
 
 
