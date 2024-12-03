@@ -51,7 +51,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">What to do next</h2>
-            @if (TempData["Status"].Equals("eligible"))
+            @if (TempData["OutcomeStatus"].Equals("eligible"))
             {
                 <p>As these children are entitled to free school meals, you’ll now need to add details of their application to your own system before finalising.</p>
             }
