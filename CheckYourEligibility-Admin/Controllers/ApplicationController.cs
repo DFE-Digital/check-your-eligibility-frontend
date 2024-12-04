@@ -154,7 +154,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
             HttpContext.Session.SetString("ApplicationReference", response.Data.Reference);
-            TempData["ApplicationStatus"] = response.Data.Status;
             return View(GetViewData(response));
         }
 
