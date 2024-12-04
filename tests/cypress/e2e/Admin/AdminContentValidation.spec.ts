@@ -140,3 +140,28 @@ describe('Date of Birth Validation Tests', () => {
     
 });
 
+describe("Conditional content on ApplicationDetailAppeal page", () => {
+    
+    beforeEach(() => {
+        cy.session("Session 1", () => {
+            cy.SignInSchool();
+            cy.wait(1000); 
+        });
+    });
+
+    it("will show conditional content when status is Evidence Needed", () => {
+        cy.visit("/Application/AppealsApplications?PageNumber=0");
+        cy.wait(1000);
+        var ApplicationStatus = "Evidence Needed";
+        cy.scanPagesForStatusAndClick(ApplicationStatus);
+        cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
+    });
+
+    it("will not show conditional content when status is Sent for Review", () => {
+        cy.visit("/Application/AppealsApplications?PageNumber=0");
+        cy.wait(1000);
+        var ApplicationStatus = "Sent for Review";
+        cy.scanPagesForStatusAndClick(ApplicationStatus);
+        cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
+    });
+});
