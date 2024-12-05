@@ -194,4 +194,26 @@ describe("Condtional contet on ApplicationDetail page", () => {
         cy.scanPagesForStatusAndClick(ApplicationStatus);
         cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
     }); 
-})
+});
+
+describe("Feedback link in header", () => {
+
+    it("Should route a School user to a qualtrics survey", () => {
+        cy.SignInSchool();
+        cy.get('span.govuk-phase-banner__text > a.govuk-link')
+          .invoke('removeAttr', 'target')
+          .click();
+        cy.url()
+          .should('include', 'https://dferesearch.fra1.qualtrics.com/jfe/form/SV_bjB0MQiSJtvhyZw');
+        cy.contains("Thank you for participating in this survey")
+    });
+    it("Should route an LA user to a qualtrics survey", () => {
+        cy.SignInLA();
+        cy.get('span.govuk-phase-banner__text > a.govuk-link')
+          .invoke('removeAttr', 'target')
+          .click();
+        cy.url()
+          .should('include', 'https://dferesearch.fra1.qualtrics.com/jfe/form/SV_bjB0MQiSJtvhyZw');
+        cy.contains("Thank you for participating in this survey")
+    });
+});
