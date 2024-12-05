@@ -24,6 +24,7 @@ declare namespace Cypress {
       SignInSchool(): Chainable<void>
       CheckValuesInSummaryCard(sectionTitle: string, key: string, expectedValue: string): Chainable<void>
       scanPagesForValue(value: string): Chainable<void>;
+      scanPagesForStatusAndClick(value: string): Chainable<void>;
       findApplicationFinalise(value: string): Chainable<void>;
       clickButtonByText(buttonText: string): Chainable<Element>;
       typeIntoInput(selector: string, text: string): Chainable<void>;

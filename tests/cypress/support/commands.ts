@@ -55,6 +55,24 @@ Cypress.Commands.add('scanPagesForValue', (value: string) => {
   });
 });
 
+Cypress.Commands.add('scanPagesForStatusAndClick', (value: string) => {
+
+  cy.get('body').then(($body) => {
+    if ($body.text().includes(value)){
+      cy.get('tr').contains('strong', value).parents('tr').within(() =>{
+        cy.get('a.govuk-link').click();
+      });
+    } else {
+      cy.get('nav.govuk-pagination').contains('a.govuk-pagination__link', 'Next').click().then(() => {
+        cy.wait(2000);
+        cy.scanPagesForStatusAndClick(value);
+    }
+  )};
+  });
+})
+
+
+
 
 // Cypress.Commands.add('findApplicationFinalise', (value: string) => {
 //   let referenceFound = false;
