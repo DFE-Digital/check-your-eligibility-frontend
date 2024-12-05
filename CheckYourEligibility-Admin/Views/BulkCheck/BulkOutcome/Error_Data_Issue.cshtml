@@ -4,8 +4,8 @@
 
 <div id="content" data-type="ErrorData">
     <a class="govuk-back-link-nolink"></a>
-    
-    <div class="govuk-error-summary" data-module="govuk-error-summary">
+
+    <div class="govuk-error-summary govuk-grid-column-full" data-module="govuk-error-summary">
         <div role="alert">
             <h2 class="govuk-error-summary__title">
                 Error – Parent data issue
@@ -18,13 +18,13 @@
                     @Html.Raw(@TempData["BulkParentCheckItemsErrors"])
 
                     @if (Convert.ToInt32(@TempData["BulkParentCheckItemsLineMoreErrors"]) > 0)
-                        {
+                    {
                         <li>
                             <strong>There are also issues on @TempData["BulkParentCheckItemsLineMoreErrors"] more lines</strong>
                         </li>
-                        }
-                        
-                    
+                    }
+
+
                 </ul>
             </div>
         </div>

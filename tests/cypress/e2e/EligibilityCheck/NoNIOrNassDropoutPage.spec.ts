@@ -5,7 +5,7 @@ describe('Parent or Guardian without an NI or NASS will be redirected to correct
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
-        cy.contains('Start Now').click()
+        cy.contains('Start now').click()
 
         cy.url().should('include', '/Check/Enter_Details');
 

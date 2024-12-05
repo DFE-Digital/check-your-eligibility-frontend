@@ -207,7 +207,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 case CheckEligibilityStatus.eligible:
                     return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
                 case CheckEligibilityStatus.notEligible:
-                    return (isLA ? View("Outcome/Not_Eligible_LA") : View("Outcome/Not_Eligible"));
+                    return (isLA ? View("Outcome/Not_Eligible_LA")  : View("Outcome/Not_Eligible"));
                 case CheckEligibilityStatus.parentNotFound:
                     return View("Outcome/Not_Found");
                 case CheckEligibilityStatus.DwpError:

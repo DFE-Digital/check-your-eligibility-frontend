@@ -411,3 +411,6 @@ FodyWeavers.xsd
 /CheckYourEligibility-Parent/appsettings.Development.json
 /CheckYourEligibility-Parent/appsettings.Development.json
 /CheckYourEligibility-Parent/appsettings.Development.json
+
+# Cypress
+/tests/cypress/downloads/

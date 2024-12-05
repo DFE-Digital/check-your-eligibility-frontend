@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Application Sent";
-
+    ViewData["Layout"] = "full";
     var responseJson = TempData["FsmApplicationResponses"] as string;
     var responses = JsonConvert.DeserializeObject<List<CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse>>(responseJson);
 }
@@ -16,10 +16,15 @@
     ViewData["Title"] = "Application Sent";
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
-<div class="govuk-panel govuk-panel--confirmation">
-    <h1 class="govuk-panel__title">Application complete</h1>
-    <div class="govuk-panel__body">
-        Submitted on<br><strong>@responses[0].Data.Created.ToString("dd MMM yyyy")</strong>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">Application complete</h1>
+            <div class="govuk-panel__body">
+                Submitted on<br><strong>@responses[0].Data.Created.ToString("dd MMM yyyy")</strong>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "Nass Number";
-
+    ViewData["Layout"] = "two_thirds";
     var request = TempData["ParentDetails"] as string;
     var parent = JsonConvert.DeserializeObject<Parent>(request);
 }
