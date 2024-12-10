@@ -1,0 +1,178 @@
+﻿@page
+@model CheckYourEligibility_FrontEnd.Models.School
+@{
+    ViewData["Title"] = "Private Beta School List";
+    ViewData["Layout"] = "two_thirds";
+}
+<body class="govuk-template__body">
+    <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+
+    <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
+    <header class="dfe-header" role="banner">
+        <div class="dfe-width-container dfe-header__container">
+            <div class="dfe-header__logo">
+                <a class="dfe-header__link" href="/index.html" aria-label="DfE homepage">
+
+                    <img src="/public/images/dfe-logo.png" class="dfe-logo" alt="Department for Education">
+                    <img src="/public/images/dfe-logo-alt.png" class="dfe-logo-hover" alt="Department for Education">
+
+                </a>
+            </div>
+            <div class="dfe-header__content" id="content-header">
+
+                <ul class="dfe-header__action-links">
+                </ul>
+
+
+
+                <div class="dfe-header__menu">
+                    <button class="dfe-header__menu-toggle" id="toggle-menu" aria-controls="header-navigation" aria-expanded="false">Menu</button>
+                </div>
+
+
+
+
+            </div>
+        </div>
+        <div class="dfe-width-container dfe-header__service-name">
+            <a href="" class="dfe-header__link--service">Check a family&#39;s eligibility</a>
+        </div>
+
+
+
+        <nav class="dfe-header__navigation" id="header-navigation" role="navigation" aria-label="Primary navigation" aria-labelledby="label-navigation">
+            <div class="dfe-width-container">
+                <p class="dfe-header__navigation-title">
+                    <span id="label-navigation">Menu</span>
+                    <button class="dfe-header__navigation-close" id="close-menu">
+                        <svg class="dfe-icon dfe-icon__close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="27" height="27">
+                            <path d="M13.41 12l5.3-5.29a1 1 0 1 0-1.42-1.42L12 10.59l-5.29-5.3a1 1 0 0 0-1.42 1.42l5.3 5.29-5.3 5.29a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l5.29-5.3 5.29 5.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z"></path>
+                        </svg>
+                        <span class="govuk-visually-hidden">Close menu</span>
+                    </button>
+                </p>
+                <ul class="dfe-header__navigation-list">
+                </ul>
+            </div>
+        </nav>
+        </div>
+        </div>
+        </div>
+    </header>
+
+    <div class="app-phase-banner__wrapper">
+
+        <div class="govuk-phase-banner app-phase-banner govuk-width-container">
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
+                    beta
+                </strong>
+                <span class="govuk-phase-banner__text">
+                    This is a new service - your <a class="govuk-link" href="#">feedback</a> will help us to improve it.
+                </span>
+            </p>
+        </div>
+
+    </div>
+
+
+
+
+    <div class="govuk-width-container">
+
+
+
+
+        <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
+
+
+
+
+        <main class="govuk-main-wrapper" id="main-content">
+
+
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title"
+                         data-module="govuk-notification-banner">
+                        <div class="govuk-notification-banner__header">
+                            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                                Important
+                            </h2>
+                        </div>
+                        <div class="govuk-notification-banner__content">
+                            <p class="govuk-notification-banner__heading">
+                                Not all schools are included in this test service.
+                            </p>
+                            <p class="govuk-body">This is a new service that is being tested with a small selection of schools.</p>
+
+                        </div>
+                    </div>
+
+                    <h1 class="govuk-heading-l">Schools included in this test service</h1>
+
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>Bradley Primary School</li>
+                        <li>Burley Oaks Primary School</li>
+                        <li>Cononley Primary School</li>
+                        <li>Ermysteds Grammar School</li>
+                        <li>Grassington Primary School</li>
+                        <li>Ilkley Grammar School</li>
+                        <li>Settle College</li>
+                        <li>South Craven School</li>
+                        <li>Upper Wharfedale School</li>
+                    </ul>
+
+
+                    <form action="/mvp2-betacheck" method="post" novalidate>
+                        <div class="govuk-form-group">
+                            <div class="govuk-form-group">
+                                <fieldset class="govuk-fieldset">
+                                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                        <h2 class="govuk-fieldset__heading">
+                                            Do any of your children go to these schools?
+                                        </h2>
+                                    </legend>
+                                    <div class="govuk-form-group">
+
+                                        <div class="govuk-radios" data-module="govuk-radios">
+                                            <div class="govuk-radios__item">
+                                                <input class="govuk-radios__input" id="betaschool" name="betaschool" type="radio" value="Yes">
+                                                <label class="govuk-label govuk-radios__label" for="betaschool">
+                                                    Yes
+                                                </label>
+                                            </div>
+                                            <div class="govuk-radios__item">
+                                                <input class="govuk-radios__input" id="betaschool-2" name="betaschool" type="radio" value="No">
+                                                <label class="govuk-label govuk-radios__label" for="betaschool-2">
+                                                    No
+                                                </label>
+
+                                            </div>
+
+
+
+
+                                        </div>
+
+                                    </div>
+
+
+
+                                </fieldset>
+                            </div>
+
+                        </div>
+                        <button type="submit" class="govuk-button" data-module="govuk-button">
+                            Continue
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+
+
+
+        </main>
+    </div>
+</body>
