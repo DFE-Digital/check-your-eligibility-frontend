@@ -147,7 +147,7 @@ describe('Date of Birth Validation Tests', () => {
 describe("Conditional content on ApplicationDetailAppeal page", () => {
     
     beforeEach(() => {
-        cy.session("Session 1", () => {
+        cy.session("Session 2", () => {
             cy.SignInSchool();
             cy.wait(1000); 
         });
@@ -173,7 +173,7 @@ describe("Conditional content on ApplicationDetailAppeal page", () => {
 describe("Condtional contet on ApplicationDetail page", () => {
 
     beforeEach(() => {
-        cy.session("Session 1", () => {
+        cy.session("Session 3", () => {
             cy.SignInSchool();
             cy.wait(1000); 
         });
