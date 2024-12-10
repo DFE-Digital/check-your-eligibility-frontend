@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Diagnostics;
 using CheckYourEligibility_FrontEnd.Services;
 using Microsoft.AspNetCore.Server.IIS;
+using CheckYourEligibility_FrontEnd.ViewModels;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -45,29 +46,39 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> SchoolList()
         {
-            var SchoolList = await _parentService.GetSchool("school");
-            if (SchoolList != null)
+            var schoolList = await _parentService.GetSchool("school");
+            var viewModel = new SchoolListViewModel
             {
-                SchoolList.Data.ToList();
+                Schools = schoolList?.Data.ToList() ?? new List<CheckYourEligibility.Domain.Responses.Establishment>(),
+                IsRadioSelected = true // Default value
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult SchoolList(bool? betaschool)
+        {
+            if (betaschool.HasValue)
+            {
+                if (betaschool.Value)
+                {
+                    return RedirectToAction("Check/Enter_Details");
+                }
+                else
+                {
+                    return Redirect("https://www.gov.uk/apply-free-school-meals"); // this could be in appsettings instead
+                }
             }
             else
             {
-                return Json(new List<CheckYourEligibility.Domain.Responses.Establishment>());
+                var viewModel = new SchoolListViewModel
+                {
+                    Schools = new List<CheckYourEligibility.Domain.Responses.Establishment>(), // You might want to fetch the list again
+                    IsRadioSelected = false
+                };
+                return View(viewModel);
             }
-            return View(SchoolList);
         }
-        [HttpPost]
-        public  IActionResult SchoolList(string betaschool)
-        {
-            if (betaschool == "Yes")
-            {
-                return RedirectToAction("Check/Enter_Details");
-            }
-            else if (betaschool == "No")
-            {
-                return RedirectToAction("https://www.gov.uk/apply-free-school-meals"); // this could be in appsettings instead
-            }
-            else { return View("SchoolList"); //need to also return an error displaying to the user that they must select an option, How to do this? add betaschool to model and create an attribute for it? do it in the controller here? 
-        }
+
     }
 }

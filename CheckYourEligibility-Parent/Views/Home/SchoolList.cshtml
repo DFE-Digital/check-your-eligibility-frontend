@@ -1,5 +1,4 @@
-﻿@page
-@model CheckYourEligibility_FrontEnd.Models.School
+﻿@model CheckYourEligibility_FrontEnd.ViewModels.SchoolListViewModel
 @{
     ViewData["Title"] = "Private Beta School List";
     ViewData["Layout"] = "two_thirds";
@@ -23,22 +22,15 @@
                 <ul class="dfe-header__action-links">
                 </ul>
 
-
-
                 <div class="dfe-header__menu">
                     <button class="dfe-header__menu-toggle" id="toggle-menu" aria-controls="header-navigation" aria-expanded="false">Menu</button>
                 </div>
-
-
-
 
             </div>
         </div>
         <div class="dfe-width-container dfe-header__service-name">
             <a href="" class="dfe-header__link--service">Check a family&#39;s eligibility</a>
         </div>
-
-
 
         <nav class="dfe-header__navigation" id="header-navigation" role="navigation" aria-label="Primary navigation" aria-labelledby="label-navigation">
             <div class="dfe-width-container">
@@ -75,21 +67,12 @@
 
     </div>
 
-
-
-
     <div class="govuk-width-container">
-
-
-
 
         <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
 
 
-
-
         <main class="govuk-main-wrapper" id="main-content">
-
 
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
@@ -112,19 +95,12 @@
                     <h1 class="govuk-heading-l">Schools included in this test service</h1>
 
                     <ul class="govuk-list govuk-list--bullet">
-                        <li>Bradley Primary School</li>
-                        <li>Burley Oaks Primary School</li>
-                        <li>Cononley Primary School</li>
-                        <li>Ermysteds Grammar School</li>
-                        <li>Grassington Primary School</li>
-                        <li>Ilkley Grammar School</li>
-                        <li>Settle College</li>
-                        <li>South Craven School</li>
-                        <li>Upper Wharfedale School</li>
+                        @for (int i = 0; i < Model.Schools.Count; i++)
+                        {
+                            <li>@Model.Schools[i].Name (@Model.Schools[i].La, @Model.Schools[i].Postcode)</li>
+                        }
                     </ul>
-
-
-                    <form action="/mvp2-betacheck" method="post" novalidate>
+                    <form action="/mvp2-betacheck" method="post">
                         <div class="govuk-form-group">
                             <div class="govuk-form-group">
                                 <fieldset class="govuk-fieldset">
@@ -134,7 +110,6 @@
                                         </h2>
                                     </legend>
                                     <div class="govuk-form-group">
-
                                         <div class="govuk-radios" data-module="govuk-radios">
                                             <div class="govuk-radios__item">
                                                 <input class="govuk-radios__input" id="betaschool" name="betaschool" type="radio" value="Yes">
@@ -144,24 +119,18 @@
                                             </div>
                                             <div class="govuk-radios__item">
                                                 <input class="govuk-radios__input" id="betaschool-2" name="betaschool" type="radio" value="No">
-                                                <label class="govuk-label govuk-radios__label" for="betaschool-2">
+                                                <label class="govuk-label govuk-radios__label" for="betaschool">
                                                     No
                                                 </label>
-
                                             </div>
-
-
-
-
                                         </div>
-
+                                        @if (!Model.IsRadioSelected)
+                                        {
+                                            <span class="govuk-error-message">You must select an option.</span>
+                                        }
                                     </div>
-
-
-
                                 </fieldset>
                             </div>
-
                         </div>
                         <button type="submit" class="govuk-button" data-module="govuk-button">
                             Continue
