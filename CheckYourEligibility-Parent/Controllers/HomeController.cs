@@ -47,13 +47,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> SchoolList()
         {
             var schoolList = await _parentService.GetSchool("school");
+
+            // Check if schoolList or schoolList.Data is null
+            var schools = schoolList?.Data?.ToList() ?? new List<CheckYourEligibility.Domain.Responses.Establishment>();
+
             var viewModel = new SchoolListViewModel
             {
-                Schools = schoolList?.Data.ToList() ?? new List<CheckYourEligibility.Domain.Responses.Establishment>(),
+                Schools = schools,
                 IsRadioSelected = true // Default value
             };
+
             return View(viewModel);
         }
+
 
         [HttpPost]
         public IActionResult SchoolList(bool? betaschool)
