@@ -12,7 +12,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
     public class HomeController : Controller
     {
 
+        private readonly ILogger<CheckController> _logger;
         private readonly IEcsServiceParent _parentService;
+        private readonly IEcsCheckService _checkService;
+        private readonly IConfiguration _config;
+        private IEcsServiceParent _object;
+
+        public HomeController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration)
+        {
+            _config = configuration;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
+            _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
+
+            _logger.LogInformation("controller log info");
+        }
         public IActionResult Index()
         {
             return View();
@@ -54,21 +68,20 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var viewModel = new SchoolListViewModel
             {
                 Schools = schools,
-                IsRadioSelected = true // Default value
+                IsRadioSelected = null // Default value to ensure radio buttons are blank
             };
 
             return View(viewModel);
         }
 
-
         [HttpPost]
-        public IActionResult SchoolList(bool? betaschool)
+        public async Task<IActionResult> SchoolList(SchoolListViewModel viewModel)
         {
-            if (betaschool.HasValue)
+            if (viewModel.IsRadioSelected.HasValue)
             {
-                if (betaschool.Value)
+                if (viewModel.IsRadioSelected == true)
                 {
-                    return RedirectToAction("Check/Enter_Details");
+                    return RedirectToAction("Enter_Details", "Check");
                 }
                 else
                 {
@@ -77,14 +90,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                var viewModel = new SchoolListViewModel
-                {
-                    Schools = new List<CheckYourEligibility.Domain.Responses.Establishment>(), // You might want to fetch the list again
-                    IsRadioSelected = false
-                };
+                var schoolList = await _parentService.GetSchool("school");
+                var schools = schoolList?.Data?.ToList() ?? new List<CheckYourEligibility.Domain.Responses.Establishment>();
+
+                viewModel.Schools = schools;
                 return View(viewModel);
             }
         }
+
 
     }
 }
