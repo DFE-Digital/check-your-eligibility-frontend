@@ -16,6 +16,26 @@
 </head>
 
 <body class="govuk-template__body" data-clarity="@Configuration["Clarity:Parent"]">
+    <div id="cookie-banner" class="govuk-cookie-banner" role="region" aria-label="Cookies on Check a family's eligibility" data-nosnippet style="display:none;">
+        <div class="govuk-cookie-banner__message govuk-width-container">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <h2 class="govuk-cookie-banner__heading govuk-heading-m">Cookies on check a family's eligibility</h2>
+                    <div class="govuk-cookie-banner__content">
+                        <p class="govuk-body">We use some essential cookies to make this website work.</p>
+                        <p class="govuk-body">We'd like to use analytics cookies so we can understand how you use the service and make improvements.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="govuk-button" type="button" id="accept-cookies" data-module="govuk-button">
+                Accept analytics cookies
+            </button>
+            <button class="govuk-button govuk-button--secondary" type="button" id="reject-cookies" data-module="govuk-button">
+                Reject analytics cookies
+            </button>
+        </div>
+    </div>
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
     <header class="dfe-header" role="banner">
@@ -144,7 +164,8 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script type="module" src="~/js/govuk-frontend.min.js"></script>
     <script src="~/js/dfefrontend.js"></script>
-    <script type="module" src="~/js/javascript-starter.js"></script>
+    <script src="~/js/cookie-utils.js"></script>
+    <script src="~/js/javascript-starter.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
