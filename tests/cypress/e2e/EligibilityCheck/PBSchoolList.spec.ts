@@ -26,3 +26,12 @@ describe('Radio buttons on the SchoolList page should route to correct location'
         cy.get('.govuk-error-message').should('contain', 'Select yes if any of your children go to these schools');
     });
 });
+describe('School List should be populated', () => {
+    beforeEach(() => {
+        cy.visit('/');
+        cy.contains('Start now').click();
+    });
+    it('Shhould display a list of schools', () =>{
+        cy.get('ul.govuk-list.govuk-list--bullet > li').should('have.length.greaterThan', 0);
+    });
+});
