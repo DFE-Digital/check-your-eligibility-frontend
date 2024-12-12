@@ -8,6 +8,9 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
         cy.contains('Start now').click()
+        cy.get('input.govuk-radios__input[value="true"]').check();
+        cy.get('button.govuk-button').click();
+
         cy.url().should('include', '/Check/Enter_Details');
 
         cy.get('h1').should('include.text', 'Enter your details');
