@@ -356,15 +356,45 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ApplicationApproved(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
+            return View(GetViewData(response));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationDeclined(string id)
+        {
+            var response = await _adminService.GetApplication(id);
+            if (response == null)
+            {
+                return NotFound();
+            }
+            if (!CheckAccess(response))
+            {
+                return new UnauthorizedResult();
+            }
+            return View(GetViewData(response));
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ApplicationApproveSend(string id)
         {
             var checkAccess = await ConfirmCheckAccess(id);
             if (checkAccess != null)
             { return checkAccess; }
-
+            
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled);
 
-            return RedirectToAction("PendingApplications");
+            return RedirectToAction("ApplicationApproved", new { id = id });
         }
 
         [HttpGet]
@@ -376,7 +406,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedNotEntitled);
 
-            return RedirectToAction("PendingApplications");
+            return RedirectToAction("ApplicationDeclined", new { id = id });
         }
 
 
