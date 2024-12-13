@@ -130,74 +130,150 @@ describe('Date of Birth Validation Tests', () => {
         cy.get('#Month').clear().type('06');
         cy.get('#Year').clear().type('2005');
         cy.contains('Perform check').click();
-    
+
         // Assert no DOB-specific error messages are shown
         cy.get('#Day + .govuk-error-message').should('not.exist'); // Scoped to Day error message
         cy.get('#Month + .govuk-error-message').should('not.exist'); // Scoped to Month error message
         cy.get('#Year + .govuk-error-message').should('not.exist'); // Scoped to Year error message
-    
+
         // Assert no error classes are applied to DOB fields
         cy.get('#Day').should('not.have.class', 'govuk-input--error');
         cy.get('#Month').should('not.have.class', 'govuk-input--error');
         cy.get('#Year').should('not.have.class', 'govuk-input--error');
     });
-    
+
 });
 
 describe("Conditional content on ApplicationDetailAppeal page", () => {
-    
+
+    const parentFirstName = 'Tim';
+    const parentLastName = Cypress.env('lastName');
+    const parentEmailAddress = 'TimJones@Example.com';
+    const NIN = 'PN668767B'
+    const childFirstName = 'Timmy';
+    const childLastName = 'Smith';
+
     beforeEach(() => {
-        cy.session("Session 2", () => {
-            cy.SignInSchool();
-            cy.wait(1000); 
+        cy.SignInSchool();
+        cy.wait(1000);
+        cy.get('h1').should('include.text', 'The Telford Park School');
+
+    });
+    it("will show conditional content when status is Evidence Needed and not when status is Sent for Review", () => {
+        cy.contains('Run a check for one parent or guardian').click();
+        //Soft-Check
+        cy.url().should('include', '/Check/Enter_Details');
+        cy.get('#FirstName').type(parentFirstName);
+        cy.get('#LastName').type(parentLastName);
+        cy.get('#EmailAddress').type(parentEmailAddress);
+        cy.get('#Day').type('01');
+        cy.get('#Month').type('01');
+        cy.get('#Year').type('1990');
+        cy.get('#NinAsrSelection').click();
+        cy.get('#NationalInsuranceNumber').type(NIN);
+        cy.contains('button', 'Perform check').click();
+        //Not Eligible, Appeal
+        cy.url().should('include', 'Check/Loader');
+        cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+        cy.contains('.govuk-button', 'Appeal now').click();
+        //Enter Child Details
+        cy.url().should('include', '/Check/Enter_Child_Details');
+        cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
+        cy.get('[id="ChildList[0].LastName"]').type(childLastName);
+        cy.get('[id="ChildList[0].Day"]').type('01');
+        cy.get('[id="ChildList[0].Month"]').type('01');
+        cy.get('[id="ChildList[0].Year"]').type('2007');
+        cy.contains('button', 'Save and continue').click();
+        //Check and confirm
+        cy.get('h1').should('include.text', 'Check your answers before submitting');
+        cy.contains('button', 'Add details').click();
+        //Find reference on page and save as variable
+        cy.get('.govuk-table__cell').eq(1).invoke('text').then((referenceNumber) => {
+            const refNumber = referenceNumber.trim();
+
+            cy.visit("/");
+            cy.get('#appeals').click();
+            cy.wait(100);
+            cy.scanPagesForValue(refNumber);
+            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
+            cy.get('a.govuk-button').click();
+            cy.get('a.govuk-button--primary').click();
+            cy.visit("/Application/AppealsApplications?PageNumber=0");
+            cy.wait(1000);
+            cy.scanPagesForValue(refNumber);
+            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
         });
-    });
-
-    it("will show conditional content when status is Evidence Needed", () => {
-        cy.visit("/Application/AppealsApplications?PageNumber=0");
-        cy.wait(1000);
-        var ApplicationStatus = "Evidence Needed";
-        cy.scanPagesForStatusAndClick(ApplicationStatus);
-        cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
-    });
-
-    it("will not show conditional content when status is Sent for Review", () => {
-        cy.visit("/Application/AppealsApplications?PageNumber=0");
-        cy.wait(1000);
-        var ApplicationStatus = "Sent for Review";
-        cy.scanPagesForStatusAndClick(ApplicationStatus);
-        cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
     });
 });
 
-describe("Condtional contet on ApplicationDetail page", () => {
+
+describe("Condtional content on ApplicationDetail page", () => {
+
+    const parentFirstName = 'Tim';
+    const parentLastName = Cypress.env('lastName');
+    const parentEmailAddress = 'TimJones@Example.com';
+    const NIN = 'PN668767B'
+    const childFirstName = 'Timmy';
+    const childLastName = 'Smith';
 
     beforeEach(() => {
-        cy.session("Session 3", () => {
-            cy.SignInSchool();
-            cy.wait(1000); 
-        });
-    });
-        
-    it("will show conditional content when status is Evidence Needed", () => {
-        cy.visit("/Application/Search");
+
+        cy.SignInSchool();
         cy.wait(1000);
-        cy.get('button.govuk-button').click();
-        cy.wait(100);
-        var ApplicationStatus = "Evidence Needed";
-        cy.scanPagesForStatusAndClick(ApplicationStatus);
-        cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
+        cy.get('h1').should('include.text', 'The Telford Park School');
+
     });
 
-    it("will not show conditional content when status is Sent for Review", () => {
-        cy.visit("/Application/Search");
-        cy.wait(1000);
-        cy.get('button.govuk-button').click();
-        cy.wait(100);
-        var ApplicationStatus = "Sent for Review";
-        cy.scanPagesForStatusAndClick(ApplicationStatus);
-        cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
-    }); 
+    it("will show conditional content when status is Evidence Needed and wont when status is Sent  for Review", () => {
+
+        cy.visit("/");
+        cy.contains('Run a check for one parent or guardian').click();
+        //Soft-Check
+        cy.url().should('include', '/Check/Enter_Details');
+        cy.get('#FirstName').type(parentFirstName);
+        cy.get('#LastName').type(parentLastName);
+        cy.get('#EmailAddress').type(parentEmailAddress);
+        cy.get('#Day').type('01');
+        cy.get('#Month').type('01');
+        cy.get('#Year').type('1990');
+        cy.get('#NinAsrSelection').click();
+        cy.get('#NationalInsuranceNumber').type(NIN);
+        cy.contains('button', 'Perform check').click();
+        //Not Eligible, Appeal
+        cy.url().should('include', 'Check/Loader');
+        cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+        cy.contains('.govuk-button', 'Appeal now').click();
+        //Enter Child Details
+        cy.url().should('include', '/Check/Enter_Child_Details');
+        cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
+        cy.get('[id="ChildList[0].LastName"]').type(childLastName);
+        cy.get('[id="ChildList[0].Day"]').type('01');
+        cy.get('[id="ChildList[0].Month"]').type('01');
+        cy.get('[id="ChildList[0].Year"]').type('2007');
+        cy.contains('button', 'Save and continue').click();
+        //Check and confirm
+        cy.get('h1').should('include.text', 'Check your answers before submitting');
+        cy.contains('button', 'Add details').click();
+        //Find reference on page and save as variable
+        cy.get('.govuk-table__cell').eq(1).invoke('text').then((referenceNumber) => {
+            const refNumber = referenceNumber.trim();
+
+            cy.visit("/Application/Search");
+            cy.wait(1000);
+            cy.get('button.govuk-button').click();
+            cy.wait(100);
+            cy.scanPagesForValue(refNumber);
+            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
+            cy.get('a.govuk-button').click();
+            cy.get('a.govuk-button--primary').click();
+            cy.visit("/Application/Search");
+            cy.wait(1000);
+            cy.get('button.govuk-button').click();
+            cy.wait(100);
+            cy.scanPagesForValue(refNumber);
+            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
+        });
+    });
 });
 
 describe("Feedback link in header", () => {
@@ -205,19 +281,19 @@ describe("Feedback link in header", () => {
     it("Should route a School user to a qualtrics survey", () => {
         cy.SignInSchool();
         cy.get('span.govuk-phase-banner__text > a.govuk-link')
-          .invoke('removeAttr', 'target')
-          .click();
+            .invoke('removeAttr', 'target')
+            .click();
         cy.url()
-          .should('include', 'https://dferesearch.fra1.qualtrics.com/jfe/form/SV_bjB0MQiSJtvhyZw');
+            .should('include', 'https://dferesearch.fra1.qualtrics.com/jfe/form/SV_bjB0MQiSJtvhyZw');
         cy.contains("Thank you for participating in this survey")
     });
     it("Should route an LA user to a qualtrics survey", () => {
         cy.SignInLA();
         cy.get('span.govuk-phase-banner__text > a.govuk-link')
-          .invoke('removeAttr', 'target')
-          .click();
+            .invoke('removeAttr', 'target')
+            .click();
         cy.url()
-          .should('include', 'https://dferesearch.fra1.qualtrics.com/jfe/form/SV_bjB0MQiSJtvhyZw');
+            .should('include', 'https://dferesearch.fra1.qualtrics.com/jfe/form/SV_bjB0MQiSJtvhyZw');
         cy.contains("Thank you for participating in this survey")
     });
 });
