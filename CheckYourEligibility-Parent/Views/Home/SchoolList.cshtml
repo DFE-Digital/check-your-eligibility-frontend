@@ -1,0 +1,70 @@
+﻿@model CheckYourEligibility_FrontEnd.ViewModels.SchoolListViewModel
+@{
+    ViewData["Title"] = "Private Beta School List";
+    ViewData["Layout"] = "two_thirds";
+}
+<a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Error: School List";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+<div class="govuk-grid-row">
+    <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title"
+         data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                Important
+            </h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+            <p class="govuk-notification-banner__heading">
+                Not all schools are included in this test service.
+            </p>
+            <p class="govuk-body">This is a new service that is being tested with a small selection of schools.</p>
+
+        </div>
+    </div>
+
+    <h1 class="govuk-heading-l">Schools included in this test service</h1>
+
+    <ul class="govuk-list govuk-list--bullet">
+        @for (int i = 0; i < Model.Schools.Count; i++)
+        {
+            <li>@Model.Schools[i].Name (@Model.Schools[i].La, @Model.Schools[i].Postcode)</li>
+        }
+    </ul>
+    <form asp-controller="Home" asp-action="SchoolList" method="post">
+        <div class="govuk-form-group">
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">
+                            Do any of your children go to these schools?
+                        </h2>
+                    </legend>
+                    <div class="govuk-form-group">
+                        <span asp-validation-for="IsRadioSelected" class="govuk-error-message"></span>
+                        <div class="govuk-radios" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" asp-for="IsRadioSelected" type="radio" value="true">
+                                <label class="govuk-label govuk-radios__label" for="betaschool">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" asp-for="IsRadioSelected" type="radio" value="false">
+                                <label class="govuk-label govuk-radios__label" for="betaschool">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <button type="submit" class="govuk-button" data-module="govuk-button">
+            Continue
+        </button>
+    </form>
+</div>
