@@ -700,7 +700,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //assert 
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
-            redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+            redirect.ActionName.Should().BeEquivalentTo("ApplicationApproved");
         }
 
         [Test]
@@ -738,7 +738,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             //assert 
             result.Should().BeOfType<RedirectToActionResult>();
             var redirect = result as RedirectToActionResult;
-            redirect.ActionName.Should().BeEquivalentTo("PendingApplications");
+            redirect.ActionName.Should().BeEquivalentTo("ApplicationDeclined");
         }
         [Test]
         public async Task Given_ApplicationDeclineSend_NoPermission_Returns_ForbiddenResult()
