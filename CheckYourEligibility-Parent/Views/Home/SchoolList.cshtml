@@ -4,10 +4,9 @@
     ViewData["Layout"] = "two_thirds";
 }
 <a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
-<script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
 @if (!ViewData.ModelState.IsValid)
 {
-    ViewData["Title"] = "Error: Check Details";
+    ViewData["Title"] = "Error: School List";
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 <div class="govuk-grid-row">

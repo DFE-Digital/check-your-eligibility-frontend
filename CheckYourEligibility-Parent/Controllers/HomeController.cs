@@ -67,8 +67,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             var viewModel = new SchoolListViewModel
             {
-                Schools = schools,
-                IsRadioSelected = null // Default value to ensure radio buttons are blank
+                Schools = schools
             };
 
             return View(viewModel);
