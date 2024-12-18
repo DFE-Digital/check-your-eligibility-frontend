@@ -148,10 +148,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (!string.IsNullOrEmpty(request.NationalInsuranceNumber))
             {
                 HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
+                HttpContext.Session.Remove("ParentNASS");
             }
             if (!string.IsNullOrEmpty(request.NationalAsylumSeekerServiceNumber))
             {
                 HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
+                HttpContext.Session.Remove("ParentNINO");
             }
 
             // queue api soft-check
