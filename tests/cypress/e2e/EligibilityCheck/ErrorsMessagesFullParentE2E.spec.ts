@@ -110,3 +110,44 @@ describe('After errors have been input initially a Parent with valid details can
 
     });
 });
+describe('Parent with valid details can complete full Eligibility check and application', () => {
+
+    
+
+    it('Parent can enter an NI, get an error, then', () => {
+        cy.visit('/');
+        cy.get('h1').should('include.text', 'Check if your children can get free school meals');
+
+        cy.contains('Start now').click()
+        cy.get('input.govuk-radios__input[value="true"]').check();
+        cy.get('button.govuk-button').click();
+
+        cy.url().should('include', '/Check/Enter_Details');
+
+        cy.get('h1').should('include.text', 'Enter your details');
+
+        cy.get('#FirstName').should('be.visible').type('Tim');
+        cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
+        cy.get('#DateOfBirth\\.Year').should('be.visible').type('1990');
+
+        cy.get('#IsNinoSelected').click();
+
+        cy.get('#NationalInsuranceNumber').should('be.visible').type('NN123456C');
+
+        cy.contains('Save and continue').click();
+
+        cy.get('.govuk-error-message').should('contain', 'Enter a last name');
+
+        cy.get('#LastName').should('be.visible').type("Simpson");
+        cy.get('input[type="radio"][value="false"]').click();
+        cy.contains('Save and continue').click();
+
+        cy.get('h1').should('include.text', 'Do you have an asylum support reference number?');
+        cy.get('#IsNinoSelected').filter('[value="true"]').click();
+        cy.get('#NationalAsylumSeekerServiceNumber').should('be.visible').type('240712349');
+        cy.contains('Save and continue').click();
+        cy.get('h1',{timeout: 60000}).should('include.text', 'Apply for free school meals for your children');
+
+    });
+});
