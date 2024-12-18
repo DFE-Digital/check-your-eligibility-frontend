@@ -45,6 +45,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 var errors =
                     JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
+                if (errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
+                {
+                    errors.Remove("NationalAsylumSeekerServiceNumber");
+                }
                 foreach (var kvp in errors)
                 {
                     foreach (var error in kvp.Value)
@@ -114,6 +118,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View("Outcome/Could_Not_Check");
             }
 
+            // if user selected to input nass, save incomplete-model to tempdata and redirect to nass page
+            if (request.IsNinoSelected == false && !request.NASSRedirect)
+            {
+                request.NASSRedirect = true;
+                request.NationalInsuranceNumber = null;
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                return RedirectToAction("Nass");
+            }
+
             // build object for api soft-check
             var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
             {
@@ -130,14 +143,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             HttpContext.Session.SetString("ParentFirstName", request.FirstName);
             HttpContext.Session.SetString("ParentLastName", request.LastName);
             HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
-
-            // if user selected to input nass, save incomplete-model to tempdata and redirect to nass page
-            if (request.IsNinoSelected == false && !request.NASSRedirect)
-            {
-                request.NASSRedirect = true;
-                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                return RedirectToAction("Nass");
-            }
 
             // otherwise set nino and NASS detail in session
             if (!string.IsNullOrEmpty(request.NationalInsuranceNumber))
