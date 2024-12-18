@@ -14,6 +14,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Reflection;
 using CheckYourEligibility_DfeSignIn.Models;
+using System.Text;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -25,10 +26,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public ApplicationController(ILogger<ApplicationController> logger, IEcsServiceAdmin ecsServiceAdmin)
         {
-            
+
             _logger = logger;
             _adminService = ecsServiceAdmin ?? throw new ArgumentNullException(nameof(ecsServiceAdmin));
-            
+
 
         }
 
@@ -92,15 +93,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     ChildDateOfBirth = !string.IsNullOrWhiteSpace(request.ChildDobYear) ? new DateOnly(int.Parse(request.ChildDobYear), int.Parse(request.ChildDobMonth), int.Parse(request.ChildDobDay)).ToString("yyyy-MM-dd") : null,
                     ParentDateOfBirth = !string.IsNullOrWhiteSpace(request.PGDobYear) ? new DateOnly(int.Parse(request.PGDobYear), int.Parse(request.PGDobMonth), int.Parse(request.PGDobDay)).ToString("yyyy-MM-dd") : null,
                 }
-            }; 
+            };
 
             if (request.Status != null)
             {
                 applicationSearch.Data.Statuses = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>() { request.Status.Value };
             }
 
-            
-            return await GetResults(applicationSearch, "ApplicationDetail",false, false, false);
+
+            return await GetResults(applicationSearch, "ApplicationDetail", false, false, false);
         }
 
         [HttpGet]
@@ -119,6 +120,79 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(GetViewData(response));
         }
 
+
+
+        [HttpGet]
+        public async Task<IActionResult> ExportSearchResults()
+        {
+            try
+            {
+                _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+
+                // Get the current search criteria the same way the search does
+                var currentSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+
+                // Ensure we get all results for the current search
+                currentSearch.PageSize = int.MaxValue;
+                currentSearch.PageNumber = 1;
+
+                // Keep TempData available for the redirect if needed
+                TempData.Keep("SearchCriteria");
+
+                var response = await _adminService.PostApplicationSearch(currentSearch);
+
+                if (response?.Data == null || !response.Data.Any())
+                {
+                    return RedirectToAction("SearchResults", new { PageNumber = 1 });
+                }
+
+                var csvContent = new StringBuilder();
+                csvContent.AppendLine("Reference," +
+                                    "Status," +
+                                    "Parent First Name," +
+                                    "Parent Last Name," +
+                                    "Parent Email," +
+                                    "Parent DOB," +
+                                    "Parent NI Number," +
+                                    "Child First Name," +
+                                    "Child Last Name," +
+                                    "Child DOB," +
+                                    "Establishment," +
+                                    "Local Authority," +
+                                    "Submission Date");
+
+                foreach (var app in response.Data)
+                {
+                    csvContent.AppendLine(string.Format("{0},{1},\"{2}\",\"{3}\",\"{4}\",{5},{6},\"{7}\",\"{8}\",{9},\"{10}\",\"{11}\",{12}",
+                        app.Reference,
+                        app.Status,
+                        app.ParentFirstName?.Replace("\"", "\"\""),
+                        app.ParentLastName?.Replace("\"", "\"\""),
+                        app.ParentEmail?.Replace("\"", "\"\""),
+                        app.ParentDateOfBirth,
+                        app.ParentNationalInsuranceNumber?.Replace("\"", "\"\"") ?? "",
+                        app.ChildFirstName?.Replace("\"", "\"\""),
+                        app.ChildLastName?.Replace("\"", "\"\""),
+                        app.ChildDateOfBirth,
+                        app.Establishment?.Name?.Replace("\"", "\"\"") ?? "",
+                        app.Establishment?.LocalAuthority?.Name?.Replace("\"", "\"\"") ?? "",
+                        app.Created.ToString("dd/MM/yyyy")));
+                }
+
+                return File(
+                    Encoding.UTF8.GetBytes(csvContent.ToString()),
+                    "text/csv",
+                    $"eligibility-applications-{DateTime.Now:yyyyMMddHHmmss}.csv"
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exporting search results to CSV");
+                return RedirectToAction("SearchResults", new { PageNumber = 1 });
+            }
+        }
+
+
         #endregion
 
         #region School Appeals
@@ -131,7 +205,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.EvidenceNeeded,
                 CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview},
                 PageNumber, 10);
-            return await GetResults( applicationSearch, "ApplicationDetailAppeal", false, false, false);
+            return await GetResults(applicationSearch, "ApplicationDetailAppeal", false, false, false);
         }
 
         [HttpGet]
@@ -170,10 +244,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             var checkAccess = await ConfirmCheckAccess(id);
             if (checkAccess != null)
-                { return checkAccess; }
+            { return checkAccess; }
 
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.SentForReview);
-            
+
             return RedirectToAction("ApplicationDetailAppealConfirmationSent", new { id = id });
         }
 
@@ -267,8 +341,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
-            
-           TempData["FinaliseApplicationIds"] = model.getSelectedIds(); 
+
+            TempData["FinaliseApplicationIds"] = model.getSelectedIds();
 
             return View("ApplicationFinaliseConfirmation");
         }
@@ -276,7 +350,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> ApplicationFinaliseSend()
         {
-            if (TempData["FinaliseApplicationIds"]!= null)
+            if (TempData["FinaliseApplicationIds"] != null)
             {
                 foreach (var id in TempData["FinaliseApplicationIds"] as IEnumerable<string>)
                 {
@@ -298,8 +372,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             var fileName = $"finalise-applications-{DateTime.Now.ToString("yyyyMMdd")}.csv";
 
-            var result = WriteCsvToMemory(resultData.Data.Select(x=> new ApplicationExport {
-                Reference= x.Reference,
+            var result = WriteCsvToMemory(resultData.Data.Select(x => new ApplicationExport
+            {
+                Reference = x.Reference,
                 Parent = $"{x.ParentFirstName} {x.ParentLastName}",
                 Child = $"{x.ChildFirstName} {x.ChildLastName}",
                 ChildDOB = Convert.ToDateTime(x.ChildDateOfBirth).ToString("dd MMM yyyy"),
@@ -391,7 +466,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var checkAccess = await ConfirmCheckAccess(id);
             if (checkAccess != null)
             { return checkAccess; }
-            
+
             await _adminService.PatchApplicationStatus(id, CheckYourEligibility.Domain.Enums.ApplicationStatus.ReviewedEntitled);
 
             return RedirectToAction("ApplicationApproved", new { id = id });
@@ -429,7 +504,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.TotalRecords = response.TotalRecords;
             var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = detailView, ShowSelectorCheck = showSelector, Person = x, ShowSchool = showSchool, ShowParentDob = showParentDob });
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
-            
+
             return View(viewData);
         }
 
@@ -448,7 +523,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             };
             viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
             viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
-           
+
             return viewData;
         }
 
@@ -486,5 +561,5 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             return true;
         }
-    } 
+    }
 }
