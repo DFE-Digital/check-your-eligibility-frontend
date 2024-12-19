@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Appeal Sent";
     ViewData["Layout"] = "full";
-    var responseJson = TempData["FsmApplicationResponses"] as string;
+    var currentDate = DateTime.Now.ToString("d MMMM yyyy");
 }
 
 @* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a> *@
@@ -23,7 +23,7 @@
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">Children details added</h1>
                 <div class="govuk-panel__body">
-                    Added on<br /><strong>6 July 2024, 13:12</strong>
+                    Added on<br /><strong>@currentDate</strong>
                 </div>
             </div>
         </div>
