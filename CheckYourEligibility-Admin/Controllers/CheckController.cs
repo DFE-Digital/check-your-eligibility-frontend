@@ -354,9 +354,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             
             TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
-            if(responseApplication.Data.Status == "eligible")
+            if(responseApplication.Data.Status == "Entitled")
             {
-                return RedirectToAction("ApplicationRegistered");
+                return RedirectToAction("ApplicationsRegistered");
             }
             else
             {

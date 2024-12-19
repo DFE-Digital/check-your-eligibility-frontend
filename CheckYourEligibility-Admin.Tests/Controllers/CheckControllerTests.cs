@@ -361,7 +361,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var serviceMockItemResponse = _fixture.Create<ApplicationSaveItemResponse>();
             serviceMockItemResponse.Data = new ApplicationResponse()
             {
-                Status = "eligible"
+                Status = "Entitled"
             };
             var serviceMockResponse = Task.FromResult(serviceMockItemResponse);
             var userCreateResponse = _fixture.Create<UserSaveItemResponse>();
@@ -400,7 +400,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             // Assert
             var redirectToActionResult = result.Result as RedirectToActionResult;
-            redirectToActionResult.ActionName.Should().Be("ApplicationRegistered");
+            redirectToActionResult.ActionName.Should().Be("ApplicationsRegistered");
             tempData.Children[0].ChildName.Should().Be($"{serviceMockResponse.Result.Data.ChildFirstName} {serviceMockResponse.Result.Data.ChildLastName}");
         }
 
