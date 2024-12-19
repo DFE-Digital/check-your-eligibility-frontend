@@ -303,7 +303,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public void Given_Check_Answers_With_Valid_FsmApplication_RedirectsTo_ApplicationRegistered_Page()
+        public void Given_Check_Answers_With_Valid_FsmApplication_Not_Eligible_RedirectsTo_AppealsRegistered_Page()
         {
             // Arrange
             var serviceMockRequest = _fixture.Create<ApplicationRequest>();
@@ -348,9 +348,60 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             // Assert
             var redirectToActionResult = result.Result as RedirectToActionResult;
-            redirectToActionResult.ActionName.Should().Be("ApplicationsRegistered");
+            redirectToActionResult.ActionName.Should().Be("AppealsRegistered");
             tempData.Children[0].ChildName.Should().Be($"{serviceMockResponse.Result.Data.ChildFirstName} {serviceMockResponse.Result.Data.ChildLastName}");
 
+        }
+
+        [Test]
+        public void Given_Check_Answers_With_Valid_FsmApplication_Not_Eligible_RedirectsTo_ApplicationsRegistered_Page()
+        {
+            // Arrange
+            var serviceMockRequest = _fixture.Create<ApplicationRequest>();
+            var serviceMockItemResponse = _fixture.Create<ApplicationSaveItemResponse>();
+            serviceMockItemResponse.Data = new ApplicationResponse()
+            {
+                Status = "eligible"
+            };
+            var serviceMockResponse = Task.FromResult(serviceMockItemResponse);
+            var userCreateResponse = _fixture.Create<UserSaveItemResponse>();
+            var request = _fixture.Create<FsmApplication>();
+            request.Children = new Children()
+            {
+                ChildList = new List<Child>()
+                {
+                    new Child()
+                    {
+                        FirstName = "Tomothy",
+                        LastName = "Smithothy",
+                        Day = "01",
+                        Month = "01",
+                        Year = "2018",
+                        School = _fixture.Create<School>()
+                    },
+                    new Child()
+                    {
+                        FirstName = "Tony",
+                        LastName = "Smith",
+                        Day = "01",
+                        Month = "02",
+                        Year = "2019",
+                        School = _fixture.Create<School>()
+                    }
+                }
+            };
+            _parentServiceMock.Setup(x => x.CreateUser(It.IsAny<UserCreateRequest>()))
+                .ReturnsAsync(userCreateResponse);
+            _parentServiceMock.Setup(x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
+                .Returns(serviceMockResponse);
+            // Act
+            var result = _sut.Check_Answers(request);
+            var tempData = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(_sut.TempData["confirmationApplication"] as string);
+
+            // Assert
+            var redirectToActionResult = result.Result as RedirectToActionResult;
+            redirectToActionResult.ActionName.Should().Be("ApplicationRegistered");
+            tempData.Children[0].ChildName.Should().Be($"{serviceMockResponse.Result.Data.ChildFirstName} {serviceMockResponse.Result.Data.ChildLastName}");
         }
 
         [Test]
@@ -450,7 +501,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             if (result is ViewResult viewResult)
             {
                 viewResult.ViewName.Should().Be(expectedView);
-            } 
+            }
             else if (result is RedirectToActionResult redirectResult)
             {
                 redirectResult.ActionName.Should().Be("Application_Sent"); // Adjust this if you expect a different action
