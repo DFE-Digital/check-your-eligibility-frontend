@@ -323,6 +323,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var user = await _parentService.CreateUser(new UserCreateRequest { Data = new UserData { Email = _Claims.User.Email, Reference = _Claims.User.Id } });
             var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
             var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
+            ApplicationSaveItemResponse responseApplication = null;
 
             foreach (var child in request.Children.ChildList)
             {
@@ -347,12 +348,20 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 };
 
                 // Send each application individually
-                var responseApplication = await _parentService.PostApplication_Fsm(fsmApplication);
+                responseApplication = await _parentService.PostApplication_Fsm(fsmApplication);
                 response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
                 { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }
+            
             TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
-            return RedirectToAction("ApplicationsRegistered");
+            if(responseApplication.Data.Status == "Entitled")
+            {
+                return RedirectToAction("ApplicationsRegistered");
+            }
+            else
+            {
+                return RedirectToAction("AppealsRegistered");
+            }
         }
 
         [HttpGet]
@@ -360,6 +369,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
             return View("ApplicationsRegistered", vm);
+        }
+
+        [HttpGet]
+        public IActionResult AppealsRegistered()
+        {
+            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
+            return View("AppealsRegistered", vm);
         }
 
         public IActionResult ChangeChildDetails(int child)

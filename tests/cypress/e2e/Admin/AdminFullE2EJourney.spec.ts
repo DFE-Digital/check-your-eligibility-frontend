@@ -56,7 +56,7 @@ describe('Full journey of creating an application through school portal through 
             cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
             cy.contains('button', 'Add details').click();
 
-            cy.url().should('include', '/Check/ApplicationsRegistered');
+            cy.url().should('include', '/Check/AppealsRegistered');
             cy.get('.govuk-table')
                 .find('tbody tr')
                 .eq(0)
@@ -85,6 +85,49 @@ describe('Full journey of creating an application through school portal through 
             cy.get('p').should('include.text', 'Send this record to the local authority?');
             cy.contains('.govuk-button', 'Yes, send now').click();
 
+        });
+        it('Will allow a school user to create an application is eligible and submit an application', () => {
+            cy.visit(Cypress.config().baseUrl ?? "");
+            cy.wait(1);
+            cy.get('h1').should('include.text', 'The Telford Park School');
+
+            cy.contains('Run a check for one parent or guardian').click();
+
+            cy.url().should('include', '/Check/Enter_Details');
+            cy.get('#FirstName').type(parentFirstName);
+            cy.get('#LastName').type(parentLastName);
+            cy.get('#EmailAddress').type(parentEmailAddress);
+            cy.get('#Day').type('01');
+            cy.get('#Month').type('01');
+            cy.get('#Year').type('1990');
+
+            cy.get('#NinAsrSelection').click();
+            cy.get('#NationalInsuranceNumber').type("nn123456c");
+
+            cy.contains('button', 'Perform check').click();
+
+            cy.url().should('include', 'Check/Loader');
+            cy.get('.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian are eligible for free school meals');
+            cy.contains('a.govuk-button', "Add children's details").click();
+
+            cy.url().should('include', '/Enter_Child_Details');
+            cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
+            cy.get('[id="ChildList[0].LastName"]').type(childLastName);
+            cy.get('[id="ChildList[0].Day"]').type('01');
+            cy.get('[id="ChildList[0].Month"]').type('01');
+            cy.get('[id="ChildList[0].Year"]').type('2007');
+            cy.contains('button', 'Save and continue').click();
+
+            cy.get('h1').should('include.text', 'Check your answers before submitting');
+
+            cy.CheckValuesInSummaryCard('Parent or guardian details','Name', `${parentFirstName} ${parentLastName}`);
+            cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '1990-01-01');
+            cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', "NN123456C");
+            cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', parentEmailAddress);
+            cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
+            cy.contains('button', 'Add details').click();
+
+            cy.url().should('include', '/Check/ApplicationsRegistered');
         });
     });
     describe('', () => {
