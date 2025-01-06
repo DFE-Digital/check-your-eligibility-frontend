@@ -3,6 +3,7 @@ using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
+        private readonly IGetSchoolDetailsUseCase _getSchoolDetailsUseCase;
         private IEcsServiceParent _object;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, IGetSchoolDetailsUseCase getSchoolDetailsUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
+            _getSchoolDetailsUseCase = getSchoolDetailsUseCase;
 
             _logger.LogInformation("controller log info");
         }
@@ -374,27 +377,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return RedirectToAction("Enter_Child_Details");
         }
 
-        /// this method is called by AJAX
         [HttpGet]
         public async Task<IActionResult> GetSchoolDetails(string query)
         {
-            // limit api requests to start after 3 chars given
-            if (string.IsNullOrEmpty(query) || query.Length < 3)
+            var request = new GetSchoolDetailsRequest(query);
+            var response = await _getSchoolDetailsUseCase.ExecuteAsync(request);
+
+            if (!response.IsSuccess)
             {
-                return BadRequest("Query must be at least 3 characters long.");
+                return BadRequest(response.ErrorMessage);
             }
 
-            // make api query
-            var results = await _parentService.GetSchool(query);
-            if (results != null)
-            {
-                // return the results in a list of json
-                return Json(results.Data.ToList());
-            }
-            else
-            {
-                return Json(new List<CheckYourEligibility.Domain.Responses.Establishment>());
-            }
+            return Json(response.Schools.ToList());
         }
 
         public IActionResult Check_Answers()

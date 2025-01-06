@@ -3,6 +3,7 @@ using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
         private Mock<IConfiguration> _configMock;
+        private Mock<IGetSchoolDetailsUseCase> _getSchoolDetailsUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -209,7 +211,14 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentServiceMock = new Mock<IEcsServiceParent>();
                 _checkServiceMock = new Mock<IEcsCheckService>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _sut = new CheckController(_loggerMock, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object);
+                _getSchoolDetailsUseCaseMock = new Mock<IGetSchoolDetailsUseCase>();  // Add this line
+
+                _sut = new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _getSchoolDetailsUseCaseMock.Object);  // Add this parameter
             }
 
             void SetUpSessionData()
@@ -622,13 +631,15 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             var query = "ab";
+            _getSchoolDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.Is<GetSchoolDetailsRequest>(r => r.Query == query)))
+                .ReturnsAsync(GetSchoolDetailsResponse.Failure("Query must be at least 3 characters long."));
 
             // Act
-            var result = _sut.GetSchoolDetails(query);
+            var result = await _sut.GetSchoolDetails(query);
 
             // Assert
-            result.Should().BeOfType<Task<IActionResult>>();
-            result.Result.Should().BeOfType<BadRequestObjectResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Test]
@@ -639,13 +650,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var expectedName = _schoolSearchResponse.Data.First().Name;
             var expectedPostcode = _schoolSearchResponse.Data.First().Postcode;
 
+            _getSchoolDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.Is<GetSchoolDetailsRequest>(r => r.Query == query)))
+                .ReturnsAsync(GetSchoolDetailsResponse.Success(_schoolSearchResponse.Data));
+
             // Act
-            var result = _sut.GetSchoolDetails(query);
+            var result = await _sut.GetSchoolDetails(query);
 
             // Assert
-            result.Result.Should().BeOfType<JsonResult>();
-            var jsonResult = result.Result as JsonResult;
-
+            result.Should().BeOfType<JsonResult>();
+            var jsonResult = result as JsonResult;
             foreach (var school in jsonResult.Value as dynamic)
             {
                 ((string)school.Name).Should().Be(expectedName);
@@ -658,13 +672,15 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             var query = "Not a real school";
-            _parentServiceMock.Setup(x => x.GetSchool(query)).ReturnsAsync(_schoolSearchResponse = null);
+            _getSchoolDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.Is<GetSchoolDetailsRequest>(r => r.Query == query)))
+                .ReturnsAsync(GetSchoolDetailsResponse.Success(new List<Establishment>()));
 
             // Act
-            var result = _sut.GetSchoolDetails(query);
+            var result = await _sut.GetSchoolDetails(query);
 
             // Assert
-            result.Result.Should().BeOfType<JsonResult>();
+            result.Should().BeOfType<JsonResult>();
         }
 
         [TestCase("eligible", "Outcome/Eligible", typeof(ViewResult))]
@@ -890,7 +906,12 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             try
             {
-                _sut = new CheckController(null, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object);
+                _sut = new CheckController(
+                    null,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _getSchoolDetailsUseCaseMock.Object);  // Add this
             }
             catch (ArgumentNullException ex)
             {
@@ -903,7 +924,12 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             try
             {
-                _sut = new CheckController(_loggerMock, null, _checkServiceMock.Object, _configMock.Object);
+                _sut = new CheckController(
+                    _loggerMock,
+                    null,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _getSchoolDetailsUseCaseMock.Object);  // Add this
             }
             catch (ArgumentNullException ex)
             {
@@ -916,13 +942,38 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             try
             {
-                _sut = new CheckController(_loggerMock, _parentServiceMock.Object, null, _configMock.Object);
+                _sut = new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    null,
+                    _configMock.Object,
+                    _getSchoolDetailsUseCaseMock.Object);  // Add this
             }
             catch (ArgumentNullException ex)
             {
                 ex.Should().NotBeNull();
             }
         }
+
+        // Add a new test for the use case dependency
+        [Test]
+        public async Task Given_CheckController_When_GetSchoolDetailsUseCaseIsNull_Should_ReturnArgumentNullException()
+        {
+            try
+            {
+                _sut = new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    null);  // Testing null use case
+            }
+            catch (ArgumentNullException ex)
+            {
+                ex.Should().NotBeNull();
+            }
+        }
+    
 
         [Test]
         public async Task Given_Nass_When_BadNassSubmitted_Should_ReturnNassPageWithErrors()
