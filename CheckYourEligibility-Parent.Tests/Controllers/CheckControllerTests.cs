@@ -1,6 +1,7 @@
 ﻿using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Controllers;
+using CheckYourEligibility_FrontEnd.Domain.Schools;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase;

@@ -1,9 +1,11 @@
 ﻿using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
 
+using CheckYourEligibility_FrontEnd.Domain.Schools;
+
 namespace CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase
 {
-    // GetSchoolDetailsUseCase.cs
+    
     public class GetSchoolDetailsUseCase : IGetSchoolDetailsUseCase
     {
         private readonly IEcsServiceParent _parentService;
@@ -40,5 +42,10 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase
                 return GetSchoolDetailsResponse.Failure("An error occurred while retrieving school details.");
             }
         }
+    }
+
+    public interface IGetSchoolDetailsUseCase
+    {
+        Task<GetSchoolDetailsResponse> ExecuteAsync(GetSchoolDetailsRequest request);
     }
 }
