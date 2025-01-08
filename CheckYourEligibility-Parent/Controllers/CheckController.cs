@@ -1,10 +1,9 @@
 ﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using CheckYourEligibility_FrontEnd.Domain.Schools;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase;
+using CheckYourEligibility_FrontEnd.UseCases.SearchSchools;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -19,16 +18,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private readonly IGetSchoolDetailsUseCase _getSchoolDetailsUseCase;
-        private IEcsServiceParent _object;
+        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
+        private readonly IEcsServiceParent _object;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, IGetSchoolDetailsUseCase getSchoolDetailsUseCase)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
-            _getSchoolDetailsUseCase = getSchoolDetailsUseCase;
+            _searchSchoolsUseCase = searchSchoolsUseCase;
 
             _logger.LogInformation("controller log info");
         }
@@ -379,17 +378,23 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSchoolDetails(string query)
+        public async Task<IActionResult> SearchSchools(string query)
         {
-            var request = new GetSchoolDetailsRequest(query);
-            var response = await _getSchoolDetailsUseCase.ExecuteAsync(request);
-
-            if (!response.IsSuccess)
+            try
             {
-                return BadRequest(response.ErrorMessage);
+                var schools = await _searchSchoolsUseCase.ExecuteAsync(query);
+                return Json(schools.ToList());
             }
-
-            return Json(response.Schools.ToList());
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Invalid school search query: {Query}", query);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching schools for query: {Query}", query);
+                return BadRequest("An error occurred while searching for schools.");
+            }
         }
 
         public IActionResult Check_Answers()

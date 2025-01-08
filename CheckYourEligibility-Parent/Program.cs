@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
-using CheckYourEligibility_FrontEnd.UseCases.Schools.GetSchoolDetailsUseCase;
-using CheckYourEligibility_FrontEnd.UseCases.Common.Decorators;
+using CheckYourEligibility.Shared.Extensions;
+using System.Reflection;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,13 +29,7 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME") != null)
 
 // Add services to the container
 builder.Services.AddServices(builder.Configuration);
-builder.Services.AddScoped<GetSchoolDetailsUseCase>();
-builder.Services.AddScoped<IGetSchoolDetailsUseCase>(sp =>
-{
-    var useCase = sp.GetRequiredService<GetSchoolDetailsUseCase>();
-    var logger = sp.GetRequiredService<ILogger<LoggingGetSchoolDetailsUseCase>>();
-    return new LoggingGetSchoolDetailsUseCase(useCase, logger);
-});
+builder.Services.AddParentUseCases(Assembly.GetExecutingAssembly());
 
 builder.Services.AddAuthentication(opt =>
 {

@@ -32,10 +32,11 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CheckYourEligibility-DfeSignIn\CheckYourEligibility-DfeSignIn.csproj" />
-    <ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CheckYourEligibility-DfeSignIn\CheckYourEligibility-DfeSignIn.csproj" />
+		<ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
+		<ProjectReference Include="..\CheckYourEligibility.Shared\CheckYourEligibility.Shared.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
     <Reference Include="CheckYourEligibility.Domain">
