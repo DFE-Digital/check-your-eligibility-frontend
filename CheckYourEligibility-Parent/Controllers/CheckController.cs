@@ -378,7 +378,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ParentSearchSchools(string query)
+        public async Task<IActionResult> SearchSchools(string query)
         {
             try
             {
