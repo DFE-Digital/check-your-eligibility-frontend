@@ -6,7 +6,7 @@ using Moq;
 
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
-    public class GetSchoolDetailsUseCaseTests
+    public class ParentSearchSchoolsUseCaseTests
     {
         private Mock<IEcsServiceParent> _parentServiceMock;
         private ParentSearchSchoolsUseCase _sut;

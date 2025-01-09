@@ -910,7 +910,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
 
         [Test]
-        public async Task Given_CheckController_When_GetSchoolDetailsUseCaseIsNull_Should_ReturnArgumentNullException()
+        public async Task Given_CheckController_When_ParentSearchSchoolsUseCaseIsNull_Should_ReturnArgumentNullException()
         {
             try
             {
