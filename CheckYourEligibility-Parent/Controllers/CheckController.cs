@@ -3,7 +3,7 @@ using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.ParentSearchSchools;
+using CheckYourEligibility_FrontEnd.UseCases;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;

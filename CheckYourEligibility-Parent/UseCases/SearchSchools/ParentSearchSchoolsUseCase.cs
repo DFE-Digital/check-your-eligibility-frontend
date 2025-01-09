@@ -1,7 +1,7 @@
 ﻿using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.ParentSearchSchools
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IParentSearchSchoolsUseCase
     {
