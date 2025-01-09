@@ -913,7 +913,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
 
         [Test]
-        public async Task Given_CheckController_When_SearchSchoolsUseCaseIsNull_Should_ReturnArgumentNullException()
+        public async Task Given_CheckController_When_ParentSearchSchoolsUseCaseIsNull_Should_ReturnArgumentNullException()
         {
             // Act & Assert
             FluentActions
