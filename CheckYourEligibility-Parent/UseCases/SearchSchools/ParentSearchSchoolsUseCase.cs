@@ -1,18 +1,18 @@
 ﻿using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.SearchSchools
+namespace CheckYourEligibility_FrontEnd.UseCases.ParentSearchSchools
 {
-    public interface ISearchSchoolsUseCase
+    public interface IParentSearchSchoolsUseCase
     {
         Task<IEnumerable<Establishment>> ExecuteAsync(string query);
     }
 
-    public class SearchSchoolsUseCase : ISearchSchoolsUseCase
+    public class ParentSearchSchoolsUseCase : IParentSearchSchoolsUseCase
     {
         private readonly IEcsServiceParent _parentService;
 
-        public SearchSchoolsUseCase(IEcsServiceParent parentService)
+        public ParentSearchSchoolsUseCase(IEcsServiceParent parentService)
         {
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }

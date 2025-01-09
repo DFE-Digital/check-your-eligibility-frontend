@@ -3,7 +3,7 @@ using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.SearchSchools;
+using CheckYourEligibility_FrontEnd.UseCases.ParentSearchSchools;
 using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +18,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
+        private readonly IParentSearchSchoolsUseCase _parentSearchSchoolsUseCase;
         private readonly IEcsServiceParent _object;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, IParentSearchSchoolsUseCase parentSearchSchoolsUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
-            _searchSchoolsUseCase = searchSchoolsUseCase;
+            _parentSearchSchoolsUseCase = parentSearchSchoolsUseCase;
 
             _logger.LogInformation("controller log info");
         }
@@ -382,7 +382,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var schools = await _searchSchoolsUseCase.ExecuteAsync(query);
+                var schools = await _parentSearchSchoolsUseCase.ExecuteAsync(query);
                 return Json(schools.ToList());
             }
             catch (ArgumentException ex)

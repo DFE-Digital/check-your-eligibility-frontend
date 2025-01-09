@@ -3,7 +3,7 @@ using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.SearchSchools;
+using CheckYourEligibility_FrontEnd.UseCases.ParentSearchSchools;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ISession> _sessionMock;
         private Mock<HttpContext> _httpContext;
         private Mock<IConfiguration> _configMock;
-        private Mock<ISearchSchoolsUseCase> _searchSchoolsUseCaseMock;
+        private Mock<IParentSearchSchoolsUseCase> _parentSearchSchoolsUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -211,14 +211,14 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentServiceMock = new Mock<IEcsServiceParent>();
                 _checkServiceMock = new Mock<IEcsCheckService>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
+                _parentSearchSchoolsUseCaseMock = new Mock<IParentSearchSchoolsUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
                     _parentServiceMock.Object,
                     _checkServiceMock.Object,
                     _configMock.Object,
-                    _searchSchoolsUseCaseMock.Object);
+                    _parentSearchSchoolsUseCaseMock.Object);
             }
 
             void SetUpSessionData()
@@ -637,7 +637,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 Postcode = _schoolSearchResponse.Data.First().Postcode }
     };
 
-            _searchSchoolsUseCaseMock
+            _parentSearchSchoolsUseCaseMock
                 .Setup(x => x.ExecuteAsync(query))
                 .ReturnsAsync(schools);
 
@@ -658,7 +658,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             var query = "ab";
-            _searchSchoolsUseCaseMock
+            _parentSearchSchoolsUseCaseMock
                 .Setup(x => x.ExecuteAsync(query))
                 .ThrowsAsync(new ArgumentException("Query must be at least 3 characters long."));
 
@@ -676,7 +676,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             var query = "Not a real school";
-            _searchSchoolsUseCaseMock
+            _parentSearchSchoolsUseCaseMock
                 .Setup(x => x.ExecuteAsync(query))
                 .ReturnsAsync(new List<Establishment>());
 
