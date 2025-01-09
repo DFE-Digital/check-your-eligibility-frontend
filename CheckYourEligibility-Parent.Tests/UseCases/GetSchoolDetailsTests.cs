@@ -1,6 +1,6 @@
 ﻿using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.SearchSchools;
+using CheckYourEligibility_FrontEnd.UseCases.ParentSearchSchools;
 using FluentAssertions;
 using Moq;
 
@@ -9,13 +9,13 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
     public class GetSchoolDetailsUseCaseTests
     {
         private Mock<IEcsServiceParent> _parentServiceMock;
-        private SearchSchoolsUseCase _sut;
+        private ParentSearchSchoolsUseCase _sut;
 
         [SetUp]
         public void Setup()
         {
             _parentServiceMock = new Mock<IEcsServiceParent>();
-            _sut = new SearchSchoolsUseCase(_parentServiceMock.Object);
+            _sut = new ParentSearchSchoolsUseCase(_parentServiceMock.Object);
         }
 
         [Test]

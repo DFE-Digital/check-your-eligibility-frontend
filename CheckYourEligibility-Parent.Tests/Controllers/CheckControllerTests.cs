@@ -642,7 +642,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 .ReturnsAsync(schools);
 
             // Act
-            var result = await _sut.SearchSchools(query);
+            var result = await _sut.ParentSearchSchools(query);
 
             // Assert
             result.Should().BeOfType<JsonResult>();
@@ -663,7 +663,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 .ThrowsAsync(new ArgumentException("Query must be at least 3 characters long."));
 
             // Act
-            var result = await _sut.SearchSchools(query);
+            var result = await _sut.ParentSearchSchools(query);
 
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
@@ -681,7 +681,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 .ReturnsAsync(new List<Establishment>());
 
             // Act
-            var result = await _sut.SearchSchools(query);
+            var result = await _sut.ParentSearchSchools(query);
 
             // Assert
             result.Should().BeOfType<JsonResult>();
