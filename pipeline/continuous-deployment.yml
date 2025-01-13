@@ -35,20 +35,6 @@ stages:
               platform: '$(buildPlatform)'
               configuration: '$(buildConfiguration)'
 
-          - task: VSTest@2
-            inputs:
-              platform: '$(buildPlatform)'
-              configuration: '$(buildConfiguration)'
-              runSettingsFile: 'CheckYourEligibility-Parent.Tests/.runsettings'
-              resultsFolder: '$(build.ArtifactStagingDirectory)/Test/Results'
-              otherConsoleOptions: '/collect:"Code Coverage;Format=Cobertura"'  # <<<< this is the important bit
-              codeCoverageEnabled: True
-
-          - task: PublishCodeCoverageResults@1
-            inputs:
-              codeCoverageTool: 'Cobertura'
-              summaryFileLocation: '$(build.ArtifactStagingDirectory)/Test/Results/**/*.xml'
-
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -59,7 +45,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'checkYourEligibility-Parent'
+              artifactName: 'checkYourEligibility-Admin'
 
   - stage: DeployAppDev
     displayName: Deploy App Dev
@@ -85,13 +71,13 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203d.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ece-dev-as-frontend'
-                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                WebAppName: 'ece-dev-as-admin-frontend'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
   - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
     jobs:
     - job: 'SetUpCypressDevEnv'
-      displayName: 'SetUpTestsDevEnv'
+      displayName: 'SetUpTestsForDevEnv'
       pool:
         vmImage: ubuntu-latest
       steps:
@@ -108,12 +94,9 @@ stages:
          script: |
           cd tests
           export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_DEV)"
-          export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
-          export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
-          export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
-          export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
-          export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
-          npm run parentE2e:electron
+          export CYPRESS_DFE_ADMIN_EMAIL_ADDRESS="$(DFE_ADMIN_EMAIL_ADDRESS)"
+          export CYPRESS_DFE_ADMIN_PASSWORD="$(DFE_ADMIN_PASSWORD)"
+          npm run adminE2e:electron
       - task: Bash@3
         condition: always()
         displayName: 'Generate report'
@@ -129,7 +112,6 @@ stages:
         inputs:
          testResultsFiles: '**/combined-report.xml'
          searchFolder: 'tests'
-
   - stage: DeployAppTest
     displayName: Deploy App Test
     jobs:
@@ -154,8 +136,8 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ece-test-as-frontend'
-                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                WebAppName: 'ece-test-as-admin-frontend'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
   - stage: RunCypressTestsTestEnv
     displayName: Run Cypress Tests On Test Env
     jobs:
@@ -177,12 +159,9 @@ stages:
          script: |
           cd tests
           export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_TEST)"
-          export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
-          export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
-          export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
-          export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
-          export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
-          npm run parentE2e:electron
+          export CYPRESS_DFE_ADMIN_EMAIL_ADDRESS="$(DFE_ADMIN_EMAIL_ADDRESS)"
+          export CYPRESS_DFE_ADMIN_PASSWORD="$(DFE_ADMIN_PASSWORD)"
+          npm run adminE2e:electron
       - task: Bash@3
         condition: always()
         displayName: 'Generate report'
@@ -224,8 +203,8 @@ stages:
                 ConnectionType: 'AzureRM'
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
-                WebAppName: 'ece-pp-as-frontend'
-                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                WebAppName: 'ece-pp-as-admin-frontend'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
 
   - stage: RunCypressTestsPpEnv
     displayName: Run Cypress Tests On Pre-Prod Env
@@ -248,12 +227,9 @@ stages:
               script: |
                 cd tests
                 export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_PP)"
-                export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
-                export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
-                export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
-                export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
-                export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
-                npm run parentE2e:electron
+                export CYPRESS_DFE_ADMIN_EMAIL_ADDRESS="$(DFE_ADMIN_EMAIL_ADDRESS)"
+                export CYPRESS_DFE_ADMIN_PASSWORD="$(DFE_ADMIN_PASSWORD)"
+                npm run adminE2e:electron
           - task: Bash@3
             condition: always()
             displayName: 'Generate report'
@@ -273,7 +249,7 @@ stages:
   - stage: DeployAppProd
     displayName: Deploy App Production
     jobs:
-      - deployment: deploy
+      - deployment: ppdeploy
         displayName: Deploy App Production
         pool:
           name: Azure Pipelines
@@ -294,5 +270,6 @@ stages:
                     ConnectionType: 'AzureRM'
                     azureSubscription: 's203p.azdo.deployment'
                     appType: 'webApp'
-                    WebAppName: 'ece-as-frontend'
-                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                    WebAppName: 'ece-as-admin-frontend'
+                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
+ 
