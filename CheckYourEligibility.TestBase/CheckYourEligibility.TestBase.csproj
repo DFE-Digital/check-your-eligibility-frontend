@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\CheckYourEligibility-Admin\CheckYourEligibility-Admin.csproj" />
 	  <ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
   </ItemGroup>
 
