@@ -215,6 +215,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
                 _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
                 _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
+                _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -222,7 +223,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _checkServiceMock.Object,
                     _configMock.Object,
                     _searchSchoolsUseCaseMock.Object,
-                    _createUserUseCaseMock.Object);
+                    _createUserUseCaseMock.Object,
+                    _applicationSentUseCaseMock.Object);
+
             }
 
             void SetUpSessionData()
@@ -924,7 +927,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _checkServiceMock.Object,
                     _configMock.Object,
                     null,  // Testing null SearchSchools use case
-                    _createUserUseCaseMock.Object))
+                    _createUserUseCaseMock.Object,
+                    _applicationSentUseCaseMock.Object)) 
                 .Should()
                 .Throw<ArgumentNullException>();
         }
@@ -940,7 +944,25 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _checkServiceMock.Object,
                     _configMock.Object,
                     _searchSchoolsUseCaseMock.Object,
-                    null))  // Testing null CreateUser use case
+                    null,  // Testing null CreateUser use case
+                    _applicationSentUseCaseMock.Object))  
+                .Should()
+                .Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public async Task Given_CheckController_When_ApplicationSentUseCaseIsNull_Should_ReturnArgumentNullException()
+        {
+            // Act & Assert
+            FluentActions
+                .Invoking(() => new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _searchSchoolsUseCaseMock.Object,
+                    _createUserUseCaseMock.Object,
+                    null))  // Testing null ApplicationSent use case
                 .Should()
                 .Throw<ArgumentNullException>();
         }
