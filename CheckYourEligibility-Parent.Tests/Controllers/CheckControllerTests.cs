@@ -29,6 +29,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<HttpContext> _httpContext;
         private Mock<IConfiguration> _configMock;
         private Mock<IParentSearchSchoolsUseCase> _parentSearchSchoolsUseCaseMock;
+        private Mock<IParentCreateUserUseCase> _parentCreateUserUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -212,13 +213,15 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _checkServiceMock = new Mock<IEcsCheckService>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
                 _parentSearchSchoolsUseCaseMock = new Mock<IParentSearchSchoolsUseCase>();
+                _parentCreateUserUseCaseMock = new Mock<IParentCreateUserUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
                     _parentServiceMock.Object,
                     _checkServiceMock.Object,
                     _configMock.Object,
-                    _parentSearchSchoolsUseCaseMock.Object);
+                    _parentSearchSchoolsUseCaseMock.Object,
+                    _parentCreateUserUseCaseMock.Object);
             }
 
             void SetUpSessionData()
@@ -912,19 +915,33 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_CheckController_When_ParentSearchSchoolsUseCaseIsNull_Should_ReturnArgumentNullException()
         {
-            try
-            {
-                _sut = new CheckController(
+            // Act & Assert
+            FluentActions
+                .Invoking(() => new CheckController(
                     _loggerMock,
                     _parentServiceMock.Object,
                     _checkServiceMock.Object,
                     _configMock.Object,
-                    null);  // Testing null use case
-            }
-            catch (ArgumentNullException ex)
-            {
-                ex.Should().NotBeNull();
-            }
+                    null,  // Testing null SearchSchools use case
+                    _parentCreateUserUseCaseMock.Object))
+                .Should()
+                .Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public async Task Given_CheckController_When_CreateUserUseCaseIsNull_Should_ReturnArgumentNullException()
+        {
+            // Act & Assert
+            FluentActions
+                .Invoking(() => new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _parentSearchSchoolsUseCaseMock.Object,
+                    null))  // Testing null CreateUser use case
+                .Should()
+                .Throw<ArgumentNullException>();
         }
 
 
