@@ -35,7 +35,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\CheckYourEligibility-DfeSignIn\CheckYourEligibility-DfeSignIn.csproj" />
 		<ProjectReference Include="..\CheckYourEligibility-FrontEnd.Services\CheckYourEligibility-FrontEnd.Services.csproj" />
-		<ProjectReference Include="..\CheckYourEligibility.Shared\CheckYourEligibility.Shared.csproj" />
+		
 	</ItemGroup>
 
   <ItemGroup>

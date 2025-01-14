@@ -20,9 +20,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IConfiguration _config;
         private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
         private readonly ICreateUserUseCase _createUserUseCase;
+        private readonly IApplicationSentUseCase _applicationSentUseCase;
         private readonly IEcsServiceParent _object;
+        
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase, ICreateUserUseCase createUserUseCase)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase, ICreateUserUseCase createUserUseCase, IApplicationSentUseCase applicationSentUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -440,9 +442,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public IActionResult Application_Sent()
         {
-            // Skip validation
-            ModelState.Clear();
-
+            _applicationSentUseCase.Execute(ModelState);
             return View();
         }
 

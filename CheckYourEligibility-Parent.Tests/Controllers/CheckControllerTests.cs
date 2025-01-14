@@ -30,6 +30,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IConfiguration> _configMock;
         private Mock<ISearchSchoolsUseCase> _searchSchoolsUseCaseMock;
         private Mock<ICreateUserUseCase> _createUserUseCaseMock;
+        private Mock<IApplicationSentUseCase> _applicationSentUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
