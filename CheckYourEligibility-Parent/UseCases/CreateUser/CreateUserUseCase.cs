@@ -3,16 +3,16 @@ using CheckYourEligibility_FrontEnd.Services;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IParentCreateUserUseCase
+    public interface ICreateUserUseCase
     {
         Task<string> ExecuteAsync(string email, string uniqueId);
     }
 
-    public class ParentCreateUserUseCase : IParentCreateUserUseCase
+    public class CreateUserUseCase : ICreateUserUseCase
     {
         private readonly IEcsServiceParent _parentService;
 
-        public ParentCreateUserUseCase(IEcsServiceParent parentService)
+        public CreateUserUseCase(IEcsServiceParent parentService)
         {
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }

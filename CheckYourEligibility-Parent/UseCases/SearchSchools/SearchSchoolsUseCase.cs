@@ -3,16 +3,16 @@ using CheckYourEligibility_FrontEnd.Services;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IParentSearchSchoolsUseCase
+    public interface ISearchSchoolsUseCase
     {
         Task<IEnumerable<Establishment>> ExecuteAsync(string query);
     }
 
-    public class ParentSearchSchoolsUseCase : IParentSearchSchoolsUseCase
+    public class SearchSchoolsUseCase : ISearchSchoolsUseCase
     {
         private readonly IEcsServiceParent _parentService;
 
-        public ParentSearchSchoolsUseCase(IEcsServiceParent parentService)
+        public SearchSchoolsUseCase(IEcsServiceParent parentService)
         {
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }

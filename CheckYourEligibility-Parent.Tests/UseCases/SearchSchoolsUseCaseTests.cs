@@ -6,16 +6,16 @@ using Moq;
 
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
-    public class ParentSearchSchoolsUseCaseTests
+    public class SearchSchoolsUseCaseTests
     {
         private Mock<IEcsServiceParent> _parentServiceMock;
-        private ParentSearchSchoolsUseCase _sut;
+        private SearchSchoolsUseCase _sut;
 
         [SetUp]
         public void Setup()
         {
             _parentServiceMock = new Mock<IEcsServiceParent>();
-            _sut = new ParentSearchSchoolsUseCase(_parentServiceMock.Object);
+            _sut = new SearchSchoolsUseCase(_parentServiceMock.Object);
         }
 
         [Test]

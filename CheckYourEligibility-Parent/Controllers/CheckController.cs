@@ -18,18 +18,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private readonly IParentSearchSchoolsUseCase _parentSearchSchoolsUseCase;
-        private readonly IParentCreateUserUseCase _parentCreateUserUseCase;
+        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
+        private readonly ICreateUserUseCase _createUserUseCase;
         private readonly IEcsServiceParent _object;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, IParentSearchSchoolsUseCase parentSearchSchoolsUseCase, IParentCreateUserUseCase parentCreateUserUseCase)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase, ICreateUserUseCase createUserUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
-            _parentSearchSchoolsUseCase = parentSearchSchoolsUseCase ?? throw new ArgumentNullException(nameof(parentSearchSchoolsUseCase));
-            _parentCreateUserUseCase = parentCreateUserUseCase ?? throw new ArgumentNullException(nameof(parentCreateUserUseCase));
+            _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
+            _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -255,7 +255,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             string email = HttpContext.User.Claims.First(c => c.Type == "email").Value;
             string uniqueId = HttpContext.User.Claims.First(c => c.Type == "sub").Value;
 
-            var userId = await _parentCreateUserUseCase.ExecuteAsync(email, uniqueId);
+            var userId = await _createUserUseCase.ExecuteAsync(email, uniqueId);
 
             HttpContext.Session.SetString("Email", email);
             HttpContext.Session.SetString("UserId", userId);
@@ -375,7 +375,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var schools = await _parentSearchSchoolsUseCase.ExecuteAsync(query);
+                var schools = await _searchSchoolsUseCase.ExecuteAsync(query);
                 return Json(schools.ToList());
             }
             catch (ArgumentException ex)

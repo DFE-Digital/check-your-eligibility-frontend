@@ -7,16 +7,16 @@ using Moq;
 
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
-    public class ParentCreateUserUseCaseTests
+    public class CreateUserUseCaseTests
     {
         private Mock<IEcsServiceParent> _parentServiceMock;
-        private ParentCreateUserUseCase _sut;
+        private CreateUserUseCase _sut;
 
         [SetUp]
         public void Setup()
         {
             _parentServiceMock = new Mock<IEcsServiceParent>();
-            _sut = new ParentCreateUserUseCase(_parentServiceMock.Object);
+            _sut = new CreateUserUseCase(_parentServiceMock.Object);
         }
 
         [Test]
