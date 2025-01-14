@@ -21,8 +21,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly IApplicationSentUseCase _applicationSentUseCase;
-        private readonly IEcsServiceParent _object;
-        
 
         public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase, ICreateUserUseCase createUserUseCase, IApplicationSentUseCase applicationSentUseCase)
         {
@@ -32,7 +30,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
             _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
-
+            _applicationSentUseCase = applicationSentUseCase ?? throw new ArgumentNullException(nameof(applicationSentUseCase));
             _logger.LogInformation("controller log info");
         }
 
