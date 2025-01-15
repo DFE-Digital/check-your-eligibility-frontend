@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
-using CheckYourEligibility_DfeSignIn.Models;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 
@@ -71,7 +70,6 @@ namespace CheckYourEligibility.TestBase
             _userMock = new Mock<ClaimsPrincipal>();
             var claimSchool = new Claim("organisation", Properties.Resources.ClaimSchool);
             _userMock.Setup(x => x.Claims).Returns(new List<Claim> { claimSchool,
-                    new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{ClaimConstants.NameIdentifier}", "123"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress","test@test.com"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname","testFirstName"),
                     new Claim($"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname","testSurname")
