@@ -31,6 +31,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ISearchSchoolsUseCase> _searchSchoolsUseCaseMock;
         private Mock<ICreateUserUseCase> _createUserUseCaseMock;
         private Mock<IApplicationSentUseCase> _applicationSentUseCaseMock;
+        private Mock<IAddChildUseCase> _addChildUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -216,6 +217,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
                 _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
                 _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
+                _addChildUseCaseMock = new Mock<IAddChildUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -224,7 +226,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _configMock.Object,
                     _searchSchoolsUseCaseMock.Object,
                     _createUserUseCaseMock.Object,
-                    _applicationSentUseCaseMock.Object);
+                    _applicationSentUseCaseMock.Object,
+                    _addChildUseCaseMock);
 
             }
 
@@ -754,22 +757,38 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
 
         [Test]
-        public async Task Given_AddChild_When_AddingNewChild_Should_AddNewChildToEnterChildDetailsPageModel()
+        public void Given_AddChild_When_AddingNewChild_Should_CallUseCaseAndRedirect()
         {
             // Arrange
-            _sut.TempData["IsChildAddOrRemove"] = true;
-            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children);
+            _addChildUseCaseMock.Setup(x => x.ExecuteAsync(_children, _sut.TempData))
+                .Returns(true);
 
             // Act
             var result = _sut.Add_Child(_children);
 
             // Assert
-            var children = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string).As<List<Child>>();
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+            _addChildUseCaseMock.Verify(x => x.ExecuteAsync(_children, _sut.TempData), Times.Once);
+        }
 
-            children.Should().NotBeNull();
-            children.Capacity.Should().Be(4);
-            children.Last().FirstName.Should().BeNull();
-            children.Last().LastName.Should().BeNull();
+        [Test]
+        public async Task Given_CheckController_When_AddChildUseCaseIsNull_Should_ReturnArgumentNullException()
+        {
+            // Act & Assert
+            FluentActions
+                .Invoking(() => new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _searchSchoolsUseCaseMock.Object,
+                    _createUserUseCaseMock.Object,
+                    _applicationSentUseCaseMock.Object,
+                    null)) 
+                .Should()
+                .Throw<ArgumentNullException>();
         }
 
         [Test]

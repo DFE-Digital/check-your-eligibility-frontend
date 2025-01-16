@@ -21,8 +21,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly IApplicationSentUseCase _applicationSentUseCase;
+        private readonly IAddChildUseCase _addChildUseCase;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase, ICreateUserUseCase createUserUseCase, IApplicationSentUseCase applicationSentUseCase)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration, ISearchSchoolsUseCase searchSchoolsUseCase, ICreateUserUseCase createUserUseCase, IApplicationSentUseCase applicationSentUseCase, IAddChildUseCase addChildUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -31,6 +32,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
             _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
             _applicationSentUseCase = applicationSentUseCase ?? throw new ArgumentNullException(nameof(applicationSentUseCase));
+            _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
             _logger.LogInformation("controller log info");
         }
 
@@ -340,18 +342,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Add_Child(Children request)
         {
-            // set initial tempdata
-            TempData["IsChildAddOrRemove"] = true;
+            var success = _addChildUseCase.ExecuteAsync(request, TempData);
 
-            // don't allow the model to contain more than 99 items
-            if (request.ChildList.Count >= 99)
+            if (!success)
             {
                 return RedirectToAction("Enter_Child_Details");
             }
-
-            request.ChildList.Add(new Child());
-
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
             return RedirectToAction("Enter_Child_Details");
         }
