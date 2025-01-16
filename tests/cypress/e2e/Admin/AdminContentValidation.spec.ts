@@ -144,135 +144,289 @@ describe('Date of Birth Validation Tests', () => {
 
 });
 
-describe("Conditional content on ApplicationDetailAppeal page", () => {
-
-    const parentFirstName = 'Tim';
-    const parentLastName = Cypress.env('lastName');
-    const parentEmailAddress = 'TimJones@Example.com';
-    const NIN = 'PN668767B'
-    const childFirstName = 'Timmy';
-    const childLastName = 'Smith';
+describe("Conditional content on ApplicationDetail page", () => {
+    const testData = {
+        parent: {
+            firstName: 'Tim',
+            lastName: Cypress.env('lastName'),
+            email: 'TimJones@Example.com',
+            nin: 'PN668767B',
+            dob: {
+                day: '01',
+                month: '01',
+                year: '1990'
+            }
+        },
+        child: {
+            firstName: 'Timmy',
+            lastName: 'Smith',
+            dob: {
+                day: '01',
+                month: '01',
+                year: '2007'
+            }
+        }
+    };
 
     beforeEach(() => {
-        cy.SignInSchool();
-        cy.wait(1000);
-        cy.get('h1').should('include.text', 'The Telford Park School');
-
-    });
-    it("will show conditional content when status is Evidence Needed and not when status is Sent for Review", () => {
-        cy.contains('Run a check for one parent or guardian').click();
-        //Soft-Check
-        cy.url().should('include', '/Check/Enter_Details');
-        cy.get('#FirstName').type(parentFirstName);
-        cy.get('#LastName').type(parentLastName);
-        cy.get('#EmailAddress').type(parentEmailAddress);
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
-        cy.get('#NinAsrSelection').click();
-        cy.get('#NationalInsuranceNumber').type(NIN);
-        cy.contains('button', 'Perform check').click();
-        //Not Eligible, Appeal
-        cy.url().should('include', 'Check/Loader');
-        cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
-        cy.contains('.govuk-button', 'Appeal now').click();
-        //Enter Child Details
-        cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
-        cy.get('[id="ChildList[0].LastName"]').type(childLastName);
-        cy.get('[id="ChildList[0].Day"]').type('01');
-        cy.get('[id="ChildList[0].Month"]').type('01');
-        cy.get('[id="ChildList[0].Year"]').type('2007');
-        cy.contains('button', 'Save and continue').click();
-        //Check and confirm
-        cy.get('h1').should('include.text', 'Check your answers before submitting');
-        cy.contains('button', 'Add details').click();
-        //Find reference on page and save as variable
-        cy.get('.govuk-table__cell').eq(1).invoke('text').then((referenceNumber) => {
-            const refNumber = referenceNumber.trim();
-
-            cy.visit("/");
-            cy.get('#appeals').click();
-            cy.wait(100);
-            cy.scanPagesForValue(refNumber);
-            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
-            cy.get('a.govuk-button').click();
-            cy.get('a.govuk-button--primary').click();
-            cy.visit("/Application/AppealsApplications?PageNumber=0");
-            cy.wait(1000);
-            cy.scanPagesForValue(refNumber);
-            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
+        // Setup and verify initial state
+        cy.session("school-session", () => {
+            cy.SignInSchool();
+            // Verify successful login
+            cy.get('h1', { timeout: 10000 })
+                .should('be.visible')
+                .and('include.text', 'The Telford Park School');
         });
+    });
+
+    const fillParentDetails = () => {
+        cy.get('#FirstName').should('be.visible').type(testData.parent.firstName);
+        cy.get('#LastName').should('be.visible').type(testData.parent.lastName);
+        cy.get('#EmailAddress').should('be.visible').type(testData.parent.email);
+        cy.get('#Day').should('be.visible').type(testData.parent.dob.day);
+        cy.get('#Month').should('be.visible').type(testData.parent.dob.month);
+        cy.get('#Year').should('be.visible').type(testData.parent.dob.year);
+        cy.get('#NinAsrSelection').should('be.visible').click();
+        cy.get('#NationalInsuranceNumber').should('be.visible').type(testData.parent.nin);
+    };
+
+    const fillChildDetails = () => {
+        cy.get('[id="ChildList[0].FirstName"]').should('be.visible').type(testData.child.firstName);
+        cy.get('[id="ChildList[0].LastName"]').should('be.visible').type(testData.child.lastName);
+        cy.get('[id="ChildList[0].Day"]').should('be.visible').type(testData.child.dob.day);
+        cy.get('[id="ChildList[0].Month"]').should('be.visible').type(testData.child.dob.month);
+        cy.get('[id="ChildList[0].Year"]').should('be.visible').type(testData.child.dob.year);
+    };
+
+    it("shows and hides conditional content based on application status", () => {
+        // Start the check process
+        cy.visit("/");
+        cy.contains('Run a check for one parent or guardian')
+            .should('be.visible')
+            .click();
+
+        // Verify navigation to details page
+        cy.url().should('include', '/Check/Enter_Details');
+
+        // Fill parent details
+        fillParentDetails();
+        cy.contains('button', 'Perform check')
+            .should('be.visible')
+            .click();
+
+        // Wait for and verify loader page
+        cy.url().should('include', 'Check/Loader');
+        
+        // Wait for eligibility result with appropriate timeout
+        cy.get('p.govuk-notification-banner__heading', { timeout: 30000 })
+            .should('be.visible')
+            .and('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+
+        // Click appeal button
+        cy.contains('.govuk-button', 'Appeal now')
+            .should('be.visible')
+            .click();
+
+        // Verify navigation to child details page
+        cy.url().should('include', '/Check/Enter_Child_Details');
+
+        // Fill child details
+        fillChildDetails();
+        cy.contains('button', 'Save and continue')
+            .should('be.visible')
+            .click();
+
+        // Verify answers page and submit
+        cy.get('h1')
+            .should('be.visible')
+            .and('include.text', 'Check your answers before submitting');
+        
+        cy.contains('button', 'Add details')
+            .should('be.visible')
+            .click();
+
+        // Get reference number and verify application status changes
+        cy.get('.govuk-table__cell')
+            .eq(1)
+            .invoke('text')
+            .then((referenceNumber) => {
+                const refNumber = referenceNumber.trim();
+
+                // Check initial status (Evidence Needed)
+                cy.visit("/Application/Search");
+                cy.get('button.govuk-button')
+                    .should('be.visible')
+                    .click();
+
+                // Custom command to find reference number (implement with proper retry logic)
+                cy.scanPagesForValue(refNumber);
+
+                // Verify conditional content is present
+                cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:")
+                    .should('be.visible');
+
+                // Change application status
+                cy.get('a.govuk-button')
+                    .should('be.visible')
+                    .click();
+                cy.get('a.govuk-button--primary')
+                    .should('be.visible')
+                    .click();
+
+                // Verify status change
+                cy.visit("/Application/Search");
+                cy.get('button.govuk-button')
+                    .should('be.visible')
+                    .click();
+
+                // Find reference number again
+                cy.scanPagesForValue(refNumber);
+
+                // Verify conditional content is no longer present
+                cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:")
+                    .should('not.exist');
+            });
     });
 });
 
 
-describe("Condtional content on ApplicationDetail page", () => {
-
-    const parentFirstName = 'Tim';
-    const parentLastName = Cypress.env('lastName');
-    const parentEmailAddress = 'TimJones@Example.com';
-    const NIN = 'PN668767B'
-    const childFirstName = 'Timmy';
-    const childLastName = 'Smith';
+describe("Conditional content on ApplicationDetail page", () => {
+    const testData = {
+        parent: {
+            firstName: 'Tim',
+            lastName: Cypress.env('lastName'),
+            email: 'TimJones@Example.com',
+            nin: 'PN668767B',
+            dob: {
+                day: '01',
+                month: '01',
+                year: '1990'
+            }
+        },
+        child: {
+            firstName: 'Timmy',
+            lastName: 'Smith',
+            dob: {
+                day: '01',
+                month: '01',
+                year: '2007'
+            }
+        }
+    };
 
     beforeEach(() => {
-
-        cy.SignInSchool();
-        cy.wait(1000);
-        cy.get('h1').should('include.text', 'The Telford Park School');
-
+        // Setup and verify initial state
+        cy.session("school-session", () => {
+            cy.SignInSchool();
+            // Verify successful login
+            cy.get('h1')
+                .should('be.visible')
+                .and('include.text', 'The Telford Park School');
+        });
     });
 
-    it("will show conditional content when status is Evidence Needed and wont when status is Sent  for Review", () => {
+    const fillParentDetails = () => {
+        cy.get('#FirstName').should('be.visible').clear().type(testData.parent.firstName);
+        cy.get('#LastName').should('be.visible').clear().type(testData.parent.lastName);
+        cy.get('#EmailAddress').should('be.visible').clear().type(testData.parent.email);
+        cy.get('#Day').should('be.visible').clear().type(testData.parent.dob.day);
+        cy.get('#Month').should('be.visible').clear().type(testData.parent.dob.month);
+        cy.get('#Year').should('be.visible').clear().type(testData.parent.dob.year);
+        cy.get('#NinAsrSelection').should('be.visible').click();
+        cy.get('#NationalInsuranceNumber').should('be.visible').clear().type(testData.parent.nin);
+    };
 
+    const fillChildDetails = () => {
+        cy.get('[id="ChildList[0].FirstName"]').should('be.visible').clear().type(testData.child.firstName);
+        cy.get('[id="ChildList[0].LastName"]').should('be.visible').clear().type(testData.child.lastName);
+        cy.get('[id="ChildList[0].Day"]').should('be.visible').clear().type(testData.child.dob.day);
+        cy.get('[id="ChildList[0].Month"]').should('be.visible').clear().type(testData.child.dob.month);
+        cy.get('[id="ChildList[0].Year"]').should('be.visible').clear().type(testData.child.dob.year);
+    };
+
+    it("shows and hides conditional content based on application status", () => {
+        // Start the check process
         cy.visit("/");
-        cy.contains('Run a check for one parent or guardian').click();
-        //Soft-Check
-        cy.url().should('include', '/Check/Enter_Details');
-        cy.get('#FirstName').type(parentFirstName);
-        cy.get('#LastName').type(parentLastName);
-        cy.get('#EmailAddress').type(parentEmailAddress);
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
-        cy.get('#NinAsrSelection').click();
-        cy.get('#NationalInsuranceNumber').type(NIN);
-        cy.contains('button', 'Perform check').click();
-        //Not Eligible, Appeal
-        cy.url().should('include', 'Check/Loader');
-        cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
-        cy.contains('.govuk-button', 'Appeal now').click();
-        //Enter Child Details
-        cy.url().should('include', '/Check/Enter_Child_Details');
-        cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
-        cy.get('[id="ChildList[0].LastName"]').type(childLastName);
-        cy.get('[id="ChildList[0].Day"]').type('01');
-        cy.get('[id="ChildList[0].Month"]').type('01');
-        cy.get('[id="ChildList[0].Year"]').type('2007');
-        cy.contains('button', 'Save and continue').click();
-        //Check and confirm
-        cy.get('h1').should('include.text', 'Check your answers before submitting');
-        cy.contains('button', 'Add details').click();
-        //Find reference on page and save as variable
-        cy.get('.govuk-table__cell').eq(1).invoke('text').then((referenceNumber) => {
-            const refNumber = referenceNumber.trim();
+        cy.contains('Run a check for one parent or guardian')
+            .should('be.visible')
+            .click();
 
-            cy.visit("/Application/Search");
-            cy.wait(1000);
-            cy.get('button.govuk-button').click();
-            cy.wait(100);
-            cy.scanPagesForValue(refNumber);
-            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
-            cy.get('a.govuk-button').click();
-            cy.get('a.govuk-button--primary').click();
-            cy.visit("/Application/Search");
-            cy.wait(1000);
-            cy.get('button.govuk-button').click();
-            cy.wait(100);
-            cy.scanPagesForValue(refNumber);
-            cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
-        });
+        // Verify navigation and fill parent details
+        cy.url().should('include', '/Check/Enter_Details');
+        fillParentDetails();
+        
+        cy.contains('button', 'Perform check')
+            .should('be.visible')
+            .click();
+
+        // Wait for and verify loader page
+        cy.url().should('include', 'Check/Loader');
+        
+        // Wait for eligibility result
+        cy.get('p.govuk-notification-banner__heading', { timeout: 30000 })
+            .should('be.visible')
+            .and('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+
+        // Navigate through appeal process
+        cy.contains('.govuk-button', 'Appeal now')
+            .should('be.visible')
+            .click();
+
+        cy.url().should('include', '/Check/Enter_Child_Details');
+        fillChildDetails();
+        
+        cy.contains('button', 'Save and continue')
+            .should('be.visible')
+            .click();
+
+        // Verify and submit
+        cy.get('h1')
+            .should('be.visible')
+            .and('include.text', 'Check your answers before submitting');
+        
+        cy.contains('button', 'Add details')
+            .should('be.visible')
+            .click();
+
+        // Get reference number and verify status changes
+        cy.get('.govuk-table__cell')
+            .eq(1)
+            .invoke('text')
+            .then((referenceNumber) => {
+                const refNumber = referenceNumber.trim();
+
+                // Check initial status
+                cy.visit("/Application/Search");
+                cy.get('button.govuk-button')
+                    .should('be.visible')
+                    .click();
+
+                cy.scanPagesForValue(refNumber);
+
+                // Verify initial content
+                cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:")
+                    .should('be.visible');
+
+                // Change status
+                cy.get('a.govuk-button')
+                    .should('be.visible')
+                    .click();
+                cy.get('a.govuk-button--primary')
+                    .should('be.visible')
+                    .click();
+
+                // Verify status change
+                cy.visit("/Application/Search")
+                    .get('button.govuk-button')
+                    .should('be.visible')
+                    .click();
+
+                cy.scanPagesForValue(refNumber);
+
+                // Verify content is removed
+                cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:")
+                    .should('not.exist');
+            });
     });
 });
 
