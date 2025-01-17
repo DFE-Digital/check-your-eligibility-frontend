@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Child = CheckYourEligibility_FrontEnd.Models.Child;
+using CheckYourEligibility_FrontEnd.UseCases;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -17,14 +18,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private IEcsServiceParent _object;
+        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;  // Add this field
+        private readonly IEcsServiceParent _object;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsParentService, IEcsCheckService ecsCheckService, IConfiguration configuration)
+        public CheckController(
+            ILogger<CheckController> logger,
+            IEcsServiceParent ecsParentService,
+            IEcsCheckService ecsCheckService,
+            IConfiguration configuration,
+            ISearchSchoolsUseCase searchSchoolsUseCase)  // Add this parameter
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
+            _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -376,24 +384,22 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         /// this method is called by AJAX
         [HttpGet]
-        public async Task<IActionResult> GetSchoolDetails(string query)
+        public async Task<IActionResult> SearchSchools(string query)
         {
-            // limit api requests to start after 3 chars given
-            if (string.IsNullOrEmpty(query) || query.Length < 3)
+            try
             {
-                return BadRequest("Query must be at least 3 characters long.");
+                var schools = await _searchSchoolsUseCase.ExecuteAsync(query);
+                return Json(schools.ToList());
             }
-
-            // make api query
-            var results = await _parentService.GetSchool(query);
-            if (results != null)
+            catch (ArgumentException ex)
             {
-                // return the results in a list of json
-                return Json(results.Data.ToList());
+                _logger.LogWarning(ex, "Invalid school search query: {Query}", query);
+                return BadRequest(ex.Message);
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new List<CheckYourEligibility.Domain.Responses.Establishment>());
+                _logger.LogError(ex, "Error searching schools for query: {Query}", query);
+                return BadRequest("An error occurred while searching for schools.");
             }
         }
 

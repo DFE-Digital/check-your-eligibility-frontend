@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
+using CheckYourEligibility_FrontEnd.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
+builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {
