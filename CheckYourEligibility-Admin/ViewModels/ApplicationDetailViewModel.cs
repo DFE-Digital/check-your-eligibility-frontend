@@ -15,7 +15,6 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
         public string ChildName { get; set; }
         public string ChildDob { get; set; }
         public string School { get; set; }
-        public string PostCode { get; set; }
 
     }
 }
