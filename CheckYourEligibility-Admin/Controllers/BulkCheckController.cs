@@ -81,7 +81,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             // validate
             if (sessionCount > int.Parse(_config["BulkUploadAttemptLimit"]))
             {
-                TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
+                TempData["ErrorMessage"] = $"No more than {_config["BulkUploadAttemptLimit"]} batch check requests can be made per hour";
                 return RedirectToAction("Bulk_Check");
             }
 
