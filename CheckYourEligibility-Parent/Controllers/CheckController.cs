@@ -18,23 +18,24 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;  
+        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
         private readonly IProcessParentDetailsUseCase _processParentDetailsUseCase;
         private readonly ILoadParentNassDetailsUseCase _loadParentNassDetailsUseCase;
-        private readonly IEcsServiceParent _object;
+        private readonly ILoaderUseCase _loaderUseCase;
 
         public CheckController(
            ILogger<CheckController> logger,
-           IEcsServiceParent ecsParentService,
-           IEcsCheckService ecsCheckService,
-           IConfiguration configuration,
-           ISearchSchoolsUseCase searchSchoolsUseCase,
-           ILoadParentDetailsUseCase loadParentDetailsUseCase,
-           ICreateUserUseCase createUserUseCase,
-           IProcessParentDetailsUseCase processParentDetailsUseCase,
-           ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase)
+        IEcsServiceParent ecsParentService,
+        IEcsCheckService ecsCheckService,
+        IConfiguration configuration,
+        ISearchSchoolsUseCase searchSchoolsUseCase,
+        ILoadParentDetailsUseCase loadParentDetailsUseCase,
+        ICreateUserUseCase createUserUseCase,
+        IProcessParentDetailsUseCase processParentDetailsUseCase,
+        ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase,
+        ILoaderUseCase loaderUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,9 +43,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
             _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
-            _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentDetailsUseCase));  // Fixed: Added underscore
-            _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(processParentDetailsUseCase));  // Fixed: Added underscore
-            _loadParentNassDetailsUseCase = loadParentNassDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentNassDetailsUseCase));  // Fixed: Added underscore
+            _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentDetailsUseCase));
+            _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(processParentDetailsUseCase));
+            _loadParentNassDetailsUseCase = loadParentNassDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentNassDetailsUseCase));
+            _loaderUseCase = loaderUseCase ?? throw new ArgumentNullException(nameof(loaderUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -115,57 +117,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Loader()
         {
-            // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
-            if (responseJson == null)
+            var (viewName, model) = await _loaderUseCase.ExecuteAsync(responseJson);
+
+            if (viewName == "Loader")
             {
-                _logger.LogWarning("No response data found in TempData.");
-                return View("Outcome/Technical_Error");
+                // Save the response back to TempData for the next poll
+                TempData["Response"] = responseJson;
             }
 
-            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
-
-            _logger.LogInformation($"Check status processed: {response.Data.Status}");
-
-            // Call the service to check the current status
-            var check = await _checkService.GetStatus(response);
-
-            if (check == null || check.Data == null)
-            {
-                _logger.LogWarning("Null response received from GetStatus.");
-                return View("Outcome/Technical_Error");
-            }
-
-            _logger.LogInformation($"Received status: {check.Data.Status}");
-
-            HttpContext.Session.SetString("CheckResult", check.Data.Status);
-
-            // Handle final statuses and redirect appropriately
-            switch (check.Data.Status)
-            {
-                case "eligible":
-                    return View("Outcome/Eligible", "/check/signIn");
-
-                case "notEligible":
-                    return View("Outcome/Not_Eligible");
-
-                case "parentNotFound":
-                    return View("Outcome/Not_Found");
-
-                case "DwpError":
-                    return View("Outcome/Technical_Error");
-
-                case "queuedForProcessing":
-                    _logger.LogInformation("Still queued for processing.");
-                    // Save the response back to TempData for the next poll
-                    TempData["Response"] = JsonConvert.SerializeObject(response);
-                    // Render the loader view which will auto-refresh
-                    return View("Loader");
-
-                default:
-                    _logger.LogError("Unexpected status received.");
-                    return View("Outcome/Technical_Error");
-            }
+            return View(viewName, model);
         }
 
         public IActionResult SignIn()
@@ -231,7 +192,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     var schools = await _parentService.GetSchool(item.School.URN);
 
-                    if (schools!=null)
+                    if (schools != null)
                     {
                         item.School.Name = schools.Data.First().Name;
                         ModelState.Remove($"ChildList[{idx}].School.URN");
@@ -341,7 +302,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
             List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
-            
+
             foreach (var child in request.Children.ChildList)
             {
                 var fsmApplication = new ApplicationRequest
@@ -363,7 +324,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ParentEmail = HttpContext.Session.GetString("Email"),
                     }
                 };
-                
+
                 // Send each application as an individual check
                 var response = await _parentService.PostApplication_Fsm(fsmApplication);
                 responses.Add(response);

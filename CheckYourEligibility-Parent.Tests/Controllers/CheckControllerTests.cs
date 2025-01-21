@@ -35,6 +35,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ILoadParentDetailsUseCase> _loadParentDetailsUseCaseMock;
         private Mock<IProcessParentDetailsUseCase> _processParentDetailsUseCaseMock;
         private Mock<ILoadParentNassDetailsUseCase> _loadParentNassDetailsUseCaseMock;
+        private Mock<ILoaderUseCase> _loadParentLoaderUseCaseMock;
 
 
         // check eligibility responses
@@ -224,6 +225,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
                 _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
                 _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
+                _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>(); 
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -234,8 +236,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _loadParentDetailsUseCaseMock.Object,
                     _createUserUseCaseMock.Object,
                     _processParentDetailsUseCaseMock.Object,
-                    _loadParentNassDetailsUseCaseMock.Object
-                     
+                    _loadParentNassDetailsUseCaseMock.Object,
+                    _loadParentLoaderUseCaseMock.Object  
                 );
             }
 
@@ -451,15 +453,12 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             {
                 Data = new StatusValue { Status = "queuedForProcessing" }
             };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
+            var responseJson = JsonConvert.SerializeObject(response);
+            _sut.TempData["Response"] = responseJson;
 
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "queuedForProcessing" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
+            _loadParentLoaderUseCaseMock
+                .Setup(x => x.ExecuteAsync(responseJson))
+                .ReturnsAsync(("Loader", null));
 
             // Act
             var result = await _sut.Loader();
@@ -468,6 +467,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be("Loader");
+            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson), Times.Once);
         }
 
         [Test]
@@ -511,52 +511,27 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var actionResult = (RedirectToActionResult)result;
             actionResult.ActionName.Should().Be("Nass");
         }
-        [Test]
-        public async Task Given_Loader_When_StatusIsParentNotFound_Should_RedirectToNotFound()
+
+
+        [TestCase("DwpError", "Outcome/Technical_Error")]
+        [TestCase("eligible", "Outcome/Eligible")]
+        [TestCase("notEligible", "Outcome/Not_Eligible")]
+        [TestCase("parentNotFound", "Outcome/Not_Found")]
+        [TestCase("queuedForProcessing", "Loader")]
+        [TestCase("unknownStatus", "Outcome/Technical_Error")]
+        public async Task Given_Loader_When_StatusProvided_Should_ReturnCorrectView(string status, string expectedView)
         {
             // Arrange
             var response = new CheckEligibilityResponse
             {
-                Data = new StatusValue { Status = "parentNotFound" }
+                Data = new StatusValue { Status = status }
             };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
+            var responseJson = JsonConvert.SerializeObject(response);
+            _sut.TempData["Response"] = responseJson;
 
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "parentNotFound" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            result.Should().BeOfType<ViewResult>();
-            var redirectResult = result as ViewResult;
-            redirectResult.ViewName.Should().Be("Outcome/Not_Found");
-        }
-        
-
-
-        [Test]
-        public async Task Given_Loader_When_StatusIsUnrecognized_Should_ReturnTechnicalErrorView()
-        {
-            // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "unknownStatus" }
-            };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
-
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "unknownStatus" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
+            _loadParentLoaderUseCaseMock
+                .Setup(x => x.ExecuteAsync(responseJson))
+                .ReturnsAsync((expectedView, null));
 
             // Act
             var result = await _sut.Loader();
@@ -564,119 +539,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Outcome/Technical_Error");
-            viewResult.Model.Should().BeNull();
-        }
-
-        [Test]
-        public async Task Given_Loader_When_StatusIsDwpError_Should_RedirectToTechnicalError()
-        {
-            // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "DwpError" }
-            };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
-
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "DwpError" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            result.Should().BeOfType<ViewResult>();
-            var redirectResult = result as ViewResult;
-            redirectResult.ViewName.Should().Be("Outcome/Technical_Error");
-        }
-
-        [Test]
-        public async Task Given_Loader_When_StatusIsNotEligible_Should_RedirectToNotEligible()
-        {
-            // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "notEligible" }
-            };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
-
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "notEligible" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            result.Should().BeOfType<ViewResult>();
-            var redirectResult = result as ViewResult;
-            redirectResult.ViewName.Should().Be("Outcome/Not_Eligible");
-        }
-
-
-        [Test]
-        public async Task Given_Loader_When_StatusIsEligible_Should_RedirectToEligible()
-        {
-            // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "eligible" }
-            };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
-
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "eligible" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            result.Should().BeOfType<ViewResult>();
-            var redirectResult = result as ViewResult;
-            redirectResult.ViewName.Should().Be("Outcome/Eligible");
-        }
-
-
-        [Test]
-        public async Task Given_Loader_When_StatusIsQueuedForProcessing_Should_LoadLoaderPage()
-        {
-            // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "queuedForProcessing" }
-            };
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(response);
-
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = "queuedForProcessing" }
-            };
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            result.Should().BeOfType<ViewResult>();
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Loader");
-            viewResult.Model.Should().BeNull();
+            viewResult.ViewName.Should().Be(expectedView);
+            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson), Times.Once);
         }
 
 
@@ -778,57 +642,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             badRequestResult.Value.Should().Be("An error occurred while searching for schools.");
         }
 
-        [TestCase("eligible", "Outcome/Eligible", typeof(ViewResult))]
-        [TestCase("notEligible", "Outcome/Not_Eligible", typeof(ViewResult))]
-        [TestCase("parentNotFound", "Outcome/Not_Found", typeof(ViewResult))]
-        [TestCase("DwpError", "Outcome/Technical_Error", typeof(ViewResult))]
-        [TestCase("queuedForProcessing", "Loader", typeof(ViewResult))]
-        [TestCase("unknownStatus", "Outcome/Technical_Error", typeof(ViewResult))]
-        public async Task Given_Loader_When_EligibilityResponseProvided_Should_ReturnOutcomePageBasedOnEligibilityResponse(
-    string status, string expectedView, Type expectedType)
-        {
-            // Arrange
-            var checkEligibilityResponse = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = status }
-            };
-
-            _sut.TempData["Response"] = JsonConvert.SerializeObject(checkEligibilityResponse);
-
-            var checkEligibilityStatusResponse = new CheckEligibilityStatusResponse
-            {
-                Data = new StatusValue { Status = status }
-            };
-
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            result.Should().BeOfType(expectedType);
-
-            if (expectedType == typeof(ViewResult))
-            {
-                var viewResult = result as ViewResult;
-                viewResult.Should().NotBeNull();
-                viewResult.ViewName.Should().Be(expectedView);
-            }
-            else if (expectedType == typeof(RedirectToActionResult))
-            {
-                var redirectResult = result as RedirectToActionResult;
-                redirectResult.Should().NotBeNull();
-                redirectResult.ActionName.Should().Be(expectedView);
-            }
-            else
-            {
-                Assert.Fail("Unexpected result type");
-            }
-
-
-        }
+        
 
 
 
