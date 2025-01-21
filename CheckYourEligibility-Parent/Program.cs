@@ -30,6 +30,7 @@ builder.Services.AddServices(builder.Configuration);
 builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
 builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
 builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
+builder.Services.AddScoped<IProcessParentDetailsUseCase,  ProcessParentDetailsUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {

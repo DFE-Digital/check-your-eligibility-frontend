@@ -33,6 +33,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ISearchSchoolsUseCase> _searchSchoolsUseCaseMock;
         private Mock<ICreateUserUseCase> _createUserUseCaseMock;
         private Mock<ILoadParentDetailsUseCase> _loadParentDetailsUseCaseMock;
+        private Mock<IProcessParentDetailsUseCase> _processParentDetailsUseCaseMock;
+
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -219,6 +221,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
                 _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
                 _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
+                _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -227,7 +230,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _configMock.Object,
                     _searchSchoolsUseCaseMock.Object,
                     _loadParentDetailsUseCaseMock.Object,
-                    _createUserUseCaseMock.Object
+                    _createUserUseCaseMock.Object,
+                    _processParentDetailsUseCaseMock.Object
                      
                 );
             }

@@ -21,6 +21,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;  
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
+        private readonly IProcessParentDetailsUseCase _processParentDetailsUseCase;
         private readonly IEcsServiceParent _object;
 
         public CheckController(
@@ -30,7 +31,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             IConfiguration configuration,
             ISearchSchoolsUseCase searchSchoolsUseCase,
             ILoadParentDetailsUseCase loadParentDetailsUseCase,
-            ICreateUserUseCase createUserUseCase) 
+            ICreateUserUseCase createUserUseCase,
+            IProcessParentDetailsUseCase processParentDetailsUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,6 +41,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
             _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
             _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(_loadParentDetailsUseCase));
+            _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(_processParentDetailsUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -68,110 +71,30 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Enter_Details(Parent request)
         {
-            // dont want to validate nass on this page 
-            if (request.IsNinoSelected == false || request.IsNinoSelected == null)
-            {
-                ModelState.Remove("NationalInsuranceNumber");
-                if (!request.NASSRedirect)
-                {
-                    ModelState.Remove("NationalAsylumSeekerServiceNumber");
-                }
-
-            }
-            if (request.IsNassSelected != null)
-            {
-                request.NASSRedirect = true; 
-            }
-            else if (request.IsNinoSelected == null && request.NASSRedirect == true)
-            {
-                ModelState.Remove("IsNassSelected");
-            }
-            else
-            {
-                request.NASSRedirect = false;
-            }
-
-            // do want to validate everything else
             if (!ModelState.IsValid)
             {
-                // Use PRG pattern
-                // POST (this method)
-                // RETRIEVE and store informaton from tempdata then
-                // GET inital page where errors are rendered
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                if (request.NASSRedirect && request.IsNinoSelected == false)
-                {
-                    return RedirectToAction("Nass");
-                }
-                else if ((errors.ContainsKey("IsNinoSelected") && request.NASSRedirect == true) || errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
-                {
-                    return View("Nass");
-                }
+
                 return RedirectToAction("Enter_Details");
             }
 
-            if (request.IsNassSelected == false)
+            var (isValid, response, redirectAction) = await _processParentDetailsUseCase.ExecuteAsync(request, HttpContext.Session);
+
+            if (!isValid)
             {
                 TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                TempData.Remove("Errors");
-                ModelState.Clear();
-                return View("Outcome/Could_Not_Check");
+                return RedirectToAction(redirectAction);
             }
 
-            // if user selected to input nass, save incomplete-model to tempdata and redirect to nass page
-            if (request.IsNinoSelected == false && !request.NASSRedirect)
-            {
-                request.NASSRedirect = true;
-                request.NationalInsuranceNumber = null;
-                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                return RedirectToAction("Nass");
-            }
-
-            // build object for api soft-check
-            var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
-            {
-                Data = new CheckEligibilityRequestData_Fsm
-                {
-                    LastName = request.LastName,
-                    NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
-                    NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber?.ToUpper(),
-                    DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
-                }
-            };
-
-            // set important parent details in session storage
-            HttpContext.Session.SetString("ParentFirstName", request.FirstName);
-            HttpContext.Session.SetString("ParentLastName", request.LastName);
-            HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
-
-            // otherwise set nino and NASS detail in session
-            if (!string.IsNullOrEmpty(request.NationalInsuranceNumber))
-            {
-                HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
-                HttpContext.Session.Remove("ParentNASS");
-            }
-            if (!string.IsNullOrEmpty(request.NationalAsylumSeekerServiceNumber))
-            {
-                HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
-                HttpContext.Session.Remove("ParentNINO");
-            }
-
-            // queue api soft-check
-            var response = await _checkService.PostCheck(checkEligibilityRequest);
-            TempData["Response"] = JsonConvert.SerializeObject(response, Formatting.Indented, new JsonSerializerSettings()
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-
-            _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
-            // go to loader page which will poll the status
-            return RedirectToAction("Loader");
+            TempData["Response"] = JsonConvert.SerializeObject(response);
+            return RedirectToAction(redirectAction);
         }
+
+
 
         public IActionResult Nass()
         {
