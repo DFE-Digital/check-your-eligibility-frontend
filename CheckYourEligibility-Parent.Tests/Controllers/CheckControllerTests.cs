@@ -39,6 +39,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ILoadParentNassDetailsUseCase> _loadParentNassDetailsUseCaseMock;
         private Mock<ILoaderUseCase> _loadParentLoaderUseCaseMock;
         private Mock<IParentSignInUseCase> _parentSignInUseCaseMock;
+        private Mock<IEnterChildDetailsUseCase> _enterChildDetailsUseCaseMock;
 
 
         // check eligibility responses
@@ -53,6 +54,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private ChildsSchool[] _schools;
         private Parent _parent;
         private Children _children;
+        private Children _defaultChildren;
 
         // system under test
         private CheckController _sut;
@@ -69,6 +71,11 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             void SetUpTestData()
             {
+                _defaultChildren = new Children
+                {
+                    ChildList = new List<Child> { new Child() }
+                };
+
                 _schools = new[]
                 {
                     new ChildsSchool()
@@ -230,6 +237,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
                 _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>();
                 _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
+                _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -242,7 +250,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _processParentDetailsUseCaseMock.Object,
                     _loadParentNassDetailsUseCaseMock.Object,
                     _loadParentLoaderUseCaseMock.Object,
-                    _parentSignInUseCaseMock.Object
+                    _parentSignInUseCaseMock.Object,
+                    _enterChildDetailsUseCaseMock.Object
                 );
             }
 
@@ -284,9 +293,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentServiceMock.Setup(s => s.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
                     .ReturnsAsync(_applicationSaveItemResponse);
 
-                
                 _parentServiceMock.Setup(s => s.CreateUser(It.IsAny<UserCreateRequest>()))
                     .ReturnsAsync(new UserSaveItemResponse { Data = "defaultUserId" });
+
+                
+                _enterChildDetailsUseCaseMock
+                    .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<bool?>()))
+                    .ReturnsAsync(_defaultChildren);
             }
         }
 
@@ -712,64 +725,101 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             children.ChildList[2].FirstName.Should().Be(_children.ChildList[2].FirstName);
         }
 
-        [Test]
-        public async Task Given_EnterChildDetails_When_LoadingPage_Should_LoadEnterChildDetailsPage()
-        {
-            // Act
-            var result = _sut.Enter_Child_Details();
 
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeAssignableTo<Children>();
-        }
 
         [Test]
-        public async Task Given_EnterChildDetails_When_SubmittedWithData_Should_LoadCheckAnswersPage()
+        public async Task Enter_Child_Details_When_LoadingPage_Should_LoadEnterChildDetailsPage()
         {
             // Arrange
-            _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(_fsmApplication);
+            _enterChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null, null))
+                .ReturnsAsync(_defaultChildren);
 
             // Act
-            var result = _sut.Enter_Child_Details(_children);
+            var result = await _sut.Enter_Child_Details();
 
             // Assert
-            var viewResult = await result as ViewResult;
-            viewResult.ViewName.Should().Be("Check_Answers");
-            ; viewResult.Model.Should().BeAssignableTo<FsmApplication>();
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.Should().NotBeNull();
+            viewResult.Model.Should().NotBeNull();
+            viewResult.Model.Should().BeAssignableTo<Children>();
+            viewResult.Model.Should().BeEquivalentTo(_defaultChildren);
+
+            // Verify the use case was called with expected parameters
+            _enterChildDetailsUseCaseMock.Verify(
+                x => x.ExecuteAsync(null, null),
+                Times.Once);
         }
 
         [Test]
-        public async Task Given_EnterChildDetails_When_NavigatedFromARedirect_Should_LoadWithChildrenDetailsInModel()
+        public async Task Enter_Child_Details_When_IsChildAddOrRemove_Should_PopulateModelFromTempData()
         {
-            // arrange
-            _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(_fsmApplication);
-            _sut.TempData["IsRedirect"] = true;
-
-            // act
-            var result = _sut.Enter_Child_Details(_children);
-
-            // assert
-            var viewResult = await result as ViewResult;
-            viewResult.Model.Should().Be(_children);
-        }
-
-        [Test]
-        public async Task Given_EnterChildDetails_When_IsChildAddOrRemove_Should_PopulateModelFromTempData()
-        {
-            // arrange
+            // Arrange
+            var children = new Children
+            {
+                ChildList = new List<Child>
+                {
+                    new Child { FirstName = "TestChild", LastName = "TestLastName" }
+                }
+            };
             _sut.TempData["IsChildAddOrRemove"] = true;
-            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children.ChildList);
+            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(children.ChildList);
 
-            // act
-            var result = _sut.Enter_Child_Details();
+            _enterChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(
+                    It.Is<string>(s => s == JsonConvert.SerializeObject(children.ChildList)),
+                    It.Is<bool?>(b => b == true)))
+                .ReturnsAsync(children);
 
-            // assert
-            var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeOfType<Children>();
-            var actionResult = result as ActionResult;
+            // Act
+            var result = await _sut.Enter_Child_Details();
 
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            var model = viewResult.Model.Should().BeOfType<Children>().Subject;
+            model.Should().BeEquivalentTo(children);
 
+            _enterChildDetailsUseCaseMock.Verify(
+                x => x.ExecuteAsync(
+                    It.Is<string>(s => s == JsonConvert.SerializeObject(children.ChildList)),
+                    It.Is<bool?>(b => b == true)),
+                Times.Once);
         }
+
+        [Test]
+        public async Task Enter_Child_Details_When_NoTempData_Should_ReturnDefaultModel()
+        {
+            // Arrange
+            _enterChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null, null))
+                .ReturnsAsync(new Children { ChildList = new List<Child> { new Child() } });
+
+            // Act
+            var result = await _sut.Enter_Child_Details();
+
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            var model = viewResult.Model.Should().BeOfType<Children>().Subject;
+            model.ChildList.Should().HaveCount(1);
+            model.ChildList.First().Should().BeOfType<Child>();
+        }
+
+        [Test]
+        public async Task Enter_Child_Details_WhenUseCaseThrows_ShouldPropagateException()
+        {
+            // Arrange
+            _enterChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<bool?>()))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Enter_Child_Details())
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Test exception");
+        }
+
+
 
         [Test]
         public async Task Given_AddChild_When_AddingMoreThan99Children_Should_CannotAddMoreThan99ChildrenToPagesModel()

@@ -25,6 +25,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ILoadParentNassDetailsUseCase _loadParentNassDetailsUseCase;
         private readonly ILoaderUseCase _loaderUseCase;
         private readonly IParentSignInUseCase _parentSignInUseCase;
+        private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
 
         public CheckController(
            ILogger<CheckController> logger,
@@ -37,7 +38,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         IProcessParentDetailsUseCase processParentDetailsUseCase,
         ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase,
         ILoaderUseCase loaderUseCase,
-        IParentSignInUseCase parentSignInUseCase)
+        IParentSignInUseCase parentSignInUseCase,
+        IEnterChildDetailsUseCase enterChildDetailsUseCase)
 
         {
             _config = configuration;
@@ -51,6 +53,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _loadParentNassDetailsUseCase = loadParentNassDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentNassDetailsUseCase));
             _loaderUseCase = loaderUseCase ?? throw new ArgumentNullException(nameof(loaderUseCase));
             _parentSignInUseCase = parentSignInUseCase ?? throw new ArgumentNullException(nameof(parentSignInUseCase));
+            _enterChildDetailsUseCase = enterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(enterChildDetailsUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -160,21 +163,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
         }
 
-        public IActionResult Enter_Child_Details()
+        public async Task<IActionResult> Enter_Child_Details()
         {
-            var children = new Children() { ChildList = [new()] };
+            var childrenModel = await _enterChildDetailsUseCase.ExecuteAsync(
+                TempData["ChildList"]?.ToString(),
+                TempData["IsChildAddOrRemove"] as bool?);
 
-            // Check if this is a redirect after add or remove child
-            if (TempData["IsChildAddOrRemove"] != null && (bool)TempData["IsChildAddOrRemove"] == true)
-            {
-                ModelState.Clear();
-
-                // Retrieve Children from TempData
-                var childDetails = TempData["ChildList"] as string;
-                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
-            }
-
-            return View(children);
+            return View(childrenModel);
         }
 
 
