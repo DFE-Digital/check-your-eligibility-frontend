@@ -28,6 +28,7 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
+builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {

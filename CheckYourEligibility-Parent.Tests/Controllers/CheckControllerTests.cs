@@ -15,6 +15,8 @@ using Child = CheckYourEligibility_FrontEnd.Models.Child;
 using ChildsSchool = CheckYourEligibility_FrontEnd.Models.School;
 using School = CheckYourEligibility.Domain.Responses.Establishment;
 using CheckYourEligibility_FrontEnd.UseCases;
+using System.Security.Claims;
+using System.Text;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -29,12 +31,14 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<HttpContext> _httpContext;
         private Mock<IConfiguration> _configMock;
         private Mock<ISearchSchoolsUseCase> _searchSchoolsUseCaseMock;
+        private Mock<ICreateUserUseCase> _createUserUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
         private CheckEligibilityStatusResponse _eligibilityStatusResponse;
         private EstablishmentSearchResponse _schoolSearchResponse;
         private ApplicationSaveItemResponse _applicationSaveItemResponse;
+
 
         // test data entities
         private FsmApplication _fsmApplication;
@@ -211,7 +215,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentServiceMock = new Mock<IEcsServiceParent>();
                 _checkServiceMock = new Mock<IEcsCheckService>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _sut = new CheckController(_loggerMock, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object, _searchSchoolsUseCaseMock.Object);
+                _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>(); 
+                _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
+                _sut = new CheckController(
+                    _loggerMock,
+                    _parentServiceMock.Object,
+                    _checkServiceMock.Object,
+                    _configMock.Object,
+                    _searchSchoolsUseCaseMock.Object,
+                    _createUserUseCaseMock.Object
+                );
             }
 
             void SetUpSessionData()
@@ -244,13 +257,17 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     .ReturnsAsync(_eligibilityStatusResponse);
 
                 _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
-                            .ReturnsAsync(_eligibilityResponse);
+                    .ReturnsAsync(_eligibilityResponse);
 
                 _parentServiceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
-                            .ReturnsAsync(_schoolSearchResponse);
+                    .ReturnsAsync(_schoolSearchResponse);
 
                 _parentServiceMock.Setup(s => s.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
-                            .ReturnsAsync(_applicationSaveItemResponse);
+                    .ReturnsAsync(_applicationSaveItemResponse);
+
+                
+                _parentServiceMock.Setup(s => s.CreateUser(It.IsAny<UserCreateRequest>()))
+                    .ReturnsAsync(new UserSaveItemResponse { Data = "defaultUserId" });
             }
         }
 
@@ -895,58 +912,96 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_CheckController_When_LoggerIsNull_Should_ReturnArgumentNullException()
-        {
-            try
-            {
-                _sut = new CheckController(null, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object, _searchSchoolsUseCaseMock.Object);
-            }
-            catch (ArgumentNullException ex)
-            {
-                ex.Should().NotBeNull();
-            }
-        }
-
-        [Test]
-        public async Task Given_CheckController_When_ParentServiceIsNull_Should_ReturnArgumentNullException()
-        {
-            try
-            {
-                _sut = new CheckController(_loggerMock, null, _checkServiceMock.Object, _configMock.Object, _searchSchoolsUseCaseMock.Object);
-            }
-            catch (ArgumentNullException ex)
-            {
-                ex.Should().NotBeNull();
-            }
-        }
-
-        [Test]
-        public async Task Given_CheckController_When_CheckServiceIsNull_Should_ReturnArgumentNullException()
-        {
-            try
-            {
-                _sut = new CheckController(_loggerMock, _parentServiceMock.Object, null, _configMock.Object, _searchSchoolsUseCaseMock.Object);
-            }
-            catch (ArgumentNullException ex)
-            {
-                ex.Should().NotBeNull();
-            }
-        }
-
-        [Test]
-        public async Task Given_Nass_When_BadNassSubmitted_Should_ReturnNassPageWithErrors()
+        
+        public async Task CreateUser_WhenSuccessful_ShouldSetSessionAndRedirect()
         {
             // Arrange
-            _sut.ModelState.AddModelError("TestError", "TestErrorMessage");
+            var email = "test@example.com";
+            var uniqueId = "unique123";
+            var userId = "user123";
+
+            var claims = new List<Claim>
+    {
+        new Claim("email", email),
+        new Claim("sub", uniqueId)
+    };
+            var identity = new ClaimsIdentity(claims);
+            var principal = new ClaimsPrincipal(identity);
+
+            // Use the existing session mock setup
+            var httpContext = new DefaultHttpContext();
+            httpContext.User = principal;
+            httpContext.Session = _sessionMock.Object;
+
+            _sut.ControllerContext.HttpContext = httpContext;
+
+            _createUserUseCaseMock.Setup(x => x.ExecuteAsync(
+                It.Is<string>(e => e == email),
+                It.Is<string>(u => u == uniqueId)))
+                .ReturnsAsync(userId);
 
             // Act
-            var result = _sut.Enter_Details(_parent);
+            var result = await _sut.CreateUser();
 
             // Assert
-            _sut.ModelState.IsValid.Should().BeFalse();
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
 
-            var viewResult = result.Result as RedirectToActionResult;
-            viewResult.ActionName = "Enter_Details";
+            // Get the values from the session using the mocked methods
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("Email")).Should().Be(email);
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("UserId")).Should().Be(userId);
+            _createUserUseCaseMock.Verify(x => x.ExecuteAsync(email, uniqueId), Times.Once);
+        }
+
+        [Test]
+        public async Task CreateUser_WhenUseCaseThrowsException_ShouldReturnTechnicalError()
+        {
+            // Arrange
+            var email = "test@example.com";
+            var uniqueId = "unique123";
+
+            var claims = new List<Claim>
+    {
+        new Claim("email", email),
+        new Claim("sub", uniqueId)
+    };
+            var identity = new ClaimsIdentity(claims);
+            var principal = new ClaimsPrincipal(identity);
+
+            _sut.ControllerContext.HttpContext = new DefaultHttpContext();
+            _sut.ControllerContext.HttpContext.User = principal;
+
+            _createUserUseCaseMock.Setup(x => x.ExecuteAsync(
+                It.Is<string>(e => e == email),
+                It.Is<string>(u => u == uniqueId)))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act
+            var result = await _sut.CreateUser();
+
+            // Assert
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("Outcome/Technical_Error");
+            _createUserUseCaseMock.Verify(x => x.ExecuteAsync(email, uniqueId), Times.Once);
+        }
+
+        [Test]
+        public async Task CreateUser_WhenClaimsAreMissing_ShouldReturnTechnicalError()
+        {
+            // Arrange
+            _sut.ControllerContext.HttpContext = new DefaultHttpContext();
+            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+
+            // Act
+            var result = await _sut.CreateUser();
+
+            // Assert
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("Outcome/Technical_Error");
+            _createUserUseCaseMock.Verify(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
     }
 }

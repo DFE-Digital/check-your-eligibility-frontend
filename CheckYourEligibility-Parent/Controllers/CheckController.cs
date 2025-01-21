@@ -18,7 +18,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsServiceParent _parentService;
         private readonly IEcsCheckService _checkService;
         private readonly IConfiguration _config;
-        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;  // Add this field
+        private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;  
+        private readonly ICreateUserUseCase _createUserUseCase;
         private readonly IEcsServiceParent _object;
 
         public CheckController(
@@ -26,13 +27,15 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             IEcsServiceParent ecsParentService,
             IEcsCheckService ecsCheckService,
             IConfiguration configuration,
-            ISearchSchoolsUseCase searchSchoolsUseCase)  // Add this parameter
+            ISearchSchoolsUseCase searchSchoolsUseCase,
+            ICreateUserUseCase createUserUseCase) 
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
+            _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -255,24 +258,23 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> CreateUser()
         {
-            string email = HttpContext.User.Claims.Where(c => c.Type == "email").Select(c => c.Value).First();
-            string uniqueId = HttpContext.User.Claims.Where(c => c.Type == "sub").Select(c => c.Value).First();
+            try
+            {
+                string email = HttpContext.User.Claims.First(c => c.Type == "email").Value;
+                string uniqueId = HttpContext.User.Claims.First(c => c.Type == "sub").Value;
 
-            var user = await _parentService.CreateUser(
-                new UserCreateRequest()
-                {
-                    Data = new UserData()
-                    {
-                        Email = email,
-                        Reference = uniqueId
-                    }
-                }
-            );
+                var userId = await _createUserUseCase.ExecuteAsync(email, uniqueId);
 
-            HttpContext.Session.SetString("Email", email);
-            HttpContext.Session.SetString("UserId", user.Data);
+                HttpContext.Session.SetString("Email", email);
+                HttpContext.Session.SetString("UserId", userId);
 
-            return RedirectToAction("Enter_Child_Details");
+                return RedirectToAction("Enter_Child_Details");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating user");
+                return View("Outcome/Technical_Error");
+            }
         }
 
         public IActionResult Enter_Child_Details()
