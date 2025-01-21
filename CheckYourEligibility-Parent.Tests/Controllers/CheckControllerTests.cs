@@ -32,6 +32,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IConfiguration> _configMock;
         private Mock<ISearchSchoolsUseCase> _searchSchoolsUseCaseMock;
         private Mock<ICreateUserUseCase> _createUserUseCaseMock;
+        private Mock<ILoadParentDetailsUseCase> _loadParentDetailsUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -215,15 +216,19 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentServiceMock = new Mock<IEcsServiceParent>();
                 _checkServiceMock = new Mock<IEcsCheckService>();
                 _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>(); 
+                _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
                 _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
+                _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
+
                 _sut = new CheckController(
                     _loggerMock,
                     _parentServiceMock.Object,
                     _checkServiceMock.Object,
                     _configMock.Object,
                     _searchSchoolsUseCaseMock.Object,
+                    _loadParentDetailsUseCaseMock.Object,
                     _createUserUseCaseMock.Object
+                     
                 );
             }
 
@@ -282,9 +287,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             _sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(_parent);
+            var expectedViewModel = new LoadParentDetailsViewModel { Parent = _parent };
+            _loadParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedViewModel);
 
             // Act
-            var result = _sut.Enter_Details();
+            var result = await _sut.Enter_Details();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
@@ -297,13 +306,19 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_EnterDetails_When_LoadingPage_Should_LoadEnterDetailsPage()
         {
+            // Arrange
+            var expectedViewModel = new LoadParentDetailsViewModel();
+            _loadParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null, null))
+                .ReturnsAsync(expectedViewModel);
+
             // Act
-            var result = _sut.Enter_Details();
+            var result = await _sut.Enter_Details();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().Be(null);
+            viewResult.Model.Should().BeNull();
         }
 
         [Test]

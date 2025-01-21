@@ -29,6 +29,7 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
 builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
+builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {

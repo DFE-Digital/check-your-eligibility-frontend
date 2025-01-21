@@ -20,6 +20,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IConfiguration _config;
         private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;  
         private readonly ICreateUserUseCase _createUserUseCase;
+        private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
         private readonly IEcsServiceParent _object;
 
         public CheckController(
@@ -28,6 +29,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             IEcsCheckService ecsCheckService,
             IConfiguration configuration,
             ISearchSchoolsUseCase searchSchoolsUseCase,
+            ILoadParentDetailsUseCase loadParentDetailsUseCase,
             ICreateUserUseCase createUserUseCase) 
         {
             _config = configuration;
@@ -36,40 +38,31 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
             _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
+            _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(_loadParentDetailsUseCase));
 
             _logger.LogInformation("controller log info");
         }
 
         [HttpGet]
-        public IActionResult Enter_Details()
+        public async Task<IActionResult> Enter_Details()
         {
-            // start with empty page model
-            Parent request = null;
+            var viewModel = await _loadParentDetailsUseCase.ExecuteAsync(
+                TempData["ParentDetails"]?.ToString(),
+                TempData["Errors"]?.ToString()
+            );
 
-            // if this page is loaded again after a POST then get the request and update the page with any errors
-            if (TempData["ParentDetails"] != null)
+            if (viewModel.ValidationErrors != null)
             {
-                request = JsonConvert.DeserializeObject<Parent>(TempData["ParentDetails"].ToString());
-            }
-
-            if (TempData["Errors"] != null)
-            {
-                var errors =
-                    JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
-                if (errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
+                foreach (var (key, errorList) in viewModel.ValidationErrors)
                 {
-                    errors.Remove("NationalAsylumSeekerServiceNumber");
-                }
-                foreach (var kvp in errors)
-                {
-                    foreach (var error in kvp.Value)
+                    foreach (var error in errorList)
                     {
-                        ModelState.AddModelError(kvp.Key, error);
+                        ModelState.AddModelError(key, error);
                     }
                 }
             }
 
-            return View(request);
+            return View(viewModel.Parent);
         }
 
         [HttpPost]
