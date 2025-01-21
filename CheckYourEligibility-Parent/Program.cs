@@ -31,6 +31,7 @@ builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
 builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
 builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
 builder.Services.AddScoped<IProcessParentDetailsUseCase,  ProcessParentDetailsUseCase>();
+builder.Services.AddScoped<ILoadParentNassDetailsUseCase, LoadParentNassDetailsUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {

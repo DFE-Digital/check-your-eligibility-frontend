@@ -34,6 +34,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ICreateUserUseCase> _createUserUseCaseMock;
         private Mock<ILoadParentDetailsUseCase> _loadParentDetailsUseCaseMock;
         private Mock<IProcessParentDetailsUseCase> _processParentDetailsUseCaseMock;
+        private Mock<ILoadParentNassDetailsUseCase> _loadParentNassDetailsUseCaseMock;
 
 
         // check eligibility responses
@@ -222,6 +223,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
                 _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
                 _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
+                _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -231,7 +233,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _searchSchoolsUseCaseMock.Object,
                     _loadParentDetailsUseCaseMock.Object,
                     _createUserUseCaseMock.Object,
-                    _processParentDetailsUseCaseMock.Object
+                    _processParentDetailsUseCaseMock.Object,
+                    _loadParentNassDetailsUseCaseMock.Object
                      
                 );
             }
@@ -328,6 +331,11 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_EnterDetails_When_ValidDataProvided_Should_RedirectToLoaderPage()
         {
+            // Arrange
+            _processParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<Parent>(), It.IsAny<ISession>()))
+                .ReturnsAsync((true, new CheckEligibilityResponse(), "Loader"));
+
             // Act
             var result = await _sut.Enter_Details(_parent);
 
@@ -337,21 +345,49 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             redirectToActionResult.ActionName.Should().Be("Loader");
         }
 
+
         [Test]
         public async Task Given_EnterDetails_When_ValidDataProvided_Should_SetSessionData()
         {
             // Arrange
             var expectedDob = new DateOnly(1990, 01, 01).ToString("yyyy-MM-dd");
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            _sessionMock
+                .Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            _sessionMock
+                .Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                .Returns((string key, out byte[] value) =>
+                {
+                    var result = sessionStorage.TryGetValue(key, out var storedValue);
+                    value = storedValue;
+                    return result;
+                });
+
+            _processParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<Parent>(), It.IsAny<ISession>()))
+                .Callback<Parent, ISession>((parent, session) =>
+                {
+                    session.Set("ParentFirstName", Encoding.UTF8.GetBytes(parent.FirstName));
+                    session.Set("ParentLastName", Encoding.UTF8.GetBytes(parent.LastName));
+                    session.Set("ParentDOB", Encoding.UTF8.GetBytes(expectedDob));
+                    session.Set("ParentNINO", Encoding.UTF8.GetBytes(parent.NationalInsuranceNumber));
+                })
+                .ReturnsAsync((true, new CheckEligibilityResponse(), "Loader"));
 
             // Act
-            _ = await _sut.Enter_Details(_parent);
+            await _sut.Enter_Details(_parent);
 
             // Assert
-            _sut.ControllerContext.HttpContext.Session.GetString("ParentFirstName").Should().Be(_parent.FirstName);
-            _sut.ControllerContext.HttpContext.Session.GetString("ParentLastName").Should().Be(_parent.LastName);
-            _sut.ControllerContext.HttpContext.Session.GetString("ParentDOB").Should().Be(expectedDob);
-            _sut.ControllerContext.HttpContext.Session.GetString("ParentNINO").Should().Be(_parent.NationalInsuranceNumber);
+            Encoding.UTF8.GetString(sessionStorage["ParentFirstName"]).Should().Be(_parent.FirstName);
+            Encoding.UTF8.GetString(sessionStorage["ParentLastName"]).Should().Be(_parent.LastName);
+            Encoding.UTF8.GetString(sessionStorage["ParentDOB"]).Should().Be(expectedDob);
+            Encoding.UTF8.GetString(sessionStorage["ParentNINO"]).Should().Be(_parent.NationalInsuranceNumber);
         }
+
+
 
         [Test]
         public async Task Given_EnterDetails_When_ModelStateIsInvalid_Should_ErrorsShouldBeInTempData()
@@ -386,11 +422,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_Nass_When_LoadingPage_Should_LoadNassPage()
+        public void Given_Nass_When_LoadingPage_Should_LoadNassPage()
         {
-            //arrange
-            var request = new Parent();
-            _sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+            // Arrange
+            var mockParent = new Parent { FirstName = "Test", LastName = "Parent" };
+            _sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(mockParent);
+
+            _loadParentNassDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
+                .ReturnsAsync(mockParent);
+
             // Act
             var result = _sut.Nass();
 
@@ -399,8 +440,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var viewResult = result as ViewResult;
             viewResult.Model.Should().BeOfType<Parent>();
             var model = viewResult.Model as Parent;
-            model.Should().BeEquivalentTo(new Parent());
+            model.Should().BeEquivalentTo(mockParent);
         }
+
         [Test]
         public async Task Given_QueuedForProcessingStatus_When_LoaderIsCalled_Should_ReturnLoaderView()
         {
@@ -433,16 +475,40 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         {
             // Arrange
             _parent.IsNinoSelected = false;
+            _parent.IsNassSelected = false;
             _parent.NationalInsuranceNumber = null;
             _parent.NationalAsylumSeekerServiceNumber = "202405001";
 
+            // Mock TempData
+            var tempData = new TempDataDictionary(
+                new DefaultHttpContext(),
+                Mock.Of<ITempDataProvider>());
+            _sut.TempData = tempData;
+
+            // Mock ModelState
+            _sut.ModelState.Clear();
+
+            // Set up session and context properly using the existing session mock from SetUp
+            var httpContext = new DefaultHttpContext();
+            httpContext.Session = _sessionMock.Object; // Use the session mock we already set up
+            _sut.ControllerContext = new ControllerContext()
+            {
+                HttpContext = httpContext
+            };
+
+            // Mock ProcessParentDetailsUseCase to return expected values
+            _processParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(
+                    It.IsAny<Parent>(),
+                    It.IsAny<ISession>()))
+                .ReturnsAsync((false, null, "Nass"));
+
             // Act
-            var result = _sut.Enter_Details(_parent);
+            var result = await _sut.Enter_Details(_parent);
 
             // Assert
-            result.Should().BeOfType<Task<IActionResult>>();
-
-            var actionResult = (RedirectToActionResult)result.Result;
+            result.Should().BeOfType<RedirectToActionResult>();
+            var actionResult = (RedirectToActionResult)result;
             actionResult.ActionName.Should().Be("Nass");
         }
         [Test]
@@ -915,6 +981,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _children.ChildList.Count.Should().Be(99);
         }
 
+        
         [Test]
         public async Task Given_EnterDetails_When_UserHasSelectedToInputANass_Should_RedirectToNassPage()
         {
@@ -922,11 +989,16 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _parent.IsNinoSelected = false;
             _parent.NationalInsuranceNumber = null;
 
+            _processParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<Parent>(), It.IsAny<ISession>()))
+                .ReturnsAsync((false, null, "Nass"));
+
             // Act
-            var result = _sut.Enter_Details(_parent);
+            var result = await _sut.Enter_Details(_parent);
 
             // Assert
-            var redirectResult = result.Result as RedirectToActionResult;
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
             redirectResult.ActionName.Should().Be("Nass");
         }
 

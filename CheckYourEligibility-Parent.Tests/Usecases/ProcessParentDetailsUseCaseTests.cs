@@ -77,6 +77,8 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
 
             Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentFirstName")).Should().Be("John");
             Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentLastName")).Should().Be("Doe");
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentDOB")).Should().Be("1980-01-01");
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentNINO")).Should().Be("AB123456C");
         }
 
         [Test]
@@ -93,6 +95,30 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             isValid.Should().BeFalse();
             response.Should().BeNull();
             redirectAction.Should().Be("Nass");
+        }
+
+        [Test]
+        public async Task ExecuteAsync_WithNassParent_ShouldSetNassSessionData()
+        {
+            // Arrange
+            _parent.IsNinoSelected = false;
+            _parent.IsNassSelected = true;  // Add this line - indicate NASS flow is complete
+            _parent.NationalAsylumSeekerServiceNumber = "NASS123456";
+            _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
+                             .ReturnsAsync(_eligibilityResponse);
+
+            // Act
+            var (isValid, response, redirectAction) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+
+            // Assert
+            isValid.Should().BeTrue();
+            response.Should().BeEquivalentTo(_eligibilityResponse);
+            redirectAction.Should().Be("Loader");
+
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentFirstName")).Should().Be("John");
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentLastName")).Should().Be("Doe");
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentDOB")).Should().Be("1980-01-01");
+            Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentNASS")).Should().Be("NASS123456");
         }
 
         [Test]

@@ -1,8 +1,9 @@
-﻿using CheckYourEligibility.Domain.Requests;
+﻿using System.Text;
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
@@ -27,36 +28,46 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             Parent parentRequest,
             ISession session)
         {
-            // Validate NINO and NASS logic
-            if (parentRequest.IsNinoSelected == false && !parentRequest.NASSRedirect)
+            //
+            // If user says “I have NO NINO” but “haven’t finished NASS page yet” => redirect to "Nass".
+            //
+            if (parentRequest.IsNinoSelected == false && parentRequest.IsNassSelected != true)
             {
-                parentRequest.NASSRedirect = true;
-                parentRequest.NationalInsuranceNumber = null;
                 return (false, null, "Nass");
             }
 
-            // Save session details
-            session.SetString("ParentFirstName", parentRequest.FirstName);
-            session.SetString("ParentLastName", parentRequest.LastName);
-            session.SetString(
-                "ParentDOB",
-                new DateOnly(int.Parse(parentRequest.Year), int.Parse(parentRequest.Month), int.Parse(parentRequest.Day))
-                    .ToString("yyyy-MM-dd")
-            );
+            //
+            // Otherwise, do ECS check => store session => (true, response, "Loader").
+            //   - This includes NINO flow (IsNinoSelected == true).
+            //   - It also includes NASS flow (IsNinoSelected == false) but 
+            //     user has finished NASS page => (IsNassSelected == true).
+            //
+            session.Set("ParentFirstName", Encoding.UTF8.GetBytes(parentRequest.FirstName ?? string.Empty));
+            session.Set("ParentLastName", Encoding.UTF8.GetBytes(parentRequest.LastName ?? string.Empty));
 
-            if (!string.IsNullOrEmpty(parentRequest.NationalInsuranceNumber))
+            // Build DOB string
+            var dobString = new DateOnly(
+                int.Parse(parentRequest.Year),
+                int.Parse(parentRequest.Month),
+                int.Parse(parentRequest.Day)
+            ).ToString("yyyy-MM-dd");
+
+            session.Set("ParentDOB", Encoding.UTF8.GetBytes(dobString));
+
+            // If we're finishing a NASS flow, store "ParentNASS"; 
+            // otherwise store "ParentNINO".
+            if (parentRequest.IsNinoSelected == false)
             {
-                session.SetString("ParentNINO", parentRequest.NationalInsuranceNumber);
+                session.Set("ParentNASS", Encoding.UTF8.GetBytes(parentRequest.NationalAsylumSeekerServiceNumber ?? ""));
+                session.Remove("ParentNINO");
+            }
+            else
+            {
+                session.Set("ParentNINO", Encoding.UTF8.GetBytes(parentRequest.NationalInsuranceNumber ?? ""));
                 session.Remove("ParentNASS");
             }
 
-            if (!string.IsNullOrEmpty(parentRequest.NationalAsylumSeekerServiceNumber))
-            {
-                session.SetString("ParentNASS", parentRequest.NationalAsylumSeekerServiceNumber);
-                session.Remove("ParentNINO");
-            }
-
-            // Build request for the API
+            // Build ECS request
             var checkEligibilityRequest = new CheckEligibilityRequest_Fsm
             {
                 Data = new CheckEligibilityRequestData_Fsm
@@ -64,12 +75,11 @@ namespace CheckYourEligibility_FrontEnd.UseCases
                     LastName = parentRequest.LastName,
                     NationalInsuranceNumber = parentRequest.NationalInsuranceNumber?.ToUpper(),
                     NationalAsylumSeekerServiceNumber = parentRequest.NationalAsylumSeekerServiceNumber?.ToUpper(),
-                    DateOfBirth = new DateOnly(int.Parse(parentRequest.Year), int.Parse(parentRequest.Month), int.Parse(parentRequest.Day))
-                        .ToString("yyyy-MM-dd")
+                    DateOfBirth = dobString
                 }
             };
 
-            // Call the API
+            // Call ECS check
             var response = await _checkService.PostCheck(checkEligibilityRequest);
 
             return (true, response, "Loader");

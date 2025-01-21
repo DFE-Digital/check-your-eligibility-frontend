@@ -22,17 +22,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
         private readonly IProcessParentDetailsUseCase _processParentDetailsUseCase;
+        private readonly ILoadParentNassDetailsUseCase _loadParentNassDetailsUseCase;
         private readonly IEcsServiceParent _object;
 
         public CheckController(
-            ILogger<CheckController> logger,
-            IEcsServiceParent ecsParentService,
-            IEcsCheckService ecsCheckService,
-            IConfiguration configuration,
-            ISearchSchoolsUseCase searchSchoolsUseCase,
-            ILoadParentDetailsUseCase loadParentDetailsUseCase,
-            ICreateUserUseCase createUserUseCase,
-            IProcessParentDetailsUseCase processParentDetailsUseCase)
+           ILogger<CheckController> logger,
+           IEcsServiceParent ecsParentService,
+           IEcsCheckService ecsCheckService,
+           IConfiguration configuration,
+           ISearchSchoolsUseCase searchSchoolsUseCase,
+           ILoadParentDetailsUseCase loadParentDetailsUseCase,
+           ICreateUserUseCase createUserUseCase,
+           IProcessParentDetailsUseCase processParentDetailsUseCase,
+           ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -40,8 +42,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
             _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
             _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
-            _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(_loadParentDetailsUseCase));
-            _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(_processParentDetailsUseCase));
+            _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentDetailsUseCase));  // Fixed: Added underscore
+            _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(processParentDetailsUseCase));  // Fixed: Added underscore
+            _loadParentNassDetailsUseCase = loadParentNassDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentNassDetailsUseCase));  // Fixed: Added underscore
 
             _logger.LogInformation("controller log info");
         }
@@ -98,12 +101,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public IActionResult Nass()
         {
-            var parentDetails = TempData["ParentDetails"];
-            if (parentDetails == null)
+            var parentDetailsJson = TempData["ParentDetails"] as string;
+            if (string.IsNullOrEmpty(parentDetailsJson))
             {
                 return RedirectToAction("Enter_Details");
             }
-            var parent = new Parent();
+
+            var parent = _loadParentNassDetailsUseCase.ExecuteAsync(parentDetailsJson).Result;
 
             return View(parent);
         }
