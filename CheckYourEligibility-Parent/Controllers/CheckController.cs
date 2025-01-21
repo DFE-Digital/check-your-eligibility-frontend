@@ -24,6 +24,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IProcessParentDetailsUseCase _processParentDetailsUseCase;
         private readonly ILoadParentNassDetailsUseCase _loadParentNassDetailsUseCase;
         private readonly ILoaderUseCase _loaderUseCase;
+        private readonly IParentSignInUseCase _parentSignInUseCase;
 
         public CheckController(
            ILogger<CheckController> logger,
@@ -35,7 +36,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         ICreateUserUseCase createUserUseCase,
         IProcessParentDetailsUseCase processParentDetailsUseCase,
         ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase,
-        ILoaderUseCase loaderUseCase)
+        ILoaderUseCase loaderUseCase,
+        IParentSignInUseCase parentSignInUseCase)
+
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -47,6 +50,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(processParentDetailsUseCase));
             _loadParentNassDetailsUseCase = loadParentNassDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentNassDetailsUseCase));
             _loaderUseCase = loaderUseCase ?? throw new ArgumentNullException(nameof(loaderUseCase));
+            _parentSignInUseCase = parentSignInUseCase ?? throw new ArgumentNullException(nameof(parentSignInUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -129,11 +133,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(viewName, model);
         }
 
-        public IActionResult SignIn()
+        public async Task<IActionResult> SignIn()
         {
-            var properties = new AuthenticationProperties();
-            properties.SetVectorOfTrust(@"[""Cl""]");
-            properties.RedirectUri = "/Check/CreateUser";
+            var properties = await _parentSignInUseCase.ExecuteAsync("/Check/CreateUser");
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
 

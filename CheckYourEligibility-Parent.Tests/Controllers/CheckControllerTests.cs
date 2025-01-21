@@ -17,6 +17,8 @@ using School = CheckYourEligibility.Domain.Responses.Establishment;
 using CheckYourEligibility_FrontEnd.UseCases;
 using System.Security.Claims;
 using System.Text;
+using GovUk.OneLogin.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CheckYourEligibility_Parent.Tests.Controllers
 {
@@ -36,6 +38,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IProcessParentDetailsUseCase> _processParentDetailsUseCaseMock;
         private Mock<ILoadParentNassDetailsUseCase> _loadParentNassDetailsUseCaseMock;
         private Mock<ILoaderUseCase> _loadParentLoaderUseCaseMock;
+        private Mock<IParentSignInUseCase> _parentSignInUseCaseMock;
 
 
         // check eligibility responses
@@ -225,7 +228,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
                 _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
                 _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
-                _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>(); 
+                _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>();
+                _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -237,7 +241,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _createUserUseCaseMock.Object,
                     _processParentDetailsUseCaseMock.Object,
                     _loadParentNassDetailsUseCaseMock.Object,
-                    _loadParentLoaderUseCaseMock.Object  
+                    _loadParentLoaderUseCaseMock.Object,
+                    _parentSignInUseCaseMock.Object
                 );
             }
 
@@ -795,7 +800,40 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _children.ChildList.Count.Should().Be(99);
         }
 
-        
+        [Test]
+        public async Task SignIn_ShouldReturnChallengeResultWithCorrectSchemeAndProperties()
+        {
+            // Arrange
+            var mockAuthProperties = new AuthenticationProperties
+            {
+                RedirectUri = "/Check/CreateUser"
+            };
+            mockAuthProperties.SetString("vector_of_trust", @"[""Cl""]");
+
+            _parentSignInUseCaseMock
+                .Setup(x => x.ExecuteAsync("/Check/CreateUser"))
+                .ReturnsAsync(mockAuthProperties);
+
+            // Act
+            var result = await _sut.SignIn();
+
+            // Assert
+            result.Should().BeOfType<ChallengeResult>();
+            var challengeResult = result as ChallengeResult;
+
+            challengeResult.AuthenticationSchemes.Should().ContainSingle()
+                .Which.Should().Be(OneLoginDefaults.AuthenticationScheme);
+
+            challengeResult.Properties.Should().NotBeNull();
+            challengeResult.Properties.RedirectUri.Should().Be("/Check/CreateUser");
+            challengeResult.Properties.GetString("vector_of_trust").Should().Be(@"[""Cl""]");
+
+            _parentSignInUseCaseMock.Verify(
+                x => x.ExecuteAsync("/Check/CreateUser"),
+                Times.Once);
+        }
+
+
         [Test]
         public async Task Given_EnterDetails_When_UserHasSelectedToInputANass_Should_RedirectToNassPage()
         {
