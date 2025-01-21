@@ -1,4 +1,6 @@
-﻿namespace CheckYourEligibility_FrontEnd.ViewModels
+﻿using CheckYourEligibility_FrontEnd.Models;
+
+namespace CheckYourEligibility_FrontEnd.ViewModels
 {
     public class ApplicationDetailViewModel
     {
@@ -12,8 +14,7 @@
         public string ParentEmail { get; set; }
         public string ChildName { get; set; }
         public string ChildDob { get; set; }
-
-
+        public string School { get; set; }
 
     }
 }
