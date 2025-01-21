@@ -40,6 +40,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ILoaderUseCase> _loadParentLoaderUseCaseMock;
         private Mock<IParentSignInUseCase> _parentSignInUseCaseMock;
         private Mock<IEnterChildDetailsUseCase> _enterChildDetailsUseCaseMock;
+        private Mock<IProcessChildDetailsUseCase> _processChildDetailsUseCaseMock;
 
 
         // check eligibility responses
@@ -238,6 +239,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>();
                 _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
                 _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
+                _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
+                
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -251,7 +254,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _loadParentNassDetailsUseCaseMock.Object,
                     _loadParentLoaderUseCaseMock.Object,
                     _parentSignInUseCaseMock.Object,
-                    _enterChildDetailsUseCaseMock.Object
+                    _enterChildDetailsUseCaseMock.Object,
+                    _processChildDetailsUseCaseMock.Object
                 );
             }
 

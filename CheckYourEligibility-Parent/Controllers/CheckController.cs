@@ -26,6 +26,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ILoaderUseCase _loaderUseCase;
         private readonly IParentSignInUseCase _parentSignInUseCase;
         private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
+        private readonly IProcessChildDetailsUseCase _processChildDetailsUseCase;
 
         public CheckController(
            ILogger<CheckController> logger,
@@ -39,7 +40,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase,
         ILoaderUseCase loaderUseCase,
         IParentSignInUseCase parentSignInUseCase,
-        IEnterChildDetailsUseCase enterChildDetailsUseCase)
+        IEnterChildDetailsUseCase enterChildDetailsUseCase,
+        IProcessChildDetailsUseCase processChildDetailsUseCase)
 
         {
             _config = configuration;
@@ -54,6 +56,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _loaderUseCase = loaderUseCase ?? throw new ArgumentNullException(nameof(loaderUseCase));
             _parentSignInUseCase = parentSignInUseCase ?? throw new ArgumentNullException(nameof(parentSignInUseCase));
             _enterChildDetailsUseCase = enterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(enterChildDetailsUseCase));
+            _processChildDetailsUseCase = processChildDetailsUseCase ?? throw new ArgumentNullException(nameof(processChildDetailsUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -173,60 +176,47 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
 
-        [HttpPost]
         public async Task<IActionResult> Enter_Child_Details(Children request)
         {
-            if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
-            {
-                return View(request);
-            }
-
-            var idx = 0;
-            foreach (var item in request.ChildList)
-            {
-                if (item.School.URN == null) continue;
-                if (item.School.URN.Length == 6 && int.TryParse(item.School.URN, out _))
-                {
-                    var schools = await _parentService.GetSchool(item.School.URN);
-
-                    if (schools != null)
-                    {
-                        item.School.Name = schools.Data.First().Name;
-                        ModelState.Remove($"ChildList[{idx}].School.URN");
-                    }
-
-                    else
-                    {
-                        ModelState.AddModelError($"ChildList[{idx}].School.URN", "The selected school does not exist in our service.");
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError($"ChildList[{idx}].School.URN", "School URN should be a 6 digit number.");
-                }
-                idx++;
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(request);
             }
 
-            var fsmApplication = new FsmApplication
+            var isRedirect = TempData["FsmApplication"] != null &&
+                           TempData["IsRedirect"] != null &&
+                           (bool)TempData["IsRedirect"] == true;
+
+            var validationErrors = ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .ToDictionary(
+                    k => k.Key,
+                    v => v.Value.Errors.Select(e => e.ErrorMessage).ToArray());
+
+            var (isSuccess, view, model, errors) = await _processChildDetailsUseCase.ExecuteAsync(
+                request,
+                isRedirect,
+                HttpContext.Session,
+                validationErrors);
+
+            if (!isSuccess)
             {
-                ParentFirstName = HttpContext.Session.GetString("ParentFirstName"),
-                ParentLastName = HttpContext.Session.GetString("ParentLastName"),
-                ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
-                ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
-                ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
-                Children = request,
-                Email = HttpContext.Session.GetString("Email")
-            };
+                foreach (var error in errors)
+                {
+                    foreach (var message in error.Value)
+                    {
+                        ModelState.AddModelError(error.Key, message);
+                    }
+                }
+                return View(model);
+            }
 
+            if (model is FsmApplication fsmApplication)
+            {
+                TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
+            }
 
-            TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
-
-            return View("Check_Answers", fsmApplication);
+            return View(view, model);
         }
 
         [HttpPost]
