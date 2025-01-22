@@ -37,6 +37,8 @@ builder.Services.AddScoped<IParentSignInUseCase, ParentSignInUseCase>();
 builder.Services.AddScoped<IEnterChildDetailsUseCase, EnterChildDetailsUseCase>();
 builder.Services.AddScoped<IProcessChildDetailsUseCase, ProcessChildDetailsUseCase>();
 builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
+builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
+builder.Services.AddScoped<ICheckAnswersUseCase, CheckAnswersUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {

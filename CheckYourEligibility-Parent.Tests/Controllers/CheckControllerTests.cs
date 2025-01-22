@@ -43,7 +43,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IProcessChildDetailsUseCase> _processChildDetailsUseCaseMock;
         private Mock<IAddChildUseCase> _addChildUseCaseMock;
         private Mock<IRemoveChildUseCase> _removeChildUseCaseMock;
-
+        private Mock<ICheckAnswersUseCase> _checkAnswersUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -229,6 +229,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             void SetUpInitialMocks()
             {
+                // Initialize service mocks
                 _configMock = new Mock<IConfiguration>();
                 _parentServiceMock = new Mock<IEcsServiceParent>();
                 _checkServiceMock = new Mock<IEcsCheckService>();
@@ -244,7 +245,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
                 _addChildUseCaseMock = new Mock<IAddChildUseCase>();
                 _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
-
+                _checkAnswersUseCaseMock = new Mock<ICheckAnswersUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -261,7 +262,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _enterChildDetailsUseCaseMock.Object,
                     _processChildDetailsUseCaseMock.Object,
                     _addChildUseCaseMock.Object,
-                    _removeChildUseCaseMock.Object
+                    _removeChildUseCaseMock.Object,
+                    _checkAnswersUseCaseMock.Object
                 );
             }
 
@@ -285,12 +287,18 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             void SetUpHTTPContext()
             {
                 _httpContext = new Mock<HttpContext>();
+                var session = new Mock<ISession>();
                 _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
-                _sut.ControllerContext.HttpContext = _httpContext.Object;
+                var controllerContext = new ControllerContext
+                {
+                    HttpContext = _httpContext.Object
+                };
+                _sut.ControllerContext = controllerContext;
             }
 
             void SetUpServiceMocks()
             {
+                // Service mocks
                 _checkServiceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
                     .ReturnsAsync(_eligibilityStatusResponse);
 
@@ -306,17 +314,41 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentServiceMock.Setup(s => s.CreateUser(It.IsAny<UserCreateRequest>()))
                     .ReturnsAsync(new UserSaveItemResponse { Data = "defaultUserId" });
 
-                
+                // Use Case mocks
                 _enterChildDetailsUseCaseMock
                     .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<bool?>()))
                     .ReturnsAsync(_defaultChildren);
+
+                _processChildDetailsUseCaseMock
+                    .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<bool>(), It.IsAny<ISession>(), It.IsAny<Dictionary<string, string[]>>()))
+                    .ReturnsAsync((true, "Check_Answers", _fsmApplication, null));
+
+                _addChildUseCaseMock
+                    .Setup(x => x.ExecuteAsync(It.IsAny<Children>()))
+                    .ReturnsAsync((true, new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
+
+                _removeChildUseCaseMock
+                    .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<int>()))
+                    .ReturnsAsync((true, _children, string.Empty));
+
+                _checkAnswersUseCaseMock
+                    .Setup(x => x.ProcessApplicationAsync(
+                        It.IsAny<FsmApplication>(),
+                        It.Is<string>(s => s == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString()),
+                        It.IsAny<string>(),
+                        It.IsAny<string>()))
+                    .ReturnsAsync((true, new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse }, null));
             }
         }
 
         [TearDown]
         public void TearDown()
         {
-            _sut.Dispose();
+            if (_sut != null)
+            {
+                _sut.Dispose();
+                _sut = null;
+            }
         }
 
         [Test]

@@ -29,7 +29,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IProcessChildDetailsUseCase _processChildDetailsUseCase;
         private readonly IAddChildUseCase _addChildUseCase;
         private readonly IRemoveChildUseCase _removeChildUseCase;
-
+        private readonly ICheckAnswersUseCase _checkAnswersUseCase;
         public CheckController(
            ILogger<CheckController> logger,
         IEcsServiceParent ecsParentService,
@@ -45,7 +45,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         IEnterChildDetailsUseCase enterChildDetailsUseCase,
         IProcessChildDetailsUseCase processChildDetailsUseCase,
         IAddChildUseCase addChildUseCase,
-        IRemoveChildUseCase removeChildUseCase)
+        IRemoveChildUseCase removeChildUseCase,
+        ICheckAnswersUseCase checkAnswersUseCase)
 
         {
             _config = configuration;
@@ -62,7 +63,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _enterChildDetailsUseCase = enterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(enterChildDetailsUseCase));
             _processChildDetailsUseCase = processChildDetailsUseCase ?? throw new ArgumentNullException(nameof(processChildDetailsUseCase));
             _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
-            _removeChildUseCase = removeChildUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));   
+            _removeChildUseCase = removeChildUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
+            _checkAnswersUseCase = checkAnswersUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -287,43 +289,29 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            var currentStatus = HttpContext.Session.GetString("CheckResult");
-            _logger.LogInformation($"Current eligibility status in session: {currentStatus}");
-
-            if (currentStatus != CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString())
+            try
             {
-                throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
-            }
-            List<ApplicationSaveItemResponse> responses = new List<ApplicationSaveItemResponse>();
+                var currentStatus = HttpContext.Session.GetString("CheckResult");
+                var userId = HttpContext.Session.GetString("UserId");
+                var email = HttpContext.Session.GetString("Email");
 
-            foreach (var child in request.Children.ChildList)
-            {
-                var fsmApplication = new ApplicationRequest
+                var (isSuccess, responses, errorMessage) = await _checkAnswersUseCase.ProcessApplicationAsync(
+                    request, currentStatus, userId, email);
+
+                if (!isSuccess)
                 {
-                    Data = new ApplicationRequestData()
-                    {
-                        Type = CheckEligibilityType.FreeSchoolMeals,
-                        // Set the properties for each child
-                        ParentFirstName = request.ParentFirstName,
-                        ParentLastName = request.ParentLastName,
-                        ParentDateOfBirth = request.ParentDateOfBirth,
-                        ParentNationalInsuranceNumber = request.ParentNino,
-                        ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
-                        ChildFirstName = child.FirstName,
-                        ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
-                        Establishment = int.Parse(child.School.URN),
-                        UserId = HttpContext.Session.GetString("UserId"),
-                        ParentEmail = HttpContext.Session.GetString("Email"),
-                    }
-                };
+                    _logger.LogError("Application processing failed: {Error}", errorMessage);
+                    throw new Exception(errorMessage);
+                }
 
-                // Send each application as an individual check
-                var response = await _parentService.PostApplication_Fsm(fsmApplication);
-                responses.Add(response);
+                TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
+                return RedirectToAction("Application_Sent");
             }
-            TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
-            return RedirectToAction("Application_Sent");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Check_Answers");
+                throw;
+            }
         }
 
         [HttpGet]
