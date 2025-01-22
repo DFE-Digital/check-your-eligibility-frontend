@@ -298,7 +298,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return BadRequest("An error occurred while searching for schools.");
             }
         }
-    }
+    
 
         public IActionResult Check_Answers()
         {
