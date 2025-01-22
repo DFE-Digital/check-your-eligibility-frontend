@@ -27,6 +27,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IParentSignInUseCase _parentSignInUseCase;
         private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
         private readonly IProcessChildDetailsUseCase _processChildDetailsUseCase;
+        private readonly IAddChildUseCase _addChildUseCase;
 
         public CheckController(
            ILogger<CheckController> logger,
@@ -41,7 +42,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         ILoaderUseCase loaderUseCase,
         IParentSignInUseCase parentSignInUseCase,
         IEnterChildDetailsUseCase enterChildDetailsUseCase,
-        IProcessChildDetailsUseCase processChildDetailsUseCase)
+        IProcessChildDetailsUseCase processChildDetailsUseCase,
+        IAddChildUseCase addChildUseCase)
 
         {
             _config = configuration;
@@ -57,6 +59,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _parentSignInUseCase = parentSignInUseCase ?? throw new ArgumentNullException(nameof(parentSignInUseCase));
             _enterChildDetailsUseCase = enterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(enterChildDetailsUseCase));
             _processChildDetailsUseCase = processChildDetailsUseCase ?? throw new ArgumentNullException(nameof(processChildDetailsUseCase));
+            _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -220,21 +223,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add_Child(Children request)
+        public async Task<IActionResult> Add_Child(Children request)
         {
-            // set initial tempdata
+            var (isSuccess, updatedChildren) = await _addChildUseCase.ExecuteAsync(request);
+
             TempData["IsChildAddOrRemove"] = true;
 
-            // don't allow the model to contain more than 99 items
-            if (request.ChildList.Count >= 99)
+            if (!isSuccess)
             {
                 return RedirectToAction("Enter_Child_Details");
             }
 
-            request.ChildList.Add(new Child());
-
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
-
+            TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
             return RedirectToAction("Enter_Child_Details");
         }
 

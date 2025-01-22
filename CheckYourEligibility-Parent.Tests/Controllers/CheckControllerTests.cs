@@ -41,6 +41,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IParentSignInUseCase> _parentSignInUseCaseMock;
         private Mock<IEnterChildDetailsUseCase> _enterChildDetailsUseCaseMock;
         private Mock<IProcessChildDetailsUseCase> _processChildDetailsUseCaseMock;
+        private Mock<IAddChildUseCase> _addChildUseCaseMock;
 
 
         // check eligibility responses
@@ -240,7 +241,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
                 _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
                 _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
-                
+                _addChildUseCaseMock = new Mock<IAddChildUseCase>();
+
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -255,7 +257,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _loadParentLoaderUseCaseMock.Object,
                     _parentSignInUseCaseMock.Object,
                     _enterChildDetailsUseCaseMock.Object,
-                    _processChildDetailsUseCaseMock.Object
+                    _processChildDetailsUseCaseMock.Object,
+                    _addChildUseCaseMock.Object
                 );
             }
 
@@ -664,29 +667,40 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             badRequestResult.Value.Should().Be("An error occurred while searching for schools.");
         }
 
-        
+
 
 
 
 
 
         [Test]
-        public async Task Given_AddChild_When_AddingNewChild_Should_AddNewChildToEnterChildDetailsPageModel()
+        public async Task Add_Child_WhenSuccessful_ShouldAddChildAndRedirectToEnterDetails()
         {
             // Arrange
-            _sut.TempData["IsChildAddOrRemove"] = true;
-            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children);
+            var request = new Children { ChildList = _children.ChildList };
+            var updatedChildren = new Children
+            {
+                ChildList = new List<Child>(_children.ChildList) { new Child() }
+            };
+
+            _addChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request))
+                .ReturnsAsync((true, updatedChildren));
 
             // Act
-            var result = _sut.Add_Child(_children);
+            var result = await _sut.Add_Child(request);
 
             // Assert
-            var children = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string).As<List<Child>>();
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+            _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
 
-            children.Should().NotBeNull();
-            children.Capacity.Should().Be(4);
-            children.Last().FirstName.Should().BeNull();
-            children.Last().LastName.Should().BeNull();
+            var savedChildren = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string);
+            savedChildren.Should().NotBeNull();
+            savedChildren.Should().HaveCount(request.ChildList.Count + 1);
+            savedChildren.Last().Should().BeEquivalentTo(new Child());
+
+            _addChildUseCaseMock.Verify(x => x.ExecuteAsync(request), Times.Once);
         }
 
         [Test]
@@ -826,12 +840,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
 
         [Test]
-        public async Task Given_AddChild_When_AddingMoreThan99Children_Should_CannotAddMoreThan99ChildrenToPagesModel()
+        public async Task Add_Child_WhenMaxChildrenReached_ShouldRedirectToEnterDetailsWithoutAddingChild()
         {
             // Arrange
-            _sut.TempData["IsChildAddOrRemove"] = true;
-
-            // create a list of 99 children (the max)
             var maxChildren = Enumerable.Range(1, 99).Select(x => new Child
             {
                 FirstName = "Test",
@@ -842,16 +853,83 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 School = _schools[0]
             }).ToList();
 
-            _children.ChildList = maxChildren;
-            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children);
+            var request = new Children { ChildList = maxChildren };
+
+            _addChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request))
+                .ReturnsAsync((false, request));
 
             // Act
-            var result = _sut.Add_Child(_children);
+            var result = await _sut.Add_Child(request);
 
             // Assert
-            var redirectResult = result as RedirectToActionResult;
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
             redirectResult.ActionName.Should().Be("Enter_Child_Details");
-            _children.ChildList.Count.Should().Be(99);
+            _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
+            _sut.TempData.Should().NotContainKey("ChildList");
+        }
+
+        [Test]
+        public async Task Add_Child_WhenUseCaseThrows_ShouldPropagateException()
+        {
+            // Arrange
+            var request = new Children { ChildList = new List<Child> { new Child() } };
+
+            _addChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Add_Child(request))
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Test exception");
+        }
+
+        [Test]
+        public async Task Add_Child_ShouldAlwaysSetIsChildAddOrRemoveToTrue()
+        {
+            // Arrange
+            var request = new Children { ChildList = new List<Child> { new Child() } };
+            var updatedChildren = new Children
+            {
+                ChildList = new List<Child> { new Child(), new Child() }
+            };
+
+            _addChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request))
+                .ReturnsAsync((true, updatedChildren));
+
+            // Act
+            await _sut.Add_Child(request);
+
+            // Assert
+            _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
+        }
+
+        [Test]
+        public async Task Add_Child_WhenSuccessful_ShouldSerializeUpdatedChildrenToTempData()
+        {
+            // Arrange
+            var request = new Children { ChildList = new List<Child> { new Child() } };
+            var updatedChildren = new Children
+            {
+                ChildList = new List<Child> { new Child(), new Child() }
+            };
+
+            _addChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request))
+                .ReturnsAsync((true, updatedChildren));
+
+            // Act
+            await _sut.Add_Child(request);
+
+            // Assert
+            var serializedChildren = _sut.TempData["ChildList"] as string;
+            serializedChildren.Should().NotBeNull();
+
+            var deserializedChildren = JsonConvert.DeserializeObject<List<Child>>(serializedChildren);
+            deserializedChildren.Should().BeEquivalentTo(updatedChildren.ChildList);
         }
 
         [Test]
