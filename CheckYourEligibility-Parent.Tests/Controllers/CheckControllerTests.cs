@@ -468,18 +468,24 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Given_EnterDetails_When_ModelStateIsInvalid_Should_ErrorsShouldBeInTempData()
         {
-
+            // Arrange
+            var request = _parent;
             _sut.ModelState.AddModelError("SomeErrorKey", "SomeErrorMessage");
-            var error = _sut.ModelState.Where(x => x.Value.Errors.Count > 0).ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
-            _sut.TempData["Errors"] = JsonConvert.SerializeObject(error);
 
             // Act
-            var result = _sut.Enter_Details();
+            var result = await _sut.Enter_Details(request);
 
             // Assert
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            redirectResult.ActionName.Should().Be("Enter_Details");
+
+            _sut.TempData["ParentDetails"].Should().Be(JsonConvert.SerializeObject(request));
+
             var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(_sut.TempData["Errors"].ToString());
-            errors["SomeErrorKey"][0].Should().Be("SomeErrorMessage");
+            errors.Should().ContainKey("SomeErrorKey");
+            errors["SomeErrorKey"].Should().Contain("SomeErrorMessage");
         }
+
 
         [Test]
         public async Task Given_EnterDetails_When_ErrorsExistInTempData_Should_BeAddedToTheModelState()
@@ -1160,8 +1166,9 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             redirectResult.ActionName.Should().Be("Nass");
         }
 
-        [Test]
 
+
+        [Test]
         public async Task CreateUser_WhenSuccessful_ShouldSetSessionAndRedirect()
         {
             // Arrange
@@ -1177,31 +1184,30 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var identity = new ClaimsIdentity(claims);
             var principal = new ClaimsPrincipal(identity);
 
-            // Use the existing session mock setup
             var httpContext = new DefaultHttpContext();
             httpContext.User = principal;
             httpContext.Session = _sessionMock.Object;
 
-            _sut.ControllerContext.HttpContext = httpContext;
+            _sut.ControllerContext = new ControllerContext()
+            {
+                HttpContext = httpContext
+            };
 
-            _createUserUseCaseMock.Setup(x => x.ExecuteAsync(
-                It.Is<string>(e => e == email),
-                It.Is<string>(u => u == uniqueId)))
+            _createUserUseCaseMock.Setup(x => x.ExecuteAsync(email, uniqueId))
                 .ReturnsAsync(userId);
 
             // Act
             var result = await _sut.CreateUser();
 
             // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = result as RedirectToActionResult;
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
             redirectResult.ActionName.Should().Be("Enter_Child_Details");
 
-            // Get the values from the session using the mocked methods
-            Encoding.UTF8.GetString(_sessionMock.Object.Get("Email")).Should().Be(email);
-            Encoding.UTF8.GetString(_sessionMock.Object.Get("UserId")).Should().Be(userId);
+            _sessionMock.Verify(s => s.SetString("Email", email), Times.Once);
+            _sessionMock.Verify(s => s.SetString("UserId", userId), Times.Once);
             _createUserUseCaseMock.Verify(x => x.ExecuteAsync(email, uniqueId), Times.Once);
         }
+
 
         [Test]
         public async Task CreateUser_WhenUseCaseThrowsException_ShouldReturnTechnicalError()
