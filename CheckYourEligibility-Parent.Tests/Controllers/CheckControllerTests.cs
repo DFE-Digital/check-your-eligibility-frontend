@@ -1184,11 +1184,32 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var identity = new ClaimsIdentity(claims);
             var principal = new ClaimsPrincipal(identity);
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = principal;
-            httpContext.Session = _sessionMock.Object;
+            var sessionStorage = new Dictionary<string, byte[]>();
+            var sessionMock = new Mock<ISession>();
 
-            _sut.ControllerContext = new ControllerContext()
+            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                .Returns((string key, out byte[] value) =>
+                {
+                    if (sessionStorage.TryGetValue(key, out var storedValue))
+                    {
+                        value = storedValue;
+                        return true;
+                    }
+
+                    value = null;
+                    return false;
+                });
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = principal,
+                Session = sessionMock.Object
+            };
+
+            _sut.ControllerContext = new ControllerContext
             {
                 HttpContext = httpContext
             };
@@ -1203,10 +1224,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
             redirectResult.ActionName.Should().Be("Enter_Child_Details");
 
-            _sessionMock.Verify(s => s.SetString("Email", email), Times.Once);
-            _sessionMock.Verify(s => s.SetString("UserId", userId), Times.Once);
+            // Verify the session data
+            Encoding.UTF8.GetString(sessionStorage["Email"]).Should().Be(email);
+            Encoding.UTF8.GetString(sessionStorage["UserId"]).Should().Be(userId);
+
             _createUserUseCaseMock.Verify(x => x.ExecuteAsync(email, uniqueId), Times.Once);
         }
+
 
 
         [Test]
