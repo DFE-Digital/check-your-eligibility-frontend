@@ -45,6 +45,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IRemoveChildUseCase> _removeChildUseCaseMock;
         private Mock<ICheckAnswersUseCase> _checkAnswersUseCaseMock;
         private Mock<IApplicationSentUseCase> _applicationSentUseCaseMock;
+        private Mock<IChangeChildDetailsUseCase> _changeChildDetailsUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -248,6 +249,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
                 _checkAnswersUseCaseMock = new Mock<ICheckAnswersUseCase>();
                 _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
+                _changeChildDetailsUseCaseMock = new Mock<IChangeChildDetailsUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -266,7 +268,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _addChildUseCaseMock.Object,
                     _removeChildUseCaseMock.Object,
                     _checkAnswersUseCaseMock.Object,
-                    _applicationSentUseCaseMock.Object
+                    _applicationSentUseCaseMock.Object,
+                    _changeChildDetailsUseCaseMock.Object
                 );
             }
 
@@ -345,6 +348,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _applicationSentUseCaseMock
                      .Setup(x => x.ExecuteAsync())
                      .ReturnsAsync(("Application_Sent", null));
+
+                _changeChildDetailsUseCaseMock
+                    .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
+                    .ReturnsAsync((true, "Enter_Child_Details", _children));
             }
         }
 
@@ -870,25 +877,44 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_ChangeChildDetails_When_RedirectingToEnterChildDetailsPage_Should_PopulateExistingChildrensDetails()
+        public async Task ChangeChildDetails_WhenCalled_ShouldSetTempDataAndReturnView()
         {
             // Arrange
-            _sut.TempData["IsRedirect"] = true;
-            _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(_fsmApplication);
+            var children = new Children
+            {
+                ChildList = new List<Child>
+        {
+            new Child { FirstName = "Test", LastName = "Child" }
+        }
+            };
+
+            _changeChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
+                .ReturnsAsync((true, "Enter_Child_Details", children));
 
             // Act
-            int child = 0;
-            var result = _sut.ChangeChildDetails();
+            var result = await _sut.ChangeChildDetails();
 
             // Assert
-            var viewResult = result as ViewResult;
-            var children = viewResult.Model.As<Children>();
-            children.Should().NotBeNull();
-            children.ChildList.Count().Should().Be(3);
+            _sut.TempData["IsRedirect"].Should().Be(true);
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
             viewResult.ViewName.Should().Be("Enter_Child_Details");
-            children.ChildList[0].FirstName.Should().Be(_children.ChildList[0].FirstName);
-            children.ChildList[1].FirstName.Should().Be(_children.ChildList[1].FirstName);
-            children.ChildList[2].FirstName.Should().Be(_children.ChildList[2].FirstName);
+            viewResult.Model.Should().BeEquivalentTo(children);
+        }
+
+        [Test]
+        public async Task ChangeChildDetails_WhenUseCaseThrows_ShouldPropagateException()
+        {
+            // Arrange
+            _changeChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.ChangeChildDetails())
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Test exception");
         }
 
 

@@ -40,6 +40,7 @@ builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
 builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
 builder.Services.AddScoped<ICheckAnswersUseCase, CheckAnswersUseCase>();
 builder.Services.AddScoped<IApplicationSentUseCase, ApplicationSentUseCase>();
+builder.Services.AddScoped<IChangeChildDetailsUseCase, ChangeChildDetailsUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {

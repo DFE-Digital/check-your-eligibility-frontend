@@ -31,6 +31,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IRemoveChildUseCase _removeChildUseCase;
         private readonly ICheckAnswersUseCase _checkAnswersUseCase;
         private readonly IApplicationSentUseCase _applicationSentUseCase;
+        private readonly IChangeChildDetailsUseCase _changeChildDetailsUseCase;
         public CheckController(
            ILogger<CheckController> logger,
         IEcsServiceParent ecsParentService,
@@ -48,7 +49,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         IAddChildUseCase addChildUseCase,
         IRemoveChildUseCase removeChildUseCase,
         ICheckAnswersUseCase checkAnswersUseCase,
-        IApplicationSentUseCase applicationSentUseCase)
+        IApplicationSentUseCase applicationSentUseCase,
+        IChangeChildDetailsUseCase changeChildDetailsUseCase)
 
         {
             _config = configuration;
@@ -66,8 +68,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _processChildDetailsUseCase = processChildDetailsUseCase ?? throw new ArgumentNullException(nameof(processChildDetailsUseCase));
             _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
             _removeChildUseCase = removeChildUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
-            _checkAnswersUseCase = checkAnswersUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
+            _checkAnswersUseCase = checkAnswersUseCase ?? throw new ArgumentNullException(nameof(checkAnswersUseCase));
             _applicationSentUseCase = applicationSentUseCase ?? throw new ArgumentNullException(nameof(applicationSentUseCase));
+            _changeChildDetailsUseCase = changeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(changeChildDetailsUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -325,17 +328,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(viewName, model);
         }
 
-        public IActionResult ChangeChildDetails()
+        public async Task<IActionResult> ChangeChildDetails()
         {
-            // set up tempdata and access existing temp data object
             TempData["IsRedirect"] = true;
-            var responseJson = TempData["FsmApplication"] as string;
-            // deserialize
-            var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
-            // get children details
-            var children = responses.Children;
-            // populate enter_child_details page with children model
-            return View("Enter_Child_Details", children);
+            (bool isSuccess, string viewName, Children model) = await _changeChildDetailsUseCase.ExecuteAsync(
+                TempData["FsmApplication"] as string);
+
+            return View(viewName, model);
         }
 
 
