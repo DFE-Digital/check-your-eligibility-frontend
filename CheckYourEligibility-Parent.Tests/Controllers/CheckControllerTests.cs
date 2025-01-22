@@ -42,6 +42,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IEnterChildDetailsUseCase> _enterChildDetailsUseCaseMock;
         private Mock<IProcessChildDetailsUseCase> _processChildDetailsUseCaseMock;
         private Mock<IAddChildUseCase> _addChildUseCaseMock;
+        private Mock<IRemoveChildUseCase> _removeChildUseCaseMock;
 
 
         // check eligibility responses
@@ -242,6 +243,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
                 _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
                 _addChildUseCaseMock = new Mock<IAddChildUseCase>();
+                _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
 
 
                 _sut = new CheckController(
@@ -258,7 +260,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _parentSignInUseCaseMock.Object,
                     _enterChildDetailsUseCaseMock.Object,
                     _processChildDetailsUseCaseMock.Object,
-                    _addChildUseCaseMock.Object
+                    _addChildUseCaseMock.Object,
+                    _removeChildUseCaseMock.Object
                 );
             }
 
@@ -704,21 +707,81 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_RemoveChild_When_RemovingChildByIndex_Should_RemoveChildByIndexFromEnterChildDetailsPageModel()
+        public async Task Remove_Child_WhenSuccessful_ShouldRemoveChildAndRedirectToEnterDetails()
         {
             // Arrange
-            _sut.TempData["IsChildAddOrRemove"] = true;
-            _sut.TempData["ChildList"] = JsonConvert.SerializeObject(_children);
+            var request = new Children
+            {
+                ChildList = new List<Child>
+        {
+            new Child { FirstName = "Child1" },
+            new Child { FirstName = "Child2" }
+        }
+            };
+            var updatedChildren = new Children
+            {
+                ChildList = new List<Child> { new Child { FirstName = "Child2" } }
+            };
+
+            _removeChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request, 0))
+                .ReturnsAsync((true, updatedChildren, string.Empty));
 
             // Act
-            var result = _sut.Remove_Child(_children, 2);
+            var result = await _sut.Remove_Child(request, 0);
 
             // Assert
-            var children = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string).As<List<Child>>();
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+            _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
 
-            children.Should().NotBeNull();
-            children.Count().Should().Be(2);
-            children.Should().NotContain(x => x.FirstName == "Maggie");
+            var savedChildren = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string);
+            savedChildren.Should().NotBeNull();
+            savedChildren.Should().HaveCount(1);
+            savedChildren.Should().NotContain(x => x.FirstName == "Child1");
+
+            _removeChildUseCaseMock.Verify(x => x.ExecuteAsync(request, 0), Times.Once);
+        }
+
+        [Test]
+        public async Task Remove_Child_WhenInvalidIndex_ShouldRedirectWithError()
+        {
+            // Arrange
+            var request = new Children { ChildList = new List<Child> { new Child() } };
+
+            _removeChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request, 1))
+                .ReturnsAsync((false, request, "Invalid child index"));
+
+            // Act
+            var result = await _sut.Remove_Child(request, 1);
+
+            // Assert
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+            _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
+            _sut.TempData.Should().NotContainKey("ChildList");
+
+            // Verify error was added to ModelState
+            _sut.ModelState.ErrorCount.Should().Be(1);
+            _sut.ModelState.Values.First().Errors.First().ErrorMessage.Should().Be("Invalid child index");
+        }
+
+        [Test]
+        public async Task Remove_Child_WhenUseCaseThrows_ShouldPropagateException()
+        {
+            // Arrange
+            var request = new Children { ChildList = new List<Child> { new Child() } };
+
+            _removeChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(request, 0))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Remove_Child(request, 0))
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Test exception");
         }
 
         [Test]

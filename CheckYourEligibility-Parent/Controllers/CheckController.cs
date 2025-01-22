@@ -28,6 +28,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
         private readonly IProcessChildDetailsUseCase _processChildDetailsUseCase;
         private readonly IAddChildUseCase _addChildUseCase;
+        private readonly IRemoveChildUseCase _removeChildUseCase;
 
         public CheckController(
            ILogger<CheckController> logger,
@@ -43,7 +44,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         IParentSignInUseCase parentSignInUseCase,
         IEnterChildDetailsUseCase enterChildDetailsUseCase,
         IProcessChildDetailsUseCase processChildDetailsUseCase,
-        IAddChildUseCase addChildUseCase)
+        IAddChildUseCase addChildUseCase,
+        IRemoveChildUseCase removeChildUseCase)
 
         {
             _config = configuration;
@@ -60,6 +62,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _enterChildDetailsUseCase = enterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(enterChildDetailsUseCase));
             _processChildDetailsUseCase = processChildDetailsUseCase ?? throw new ArgumentNullException(nameof(processChildDetailsUseCase));
             _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
+            _removeChildUseCase = removeChildUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));   
 
             _logger.LogInformation("controller log info");
         }
@@ -239,16 +242,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult Remove_Child(Children request, int index)
+        public async Task<IActionResult> Remove_Child(Children request, int index)
         {
-            // remove child at given index
-            var child = request.ChildList[index];
-            request.ChildList.Remove(child);
+            var (isSuccess, updatedChildren, errorMessage) = await _removeChildUseCase.ExecuteAsync(request, index);
 
-            // set up tempdata so page can be correctly rendered
             TempData["IsChildAddOrRemove"] = true;
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
 
+            if (!isSuccess)
+            {
+                ModelState.AddModelError(string.Empty, errorMessage);
+                return RedirectToAction("Enter_Child_Details");
+            }
+
+            TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
             return RedirectToAction("Enter_Child_Details");
         }
 
