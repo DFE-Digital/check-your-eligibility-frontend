@@ -277,12 +277,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning(ex, "Invalid school search query: {Query}", query);
+                var sanitizedQuery = query.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
+                _logger.LogWarning(ex, "Invalid school search query: {Query}", sanitizedQuery);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error searching schools for query: {Query}", query);
+                var sanitizedQuery = query.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
+                _logger.LogError(ex, "Error searching schools for query: {Query}", sanitizedQuery);
                 return BadRequest("An error occurred while searching for schools.");
             }
         }
