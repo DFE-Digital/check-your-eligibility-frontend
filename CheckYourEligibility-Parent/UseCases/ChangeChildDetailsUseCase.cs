@@ -24,14 +24,14 @@ namespace CheckYourEligibility_FrontEnd.UseCases
                 if (string.IsNullOrEmpty(fsmApplicationJson))
                 {
                     _logger.LogWarning("FSM Application JSON is null or empty");
-                    return Task.FromResult((false, "Enter_Child_Details", new Children()));
+                    return Task.FromResult((false, "Enter_Child_Details", new Children { ChildList = new List<Child>() }));
                 }
 
                 var application = JsonConvert.DeserializeObject<FsmApplication>(fsmApplicationJson);
                 if (application?.Children == null)
                 {
                     _logger.LogWarning("Failed to deserialize FSM Application or Children is null");
-                    return Task.FromResult((false, "Enter_Child_Details", new Children()));
+                    return Task.FromResult((false, "Enter_Child_Details", new Children { ChildList = new List<Child>() }));
                 }
 
                 _logger.LogInformation("Successfully retrieved children details for change");

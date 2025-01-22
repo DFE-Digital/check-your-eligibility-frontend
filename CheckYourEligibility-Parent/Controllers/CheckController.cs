@@ -272,22 +272,33 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var schools = await _searchSchoolsUseCase.ExecuteAsync(query);
+                // Sanitize input before processing
+                string sanitizedQuery = query?.Trim()
+                    .Replace(Environment.NewLine, "")
+                    .Replace("\n", "")
+                    .Replace("\r", "")
+                    // Add more sanitization as needed
+                    .Replace("<", "&lt;")
+                    .Replace(">", "&gt;");
+
+                if (string.IsNullOrEmpty(sanitizedQuery) || sanitizedQuery.Length < 3)
+                {
+                    _logger.LogWarning("Invalid school search query: {Query}", sanitizedQuery);
+                    return BadRequest("Query must be at least 3 characters long.");
+                }
+
+                var schools = await _searchSchoolsUseCase.ExecuteAsync(sanitizedQuery);
                 return Json(schools.ToList());
-            }
-            catch (ArgumentException ex)
-            {
-                var sanitizedQuery = query.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
-                _logger.LogWarning(ex, "Invalid school search query: {Query}", sanitizedQuery);
-                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                var sanitizedQuery = query.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
-                _logger.LogError(ex, "Error searching schools for query: {Query}", sanitizedQuery);
+                // Log sanitized query only
+                _logger.LogError(ex, "Error searching schools for query: {Query}",
+                    query?.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", ""));
                 return BadRequest("An error occurred while searching for schools.");
             }
         }
+    }
 
         public IActionResult Check_Answers()
         {

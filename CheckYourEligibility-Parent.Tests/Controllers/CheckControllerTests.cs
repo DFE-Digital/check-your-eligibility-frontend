@@ -53,7 +53,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private EstablishmentSearchResponse _schoolSearchResponse;
         private ApplicationSaveItemResponse _applicationSaveItemResponse;
 
-
         // test data entities
         private FsmApplication _fsmApplication;
         private ChildsSchool[] _schools;
@@ -67,302 +66,373 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [SetUp]
         public void SetUp()
         {
-            SetUpTestData();
-            SetUpInitialMocks();
-            SetUpTempData();
-            SetUpSessionData();
-            SetUpHTTPContext();
-            SetUpServiceMocks();
-
-            void SetUpTestData()
+            try
             {
-                _defaultChildren = new Children
-                {
-                    ChildList = new List<Child> { new Child() }
-                };
+                SetUpInitialMocks();
+                SetUpTestData();
+                SetUpServiceMocks();
+                SetUpSessionData();
+                SetUpHTTPContext();
+                SetUpTempData();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Setup failed: {ex}");
+                throw;
+            }
+        }
 
-                _schools = new[]
-                {
-                    new ChildsSchool()
-                    {
-                        Name = "Springfield Elementary",
-                        LA = "Springfield",
-                        Postcode = "SP1 3LE",
-                        URN = "100021"
-                    },
-                    new ChildsSchool()
-                    {
-                        Name = "Springfield Nursery",
-                        LA = "Springfield",
-                        Postcode = "SP1 3NU",
-                        URN = "100011"
-                    }
-                };
+        private void SetUpInitialMocks()
+        {
+            // Initialize service mocks
+            _configMock = new Mock<IConfiguration>();
+            _parentServiceMock = new Mock<IEcsServiceParent>();
+            _checkServiceMock = new Mock<IEcsCheckService>();
+            _loggerMock = Mock.Of<ILogger<CheckController>>();
+            _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
+            _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
+            _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
+            _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
+            _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
+            _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>();
+            _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
+            _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
+            _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
+            _addChildUseCaseMock = new Mock<IAddChildUseCase>();
+            _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
+            _checkAnswersUseCaseMock = new Mock<ICheckAnswersUseCase>();
+            _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
+            _changeChildDetailsUseCaseMock = new Mock<IChangeChildDetailsUseCase>();
 
-                _parent = new Parent()
+            // Create the controller with mocked dependencies
+            _sut = new CheckController(
+                _loggerMock,
+                _parentServiceMock.Object,
+                _checkServiceMock.Object,
+                _configMock.Object,
+                _searchSchoolsUseCaseMock.Object,
+                _loadParentDetailsUseCaseMock.Object,
+                _createUserUseCaseMock.Object,
+                _processParentDetailsUseCaseMock.Object,
+                _loadParentNassDetailsUseCaseMock.Object,
+                _loadParentLoaderUseCaseMock.Object,
+                _parentSignInUseCaseMock.Object,
+                _enterChildDetailsUseCaseMock.Object,
+                _processChildDetailsUseCaseMock.Object,
+                _addChildUseCaseMock.Object,
+                _removeChildUseCaseMock.Object,
+                _checkAnswersUseCaseMock.Object,
+                _applicationSentUseCaseMock.Object,
+                _changeChildDetailsUseCaseMock.Object
+            );
+        }
+
+        private void SetUpTestData()
+        {
+            _defaultChildren = new Children
+            {
+                ChildList = new List<Child> { new Child() }
+            };
+
+            _schools = new[]
+            {
+            new ChildsSchool()
+            {
+                Name = "Springfield Elementary",
+                LA = "Springfield",
+                Postcode = "SP1 3LE",
+                URN = "100021"
+            },
+            new ChildsSchool()
+            {
+                Name = "Springfield Nursery",
+                LA = "Springfield",
+                Postcode = "SP1 3NU",
+                URN = "100011"
+            }
+        };
+
+            _parent = new Parent()
+            {
+                FirstName = "Homer",
+                LastName = "Simpson",
+                Day = "1",
+                Month = "1",
+                Year = "1990",
+                NationalInsuranceNumber = "AB123456C",
+                NationalAsylumSeekerServiceNumber = null,
+                IsNinoSelected = true,
+                IsNassSelected = null,
+            };
+
+            _children = new Children()
+            {
+                ChildList = [
+                    new Child()
                 {
-                    FirstName = "Homer",
+                    FirstName = "Bart",
                     LastName = "Simpson",
                     Day = "1",
                     Month = "1",
-                    Year = "1990",
-                    NationalInsuranceNumber = "AB123456C",
-                    NationalAsylumSeekerServiceNumber = null,
-                    IsNinoSelected = true,
-                    IsNassSelected = null,
-                };
-
-                _children = new Children()
+                    Year = "2015",
+                    School = _schools[0]
+                },
+                new Child()
                 {
-                    ChildList = [
-                        new Child()
-                        {
-                            FirstName = "Bart",
-                            LastName = "Simpson",
-                            Day = "1",
-                            Month = "1",
-                            Year = "2015",
-                            School = _schools[0]
-                        },
-                        new Child()
-                        {
-                            FirstName = "Lisa",
-                            LastName = "Simpson",
-                            Day = "1",
-                            Month = "1",
-                            Year = "2018",
-                            School = _schools[0]
-                        },
-                        new Child()
-                        {
-                            FirstName = "Maggie",
-                            LastName = "Simpson",
-                            Day = "1",
-                            Month = "1",
-                            Year = "2020",
-                            School = _schools[1]
-                        }
-                    ]
-                };
-
-                _fsmApplication = new FsmApplication()
+                    FirstName = "Lisa",
+                    LastName = "Simpson",
+                    Day = "1",
+                    Month = "1",
+                    Year = "2018",
+                    School = _schools[0]
+                },
+                new Child()
                 {
-                    ParentFirstName = _parent.FirstName,
-                    ParentLastName = _parent.LastName,
-                    ParentDateOfBirth = "01/01/1990",
-                    ParentNino = _parent.NationalInsuranceNumber,
-                    ParentNass = _parent.NationalAsylumSeekerServiceNumber,
-                    Children = _children
-                };
+                    FirstName = "Maggie",
+                    LastName = "Simpson",
+                    Day = "1",
+                    Month = "1",
+                    Year = "2020",
+                    School = _schools[1]
+                }
+                ]
+            };
 
-                _eligibilityResponse = new CheckEligibilityResponse()
-                {
-                    Data = new StatusValue
-                    {
-                        Status = "queuedForProcessing"
-                    },
-                    Links = new CheckEligibilityResponseLinks
-                    {
-                        Get_EligibilityCheck = "",
-                        Get_EligibilityCheckStatus = "",
-                        Put_EligibilityCheckProcess = ""
-                    }
-                };
+            _fsmApplication = new FsmApplication()
+            {
+                ParentFirstName = _parent.FirstName,
+                ParentLastName = _parent.LastName,
+                ParentDateOfBirth = "01/01/1990",
+                ParentNino = _parent.NationalInsuranceNumber,
+                ParentNass = _parent.NationalAsylumSeekerServiceNumber,
+                Children = _children
+            };
 
-                _eligibilityStatusResponse = new CheckEligibilityStatusResponse()
+            _eligibilityResponse = new CheckEligibilityResponse()
+            {
+                Data = new StatusValue
                 {
-                    Data = new StatusValue
-                    {
-                        Status = "eligible"
-                    }
-                };
+                    Status = "queuedForProcessing"
+                },
+                Links = new CheckEligibilityResponseLinks
+                {
+                    Get_EligibilityCheck = "",
+                    Get_EligibilityCheckStatus = "",
+                    Put_EligibilityCheckProcess = ""
+                }
+            };
 
-                _schoolSearchResponse = new EstablishmentSearchResponse()
+            _eligibilityStatusResponse = new CheckEligibilityStatusResponse()
+            {
+                Data = new StatusValue
                 {
-                    Data =
-                    [
-                        new School()
-                        {
-                            Id = 100,
-                            County = "Test County",
-                            Distance = 0.05d,
-                            La = "Test LA",
-                            Locality = "Test Locality",
-                            Name = "Test School",
-                            Postcode = "TE55 5ST",
-                            Street = "Test Street",
-                            Town = "Test Town"
-                        }
-                    ]
-                };
+                    Status = "eligible"
+                }
+            };
 
-                _applicationSaveItemResponse = new ApplicationSaveItemResponse()
+            _schoolSearchResponse = new EstablishmentSearchResponse()
+            {
+                Data =
+                [
+                    new School()
                 {
-                    Data = new ApplicationResponse()
-                    {
-                        ParentFirstName = _fsmApplication.ParentFirstName,
-                        ParentLastName = _fsmApplication.ParentLastName,
-                        ParentDateOfBirth = _fsmApplication.ParentDateOfBirth,
-                        ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
-                        ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
-                        ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
-                        ChildDateOfBirth = new DateOnly(int.Parse(_fsmApplication.Children.ChildList[0].Year),
+                    Id = 100,
+                    County = "Test County",
+                    Distance = 0.05d,
+                    La = "Test LA",
+                    Locality = "Test Locality",
+                    Name = "Test School",
+                    Postcode = "TE55 5ST",
+                    Street = "Test Street",
+                    Town = "Test Town"
+                }
+                ]
+            };
+
+            _applicationSaveItemResponse = new ApplicationSaveItemResponse()
+            {
+                Data = new ApplicationResponse()
+                {
+                    ParentFirstName = _fsmApplication.ParentFirstName,
+                    ParentLastName = _fsmApplication.ParentLastName,
+                    ParentDateOfBirth = _fsmApplication.ParentDateOfBirth,
+                    ParentNationalInsuranceNumber = _fsmApplication.ParentNino,
+                    ChildFirstName = _fsmApplication.Children.ChildList[0].FirstName,
+                    ChildLastName = _fsmApplication.Children.ChildList[0].LastName,
+                    ChildDateOfBirth = new DateOnly(int.Parse(_fsmApplication.Children.ChildList[0].Year),
                         int.Parse(_fsmApplication.Children.ChildList[0].Month),
                         int.Parse(_fsmApplication.Children.ChildList[0].Day)).ToString("dd/MM/yyyy"),
-                        ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
-                        Id = "",
-                        Establishment = new ApplicationResponse.ApplicationEstablishment { Id = 10002, LocalAuthority = new ApplicationResponse.ApplicationEstablishment.EstablishmentLocalAuthority { Id = 123 } },
-                        Reference = "",
-                    },
-                    Links = new ApplicationResponseLinks()
-                    {
-                        get_Application = ""
-                    }
-                };
-            }
-
-            void SetUpTempData()
-            {
-                ITempDataProvider tempDataProvider = Mock.Of<ITempDataProvider>();
-                TempDataDictionaryFactory tempDataDictionaryFactory = new TempDataDictionaryFactory(tempDataProvider);
-                ITempDataDictionary tempData = tempDataDictionaryFactory.GetTempData(new DefaultHttpContext());
-                _sut.TempData = tempData;
-            }
-
-            void SetUpInitialMocks()
-            {
-                // Initialize service mocks
-                _configMock = new Mock<IConfiguration>();
-                _parentServiceMock = new Mock<IEcsServiceParent>();
-                _checkServiceMock = new Mock<IEcsCheckService>();
-                _loggerMock = Mock.Of<ILogger<CheckController>>();
-                _searchSchoolsUseCaseMock = new Mock<ISearchSchoolsUseCase>();
-                _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
-                _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
-                _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
-                _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
-                _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>();
-                _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
-                _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
-                _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
-                _addChildUseCaseMock = new Mock<IAddChildUseCase>();
-                _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
-                _checkAnswersUseCaseMock = new Mock<ICheckAnswersUseCase>();
-                _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
-                _changeChildDetailsUseCaseMock = new Mock<IChangeChildDetailsUseCase>();
-
-                _sut = new CheckController(
-                    _loggerMock,
-                    _parentServiceMock.Object,
-                    _checkServiceMock.Object,
-                    _configMock.Object,
-                    _searchSchoolsUseCaseMock.Object,
-                    _loadParentDetailsUseCaseMock.Object,
-                    _createUserUseCaseMock.Object,
-                    _processParentDetailsUseCaseMock.Object,
-                    _loadParentNassDetailsUseCaseMock.Object,
-                    _loadParentLoaderUseCaseMock.Object,
-                    _parentSignInUseCaseMock.Object,
-                    _enterChildDetailsUseCaseMock.Object,
-                    _processChildDetailsUseCaseMock.Object,
-                    _addChildUseCaseMock.Object,
-                    _removeChildUseCaseMock.Object,
-                    _checkAnswersUseCaseMock.Object,
-                    _applicationSentUseCaseMock.Object,
-                    _changeChildDetailsUseCaseMock.Object
-                );
-            }
-
-            void SetUpSessionData()
-            {
-                _sessionMock = new Mock<ISession>();
-                var sessionStorage = new Dictionary<string, byte[]>();
-
-                _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-                _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                            .Returns((string key, out byte[] value) =>
-                            {
-                                var result = sessionStorage.TryGetValue(key, out var storedValue);
-                                value = storedValue;
-                                return result;
-                            });
-            }
-
-            void SetUpHTTPContext()
-            {
-                _httpContext = new Mock<HttpContext>();
-                var session = new Mock<ISession>();
-                _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
-                var controllerContext = new ControllerContext
+                    ParentNationalAsylumSeekerServiceNumber = _fsmApplication.ParentNass,
+                    Id = "",
+                    Establishment = new ApplicationResponse.ApplicationEstablishment { Id = 10002, LocalAuthority = new ApplicationResponse.ApplicationEstablishment.EstablishmentLocalAuthority { Id = 123 } },
+                    Reference = "",
+                },
+                Links = new ApplicationResponseLinks()
                 {
-                    HttpContext = _httpContext.Object
-                };
-                _sut.ControllerContext = controllerContext;
-            }
+                    get_Application = ""
+                }
+            };
+        }
 
-            void SetUpServiceMocks()
+        private void SetUpSessionData()
+        {
+            _sessionMock = new Mock<ISession>();
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                .Returns((string key, out byte[] value) =>
+                {
+                    var result = sessionStorage.TryGetValue(key, out var storedValue);
+                    value = storedValue;
+                    return result;
+                });
+        }
+
+        private void SetUpHTTPContext()
+        {
+            _httpContext = new Mock<HttpContext>();
+            _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+            var controllerContext = new ControllerContext
             {
-                // Service mocks
-                _checkServiceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                    .ReturnsAsync(_eligibilityStatusResponse);
+                HttpContext = _httpContext.Object
+            };
+            _sut.ControllerContext = controllerContext;
+        }
 
-                _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
-                    .ReturnsAsync(_eligibilityResponse);
+        private void SetUpTempData()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            _sut.TempData = tempData;
+        }
 
-                _parentServiceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
-                    .ReturnsAsync(_schoolSearchResponse);
+        private void SetUpServiceMocks()
+        {
+            // Service mocks
+            _checkServiceMock.Setup(s => s.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(_eligibilityStatusResponse);
 
-                _parentServiceMock.Setup(s => s.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
-                    .ReturnsAsync(_applicationSaveItemResponse);
+            _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
+                .ReturnsAsync(_eligibilityResponse);
 
-                _parentServiceMock.Setup(s => s.CreateUser(It.IsAny<UserCreateRequest>()))
-                    .ReturnsAsync(new UserSaveItemResponse { Data = "defaultUserId" });
+            _parentServiceMock.Setup(s => s.GetSchool(It.IsAny<string>()))
+                .ReturnsAsync(_schoolSearchResponse);
 
-                // Use Case mocks
-                _enterChildDetailsUseCaseMock
-                    .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<bool?>()))
-                    .ReturnsAsync(_defaultChildren);
+            _parentServiceMock.Setup(s => s.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
+                .ReturnsAsync(_applicationSaveItemResponse);
 
-                _processChildDetailsUseCaseMock
-                    .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<bool>(), It.IsAny<ISession>(), It.IsAny<Dictionary<string, string[]>>()))
-                    .ReturnsAsync((true, "Check_Answers", _fsmApplication, null));
+            _parentServiceMock.Setup(s => s.CreateUser(It.IsAny<UserCreateRequest>()))
+                .ReturnsAsync(new UserSaveItemResponse { Data = "defaultUserId" });
 
-                _addChildUseCaseMock
-                    .Setup(x => x.ExecuteAsync(It.IsAny<Children>()))
-                    .ReturnsAsync((true, new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
+            // Use Case mocks
+            _enterChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<bool?>()))
+                .ReturnsAsync(_defaultChildren);
 
-                _removeChildUseCaseMock
-                    .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<int>()))
-                    .ReturnsAsync((true, _children, string.Empty));
+            _processChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<bool>(), It.IsAny<ISession>(), It.IsAny<Dictionary<string, string[]>>()))
+                .ReturnsAsync((true, "Check_Answers", _fsmApplication, null));
 
-                _checkAnswersUseCaseMock
-                    .Setup(x => x.ProcessApplicationAsync(
-                        It.IsAny<FsmApplication>(),
-                        It.Is<string>(s => s == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString()),
-                        It.IsAny<string>(),
-                        It.IsAny<string>()))
-                    .ReturnsAsync((true, new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse }, null));
+            _addChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<Children>()))
+                .ReturnsAsync((true, new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
 
-                _applicationSentUseCaseMock
-                     .Setup(x => x.ExecuteAsync())
-                     .ReturnsAsync(("Application_Sent", null));
+            _removeChildUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<int>()))
+                .ReturnsAsync((true, _children, string.Empty));
 
-                _changeChildDetailsUseCaseMock
-                    .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
-                    .ReturnsAsync((true, "Enter_Child_Details", _children));
-            }
+            _checkAnswersUseCaseMock
+                .Setup(x => x.ProcessApplicationAsync(
+                    It.IsAny<FsmApplication>(),
+                    It.Is<string>(s => s == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString()),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .ReturnsAsync((true, new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse }, null));
+
+            _applicationSentUseCaseMock
+                .Setup(x => x.ExecuteAsync())
+                .ReturnsAsync(("Application_Sent", null));
+
+            _changeChildDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
+                .ReturnsAsync((true, "Enter_Child_Details", _children));
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_sut != null)
+            try
             {
-                _sut.Dispose();
+                _sut?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Teardown failed: {ex}");
+            }
+            finally
+            {
                 _sut = null;
             }
+        }
+
+        [Test]
+        public async Task SearchSchools_WhenQueryIsValid_ShouldReturnSchools()
+        {
+            // Arrange
+            var query = "Test School";
+            var schools = new List<Establishment>
+        {
+            new() { Name = "Test School 1" },
+            new() { Name = "Test School 2" }
+        };
+            _searchSchoolsUseCaseMock.Setup(x => x.ExecuteAsync(query))
+                .ReturnsAsync(schools);
+
+            // Act
+            var result = await _sut.SearchSchools(query);
+
+            // Assert
+            result.Should().BeOfType<JsonResult>();
+            var jsonResult = result as JsonResult;
+            jsonResult.Value.Should().BeEquivalentTo(schools);
+            _searchSchoolsUseCaseMock.Verify(x => x.ExecuteAsync(query), Times.Once);
+        }
+
+        [Test]
+        public async Task SearchSchools_WhenQueryIsInvalid_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var query = "ab";
+            _searchSchoolsUseCaseMock.Setup(x => x.ExecuteAsync(query))
+                .ThrowsAsync(new ArgumentException("Query must be at least 3 characters long."));
+
+            // Act
+            var result = await _sut.SearchSchools(query);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().Be("Query must be at least 3 characters long.");
+        }
+
+        [Test]
+        public async Task SearchSchools_WhenExceptionOccurs_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var query = "Test School";
+            _searchSchoolsUseCaseMock.Setup(x => x.ExecuteAsync(query))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await _sut.SearchSchools(query);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().Be("An error occurred while searching for schools.");
         }
 
         [Test]
@@ -710,69 +780,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 .Should().ThrowAsync<Exception>()
                 .WithMessage("Test exception");
         }
-
-        [Test]
-        public async Task GetSchoolDetails_WhenQueryIsValid_ShouldReturnSchools()
-        {
-            // Arrange
-            var query = "Test School";
-            var schools = new List<Establishment>
-        {
-            new() { Name = "Test School 1" },
-            new() { Name = "Test School 2" }
-        };
-            _searchSchoolsUseCaseMock.Setup(x => x.ExecuteAsync(query))
-                .ReturnsAsync(schools);
-
-            // Act
-            var result = await _sut.SearchSchools(query);
-
-            // Assert
-            result.Should().BeOfType<JsonResult>();
-            var jsonResult = result as JsonResult;
-            jsonResult.Value.Should().BeEquivalentTo(schools);
-            _searchSchoolsUseCaseMock.Verify(x => x.ExecuteAsync(query), Times.Once);
-        }
-
-        [Test]
-        public async Task GetSchoolDetails_WhenQueryIsInvalid_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var query = "ab";
-            _searchSchoolsUseCaseMock.Setup(x => x.ExecuteAsync(query))
-                .ThrowsAsync(new ArgumentException("Query must be at least 3 characters long."));
-
-            // Act
-            var result = await _sut.SearchSchools(query);
-
-            // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Query must be at least 3 characters long.");
-        }
-
-        [Test]
-        public async Task GetSchoolDetails_WhenExceptionOccurs_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var query = "Test School";
-            _searchSchoolsUseCaseMock.Setup(x => x.ExecuteAsync(query))
-                .ThrowsAsync(new Exception("Unexpected error"));
-
-            // Act
-            var result = await _sut.SearchSchools(query);
-
-            // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("An error occurred while searching for schools.");
-        }
-
-
-
-
-
-
 
         [Test]
         public async Task Add_Child_WhenSuccessful_ShouldAddChildAndRedirectToEnterDetails()
