@@ -30,6 +30,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IAddChildUseCase _addChildUseCase;
         private readonly IRemoveChildUseCase _removeChildUseCase;
         private readonly ICheckAnswersUseCase _checkAnswersUseCase;
+        private readonly IApplicationSentUseCase _applicationSentUseCase;
         public CheckController(
            ILogger<CheckController> logger,
         IEcsServiceParent ecsParentService,
@@ -46,7 +47,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         IProcessChildDetailsUseCase processChildDetailsUseCase,
         IAddChildUseCase addChildUseCase,
         IRemoveChildUseCase removeChildUseCase,
-        ICheckAnswersUseCase checkAnswersUseCase)
+        ICheckAnswersUseCase checkAnswersUseCase,
+        IApplicationSentUseCase applicationSentUseCase)
 
         {
             _config = configuration;
@@ -65,6 +67,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
             _removeChildUseCase = removeChildUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
             _checkAnswersUseCase = checkAnswersUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
+            _applicationSentUseCase = applicationSentUseCase ?? throw new ArgumentNullException(nameof(applicationSentUseCase));
 
             _logger.LogInformation("controller log info");
         }
@@ -315,12 +318,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpGet]
-        public IActionResult Application_Sent()
+        public async Task<IActionResult> Application_Sent()
         {
-            // Skip validation
             ModelState.Clear();
-
-            return View();
+            var (viewName, model) = await _applicationSentUseCase.ExecuteAsync();
+            return View(viewName, model);
         }
 
         public IActionResult ChangeChildDetails()

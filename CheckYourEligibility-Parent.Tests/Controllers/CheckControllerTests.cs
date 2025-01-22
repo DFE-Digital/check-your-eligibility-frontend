@@ -44,6 +44,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<IAddChildUseCase> _addChildUseCaseMock;
         private Mock<IRemoveChildUseCase> _removeChildUseCaseMock;
         private Mock<ICheckAnswersUseCase> _checkAnswersUseCaseMock;
+        private Mock<IApplicationSentUseCase> _applicationSentUseCaseMock;
 
         // check eligibility responses
         private CheckEligibilityResponse _eligibilityResponse;
@@ -246,6 +247,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _addChildUseCaseMock = new Mock<IAddChildUseCase>();
                 _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
                 _checkAnswersUseCaseMock = new Mock<ICheckAnswersUseCase>();
+                _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
 
                 _sut = new CheckController(
                     _loggerMock,
@@ -263,7 +265,8 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     _processChildDetailsUseCaseMock.Object,
                     _addChildUseCaseMock.Object,
                     _removeChildUseCaseMock.Object,
-                    _checkAnswersUseCaseMock.Object
+                    _checkAnswersUseCaseMock.Object,
+                    _applicationSentUseCaseMock.Object
                 );
             }
 
@@ -338,6 +341,10 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                         It.IsAny<string>(),
                         It.IsAny<string>()))
                     .ReturnsAsync((true, new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse }, null));
+
+                _applicationSentUseCaseMock
+                     .Setup(x => x.ExecuteAsync())
+                     .ReturnsAsync(("Application_Sent", null));
             }
         }
 
@@ -635,14 +642,60 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        public async Task Given_ApplicationSent_When_LoadingPage_Should_LoadApplicationSentPage()
+        public async Task Application_Sent_WhenLoadingPage_ShouldReturnView()
         {
+            // Arrange
+            _applicationSentUseCaseMock
+                .Setup(x => x.ExecuteAsync())
+                .ReturnsAsync(("Application_Sent", null));
+
             // Act
-            var result = _sut.Application_Sent();
+            var result = await _sut.Application_Sent();
 
             // Assert
-            var viewResult = result as ViewResult;
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.ViewName.Should().Be("Application_Sent");
             viewResult.Model.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Application_Sent_ShouldClearModelStateAndReturnView()
+        {
+            // Arrange
+            _applicationSentUseCaseMock
+                .Setup(x => x.ExecuteAsync())
+                .ReturnsAsync(("Application_Sent", null));
+
+            // Add some model state errors to verify they get cleared
+            _sut.ModelState.AddModelError("test", "test error");
+
+            // Act
+            var result = await _sut.Application_Sent();
+
+            // Assert
+            _sut.ModelState.ErrorCount.Should().Be(0);
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.ViewName.Should().Be("Application_Sent");
+            viewResult.Model.Should().BeNull();
+
+            _applicationSentUseCaseMock.Verify(
+                x => x.ExecuteAsync(),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task Application_Sent_WhenUseCaseThrows_ShouldPropagateException()
+        {
+            // Arrange
+            _applicationSentUseCaseMock
+                .Setup(x => x.ExecuteAsync())
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Application_Sent())
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Test exception");
         }
 
         [Test]
@@ -1082,7 +1135,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         }
 
         [Test]
-        
+
         public async Task CreateUser_WhenSuccessful_ShouldSetSessionAndRedirect()
         {
             // Arrange
