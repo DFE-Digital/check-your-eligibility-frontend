@@ -13,11 +13,12 @@ namespace CheckYourEligibility_FrontEnd.UseCases
     {
         private readonly ILogger<LoaderUseCase> _logger;
         private readonly IEcsCheckService _checkService;
-        private readonly ISession _session;
 
         public LoaderUseCase(
+            ILogger<LoaderUseCase> logger,
             IEcsCheckService checkService)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
         }
 
@@ -42,7 +43,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
                 }
 
                 _logger.LogInformation($"Received status: {check.Data.Status}");
-                _session.SetString("CheckResult", check.Data.Status);
+                session.SetString("CheckResult", check.Data.Status);
 
                 return check.Data.Status switch
                 {

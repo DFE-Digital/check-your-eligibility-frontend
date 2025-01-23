@@ -28,8 +28,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
             _sessionMock = new Mock<ISession>();
             _sut = new LoaderUseCase(
                 _loggerMock.Object,
-                _checkServiceMock.Object,
-                _sessionMock.Object
+                _checkServiceMock.Object
             );
         }
 
@@ -63,7 +62,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
                 .ReturnsAsync(statusResponse);
 
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(responseJson);
+            var (viewName, model) = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
 
             // Assert
             viewName.Should().Be(expectedView);
@@ -78,7 +77,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         public async Task ExecuteAsync_WithEmptyResponse_ShouldReturnTechnicalError()
         {
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(null);
+            var (viewName, model) = await _sut.ExecuteAsync(null, _sessionMock.Object);
 
             // Assert
             viewName.Should().Be("Outcome/Technical_Error");
@@ -100,7 +99,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
                 .ReturnsAsync((CheckEligibilityStatusResponse)null);
 
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(responseJson);
+            var (viewName, model) = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
 
             // Assert
             viewName.Should().Be("Outcome/Technical_Error");
@@ -122,7 +121,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
                 .ThrowsAsync(new Exception("Test exception"));
 
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(responseJson);
+            var (viewName, model) = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
 
             // Assert
             viewName.Should().Be("Outcome/Technical_Error");
