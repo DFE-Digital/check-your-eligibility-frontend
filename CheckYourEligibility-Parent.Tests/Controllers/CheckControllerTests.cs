@@ -607,7 +607,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.TempData["Response"] = responseJson;
 
             _loadParentLoaderUseCaseMock
-                .Setup(x => x.ExecuteAsync(responseJson))
+                .Setup(x => x.ExecuteAsync(responseJson, _sessionMock.Object))
                 .ReturnsAsync(("Loader", null));
 
             // Act
@@ -617,7 +617,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be("Loader");
-            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson), Times.Once);
+            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson, _sessionMock.Object), Times.Once);
         }
 
         [Test]
@@ -680,7 +680,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.TempData["Response"] = responseJson;
 
             _loadParentLoaderUseCaseMock
-                .Setup(x => x.ExecuteAsync(responseJson))
+                .Setup(x => x.ExecuteAsync(responseJson, _sessionMock.Object))
                 .ReturnsAsync((expectedView, null));
 
             // Act
@@ -690,7 +690,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be(expectedView);
-            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson), Times.Once);
+            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson, _sessionMock.Object), Times.Once);
         }
 
 
