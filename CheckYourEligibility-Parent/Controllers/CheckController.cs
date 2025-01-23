@@ -142,7 +142,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Loader()
         {
             var responseJson = TempData["Response"] as string;
-            var (viewName, model) = await _loaderUseCase.ExecuteAsync(responseJson);
+            var (viewName, model) = await _loaderUseCase.ExecuteAsync(responseJson, HttpContext.Session);
 
             if (viewName == "Loader")
             {

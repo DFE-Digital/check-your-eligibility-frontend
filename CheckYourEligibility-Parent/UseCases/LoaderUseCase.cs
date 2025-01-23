@@ -6,7 +6,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface ILoaderUseCase
     {
-        Task<(string ViewName, object Model)> ExecuteAsync(string responseJson);
+        Task<(string ViewName, object Model)> ExecuteAsync(string responseJson, ISession session);
     }
 
     public class LoaderUseCase : ILoaderUseCase
@@ -16,16 +16,12 @@ namespace CheckYourEligibility_FrontEnd.UseCases
         private readonly ISession _session;
 
         public LoaderUseCase(
-            ILogger<LoaderUseCase> logger,
-            IEcsCheckService checkService,
-            ISession session)
+            IEcsCheckService checkService)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
-            _session = session ?? throw new ArgumentNullException(nameof(session));
         }
 
-        public async Task<(string ViewName, object Model)> ExecuteAsync(string responseJson)
+        public async Task<(string ViewName, object Model)> ExecuteAsync(string responseJson, ISession session)
         {
             try
             {
