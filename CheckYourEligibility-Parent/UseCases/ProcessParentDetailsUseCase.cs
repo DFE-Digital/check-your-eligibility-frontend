@@ -9,7 +9,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IProcessParentDetailsUseCase
     {
-        Task<(bool IsValid, CheckEligibilityResponse Response, string RedirectAction)> ExecuteAsync(
+        Task<(CheckEligibilityResponse Response, string ResponseCode)> ExecuteAsync(
             Parent parentRequest,
             ISession session
         );
@@ -24,16 +24,21 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
         }
 
-        public async Task<(bool IsValid, CheckEligibilityResponse Response, string RedirectAction)> ExecuteAsync(
+        public async Task<(CheckEligibilityResponse Response, string ResponseCode)> ExecuteAsync(
             Parent parentRequest,
             ISession session)
         {
             //
             // If user says “I have NO NINO” but “haven’t finished NASS page yet” => redirect to "Nass".
             //
-            if (parentRequest.IsNinoSelected == false && parentRequest.IsNassSelected != true)
+            if ((parentRequest.IsNinoSelected == false && parentRequest.IsNassSelected != true))
             {
-                return (false, null, "Nass");
+                return (null, "Nass");
+            }
+
+            if ((parentRequest.IsNassSelected == false))
+            {
+                return (null, "Could_Not_Check");
             }
 
             //
@@ -56,7 +61,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
             // If we're finishing a NASS flow, store "ParentNASS"; 
             // otherwise store "ParentNINO".
-            if (parentRequest.IsNinoSelected == false)
+            if (parentRequest.NationalAsylumSeekerServiceNumber?.Length>0)
             {
                 session.Set("ParentNASS", Encoding.UTF8.GetBytes(parentRequest.NationalAsylumSeekerServiceNumber ?? ""));
                 session.Remove("ParentNINO");
@@ -82,7 +87,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             // Call ECS check
             var response = await _checkService.PostCheck(checkEligibilityRequest);
 
-            return (true, response, "Loader");
+            return (response, "Success");
         }
     }
 }

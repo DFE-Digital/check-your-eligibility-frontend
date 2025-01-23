@@ -111,16 +111,23 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return RedirectToAction("Enter_Details");
             }
 
-            var (isValid, response, redirectAction) = await _processParentDetailsUseCase.ExecuteAsync(request, HttpContext.Session);
+            var (response, responseCode) = await _processParentDetailsUseCase.ExecuteAsync(request, HttpContext.Session);
 
-            if (!isValid)
-            {
-                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                return RedirectToAction(redirectAction);
+            switch (responseCode) {
+                case "Success":
+                    TempData["Response"] = JsonConvert.SerializeObject(request);
+                    return RedirectToAction("Loader");
+
+                    break;
+                
+                case "Nass":
+                    TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                    return RedirectToAction("Nass");
+                    break;
+                
+                default:
+                    return View("Outcome/Could_Not_Check");
             }
-
-            TempData["Response"] = JsonConvert.SerializeObject(response);
-            return RedirectToAction(redirectAction);
         }
 
 

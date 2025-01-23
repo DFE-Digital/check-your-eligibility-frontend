@@ -480,7 +480,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             // Arrange
             _processParentDetailsUseCaseMock
                 .Setup(x => x.ExecuteAsync(It.IsAny<Parent>(), It.IsAny<ISession>()))
-                .ReturnsAsync((true, new CheckEligibilityResponse(), "Loader"));
+                .ReturnsAsync((new CheckEligibilityResponse(), "Success"));
 
             // Act
             var result = await _sut.Enter_Details(_parent);
@@ -521,7 +521,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                     session.Set("ParentDOB", Encoding.UTF8.GetBytes(expectedDob));
                     session.Set("ParentNINO", Encoding.UTF8.GetBytes(parent.NationalInsuranceNumber));
                 })
-                .ReturnsAsync((true, new CheckEligibilityResponse(), "Loader"));
+                .ReturnsAsync((new CheckEligibilityResponse(), "Success"));
 
             // Act
             await _sut.Enter_Details(_parent);
@@ -651,7 +651,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 .Setup(x => x.ExecuteAsync(
                     It.IsAny<Parent>(),
                     It.IsAny<ISession>()))
-                .ReturnsAsync((false, null, "Nass"));
+                .ReturnsAsync((null, "Nass"));
 
             // Act
             var result = await _sut.Enter_Details(_parent);
@@ -1162,7 +1162,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _processParentDetailsUseCaseMock
                 .Setup(x => x.ExecuteAsync(It.IsAny<Parent>(), It.IsAny<ISession>()))
-                .ReturnsAsync((false, null, "Nass"));
+                .ReturnsAsync((null, "Nass"));
 
             // Act
             var result = await _sut.Enter_Details(_parent);

@@ -68,12 +68,11 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                              .ReturnsAsync(_eligibilityResponse);
 
             // Act
-            var (isValid, response, redirectAction) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            var (response, responseCode) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
 
             // Assert
-            isValid.Should().BeTrue();
             response.Should().BeEquivalentTo(_eligibilityResponse);
-            redirectAction.Should().Be("Loader");
+            responseCode.Should().Be("Success");
 
             Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentFirstName")).Should().Be("John");
             Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentLastName")).Should().Be("Doe");
@@ -89,12 +88,11 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             _parent.NationalInsuranceNumber = null;
 
             // Act
-            var (isValid, response, redirectAction) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            var (response, responseCode) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
 
             // Assert
-            isValid.Should().BeFalse();
             response.Should().BeNull();
-            redirectAction.Should().Be("Nass");
+            responseCode.Should().Be("Nass");
         }
 
         [Test]
@@ -108,12 +106,11 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                              .ReturnsAsync(_eligibilityResponse);
 
             // Act
-            var (isValid, response, redirectAction) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            var (response, responseCode) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
 
             // Assert
-            isValid.Should().BeTrue();
             response.Should().BeEquivalentTo(_eligibilityResponse);
-            redirectAction.Should().Be("Loader");
+            responseCode.Should().Be("Success");
 
             Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentFirstName")).Should().Be("John");
             Encoding.UTF8.GetString(_sessionMock.Object.Get("ParentLastName")).Should().Be("Doe");
