@@ -1,0 +1,88 @@
+﻿using System.Text;
+using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Services;
+using Microsoft.AspNetCore.Http;
+
+namespace CheckYourEligibility_FrontEnd.UseCases
+{
+    public interface IProcessParentDetailsUseCase
+    {
+        Task<(bool IsValid, CheckEligibilityResponse Response, string RedirectAction)> ExecuteAsync(
+            Parent parentRequest,
+            ISession session
+        );
+    }
+
+    public class ProcessParentDetailsUseCase : IProcessParentDetailsUseCase
+    {
+        private readonly IEcsCheckService _checkService;
+
+        public ProcessParentDetailsUseCase(IEcsCheckService checkService)
+        {
+            _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
+        }
+
+        public async Task<(bool IsValid, CheckEligibilityResponse Response, string RedirectAction)> ExecuteAsync(
+            Parent parentRequest,
+            ISession session)
+        {
+            //
+            // If user says “I have NO NINO” but “haven’t finished NASS page yet” => redirect to "Nass".
+            //
+            if (parentRequest.IsNinoSelected == false && parentRequest.IsNassSelected != true)
+            {
+                return (false, null, "Nass");
+            }
+
+            //
+            // Otherwise, do ECS check => store session => (true, response, "Loader").
+            //   - This includes NINO flow (IsNinoSelected == true).
+            //   - It also includes NASS flow (IsNinoSelected == false) but 
+            //     user has finished NASS page => (IsNassSelected == true).
+            //
+            session.Set("ParentFirstName", Encoding.UTF8.GetBytes(parentRequest.FirstName ?? string.Empty));
+            session.Set("ParentLastName", Encoding.UTF8.GetBytes(parentRequest.LastName ?? string.Empty));
+
+            // Build DOB string
+            var dobString = new DateOnly(
+                int.Parse(parentRequest.Year),
+                int.Parse(parentRequest.Month),
+                int.Parse(parentRequest.Day)
+            ).ToString("yyyy-MM-dd");
+
+            session.Set("ParentDOB", Encoding.UTF8.GetBytes(dobString));
+
+            // If we're finishing a NASS flow, store "ParentNASS"; 
+            // otherwise store "ParentNINO".
+            if (parentRequest.IsNinoSelected == false)
+            {
+                session.Set("ParentNASS", Encoding.UTF8.GetBytes(parentRequest.NationalAsylumSeekerServiceNumber ?? ""));
+                session.Remove("ParentNINO");
+            }
+            else
+            {
+                session.Set("ParentNINO", Encoding.UTF8.GetBytes(parentRequest.NationalInsuranceNumber ?? ""));
+                session.Remove("ParentNASS");
+            }
+
+            // Build ECS request
+            var checkEligibilityRequest = new CheckEligibilityRequest_Fsm
+            {
+                Data = new CheckEligibilityRequestData_Fsm
+                {
+                    LastName = parentRequest.LastName,
+                    NationalInsuranceNumber = parentRequest.NationalInsuranceNumber?.ToUpper(),
+                    NationalAsylumSeekerServiceNumber = parentRequest.NationalAsylumSeekerServiceNumber?.ToUpper(),
+                    DateOfBirth = dobString
+                }
+            };
+
+            // Call ECS check
+            var response = await _checkService.PostCheck(checkEligibilityRequest);
+
+            return (true, response, "Loader");
+        }
+    }
+}

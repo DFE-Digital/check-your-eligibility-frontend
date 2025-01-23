@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
+using CheckYourEligibility_FrontEnd.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,20 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
+builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
+builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
+builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
+builder.Services.AddScoped<IProcessParentDetailsUseCase,  ProcessParentDetailsUseCase>();
+builder.Services.AddScoped<ILoadParentNassDetailsUseCase, LoadParentNassDetailsUseCase>();
+builder.Services.AddScoped<ILoaderUseCase, LoaderUseCase>();
+builder.Services.AddScoped<IParentSignInUseCase, ParentSignInUseCase>();
+builder.Services.AddScoped<IEnterChildDetailsUseCase, EnterChildDetailsUseCase>();
+builder.Services.AddScoped<IProcessChildDetailsUseCase, ProcessChildDetailsUseCase>();
+builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
+builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
+builder.Services.AddScoped<ICheckAnswersUseCase, CheckAnswersUseCase>();
+builder.Services.AddScoped<IApplicationSentUseCase, ApplicationSentUseCase>();
+builder.Services.AddScoped<IChangeChildDetailsUseCase, ChangeChildDetailsUseCase>();
 
 builder.Services.AddAuthentication(opt =>
     {
