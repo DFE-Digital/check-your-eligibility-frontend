@@ -189,7 +189,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(childrenModel);
         }
 
-
+        [HttpPost]
         public async Task<IActionResult> Enter_Child_Details(Children request)
         {
             if (!ModelState.IsValid)
