@@ -115,15 +115,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             switch (responseCode) {
                 case "Success":
-                    TempData["Response"] = JsonConvert.SerializeObject(request);
+                    TempData["Response"] = JsonConvert.SerializeObject(response);
                     return RedirectToAction("Loader");
-
-                    break;
                 
                 case "Nass":
                     TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                     return RedirectToAction("Nass");
-                    break;
                 
                 default:
                     return View("Outcome/Could_Not_Check");
@@ -149,15 +146,40 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> Loader()
         {
             var responseJson = TempData["Response"] as string;
-            var (viewName, model) = await _loaderUseCase.ExecuteAsync(responseJson, HttpContext.Session);
-
-            if (viewName == "Loader")
+            try
             {
-                // Save the response back to TempData for the next poll
-                TempData["Response"] = responseJson;
-            }
+                string outcome = await _loaderUseCase.ExecuteAsync(responseJson, HttpContext.Session);
 
-            return View(viewName, model);
+                if (outcome == "queuedForProcessing")
+                {
+                    // Save the response back to TempData for the next poll
+                    TempData["Response"] = responseJson;
+                }
+
+                _logger.LogError(outcome);
+
+                switch (outcome)
+                {
+                    case "eligible":
+                        return View("Outcome/Eligible");
+
+                    case "notEligible":
+                        return View("Outcome/Not_Eligible");
+
+                    case "parentNotFound":
+                        return View("Outcome/Not_Found");
+
+                    case "queuedForProcessing":
+                        return View("Loader");
+
+                    default:
+                        return View(outcome);
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Outcome/Technical_Error");
+            }
         }
 
         public async Task<IActionResult> SignIn()

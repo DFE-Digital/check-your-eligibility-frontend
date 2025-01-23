@@ -608,7 +608,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _loadParentLoaderUseCaseMock
                 .Setup(x => x.ExecuteAsync(responseJson, _sessionMock.Object))
-                .ReturnsAsync(("Loader", null));
+                .ReturnsAsync("Loader");
 
             // Act
             var result = await _sut.Loader();
@@ -681,7 +681,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _loadParentLoaderUseCaseMock
                 .Setup(x => x.ExecuteAsync(responseJson, _sessionMock.Object))
-                .ReturnsAsync((expectedView, null));
+                .ReturnsAsync(expectedView);
 
             // Act
             var result = await _sut.Loader();

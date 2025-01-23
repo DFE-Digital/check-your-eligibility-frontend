@@ -33,18 +33,17 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         }
 
         public static object[] StatusTestCases = {
-            new object[] { "eligible", "Outcome/Eligible", "/check/signIn" },
-            new object[] { "notEligible", "Outcome/Not_Eligible", (string)null },
-            new object[] { "parentNotFound", "Outcome/Not_Found", (string)null },
-            new object[] { "DwpError", "Outcome/Technical_Error", (string)null },
-            new object[] { "queuedForProcessing", "Loader", (string)null }
+            new object[] { "eligible", "eligible" },
+            new object[] { "notEligible", "notEligible" },
+            new object[] { "parentNotFound", "parentNotFound" },
+            new object[] { "DwpError", "DwpError" },
+            new object[] { "queuedForProcessing", "queuedForProcessing" },
         };
 
         [TestCaseSource(nameof(StatusTestCases))]
         public async Task ExecuteAsync_WithValidStatus_ShouldReturnCorrectViewAndModel(
             string status,
-            string expectedView,
-            string expectedModel)
+            string expectedOutcome)
         {
             // Arrange
             var response = new CheckEligibilityResponse
@@ -62,11 +61,10 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
                 .ReturnsAsync(statusResponse);
 
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
+            string outcome = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
 
             // Assert
-            viewName.Should().Be(expectedView);
-            model.Should().Be(expectedModel);
+            outcome.Should().Be(expectedOutcome);
             _sessionMock.Verify(s =>
                 s.Set("CheckResult", It.Is<byte[]>(b =>
                     Encoding.UTF8.GetString(b) == status)),
@@ -77,11 +75,11 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         public async Task ExecuteAsync_WithEmptyResponse_ShouldReturnTechnicalError()
         {
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(null, _sessionMock.Object);
-
-            // Assert
-            viewName.Should().Be("Outcome/Technical_Error");
-            model.Should().BeNull();
+            await FluentActions.Invoking(() =>
+                    _sut.ExecuteAsync(
+                        null, _sessionMock.Object))
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("No response data found in TempData.");
         }
 
         [Test]
@@ -99,43 +97,11 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
                 .ReturnsAsync((CheckEligibilityStatusResponse)null);
 
             // Act
-            var (viewName, model) = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
-
-            // Assert
-            viewName.Should().Be("Outcome/Technical_Error");
-            model.Should().BeNull();
-        }
-
-        [Test]
-        public async Task ExecuteAsync_WhenExceptionOccurs_ShouldReturnTechnicalError()
-        {
-            // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "any" }
-            };
-            var responseJson = JsonConvert.SerializeObject(response);
-
-            _checkServiceMock
-                .Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ThrowsAsync(new Exception("Test exception"));
-
-            // Act
-            var (viewName, model) = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
-
-            // Assert
-            viewName.Should().Be("Outcome/Technical_Error");
-            model.Should().BeNull();
-
-            // Verify that the error was logged
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => true),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-                Times.Once);
+            await FluentActions.Invoking(() =>
+                    _sut.ExecuteAsync(
+                        responseJson, _sessionMock.Object))
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Null response received from GetStatus.");
         }
     }
 }
