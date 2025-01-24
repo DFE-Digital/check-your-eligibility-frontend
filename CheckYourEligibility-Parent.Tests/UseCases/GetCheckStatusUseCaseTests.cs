@@ -13,20 +13,20 @@ using System.Threading.Tasks;
 namespace CheckYourEligibility_Parent.Tests.Usecases
 {
     [TestFixture]
-    public class LoaderUseCaseTests
+    public class GetCheckStatusUseCaseTests
     {
-        private Mock<ILogger<LoaderUseCase>> _loggerMock;
+        private Mock<ILogger<GetCheckStatusUseCase>> _loggerMock;
         private Mock<IEcsCheckService> _checkServiceMock;
         private Mock<ISession> _sessionMock;
-        private LoaderUseCase _sut;
+        private GetCheckStatusUseCase _sut;
 
         [SetUp]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger<LoaderUseCase>>();
+            _loggerMock = new Mock<ILogger<GetCheckStatusUseCase>>();
             _checkServiceMock = new Mock<IEcsCheckService>();
             _sessionMock = new Mock<ISession>();
-            _sut = new LoaderUseCase(
+            _sut = new GetCheckStatusUseCase(
                 _loggerMock.Object,
                 _checkServiceMock.Object
             );

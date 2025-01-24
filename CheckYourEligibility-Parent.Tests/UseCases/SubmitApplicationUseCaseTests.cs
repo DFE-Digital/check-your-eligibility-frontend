@@ -14,19 +14,19 @@ using ModelSchool = CheckYourEligibility_FrontEnd.Models.School;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class CheckAnswersUseCaseTests
+    public class SubmitApplicationUseCaseTests
     {
-        private Mock<ILogger<CheckAnswersUseCase>> _loggerMock;
+        private Mock<ILogger<SubmitApplicationUseCase>> _loggerMock;
         private Mock<IEcsServiceParent> _parentServiceMock;
-        private CheckAnswersUseCase _sut;
+        private SubmitApplicationUseCase _sut;
         private FsmApplication _fsmApplication;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<CheckAnswersUseCase>>();
+            _loggerMock = new Mock<ILogger<SubmitApplicationUseCase>>();
             _parentServiceMock = new Mock<IEcsServiceParent>();
-            _sut = new CheckAnswersUseCase(_loggerMock.Object, _parentServiceMock.Object);
+            _sut = new SubmitApplicationUseCase(_loggerMock.Object, _parentServiceMock.Object);
 
             _fsmApplication = new FsmApplication
             {
@@ -60,16 +60,14 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(new ApplicationSaveItemResponse());
 
             // Act
-            var result = await _sut.ProcessApplicationAsync(
+            var result = await _sut.ExecuteAsync(
                 _fsmApplication,
                 CheckEligibilityStatus.eligible.ToString(),
                 "userId",
                 "test@example.com");
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Responses.Should().HaveCount(1);
-            result.ErrorMessage.Should().BeNull();
+            result.Should().HaveCount(1);
 
             _parentServiceMock.Verify(
                 x => x.PostApplication_Fsm(It.Is<ApplicationRequest>(r =>
@@ -83,16 +81,13 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         public async Task ProcessApplicationAsync_WhenStatusIsNotEligible_ShouldReturnError()
         {
             // Act
-            var result = await _sut.ProcessApplicationAsync(
+            await FluentActions.Invoking(() => _sut.ExecuteAsync(
                 _fsmApplication,
                 CheckEligibilityStatus.notEligible.ToString(),
                 "userId",
-                "test@example.com");
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.Responses.Should().BeNull();
-            result.ErrorMessage.Should().Contain("Invalid status");
+                "test@example.com"))
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("Invalid status when trying to create an application: notEligible");;
 
             _parentServiceMock.Verify(
                 x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()),
@@ -118,15 +113,14 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(new ApplicationSaveItemResponse());
 
             // Act
-            var result = await _sut.ProcessApplicationAsync(
+            var result = await _sut.ExecuteAsync(
                 _fsmApplication,
                 CheckEligibilityStatus.eligible.ToString(),
                 "userId",
                 "test@example.com");
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Responses.Should().HaveCount(2);
+            result.Should().HaveCount(2);
 
             _parentServiceMock.Verify(
                 x => x.PostApplication_Fsm(It.Is<ApplicationRequest>(r =>
@@ -144,7 +138,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
 
             // Act & Assert
             await FluentActions.Invoking(() =>
-                _sut.ProcessApplicationAsync(
+                _sut.ExecuteAsync(
                     _fsmApplication,
                     CheckEligibilityStatus.eligible.ToString(),
                     "userId",
@@ -164,7 +158,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(new ApplicationSaveItemResponse());
 
             // Act
-            await _sut.ProcessApplicationAsync(
+            await _sut.ExecuteAsync(
                 _fsmApplication,
                 CheckEligibilityStatus.eligible.ToString(),
                 "userId",

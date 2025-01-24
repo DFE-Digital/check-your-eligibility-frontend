@@ -19,26 +19,18 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
         public Task<Children> ExecuteAsync(string childListJson, bool? isChildAddOrRemove)
         {
-            try
-            {
-                var children = new Children { ChildList = new List<Child> { new Child() } };
+            var children = new Children { ChildList = new List<Child> { new Child() } };
 
-                if (isChildAddOrRemove == true && !string.IsNullOrEmpty(childListJson))
+            if (isChildAddOrRemove == true && !string.IsNullOrEmpty(childListJson))
+            {
+                var deserializedChildren = JsonConvert.DeserializeObject<List<Child>>(childListJson);
+                if (deserializedChildren != null)
                 {
-                    var deserializedChildren = JsonConvert.DeserializeObject<List<Child>>(childListJson);
-                    if (deserializedChildren != null)
-                    {
-                        children.ChildList = deserializedChildren;
-                    }
+                    children.ChildList = deserializedChildren;
                 }
+            }
 
-                return Task.FromResult(children);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing child details");
-                throw;
-            }
+            return Task.FromResult(children);
         }
     }
 }

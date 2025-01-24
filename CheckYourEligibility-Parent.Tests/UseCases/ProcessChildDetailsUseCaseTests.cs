@@ -84,26 +84,6 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             
         }
 
-
-        [Test]
-        public async Task ExecuteAsync_WhenRedirectIsTrue_ShouldReturnViewWithOriginalRequest()
-        {
-            // Arrange
-            var request = new Children
-            {
-                ChildList = new List<Child> { new Child() }
-            };
-
-            // Act
-            var result = await _sut.ExecuteAsync(request, true, _sessionMock.Object);
-
-            // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.View.Should().Be("Enter_Child_Details");
-            result.Model.Should().BeEquivalentTo(request);
-            result.ValidationErrors.Should().BeNull();
-        }
-
         [Test]
         public async Task ExecuteAsync_WithValidSchoolUrn_ShouldUpdateSchoolNameAndReturnFsmApplication()
         {
@@ -132,14 +112,10 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(schoolResponse);
 
             // Act
-            var result = await _sut.ExecuteAsync(request, false, _sessionMock.Object);
-
-            // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.View.Should().Be("Check_Answers");
+            var result = await _sut.ExecuteAsync(request, _sessionMock.Object, new Dictionary<string, string[]>());
 
             // Because result.Model is "FsmApplication", cast it:
-            var model = (FsmApplication)result.Model;
+            var model = (FsmApplication)result;
 
             model.Children.ChildList.First().School.Name.Should().Be("Test School");
             model.ParentFirstName.Should().Be("John");
@@ -162,15 +138,8 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            var result = await _sut.ExecuteAsync(request, false, _sessionMock.Object);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.View.Should().Be("Enter_Child_Details");
-
-            result.ValidationErrors.Should().ContainKey("ChildList[0].School.URN");
-            result.ValidationErrors["ChildList[0].School.URN"].Should()
-                .Contain("School URN should be a 6 digit number.");
+            await FluentActions.Invoking(() =>_sut.ExecuteAsync(request, _sessionMock.Object, new Dictionary<string, string[]>()))
+                .Should().ThrowAsync<ProcessChildDetailsUseCase.ProcessChildDetailsValidationException>("School URN should be a 6 digit number.");
         }
 
         [Test]
@@ -192,15 +161,8 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync((EstablishmentSearchResponse)null);
 
             // Act
-            var result = await _sut.ExecuteAsync(request, false, _sessionMock.Object);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.View.Should().Be("Enter_Child_Details");
-
-            result.ValidationErrors.Should().ContainKey("ChildList[0].School.URN");
-            result.ValidationErrors["ChildList[0].School.URN"].Should()
-                .Contain("The selected school does not exist in our service.");
+            await FluentActions.Invoking(() =>_sut.ExecuteAsync(request, _sessionMock.Object, new Dictionary<string, string[]>()))
+                .Should().ThrowAsync<ProcessChildDetailsUseCase.ProcessChildDetailsValidationException>("The selected school does not exist in our service.");
         }
     }
 }

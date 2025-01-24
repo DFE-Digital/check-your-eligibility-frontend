@@ -38,25 +38,17 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var result = await _sut.ExecuteAsync(json);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.ViewName.Should().Be("Enter_Child_Details");
-            result.Model.Should().BeEquivalentTo(children);
+            result.Should().BeEquivalentTo(children);
         }
 
         [Test]
         public async Task ExecuteAsync_WithNullJson_ShouldReturnEmptyChildren()
         {
             // Act
-            var result = await _sut.ExecuteAsync(null);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ViewName.Should().Be("Enter_Child_Details");
-            result.Model.Should().NotBeNull();
-
-            // Treat null as empty
-            var childList = result.Model.ChildList ?? new List<Child>();
-            childList.Should().BeEmpty("because null ChildList is treated as no children");
+            await FluentActions.Invoking(() =>
+                    _sut.ExecuteAsync(null))
+                .Should().ThrowAsync<Exception>()
+                .WithMessage("FSM Application JSON is null or empty");;
         }
 
 
@@ -70,28 +62,6 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             await FluentActions.Invoking(() =>
                 _sut.ExecuteAsync(invalidJson))
                 .Should().ThrowAsync<JsonReaderException>();
-        }
-
-        [Test]
-        public async Task ExecuteAsync_ShouldLogInformationOnSuccess()
-        {
-            // Arrange
-            var children = new Children { ChildList = new List<Child>() };
-            var application = new FsmApplication { Children = children };
-            var json = JsonConvert.SerializeObject(application);
-
-            // Act
-            await _sut.ExecuteAsync(json);
-
-            // Assert
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Successfully retrieved children details")),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                Times.Once);
         }
     }
 }

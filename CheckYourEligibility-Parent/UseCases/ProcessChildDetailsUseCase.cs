@@ -7,11 +7,10 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IProcessChildDetailsUseCase
     {
-        Task<(bool IsSuccess, string View, object Model, Dictionary<string, string[]> ValidationErrors)> ExecuteAsync(
+        Task<object> ExecuteAsync(
             Children request,
-            bool isRedirect,
             ISession session,
-            Dictionary<string, string[]> existingValidationErrors = null);
+            Dictionary<string, string[]> validationErrors);
     }
 
     public class ProcessChildDetailsUseCase : IProcessChildDetailsUseCase
@@ -26,42 +25,34 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }
-
-        public async Task<(bool IsSuccess, string View, object Model, Dictionary<string, string[]> ValidationErrors)> ExecuteAsync(
-            Children request,
-            bool isRedirect,
-            ISession session,
-            Dictionary<string, string[]> existingValidationErrors = null)
+        
+        [Serializable]
+        public class ProcessChildDetailsValidationException : Exception
         {
-            try
+        
+            public ProcessChildDetailsValidationException(string message) : base(message)
             {
-                var validationErrors = existingValidationErrors ?? new Dictionary<string, string[]>();
-
-                // If it's a redirect with existing data, return early
-                if (isRedirect)
-                {
-                    return (true, "Enter_Child_Details", request, null);
-                }
-
-                // Validate schools
-                await ValidateSchools(request, validationErrors);
-
-                // If there are validation errors, return early
-                if (validationErrors.Any())
-                {
-                    return (false, "Enter_Child_Details", request, validationErrors);
-                }
-
-                // Create FSM application
-                var fsmApplication = CreateFsmApplication(request, session);
-
-                return (true, "Check_Answers", fsmApplication, null);
             }
-            catch (Exception ex)
+        }
+
+        public async Task<object> ExecuteAsync(
+            Children request,
+            ISession session,
+            Dictionary<string, string[]> validationErrors)
+        {
+            // Validate schools
+            await ValidateSchools(request, validationErrors);
+
+            // If there are validation errors, return early
+            if (validationErrors.Any())
             {
-                _logger.LogError(ex, "Error processing child details");
-                throw;
+                throw new ProcessChildDetailsValidationException(JsonConvert.SerializeObject(validationErrors));
             }
+
+            // Create FSM application
+            var fsmApplication = CreateFsmApplication(request, session);
+
+            return fsmApplication;
         }
 
         private async Task ValidateSchools(Children request, Dictionary<string, string[]> validationErrors)

@@ -56,27 +56,6 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidJson_ShouldThrowException()
-        {
-            // Arrange
-            var invalidJson = "invalid json";
-
-            // Act & Assert
-            await FluentActions.Invoking(() =>
-                _sut.ExecuteAsync(invalidJson, true))
-                .Should().ThrowAsync<JsonReaderException>();
-
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => true),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-                Times.Once);
-        }
-
-        [Test]
         public async Task ExecuteAsync_WithChildAddOrRemoveFalse_ShouldReturnDefaultChildren()
         {
             // Arrange

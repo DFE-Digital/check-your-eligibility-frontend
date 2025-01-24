@@ -7,61 +7,53 @@ using ModelChild = CheckYourEligibility_FrontEnd.Models.Child;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface ICheckAnswersUseCase
+    public interface ISubmitApplicationUseCase
     {
-        Task<(bool IsSuccess, List<ApplicationSaveItemResponse> Responses, string ErrorMessage)> ProcessApplicationAsync(
+        Task<List<ApplicationSaveItemResponse>> ExecuteAsync(
             FsmApplication request,
             string currentStatus,
             string userId,
             string email);
     }
 
-    public class CheckAnswersUseCase : ICheckAnswersUseCase
+    public class SubmitApplicationUseCase : ISubmitApplicationUseCase
     {
-        private readonly ILogger<CheckAnswersUseCase> _logger;
+        private readonly ILogger<SubmitApplicationUseCase> _logger;
         private readonly IEcsServiceParent _parentService;
 
-        public CheckAnswersUseCase(
-            ILogger<CheckAnswersUseCase> logger,
+        public SubmitApplicationUseCase(
+            ILogger<SubmitApplicationUseCase> logger,
             IEcsServiceParent parentService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }
 
-        public async Task<(bool IsSuccess, List<ApplicationSaveItemResponse> Responses, string ErrorMessage)> ProcessApplicationAsync(
+        public async Task<List<ApplicationSaveItemResponse>> ExecuteAsync(
             FsmApplication request,
             string currentStatus,
             string userId,
             string email)
         {
-            try
+            _logger.LogInformation("Processing application with current eligibility status: {Status}", currentStatus);
+
+            if (currentStatus != CheckEligibilityStatus.eligible.ToString())
             {
-                _logger.LogInformation("Processing application with current eligibility status: {Status}", currentStatus);
-
-                if (currentStatus != CheckEligibilityStatus.eligible.ToString())
-                {
-                    _logger.LogError("Invalid status when trying to create an application: {Status}", currentStatus);
-                    return (false, null, $"Invalid status when trying to create an application: {currentStatus}");
-                }
-
-                var responses = new List<ApplicationSaveItemResponse>();
-
-                foreach (var child in request.Children.ChildList)
-                {
-                    var application = CreateApplicationRequest(request, child, userId, email);
-                    var response = await _parentService.PostApplication_Fsm(application);
-                    responses.Add(response);
-                }
-
-                _logger.LogInformation("Successfully processed {Count} applications", responses.Count);
-                return (true, responses, null);
+                _logger.LogError("Invalid status when trying to create an application: {Status}", currentStatus);
+                throw new Exception($"Invalid status when trying to create an application: {currentStatus}");
             }
-            catch (Exception ex)
+
+            var responses = new List<ApplicationSaveItemResponse>();
+
+            foreach (var child in request.Children.ChildList)
             {
-                _logger.LogError(ex, "Error processing application");
-                throw;
+                var application = CreateApplicationRequest(request, child, userId, email);
+                var response = await _parentService.PostApplication_Fsm(application);
+                responses.Add(response);
             }
+
+            _logger.LogInformation("Successfully processed {Count} applications", responses.Count);
+            return responses;
         }
 
         private ApplicationRequest CreateApplicationRequest(FsmApplication request, ModelChild child, string userId, string email)

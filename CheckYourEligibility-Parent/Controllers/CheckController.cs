@@ -22,15 +22,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
         private readonly IProcessParentDetailsUseCase _processParentDetailsUseCase;
-        private readonly ILoadParentNassDetailsUseCase _loadParentNassDetailsUseCase;
-        private readonly ILoaderUseCase _loaderUseCase;
-        private readonly IParentSignInUseCase _parentSignInUseCase;
+        private readonly IGetCheckStatusUseCase _getCheckStatusUseCase;
+        private readonly ISignInUseCase _signInUseCase;
         private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
         private readonly IProcessChildDetailsUseCase _processChildDetailsUseCase;
         private readonly IAddChildUseCase _addChildUseCase;
         private readonly IRemoveChildUseCase _removeChildUseCase;
-        private readonly ICheckAnswersUseCase _checkAnswersUseCase;
-        private readonly IApplicationSentUseCase _applicationSentUseCase;
+        private readonly ISubmitApplicationUseCase _submitApplicationUseCase;
         private readonly IChangeChildDetailsUseCase _changeChildDetailsUseCase;
         public CheckController(
            ILogger<CheckController> logger,
@@ -41,36 +39,32 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         ILoadParentDetailsUseCase loadParentDetailsUseCase,
         ICreateUserUseCase createUserUseCase,
         IProcessParentDetailsUseCase processParentDetailsUseCase,
-        ILoadParentNassDetailsUseCase loadParentNassDetailsUseCase,
-        ILoaderUseCase loaderUseCase,
-        IParentSignInUseCase parentSignInUseCase,
+        IGetCheckStatusUseCase getCheckStatusUseCase,
+        ISignInUseCase signInUseCase,
         IEnterChildDetailsUseCase enterChildDetailsUseCase,
         IProcessChildDetailsUseCase processChildDetailsUseCase,
         IAddChildUseCase addChildUseCase,
         IRemoveChildUseCase removeChildUseCase,
-        ICheckAnswersUseCase checkAnswersUseCase,
-        IApplicationSentUseCase applicationSentUseCase,
+        ISubmitApplicationUseCase submitApplicationUseCase,
         IChangeChildDetailsUseCase changeChildDetailsUseCase)
 
         {
             _config = configuration;
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _parentService = ecsParentService ?? throw new ArgumentNullException(nameof(ecsParentService));
-            _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
-            _searchSchoolsUseCase = searchSchoolsUseCase ?? throw new ArgumentNullException(nameof(searchSchoolsUseCase));
-            _createUserUseCase = createUserUseCase ?? throw new ArgumentNullException(nameof(createUserUseCase));
-            _loadParentDetailsUseCase = loadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentDetailsUseCase));
-            _processParentDetailsUseCase = processParentDetailsUseCase ?? throw new ArgumentNullException(nameof(processParentDetailsUseCase));
-            _loadParentNassDetailsUseCase = loadParentNassDetailsUseCase ?? throw new ArgumentNullException(nameof(loadParentNassDetailsUseCase));
-            _loaderUseCase = loaderUseCase ?? throw new ArgumentNullException(nameof(loaderUseCase));
-            _parentSignInUseCase = parentSignInUseCase ?? throw new ArgumentNullException(nameof(parentSignInUseCase));
-            _enterChildDetailsUseCase = enterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(enterChildDetailsUseCase));
-            _processChildDetailsUseCase = processChildDetailsUseCase ?? throw new ArgumentNullException(nameof(processChildDetailsUseCase));
-            _addChildUseCase = addChildUseCase ?? throw new ArgumentNullException(nameof(addChildUseCase));
-            _removeChildUseCase = removeChildUseCase ?? throw new ArgumentNullException(nameof(removeChildUseCase));
-            _checkAnswersUseCase = checkAnswersUseCase ?? throw new ArgumentNullException(nameof(checkAnswersUseCase));
-            _applicationSentUseCase = applicationSentUseCase ?? throw new ArgumentNullException(nameof(applicationSentUseCase));
-            _changeChildDetailsUseCase = changeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(changeChildDetailsUseCase));
+            _logger = logger;
+            _parentService = ecsParentService;
+            _checkService = ecsCheckService;
+            _searchSchoolsUseCase = searchSchoolsUseCase;
+            _createUserUseCase = createUserUseCase;
+            _loadParentDetailsUseCase = loadParentDetailsUseCase;
+            _processParentDetailsUseCase = processParentDetailsUseCase;
+            _getCheckStatusUseCase = getCheckStatusUseCase;
+            _signInUseCase = signInUseCase;
+            _enterChildDetailsUseCase = enterChildDetailsUseCase;
+            _processChildDetailsUseCase = processChildDetailsUseCase;
+            _addChildUseCase = addChildUseCase;
+            _removeChildUseCase = removeChildUseCase;
+            _submitApplicationUseCase = submitApplicationUseCase;
+            _changeChildDetailsUseCase = changeChildDetailsUseCase;
 
             _logger.LogInformation("controller log info");
         }
@@ -137,7 +131,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return RedirectToAction("Enter_Details");
             }
 
-            var parent = _loadParentNassDetailsUseCase.ExecuteAsync(parentDetailsJson).Result;
+            var parent = JsonConvert.DeserializeObject<Parent>(parentDetailsJson)??new Parent();
 
             return View(parent);
         }
@@ -148,7 +142,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var responseJson = TempData["Response"] as string;
             try
             {
-                string outcome = await _loaderUseCase.ExecuteAsync(responseJson, HttpContext.Session);
+                string outcome = await _getCheckStatusUseCase.ExecuteAsync(responseJson, HttpContext.Session);
 
                 if (outcome == "queuedForProcessing")
                 {
@@ -184,7 +178,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> SignIn()
         {
-            var properties = await _parentSignInUseCase.ExecuteAsync("/Check/CreateUser");
+            var properties = await _signInUseCase.ExecuteAsync("/Check/CreateUser");
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
 
@@ -236,14 +230,28 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     k => k.Key,
                     v => v.Value.Errors.Select(e => e.ErrorMessage).ToArray());
 
-            var (isSuccess, view, model, errors) = await _processChildDetailsUseCase.ExecuteAsync(
-                request,
-                isRedirect,
-                HttpContext.Session,
-                validationErrors);
-
-            if (!isSuccess)
+            if (isRedirect)
             {
+                return View("Enter_Child_Details", request);
+            }
+            
+            try
+            {
+                var model = await _processChildDetailsUseCase.ExecuteAsync(
+                    request,
+                    HttpContext.Session,
+                    validationErrors);
+
+                if (model is FsmApplication fsmApplication)
+                {
+                    TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
+                }
+                return View("Check_Answers", model);
+            }
+            
+            catch (ProcessChildDetailsUseCase.ProcessChildDetailsValidationException e)
+            {
+                Dictionary<string, string[]> errors = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(e.Message);
                 foreach (var error in errors)
                 {
                     foreach (var message in error.Value)
@@ -251,48 +259,50 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                         ModelState.AddModelError(error.Key, message);
                     }
                 }
-                return View(model);
-            }
 
-            if (model is FsmApplication fsmApplication)
-            {
-                TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
+                return View("Enter_Child_Details");
             }
-
-            return View(view, model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add_Child(Children request)
         {
-            var (isSuccess, updatedChildren) = await _addChildUseCase.ExecuteAsync(request);
-
-            TempData["IsChildAddOrRemove"] = true;
-
-            if (!isSuccess)
+            try
             {
-                return RedirectToAction("Enter_Child_Details");
+                var updatedChildren = await _addChildUseCase.ExecuteAsync(request);
+
+                TempData["IsChildAddOrRemove"] = true;
+
+                TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
             }
 
-            TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
+            catch (MaxChildrenException e)
+            {
+                TempData["ChildList"] = request;
+            }
+
             return RedirectToAction("Enter_Child_Details");
         }
 
         [HttpPost]
         public async Task<IActionResult> Remove_Child(Children request, int index)
         {
-            var (isSuccess, updatedChildren, errorMessage) = await _removeChildUseCase.ExecuteAsync(request, index);
-
-            TempData["IsChildAddOrRemove"] = true;
-
-            if (!isSuccess)
+            try
             {
-                ModelState.AddModelError(string.Empty, errorMessage);
+                TempData["IsChildAddOrRemove"] = true;
+                
+                var updatedChildren = await _removeChildUseCase.ExecuteAsync(request, index);
+
+                TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
+                
                 return RedirectToAction("Enter_Child_Details");
             }
 
-            TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
-            return RedirectToAction("Enter_Child_Details");
+            catch (RemoveChildValidationException e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                return RedirectToAction("Enter_Child_Details");
+            }
         }
 
         /// this method is called by AJAX
@@ -337,46 +347,44 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            try
-            {
-                var currentStatus = HttpContext.Session.GetString("CheckResult");
-                var userId = HttpContext.Session.GetString("UserId");
-                var email = HttpContext.Session.GetString("Email");
+            var currentStatus = HttpContext.Session.GetString("CheckResult");
+            var userId = HttpContext.Session.GetString("UserId");
+            var email = HttpContext.Session.GetString("Email");
 
-                var (isSuccess, responses, errorMessage) = await _checkAnswersUseCase.ProcessApplicationAsync(
-                    request, currentStatus, userId, email);
+            var responses = await _submitApplicationUseCase.ExecuteAsync(
+                request, currentStatus, userId, email);
 
-                if (!isSuccess)
-                {
-                    _logger.LogError("Application processing failed: {Error}", errorMessage);
-                    throw new Exception(errorMessage);
-                }
-
-                TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
-                return RedirectToAction("Application_Sent");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in Check_Answers");
-                throw;
-            }
+            TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
+            return RedirectToAction("Application_Sent");
         }
 
         [HttpGet]
         public async Task<IActionResult> Application_Sent()
         {
             ModelState.Clear();
-            var (viewName, model) = await _applicationSentUseCase.ExecuteAsync();
-            return View(viewName, model);
+            return View("Application_Sent");
         }
 
         public async Task<IActionResult> ChangeChildDetails()
         {
             TempData["IsRedirect"] = true;
-            (bool isSuccess, string viewName, Children model) = await _changeChildDetailsUseCase.ExecuteAsync(
-                TempData["FsmApplication"] as string);
+            Children model = new Children { ChildList = new List<Child>() };
+            
+            try
+            {
+                model = await _changeChildDetailsUseCase.ExecuteAsync(
+                    TempData["FsmApplication"] as string);
+            }
+            catch (JSONException e)
+            {
+                ;
+            }
+            catch (NoChildException)
+            {
+                ;
+            }
 
-            return View(viewName, model);
+            return View("Enter_Child_Details", model);
         }
 
 

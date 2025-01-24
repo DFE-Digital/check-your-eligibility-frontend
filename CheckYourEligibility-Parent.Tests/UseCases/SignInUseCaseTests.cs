@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Authentication;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class ParentSignInUseCaseTests
+    public class SignInUseCaseTests
     {
-        private ParentSignInUseCase _sut;
+        private SignInUseCase _sut;
 
         [SetUp]
         public void SetUp()
         {
-            _sut = new ParentSignInUseCase();
+            _sut = new SignInUseCase();
         }
 
         [Test]

@@ -4,18 +4,18 @@ using Newtonsoft.Json;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface ILoaderUseCase
+    public interface IGetCheckStatusUseCase
     {
         Task<string> ExecuteAsync(string responseJson, ISession session);
     }
 
-    public class LoaderUseCase : ILoaderUseCase
+    public class GetCheckStatusUseCase : IGetCheckStatusUseCase
     {
-        private readonly ILogger<LoaderUseCase> _logger;
+        private readonly ILogger<GetCheckStatusUseCase> _logger;
         private readonly IEcsCheckService _checkService;
 
-        public LoaderUseCase(
-            ILogger<LoaderUseCase> logger,
+        public GetCheckStatusUseCase(
+            ILogger<GetCheckStatusUseCase> logger,
             IEcsCheckService checkService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

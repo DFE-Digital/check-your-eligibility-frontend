@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IParentSignInUseCase
+    public interface ISignInUseCase
     {
         Task<AuthenticationProperties> ExecuteAsync(string redirectUri);
     }
 
-    public class ParentSignInUseCase : IParentSignInUseCase
+    public class SignInUseCase : ISignInUseCase
     {
         public Task<AuthenticationProperties> ExecuteAsync(string redirectUri)
         {

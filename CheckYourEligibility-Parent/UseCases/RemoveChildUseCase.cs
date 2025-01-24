@@ -4,7 +4,16 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IRemoveChildUseCase
     {
-        Task<(bool IsSuccess, Children UpdatedChildren, string ErrorMessage)> ExecuteAsync(Children request, int index);
+        Task<Children> ExecuteAsync(Children request, int index);
+    }
+    
+    [Serializable]
+    public class RemoveChildValidationException : Exception
+    {
+        
+        public RemoveChildValidationException(string message) : base (message)
+        {
+        }
     }
 
     public class RemoveChildUseCase : IRemoveChildUseCase
@@ -16,35 +25,23 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task<(bool IsSuccess, Children UpdatedChildren, string ErrorMessage)> ExecuteAsync(Children request, int index)
+        public Task<Children> ExecuteAsync(Children request, int index)
         {
-            try
+            if (request?.ChildList == null)
             {
-                if (request?.ChildList == null)
-                {
-                    _logger.LogWarning("Attempt to remove child from null or empty list");
-                    return Task.FromResult((false, request, "Invalid request - no children list available"));
-                }
-
-                if (index < 0 || index >= request.ChildList.Count)
-                {
-                    _logger.LogWarning("Attempt to remove child with invalid index: {Index}", index);
-                    return Task.FromResult((false, request, "Invalid child index"));
-                }
-
-                var child = request.ChildList[index];
-                request.ChildList.Remove(child);
-
-                _logger.LogInformation("Successfully removed child at index {Index}. Remaining children: {Count}",
-                    index, request.ChildList.Count);
-
-                return Task.FromResult((true, request, string.Empty));
+                throw new RemoveChildValidationException("Invalid request - no children list available");
             }
-            catch (Exception ex)
+
+            if (index < 0 || index >= request.ChildList.Count)
             {
-                _logger.LogError(ex, "Error removing child at index {Index}", index);
-                throw;
+                throw new RemoveChildValidationException("Invalid child index");
             }
+
+            var child = request.ChildList[index];
+            request.ChildList.Remove(child);
+
+
+            return Task.FromResult(request);
         }
     }
 }

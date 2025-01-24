@@ -5,7 +5,25 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IChangeChildDetailsUseCase
     {
-        Task<(bool IsSuccess, string ViewName, Children Model)> ExecuteAsync(string fsmApplicationJson);
+        Task<Children> ExecuteAsync(string fsmApplicationJson);
+    }
+    
+    [Serializable]
+    public class NoChildException : Exception
+    {
+        
+        public NoChildException(string message) : base (message)
+        {
+        }
+    }
+    
+    [Serializable]
+    public class JSONException : Exception
+    {
+        
+        public JSONException(string message) : base (message)
+        {
+        }
     }
 
     public class ChangeChildDetailsUseCase : IChangeChildDetailsUseCase
@@ -17,31 +35,21 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task<(bool IsSuccess, string ViewName, Children Model)> ExecuteAsync(string fsmApplicationJson)
+        public Task<Children> ExecuteAsync(string fsmApplicationJson)
         {
-            try
+            if (string.IsNullOrEmpty(fsmApplicationJson))
             {
-                if (string.IsNullOrEmpty(fsmApplicationJson))
-                {
-                    _logger.LogWarning("FSM Application JSON is null or empty");
-                    return Task.FromResult((false, "Enter_Child_Details", new Children { ChildList = new List<Child>() }));
-                }
-
-                var application = JsonConvert.DeserializeObject<FsmApplication>(fsmApplicationJson);
-                if (application?.Children == null)
-                {
-                    _logger.LogWarning("Failed to deserialize FSM Application or Children is null");
-                    return Task.FromResult((false, "Enter_Child_Details", new Children { ChildList = new List<Child>() }));
-                }
-
-                _logger.LogInformation("Successfully retrieved children details for change");
-                return Task.FromResult((true, "Enter_Child_Details", application.Children));
+                throw new NoChildException("FSM Application JSON is null or empty");
+                return Task.FromResult(new Children { ChildList = new List<Child>() });
             }
-            catch (Exception ex)
+
+            var application = JsonConvert.DeserializeObject<FsmApplication>(fsmApplicationJson);
+            if (application?.Children == null)
             {
-                _logger.LogError(ex, "Error processing change child details");
-                throw;
+                throw new JSONException("Failed to deserialize FSM Application or Children is null");
             }
+
+            return Task.FromResult(application.Children);
         }
     }
 }

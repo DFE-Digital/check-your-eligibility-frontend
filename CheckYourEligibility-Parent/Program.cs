@@ -31,15 +31,13 @@ builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
 builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
 builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
 builder.Services.AddScoped<IProcessParentDetailsUseCase,  ProcessParentDetailsUseCase>();
-builder.Services.AddScoped<ILoadParentNassDetailsUseCase, LoadParentNassDetailsUseCase>();
-builder.Services.AddScoped<ILoaderUseCase, LoaderUseCase>();
-builder.Services.AddScoped<IParentSignInUseCase, ParentSignInUseCase>();
+builder.Services.AddScoped<ISubmitApplicationUseCase, SubmitApplicationUseCase>();
+builder.Services.AddScoped<ISignInUseCase, SignInUseCase>();
 builder.Services.AddScoped<IEnterChildDetailsUseCase, EnterChildDetailsUseCase>();
 builder.Services.AddScoped<IProcessChildDetailsUseCase, ProcessChildDetailsUseCase>();
 builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
 builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
-builder.Services.AddScoped<ICheckAnswersUseCase, CheckAnswersUseCase>();
-builder.Services.AddScoped<IApplicationSentUseCase, ApplicationSentUseCase>();
+builder.Services.AddScoped<IGetCheckStatusUseCase, GetCheckStatusUseCase>();
 builder.Services.AddScoped<IChangeChildDetailsUseCase, ChangeChildDetailsUseCase>();
 
 builder.Services.AddAuthentication(opt =>

@@ -36,15 +36,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         private Mock<ICreateUserUseCase> _createUserUseCaseMock;
         private Mock<ILoadParentDetailsUseCase> _loadParentDetailsUseCaseMock;
         private Mock<IProcessParentDetailsUseCase> _processParentDetailsUseCaseMock;
-        private Mock<ILoadParentNassDetailsUseCase> _loadParentNassDetailsUseCaseMock;
-        private Mock<ILoaderUseCase> _loadParentLoaderUseCaseMock;
-        private Mock<IParentSignInUseCase> _parentSignInUseCaseMock;
+        private Mock<IGetCheckStatusUseCase> _getCheckStatusUseCaseMock;
+        private Mock<ISignInUseCase> _signInUseCaseMock;
         private Mock<IEnterChildDetailsUseCase> _enterChildDetailsUseCaseMock;
         private Mock<IProcessChildDetailsUseCase> _processChildDetailsUseCaseMock;
         private Mock<IAddChildUseCase> _addChildUseCaseMock;
         private Mock<IRemoveChildUseCase> _removeChildUseCaseMock;
-        private Mock<ICheckAnswersUseCase> _checkAnswersUseCaseMock;
-        private Mock<IApplicationSentUseCase> _applicationSentUseCaseMock;
+        private Mock<ISubmitApplicationUseCase> _submitApplicationUseCaseMock;
         private Mock<IChangeChildDetailsUseCase> _changeChildDetailsUseCaseMock;
 
         // check eligibility responses
@@ -93,15 +91,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
             _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
             _processParentDetailsUseCaseMock = new Mock<IProcessParentDetailsUseCase>();
-            _loadParentNassDetailsUseCaseMock = new Mock<ILoadParentNassDetailsUseCase>();
-            _loadParentLoaderUseCaseMock = new Mock<ILoaderUseCase>();
-            _parentSignInUseCaseMock = new Mock<IParentSignInUseCase>();
+            _getCheckStatusUseCaseMock = new Mock<IGetCheckStatusUseCase>();
+            _signInUseCaseMock = new Mock<ISignInUseCase>();
             _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
             _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
             _addChildUseCaseMock = new Mock<IAddChildUseCase>();
             _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
-            _checkAnswersUseCaseMock = new Mock<ICheckAnswersUseCase>();
-            _applicationSentUseCaseMock = new Mock<IApplicationSentUseCase>();
+            _submitApplicationUseCaseMock = new Mock<ISubmitApplicationUseCase>();
             _changeChildDetailsUseCaseMock = new Mock<IChangeChildDetailsUseCase>();
 
             // Create the controller with mocked dependencies
@@ -114,15 +110,13 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 _loadParentDetailsUseCaseMock.Object,
                 _createUserUseCaseMock.Object,
                 _processParentDetailsUseCaseMock.Object,
-                _loadParentNassDetailsUseCaseMock.Object,
-                _loadParentLoaderUseCaseMock.Object,
-                _parentSignInUseCaseMock.Object,
+                _getCheckStatusUseCaseMock.Object,
+                _signInUseCaseMock.Object,
                 _enterChildDetailsUseCaseMock.Object,
                 _processChildDetailsUseCaseMock.Object,
                 _addChildUseCaseMock.Object,
                 _removeChildUseCaseMock.Object,
-                _checkAnswersUseCaseMock.Object,
-                _applicationSentUseCaseMock.Object,
+                _submitApplicationUseCaseMock.Object,
                 _changeChildDetailsUseCaseMock.Object
             );
         }
@@ -333,32 +327,28 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
                 .ReturnsAsync(_defaultChildren);
 
             _processChildDetailsUseCaseMock
-                .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<bool>(), It.IsAny<ISession>(), It.IsAny<Dictionary<string, string[]>>()))
-                .ReturnsAsync((true, "Check_Answers", _fsmApplication, null));
+                .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<ISession>(), It.IsAny<Dictionary<string, string[]>>()))
+                .ReturnsAsync(_fsmApplication);
 
             _addChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(It.IsAny<Children>()))
-                .ReturnsAsync((true, new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
+                .ReturnsAsync((new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
 
             _removeChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(It.IsAny<Children>(), It.IsAny<int>()))
-                .ReturnsAsync((true, _children, string.Empty));
+                .ReturnsAsync(_children);
 
-            _checkAnswersUseCaseMock
-                .Setup(x => x.ProcessApplicationAsync(
+            _submitApplicationUseCaseMock
+                .Setup(x => x.ExecuteAsync(
                     It.IsAny<FsmApplication>(),
                     It.Is<string>(s => s == CheckYourEligibility.Domain.Enums.CheckEligibilityStatus.eligible.ToString()),
                     It.IsAny<string>(),
                     It.IsAny<string>()))
-                .ReturnsAsync((true, new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse }, null));
-
-            _applicationSentUseCaseMock
-                .Setup(x => x.ExecuteAsync())
-                .ReturnsAsync(("Application_Sent", null));
+                .ReturnsAsync(new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse });
 
             _changeChildDetailsUseCaseMock
                 .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
-                .ReturnsAsync((true, "Enter_Child_Details", _children));
+                .ReturnsAsync(_children);
         }
 
         [TearDown]
@@ -580,10 +570,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var mockParent = new Parent { FirstName = "Test", LastName = "Parent" };
             _sut.TempData["ParentDetails"] = JsonConvert.SerializeObject(mockParent);
 
-            _loadParentNassDetailsUseCaseMock
-                .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
-                .ReturnsAsync(mockParent);
-
             // Act
             var result = _sut.Nass();
 
@@ -606,7 +592,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var responseJson = JsonConvert.SerializeObject(response);
             _sut.TempData["Response"] = responseJson;
 
-            _loadParentLoaderUseCaseMock
+            _getCheckStatusUseCaseMock
                 .Setup(x => x.ExecuteAsync(responseJson, _sessionMock.Object))
                 .ReturnsAsync("Loader");
 
@@ -617,7 +603,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be("Loader");
-            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson, _sessionMock.Object), Times.Once);
+            _getCheckStatusUseCaseMock.Verify(x => x.ExecuteAsync(responseJson, _sessionMock.Object), Times.Once);
         }
 
         [Test]
@@ -679,7 +665,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var responseJson = JsonConvert.SerializeObject(response);
             _sut.TempData["Response"] = responseJson;
 
-            _loadParentLoaderUseCaseMock
+            _getCheckStatusUseCaseMock
                 .Setup(x => x.ExecuteAsync(responseJson, _sessionMock.Object))
                 .ReturnsAsync(expectedView);
 
@@ -690,7 +676,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be(expectedView);
-            _loadParentLoaderUseCaseMock.Verify(x => x.ExecuteAsync(responseJson, _sessionMock.Object), Times.Once);
+            _getCheckStatusUseCaseMock.Verify(x => x.ExecuteAsync(responseJson, _sessionMock.Object), Times.Once);
         }
 
 
@@ -727,11 +713,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Application_Sent_WhenLoadingPage_ShouldReturnView()
         {
-            // Arrange
-            _applicationSentUseCaseMock
-                .Setup(x => x.ExecuteAsync())
-                .ReturnsAsync(("Application_Sent", null));
-
             // Act
             var result = await _sut.Application_Sent();
 
@@ -744,11 +725,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
         [Test]
         public async Task Application_Sent_ShouldClearModelStateAndReturnView()
         {
-            // Arrange
-            _applicationSentUseCaseMock
-                .Setup(x => x.ExecuteAsync())
-                .ReturnsAsync(("Application_Sent", null));
-
             // Add some model state errors to verify they get cleared
             _sut.ModelState.AddModelError("test", "test error");
 
@@ -760,25 +736,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var viewResult = result.Should().BeOfType<ViewResult>().Subject;
             viewResult.ViewName.Should().Be("Application_Sent");
             viewResult.Model.Should().BeNull();
-
-            _applicationSentUseCaseMock.Verify(
-                x => x.ExecuteAsync(),
-                Times.Once);
-        }
-
-        [Test]
-        public async Task Application_Sent_WhenUseCaseThrows_ShouldPropagateException()
-        {
-            // Arrange
-            _applicationSentUseCaseMock
-                .Setup(x => x.ExecuteAsync())
-                .ThrowsAsync(new Exception("Test exception"));
-
-            // Act & Assert
-            await FluentActions.Invoking(() =>
-                _sut.Application_Sent())
-                .Should().ThrowAsync<Exception>()
-                .WithMessage("Test exception");
         }
 
         [Test]
@@ -793,7 +750,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(request))
-                .ReturnsAsync((true, updatedChildren));
+                .ReturnsAsync(updatedChildren);
 
             // Act
             var result = await _sut.Add_Child(request);
@@ -830,7 +787,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _removeChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(request, 0))
-                .ReturnsAsync((true, updatedChildren, string.Empty));
+                .ReturnsAsync(updatedChildren);
 
             // Act
             var result = await _sut.Remove_Child(request, 0);
@@ -856,7 +813,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _removeChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(request, 1))
-                .ReturnsAsync((false, request, "Invalid child index"));
+                .ThrowsAsync(new RemoveChildValidationException("Invalid child index"));
 
             // Act
             var result = await _sut.Remove_Child(request, 1);
@@ -865,7 +822,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
             redirectResult.ActionName.Should().Be("Enter_Child_Details");
             _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
-            _sut.TempData.Should().NotContainKey("ChildList");
 
             // Verify error was added to ModelState
             _sut.ModelState.ErrorCount.Should().Be(1);
@@ -903,7 +859,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _changeChildDetailsUseCaseMock
                 .Setup(x => x.ExecuteAsync(It.IsAny<string>()))
-                .ReturnsAsync((true, "Enter_Child_Details", children));
+                .ReturnsAsync( children);
 
             // Act
             var result = await _sut.ChangeChildDetails();
@@ -1044,7 +1000,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(request))
-                .ReturnsAsync((false, request));
+                .ReturnsAsync(request);
 
             // Act
             var result = await _sut.Add_Child(request);
@@ -1053,7 +1009,6 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
             redirectResult.ActionName.Should().Be("Enter_Child_Details");
             _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
-            _sut.TempData.Should().NotContainKey("ChildList");
         }
 
         [Test]
@@ -1085,7 +1040,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(request))
-                .ReturnsAsync((true, updatedChildren));
+                .ReturnsAsync(updatedChildren);
 
             // Act
             await _sut.Add_Child(request);
@@ -1106,7 +1061,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.ExecuteAsync(request))
-                .ReturnsAsync((true, updatedChildren));
+                .ReturnsAsync(updatedChildren);
 
             // Act
             await _sut.Add_Child(request);
@@ -1129,7 +1084,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             };
             mockAuthProperties.SetString("vector_of_trust", @"[""Cl""]");
 
-            _parentSignInUseCaseMock
+            _signInUseCaseMock
                 .Setup(x => x.ExecuteAsync("/Check/CreateUser"))
                 .ReturnsAsync(mockAuthProperties);
 
@@ -1147,7 +1102,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             challengeResult.Properties.RedirectUri.Should().Be("/Check/CreateUser");
             challengeResult.Properties.GetString("vector_of_trust").Should().Be(@"[""Cl""]");
 
-            _parentSignInUseCaseMock.Verify(
+            _signInUseCaseMock.Verify(
                 x => x.ExecuteAsync("/Check/CreateUser"),
                 Times.Once);
         }

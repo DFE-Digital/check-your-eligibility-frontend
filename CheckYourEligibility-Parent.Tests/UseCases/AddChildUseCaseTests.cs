@@ -1,6 +1,7 @@
 ﻿using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -16,7 +17,16 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         public void SetUp()
         {
             _loggerMock = new Mock<ILogger<AddChildUseCase>>();
-            _sut = new AddChildUseCase(_loggerMock.Object);
+            //Arrange
+            var inMemorySettings = new Dictionary<string, string> {
+                {"MaxChildren", "99"}
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+            
+            _sut = new AddChildUseCase(_loggerMock.Object, configuration);
         }
 
         [Test]
@@ -35,9 +45,8 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var result = await _sut.ExecuteAsync(children);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.UpdatedChildren.ChildList.Should().HaveCount(2);
-            result.UpdatedChildren.ChildList.Last().Should().BeEquivalentTo(new Child());
+            result.ChildList.Should().HaveCount(2);
+            result.ChildList.Last().Should().BeEquivalentTo(new Child());
         }
 
         [Test]
@@ -52,31 +61,8 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            var result = await _sut.ExecuteAsync(children);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.UpdatedChildren.ChildList.Should().HaveCount(99);
-        }
-
-        [Test]
-        public async Task ExecuteAsync_WhenSuccessful_ShouldLogInformation()
-        {
-            // Arrange
-            var children = new Children { ChildList = new List<Child>() };
-
-            // Act
-            await _sut.ExecuteAsync(children);
-
-            // Assert
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Successfully added new child")),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                Times.Once);
+            await FluentActions.Invoking(() =>_sut.ExecuteAsync(children))
+                .Should().ThrowAsync<MaxChildrenException>();
         }
     }
 }
