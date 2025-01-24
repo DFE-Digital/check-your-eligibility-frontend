@@ -343,9 +343,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
+            var selectedIds = model.getSelectedIds();
 
-            TempData["FinaliseApplicationIds"] = model.getSelectedIds();
-
+            // Check if the number of selected IDs is greater than 0
+            if (selectedIds.Any())
+            {
+                TempData["FinaliseApplicationIds"] = selectedIds;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Select records to finalise";
+                return RedirectToAction("FinaliseApplications", new { PageNumber = 0 });
+            }
             return View("ApplicationFinaliseConfirmation");
         }
 
