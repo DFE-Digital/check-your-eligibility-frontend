@@ -33,7 +33,7 @@ describe("Admin Portal journey for checking parent eligibility using the Bulk Ch
 
         cy.get('#file-upload-1-error').as('errorMessage')
         cy.get('@errorMessage').should(($p) => {
-            expect($p.first()).to.contain('No more than 10 bulk check requests can be made per hour')
+            expect($p.first()).to.contain('No more than 10 batch check requests can be made per hour')
         })
     })
 
