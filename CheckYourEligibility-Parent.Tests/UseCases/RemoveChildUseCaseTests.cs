@@ -20,7 +20,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidIndex_ShouldRemoveChild()
+        public async Task Execute_WithValidIndex_ShouldRemoveChild()
         {
             // Arrange
             var children = new Children
@@ -33,7 +33,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            var result = await _sut.ExecuteAsync(children, 0);
+            var result = await _sut.Execute(children, 0);
 
             // Assert
             result.ChildList.Should().HaveCount(1);
@@ -41,7 +41,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidIndex_ShouldReturnError()
+        public async Task Execute_WithInvalidIndex_ShouldReturnError()
         {
             // Arrange
             var children = new Children
@@ -53,15 +53,15 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            await FluentActions.Invoking(() =>_sut.ExecuteAsync(children, 1))
+            await FluentActions.Invoking(() =>_sut.Execute(children, 1))
                 .Should().ThrowAsync<RemoveChildValidationException>("Invalid child index");
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNullRequest_ShouldReturnError()
+        public async Task Execute_WithNullRequest_ShouldReturnError()
         {
             // Act
-            await FluentActions.Invoking(() =>_sut.ExecuteAsync(null, 0))
+            await FluentActions.Invoking(() =>_sut.Execute(null, 0))
                 .Should().ThrowAsync<RemoveChildValidationException>("Invalid request - no children list available");
         }
     }

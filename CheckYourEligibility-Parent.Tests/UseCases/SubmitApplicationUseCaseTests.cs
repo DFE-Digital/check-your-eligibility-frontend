@@ -60,7 +60,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(new ApplicationSaveItemResponse());
 
             // Act
-            var result = await _sut.ExecuteAsync(
+            var result = await _sut.Execute(
                 _fsmApplication,
                 CheckEligibilityStatus.eligible.ToString(),
                 "userId",
@@ -81,7 +81,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         public async Task ProcessApplicationAsync_WhenStatusIsNotEligible_ShouldReturnError()
         {
             // Act
-            await FluentActions.Invoking(() => _sut.ExecuteAsync(
+            await FluentActions.Invoking(() => _sut.Execute(
                 _fsmApplication,
                 CheckEligibilityStatus.notEligible.ToString(),
                 "userId",
@@ -113,7 +113,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(new ApplicationSaveItemResponse());
 
             // Act
-            var result = await _sut.ExecuteAsync(
+            var result = await _sut.Execute(
                 _fsmApplication,
                 CheckEligibilityStatus.eligible.ToString(),
                 "userId",
@@ -138,7 +138,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
 
             // Act & Assert
             await FluentActions.Invoking(() =>
-                _sut.ExecuteAsync(
+                _sut.Execute(
                     _fsmApplication,
                     CheckEligibilityStatus.eligible.ToString(),
                     "userId",
@@ -158,7 +158,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(new ApplicationSaveItemResponse());
 
             // Act
-            await _sut.ExecuteAsync(
+            await _sut.Execute(
                 _fsmApplication,
                 CheckEligibilityStatus.eligible.ToString(),
                 "userId",

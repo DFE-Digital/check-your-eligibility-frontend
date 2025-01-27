@@ -30,10 +30,10 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [TestCaseSource(nameof(ShortQueries))]
-        public async Task ExecuteAsync_WhenQueryIsTooShort_ShouldThrowArgumentException(string query)
+        public async Task Execute_WhenQueryIsTooShort_ShouldThrowArgumentException(string query)
         {
             // Act & Assert
-            Func<Task> act = () => _sut.ExecuteAsync(query);
+            Func<Task> act = () => _sut.Execute(query);
 
             await act.Should().ThrowAsync<ArgumentException>()
                 .WithMessage("Query must be at least 3 characters long.*");
@@ -47,7 +47,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WhenValidQuery_ShouldReturnSchools()
+        public async Task Execute_WhenValidQuery_ShouldReturnSchools()
         {
             // Arrange
             var query = "Test School";
@@ -64,7 +64,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(expectedResults);
 
             // Act
-            var result = await _sut.ExecuteAsync(query);
+            var result = await _sut.Execute(query);
 
             // Assert
             result.Should().BeEquivalentTo(expectedResults.Data);
@@ -72,7 +72,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WhenServiceReturnsNull_ShouldReturnEmptyList()
+        public async Task Execute_WhenServiceReturnsNull_ShouldReturnEmptyList()
         {
             // Arrange
             var query = "Test School";
@@ -80,7 +80,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync((EstablishmentSearchResponse)null);
 
             // Act
-            var result = await _sut.ExecuteAsync(query);
+            var result = await _sut.Execute(query);
 
             // Assert
             result.Should().BeEmpty();

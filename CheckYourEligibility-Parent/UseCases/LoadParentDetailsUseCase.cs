@@ -11,7 +11,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
     public interface ILoadParentDetailsUseCase
     {
-        Task<LoadParentDetailsViewModel> ExecuteAsync(
+        Task<LoadParentDetailsViewModel> Execute(
             string parentDetailsJson = null,
             string validationErrorsJson = null
         );
@@ -19,7 +19,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
     public class LoadParentDetailsUseCase : ILoadParentDetailsUseCase
     {
-        public async Task<LoadParentDetailsViewModel> ExecuteAsync(
+        public async Task<LoadParentDetailsViewModel> Execute(
             string parentDetailsJson = null,
             string validationErrorsJson = null)
         {

@@ -21,7 +21,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly ISearchSchoolsUseCase _searchSchoolsUseCase;
         private readonly ICreateUserUseCase _createUserUseCase;
         private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
-        private readonly IProcessParentDetailsUseCase _processParentDetailsUseCase;
+        private readonly IPerformEligibilityCheckUseCase _performEligibilityCheckUseCase;
         private readonly IGetCheckStatusUseCase _getCheckStatusUseCase;
         private readonly ISignInUseCase _signInUseCase;
         private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
@@ -38,7 +38,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         ISearchSchoolsUseCase searchSchoolsUseCase,
         ILoadParentDetailsUseCase loadParentDetailsUseCase,
         ICreateUserUseCase createUserUseCase,
-        IProcessParentDetailsUseCase processParentDetailsUseCase,
+        IPerformEligibilityCheckUseCase performEligibilityCheckUseCase,
         IGetCheckStatusUseCase getCheckStatusUseCase,
         ISignInUseCase signInUseCase,
         IEnterChildDetailsUseCase enterChildDetailsUseCase,
@@ -56,7 +56,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _searchSchoolsUseCase = searchSchoolsUseCase;
             _createUserUseCase = createUserUseCase;
             _loadParentDetailsUseCase = loadParentDetailsUseCase;
-            _processParentDetailsUseCase = processParentDetailsUseCase;
+            _performEligibilityCheckUseCase = performEligibilityCheckUseCase;
             _getCheckStatusUseCase = getCheckStatusUseCase;
             _signInUseCase = signInUseCase;
             _enterChildDetailsUseCase = enterChildDetailsUseCase;
@@ -72,7 +72,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public async Task<IActionResult> Enter_Details()
         {
-            var viewModel = await _loadParentDetailsUseCase.ExecuteAsync(
+            var viewModel = await _loadParentDetailsUseCase.Execute(
                 TempData["ParentDetails"]?.ToString(),
                 TempData["Errors"]?.ToString()
             );
@@ -105,7 +105,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return RedirectToAction("Enter_Details");
             }
 
-            var (response, responseCode) = await _processParentDetailsUseCase.ExecuteAsync(request, HttpContext.Session);
+            var (response, responseCode) = await _performEligibilityCheckUseCase.Execute(request, HttpContext.Session);
 
             switch (responseCode) {
                 case "Success":
@@ -142,7 +142,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var responseJson = TempData["Response"] as string;
             try
             {
-                string outcome = await _getCheckStatusUseCase.ExecuteAsync(responseJson, HttpContext.Session);
+                string outcome = await _getCheckStatusUseCase.Execute(responseJson, HttpContext.Session);
 
                 if (outcome == "queuedForProcessing")
                 {
@@ -156,18 +156,22 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     case "eligible":
                         return View("Outcome/Eligible");
+                        break;
 
                     case "notEligible":
                         return View("Outcome/Not_Eligible");
+                        break;
 
                     case "parentNotFound":
                         return View("Outcome/Not_Found");
+                        break;
 
                     case "queuedForProcessing":
                         return View("Loader");
+                        break;
 
                     default:
-                        return View(outcome);
+                        return View("Outcome/Technical_Error");
                 }
             }
             catch (Exception ex)
@@ -178,7 +182,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> SignIn()
         {
-            var properties = await _signInUseCase.ExecuteAsync("/Check/CreateUser");
+            var properties = await _signInUseCase.Execute("/Check/CreateUser");
             return Challenge(properties, authenticationSchemes: OneLoginDefaults.AuthenticationScheme);
         }
 
@@ -189,7 +193,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 string email = HttpContext.User.Claims.First(c => c.Type == "email").Value;
                 string uniqueId = HttpContext.User.Claims.First(c => c.Type == "sub").Value;
 
-                var userId = await _createUserUseCase.ExecuteAsync(email, uniqueId);
+                var userId = await _createUserUseCase.Execute(email, uniqueId);
 
                 HttpContext.Session.SetString("Email", email);
                 HttpContext.Session.SetString("UserId", userId);
@@ -205,7 +209,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Enter_Child_Details()
         {
-            var childrenModel = await _enterChildDetailsUseCase.ExecuteAsync(
+            var childrenModel = await _enterChildDetailsUseCase.Execute(
                 TempData["ChildList"]?.ToString(),
                 TempData["IsChildAddOrRemove"] as bool?);
 
@@ -237,7 +241,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
             try
             {
-                var model = await _processChildDetailsUseCase.ExecuteAsync(
+                var model = await _processChildDetailsUseCase.Execute(
                     request,
                     HttpContext.Session,
                     validationErrors);
@@ -269,7 +273,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var updatedChildren = await _addChildUseCase.ExecuteAsync(request);
+                var updatedChildren = await _addChildUseCase.Execute(request);
 
                 TempData["IsChildAddOrRemove"] = true;
 
@@ -291,7 +295,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 TempData["IsChildAddOrRemove"] = true;
                 
-                var updatedChildren = await _removeChildUseCase.ExecuteAsync(request, index);
+                var updatedChildren = await _removeChildUseCase.Execute(request, index);
 
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
                 
@@ -326,7 +330,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return BadRequest("Query must be at least 3 characters long.");
                 }
 
-                var schools = await _searchSchoolsUseCase.ExecuteAsync(sanitizedQuery);
+                var schools = await _searchSchoolsUseCase.Execute(sanitizedQuery);
                 return Json(schools.ToList());
             }
             catch (Exception ex)
@@ -351,7 +355,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var userId = HttpContext.Session.GetString("UserId");
             var email = HttpContext.Session.GetString("Email");
 
-            var responses = await _submitApplicationUseCase.ExecuteAsync(
+            var responses = await _submitApplicationUseCase.Execute(
                 request, currentStatus, userId, email);
 
             TempData["FsmApplicationResponses"] = JsonConvert.SerializeObject(responses);
@@ -372,7 +376,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
             try
             {
-                model = await _changeChildDetailsUseCase.ExecuteAsync(
+                model = await _changeChildDetailsUseCase.Execute(
                     TempData["FsmApplication"] as string);
             }
             catch (JSONException e)

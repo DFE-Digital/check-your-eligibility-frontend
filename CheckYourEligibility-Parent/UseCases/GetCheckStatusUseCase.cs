@@ -6,7 +6,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IGetCheckStatusUseCase
     {
-        Task<string> ExecuteAsync(string responseJson, ISession session);
+        Task<string> Execute(string responseJson, ISession session);
     }
 
     public class GetCheckStatusUseCase : IGetCheckStatusUseCase
@@ -22,7 +22,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
         }
 
-        public async Task<string> ExecuteAsync(string responseJson, ISession session)
+        public async Task<string> Execute(string responseJson, ISession session)
         {
             if (string.IsNullOrEmpty(responseJson))
             {

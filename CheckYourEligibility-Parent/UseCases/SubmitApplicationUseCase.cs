@@ -9,7 +9,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface ISubmitApplicationUseCase
     {
-        Task<List<ApplicationSaveItemResponse>> ExecuteAsync(
+        Task<List<ApplicationSaveItemResponse>> Execute(
             FsmApplication request,
             string currentStatus,
             string userId,
@@ -29,7 +29,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }
 
-        public async Task<List<ApplicationSaveItemResponse>> ExecuteAsync(
+        public async Task<List<ApplicationSaveItemResponse>> Execute(
             FsmApplication request,
             string currentStatus,
             string userId,

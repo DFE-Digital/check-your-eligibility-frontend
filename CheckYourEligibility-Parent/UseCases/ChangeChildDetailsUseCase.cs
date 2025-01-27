@@ -5,7 +5,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IChangeChildDetailsUseCase
     {
-        Task<Children> ExecuteAsync(string fsmApplicationJson);
+        Task<Children> Execute(string fsmApplicationJson);
     }
     
     [Serializable]
@@ -35,7 +35,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task<Children> ExecuteAsync(string fsmApplicationJson)
+        public Task<Children> Execute(string fsmApplicationJson)
         {
             if (string.IsNullOrEmpty(fsmApplicationJson))
             {

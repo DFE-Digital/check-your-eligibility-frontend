@@ -7,7 +7,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IProcessChildDetailsUseCase
     {
-        Task<object> ExecuteAsync(
+        Task<object> Execute(
             Children request,
             ISession session,
             Dictionary<string, string[]> validationErrors);
@@ -35,7 +35,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             }
         }
 
-        public async Task<object> ExecuteAsync(
+        public async Task<object> Execute(
             Children request,
             ISession session,
             Dictionary<string, string[]> validationErrors)

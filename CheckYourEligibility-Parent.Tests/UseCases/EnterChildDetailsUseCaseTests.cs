@@ -21,10 +21,10 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNoData_ShouldReturnDefaultChildren()
+        public async Task Execute_WithNoData_ShouldReturnDefaultChildren()
         {
             // Act
-            var result = await _sut.ExecuteAsync(null, null);
+            var result = await _sut.Execute(null, null);
 
             // Assert
             result.Should().NotBeNull();
@@ -34,7 +34,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithChildAddOrRemove_ShouldReturnDeserializedChildren()
+        public async Task Execute_WithChildAddOrRemove_ShouldReturnDeserializedChildren()
         {
             // Arrange
             var childList = new List<Child>
@@ -45,7 +45,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
             var childListJson = JsonConvert.SerializeObject(childList);
 
             // Act
-            var result = await _sut.ExecuteAsync(childListJson, true);
+            var result = await _sut.Execute(childListJson, true);
 
             // Assert
             result.Should().NotBeNull();
@@ -56,7 +56,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithChildAddOrRemoveFalse_ShouldReturnDefaultChildren()
+        public async Task Execute_WithChildAddOrRemoveFalse_ShouldReturnDefaultChildren()
         {
             // Arrange
             var childList = new List<Child>
@@ -66,7 +66,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
             var childListJson = JsonConvert.SerializeObject(childList);
 
             // Act
-            var result = await _sut.ExecuteAsync(childListJson, false);
+            var result = await _sut.Execute(childListJson, false);
 
             // Assert
             result.Should().NotBeNull();

@@ -7,24 +7,24 @@ using Microsoft.AspNetCore.Http;
 
 namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IProcessParentDetailsUseCase
+    public interface IPerformEligibilityCheckUseCase
     {
-        Task<(CheckEligibilityResponse Response, string ResponseCode)> ExecuteAsync(
+        Task<(CheckEligibilityResponse Response, string ResponseCode)> Execute(
             Parent parentRequest,
             ISession session
         );
     }
 
-    public class ProcessParentDetailsUseCase : IProcessParentDetailsUseCase
+    public class PerformEligibilityCheckUseCase : IPerformEligibilityCheckUseCase
     {
         private readonly IEcsCheckService _checkService;
 
-        public ProcessParentDetailsUseCase(IEcsCheckService checkService)
+        public PerformEligibilityCheckUseCase(IEcsCheckService checkService)
         {
             _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
         }
 
-        public async Task<(CheckEligibilityResponse Response, string ResponseCode)> ExecuteAsync(
+        public async Task<(CheckEligibilityResponse Response, string ResponseCode)> Execute(
             Parent parentRequest,
             ISession session)
         {
@@ -85,6 +85,8 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             };
 
             // Call ECS check
+            
+            
             var response = await _checkService.PostCheck(checkEligibilityRequest);
 
             return (response, "Success");

@@ -5,12 +5,12 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface ISignInUseCase
     {
-        Task<AuthenticationProperties> ExecuteAsync(string redirectUri);
+        Task<AuthenticationProperties> Execute(string redirectUri);
     }
 
     public class SignInUseCase : ISignInUseCase
     {
-        public Task<AuthenticationProperties> ExecuteAsync(string redirectUri)
+        public Task<AuthenticationProperties> Execute(string redirectUri)
         {
             var properties = new AuthenticationProperties
             {

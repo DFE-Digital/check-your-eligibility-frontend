@@ -30,7 +30,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithSpaceForNewChild_ShouldAddChildToList()
+        public async Task Execute_WithSpaceForNewChild_ShouldAddChildToList()
         {
             // Arrange
             var children = new Children
@@ -42,7 +42,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            var result = await _sut.ExecuteAsync(children);
+            var result = await _sut.Execute(children);
 
             // Assert
             result.ChildList.Should().HaveCount(2);
@@ -50,7 +50,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithMaximumChildren_ShouldNotAddChild()
+        public async Task Execute_WithMaximumChildren_ShouldNotAddChild()
         {
             // Arrange
             var children = new Children
@@ -61,7 +61,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            await FluentActions.Invoking(() =>_sut.ExecuteAsync(children))
+            await FluentActions.Invoking(() =>_sut.Execute(children))
                 .Should().ThrowAsync<MaxChildrenException>();
         }
     }

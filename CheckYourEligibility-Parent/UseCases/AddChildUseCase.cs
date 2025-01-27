@@ -7,7 +7,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IAddChildUseCase
     {
-        Task<Children> ExecuteAsync(Children request);
+        Task<Children> Execute(Children request);
     }
     
     [Serializable]
@@ -30,7 +30,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _configuration = configuration;
         }
 
-        public Task<Children> ExecuteAsync(Children request)
+        public Task<Children> Execute(Children request)
         {
             if (request.ChildList.Count >= _configuration.GetValue<int>("MaxChildren"))
             {

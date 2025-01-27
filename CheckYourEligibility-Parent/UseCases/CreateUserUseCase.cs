@@ -5,7 +5,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface ICreateUserUseCase
     {
-        Task<string> ExecuteAsync(string email, string uniqueId);
+        Task<string> Execute(string email, string uniqueId);
     }
 
     public class CreateUserUseCase : ICreateUserUseCase
@@ -17,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }
 
-        public async Task<string> ExecuteAsync(string email, string uniqueId)
+        public async Task<string> Execute(string email, string uniqueId)
         {
             if (string.IsNullOrEmpty(email))
                 throw new ArgumentException("Email cannot be empty", nameof(email));

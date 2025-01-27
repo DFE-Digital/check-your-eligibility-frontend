@@ -18,44 +18,44 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidParentDetails_ShouldDeserializeParent()
+        public async Task Execute_WithValidParentDetails_ShouldDeserializeParent()
         {
             // Arrange
             var parent = new Parent { FirstName = "John", LastName = "Doe" };
             var parentJson = JsonConvert.SerializeObject(parent);
 
             // Act
-            var result = await _sut.ExecuteAsync(parentJson);
+            var result = await _sut.Execute(parentJson);
 
             // Assert
             result.Parent.Should().BeEquivalentTo(parent);
         }
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidParentJson_ShouldReturnNullParent()
+        public async Task Execute_WithInvalidParentJson_ShouldReturnNullParent()
         {
             // Arrange
             var invalidJson = "{ invalid json }";
 
             // Act
-            var result = await _sut.ExecuteAsync(invalidJson);
+            var result = await _sut.Execute(invalidJson);
 
             // Assert
             result.Parent.Should().BeNull();
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNullParentJson_ShouldReturnNullParent()
+        public async Task Execute_WithNullParentJson_ShouldReturnNullParent()
         {
             // Act
-            var result = await _sut.ExecuteAsync(null);
+            var result = await _sut.Execute(null);
 
             // Assert
             result.Parent.Should().BeNull();
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidValidationErrors_ShouldDeserializeErrors()
+        public async Task Execute_WithValidValidationErrors_ShouldDeserializeErrors()
         {
             // Arrange
             var errors = new Dictionary<string, List<string>>
@@ -66,37 +66,37 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var errorsJson = JsonConvert.SerializeObject(errors);
 
             // Act
-            var result = await _sut.ExecuteAsync(validationErrorsJson: errorsJson);
+            var result = await _sut.Execute(validationErrorsJson: errorsJson);
 
             // Assert
             result.ValidationErrors.Should().BeEquivalentTo(errors);
         }
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidValidationErrorsJson_ShouldReturnNullValidationErrors()
+        public async Task Execute_WithInvalidValidationErrorsJson_ShouldReturnNullValidationErrors()
         {
             // Arrange
             var invalidJson = "{ invalid json }";
 
             // Act
-            var result = await _sut.ExecuteAsync(validationErrorsJson: invalidJson);
+            var result = await _sut.Execute(validationErrorsJson: invalidJson);
 
             // Assert
             result.ValidationErrors.Should().BeNull();
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNullValidationErrorsJson_ShouldReturnNullValidationErrors()
+        public async Task Execute_WithNullValidationErrorsJson_ShouldReturnNullValidationErrors()
         {
             // Act
-            var result = await _sut.ExecuteAsync(validationErrorsJson: null);
+            var result = await _sut.Execute(validationErrorsJson: null);
 
             // Assert
             result.ValidationErrors.Should().BeNull();
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNASSValidationError_ShouldRemoveNASSValidationError()
+        public async Task Execute_WithNASSValidationError_ShouldRemoveNASSValidationError()
         {
             // Arrange
             var errors = new Dictionary<string, List<string>>
@@ -107,7 +107,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var errorsJson = JsonConvert.SerializeObject(errors);
 
             // Act
-            var result = await _sut.ExecuteAsync(validationErrorsJson: errorsJson);
+            var result = await _sut.Execute(validationErrorsJson: errorsJson);
 
             // Assert
             result.ValidationErrors.Should().NotContainKey("NationalAsylumSeekerServiceNumber");
@@ -115,7 +115,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidParentAndErrors_ShouldDeserializeBoth()
+        public async Task Execute_WithValidParentAndErrors_ShouldDeserializeBoth()
         {
             // Arrange
             var parent = new Parent { FirstName = "John", LastName = "Doe" };
@@ -128,7 +128,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var errorsJson = JsonConvert.SerializeObject(errors);
 
             // Act
-            var result = await _sut.ExecuteAsync(parentJson, errorsJson);
+            var result = await _sut.Execute(parentJson, errorsJson);
 
             // Assert
             result.Parent.Should().BeEquivalentTo(parent);

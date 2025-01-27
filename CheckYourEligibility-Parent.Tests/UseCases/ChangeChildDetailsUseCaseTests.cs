@@ -21,7 +21,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidJson_ShouldReturnChildren()
+        public async Task Execute_WithValidJson_ShouldReturnChildren()
         {
             // Arrange
             var children = new Children
@@ -35,32 +35,32 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var json = JsonConvert.SerializeObject(application);
 
             // Act
-            var result = await _sut.ExecuteAsync(json);
+            var result = await _sut.Execute(json);
 
             // Assert
             result.Should().BeEquivalentTo(children);
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNullJson_ShouldReturnEmptyChildren()
+        public async Task Execute_WithNullJson_ShouldReturnEmptyChildren()
         {
             // Act
             await FluentActions.Invoking(() =>
-                    _sut.ExecuteAsync(null))
+                    _sut.Execute(null))
                 .Should().ThrowAsync<Exception>()
                 .WithMessage("FSM Application JSON is null or empty");;
         }
 
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidJson_ShouldThrowException()
+        public async Task Execute_WithInvalidJson_ShouldThrowException()
         {
             // Arrange
             var invalidJson = "invalid json";
 
             // Act & Assert
             await FluentActions.Invoking(() =>
-                _sut.ExecuteAsync(invalidJson))
+                _sut.Execute(invalidJson))
                 .Should().ThrowAsync<JsonReaderException>();
         }
     }

@@ -41,7 +41,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         };
 
         [TestCaseSource(nameof(StatusTestCases))]
-        public async Task ExecuteAsync_WithValidStatus_ShouldReturnCorrectViewAndModel(
+        public async Task Execute_WithValidStatus_ShouldReturnCorrectViewAndModel(
             string status,
             string expectedOutcome)
         {
@@ -61,7 +61,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
                 .ReturnsAsync(statusResponse);
 
             // Act
-            string outcome = await _sut.ExecuteAsync(responseJson, _sessionMock.Object);
+            string outcome = await _sut.Execute(responseJson, _sessionMock.Object);
 
             // Assert
             outcome.Should().Be(expectedOutcome);
@@ -72,18 +72,18 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithEmptyResponse_ShouldReturnTechnicalError()
+        public async Task Execute_WithEmptyResponse_ShouldReturnTechnicalError()
         {
             // Act
             await FluentActions.Invoking(() =>
-                    _sut.ExecuteAsync(
+                    _sut.Execute(
                         null, _sessionMock.Object))
                 .Should().ThrowAsync<Exception>()
                 .WithMessage("No response data found in TempData.");
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNullCheckResponse_ShouldReturnTechnicalError()
+        public async Task Execute_WithNullCheckResponse_ShouldReturnTechnicalError()
         {
             // Arrange
             var response = new CheckEligibilityResponse
@@ -98,7 +98,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
 
             // Act
             await FluentActions.Invoking(() =>
-                    _sut.ExecuteAsync(
+                    _sut.Execute(
                         responseJson, _sessionMock.Object))
                 .Should().ThrowAsync<Exception>()
                 .WithMessage("Null response received from GetStatus.");

@@ -5,7 +5,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface ISearchSchoolsUseCase
     {
-        Task<IEnumerable<Establishment>> ExecuteAsync(string query);
+        Task<IEnumerable<Establishment>> Execute(string query);
     }
 
     public class SearchSchoolsUseCase : ISearchSchoolsUseCase
@@ -17,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }
 
-        public async Task<IEnumerable<Establishment>> ExecuteAsync(string query)
+        public async Task<IEnumerable<Establishment>> Execute(string query)
         {
             if (string.IsNullOrEmpty(query) || query.Length < 3)
             {

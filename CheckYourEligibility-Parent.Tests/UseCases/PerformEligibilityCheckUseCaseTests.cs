@@ -13,9 +13,9 @@ using System.Text;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class ProcessParentDetailsUseCaseTests
+    public class PerformEligibilityCheckUseCaseTests
     {
-        private ProcessParentDetailsUseCase _sut;
+        private PerformEligibilityCheckUseCase _sut;
         private Mock<IEcsCheckService> _checkServiceMock;
         private Mock<ISession> _sessionMock;
 
@@ -26,7 +26,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         public void SetUp()
         {
             _checkServiceMock = new Mock<IEcsCheckService>();
-            _sut = new ProcessParentDetailsUseCase(_checkServiceMock.Object);
+            _sut = new PerformEligibilityCheckUseCase(_checkServiceMock.Object);
 
             _sessionMock = new Mock<ISession>();
             var sessionStorage = new Dictionary<string, byte[]>();
@@ -61,14 +61,14 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidParent_ShouldReturnValidResponse()
+        public async Task Execute_WithValidParent_ShouldReturnValidResponse()
         {
             // Arrange
             _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
                              .ReturnsAsync(_eligibilityResponse);
 
             // Act
-            var (response, responseCode) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            var (response, responseCode) = await _sut.Execute(_parent, _sessionMock.Object);
 
             // Assert
             response.Should().BeEquivalentTo(_eligibilityResponse);
@@ -81,14 +81,14 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidParent_ShouldRedirectToNass()
+        public async Task Execute_WithInvalidParent_ShouldRedirectToNass()
         {
             // Arrange
             _parent.IsNinoSelected = false;
             _parent.NationalInsuranceNumber = null;
 
             // Act
-            var (response, responseCode) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            var (response, responseCode) = await _sut.Execute(_parent, _sessionMock.Object);
 
             // Assert
             response.Should().BeNull();
@@ -96,7 +96,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNassParent_ShouldSetNassSessionData()
+        public async Task Execute_WithNassParent_ShouldSetNassSessionData()
         {
             // Arrange
             _parent.IsNinoSelected = false;
@@ -106,7 +106,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                              .ReturnsAsync(_eligibilityResponse);
 
             // Act
-            var (response, responseCode) = await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            var (response, responseCode) = await _sut.Execute(_parent, _sessionMock.Object);
 
             // Assert
             response.Should().BeEquivalentTo(_eligibilityResponse);
@@ -119,14 +119,14 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WhenApiThrowsException_ShouldThrow()
+        public async Task Execute_WhenApiThrowsException_ShouldThrow()
         {
             // Arrange
             _checkServiceMock.Setup(s => s.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>()))
                              .ThrowsAsync(new Exception("API Error"));
 
             // Act
-            Func<Task> act = async () => await _sut.ExecuteAsync(_parent, _sessionMock.Object);
+            Func<Task> act = async () => await _sut.Execute(_parent, _sessionMock.Object);
 
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("API Error");

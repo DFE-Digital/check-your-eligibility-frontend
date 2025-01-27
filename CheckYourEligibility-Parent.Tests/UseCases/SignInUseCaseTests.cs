@@ -17,13 +17,13 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_ShouldReturnAuthenticationPropertiesWithCorrectValues()
+        public async Task Execute_ShouldReturnAuthenticationPropertiesWithCorrectValues()
         {
             // Arrange
             var redirectUri = "/Test/Redirect";
 
             // Act
-            var result = await _sut.ExecuteAsync(redirectUri);
+            var result = await _sut.Execute(redirectUri);
 
             // Assert
             result.Should().NotBeNull();
@@ -36,13 +36,13 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNullRedirectUri_ShouldStillCreateValidProperties()
+        public async Task Execute_WithNullRedirectUri_ShouldStillCreateValidProperties()
         {
             // Arrange
             string redirectUri = null;
 
             // Act
-            var result = await _sut.ExecuteAsync(redirectUri);
+            var result = await _sut.Execute(redirectUri);
 
             // Assert
             result.Should().NotBeNull();

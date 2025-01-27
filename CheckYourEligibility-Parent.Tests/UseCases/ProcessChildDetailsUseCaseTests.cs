@@ -85,7 +85,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithValidSchoolUrn_ShouldUpdateSchoolNameAndReturnFsmApplication()
+        public async Task Execute_WithValidSchoolUrn_ShouldUpdateSchoolNameAndReturnFsmApplication()
         {
             // Arrange
             var request = new Children
@@ -112,7 +112,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(schoolResponse);
 
             // Act
-            var result = await _sut.ExecuteAsync(request, _sessionMock.Object, new Dictionary<string, string[]>());
+            var result = await _sut.Execute(request, _sessionMock.Object, new Dictionary<string, string[]>());
 
             // Because result.Model is "FsmApplication", cast it:
             var model = (FsmApplication)result;
@@ -123,7 +123,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         }
 
         [Test]
-        public async Task ExecuteAsync_WithInvalidSchoolUrn_ShouldReturnValidationError()
+        public async Task Execute_WithInvalidSchoolUrn_ShouldReturnValidationError()
         {
             // Arrange
             var request = new Children
@@ -138,12 +138,12 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            await FluentActions.Invoking(() =>_sut.ExecuteAsync(request, _sessionMock.Object, new Dictionary<string, string[]>()))
+            await FluentActions.Invoking(() =>_sut.Execute(request, _sessionMock.Object, new Dictionary<string, string[]>()))
                 .Should().ThrowAsync<ProcessChildDetailsUseCase.ProcessChildDetailsValidationException>("School URN should be a 6 digit number.");
         }
 
         [Test]
-        public async Task ExecuteAsync_WithNonexistentSchool_ShouldReturnValidationError()
+        public async Task Execute_WithNonexistentSchool_ShouldReturnValidationError()
         {
             // Arrange
             var request = new Children
@@ -161,7 +161,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync((EstablishmentSearchResponse)null);
 
             // Act
-            await FluentActions.Invoking(() =>_sut.ExecuteAsync(request, _sessionMock.Object, new Dictionary<string, string[]>()))
+            await FluentActions.Invoking(() =>_sut.Execute(request, _sessionMock.Object, new Dictionary<string, string[]>()))
                 .Should().ThrowAsync<ProcessChildDetailsUseCase.ProcessChildDetailsValidationException>("The selected school does not exist in our service.");
         }
     }
