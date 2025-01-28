@@ -345,7 +345,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             var selectedIds = model.getSelectedIds();
 
-            // Check if the number of selected IDs is greater than 0
             if (selectedIds.Any())
             {
                 TempData["FinaliseApplicationIds"] = selectedIds;
