@@ -36,3 +36,74 @@ stages:
               publishWebProjects: True
               arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
               zipAfterPublish: True
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'checkYourEligibility-Admin'
+
+  - stage: DeployAppCypress
+    displayName: Deploy App Cypress
+    jobs:
+      - deployment: cypressdeploy
+        displayName: Deploy App Cypress
+        pool:
+          name: Azure Pipelines
+          vmImage: 'windows-latest'
+        environment: CYPRESS
+        strategy:
+          runOnce:
+            preDeploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: 'current'
+                    targetPath: '$(Pipeline.Workspace)'
+            deploy:
+              steps:
+                - task: AzureRmWebAppDeployment@4
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: 's203d.azdo.deployment'
+                    appType: 'webApp'
+                    WebAppName: 'ece-dev-as-cypress'
+                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Admin/CheckYourEligibility-Admin.zip'
+  - stage: RunCypressTestsCypressEnv
+    displayName: Run Cypress Tests On Cypress Env
+    jobs:
+      - job: 'SetUpCypressCypressEnv'
+        displayName: 'SetUpTestsForCypressEnv'
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                cd tests
+                npm install
+          - task: Bash@3
+            displayName: 'RunTests'
+            inputs:
+              targetType: inline
+              script: |
+                cd tests
+                export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
+                export CYPRESS_DFE_ADMIN_EMAIL_ADDRESS="$(DFE_ADMIN_EMAIL_ADDRESS)"
+                export CYPRESS_DFE_ADMIN_PASSWORD="$(DFE_ADMIN_PASSWORD)"
+                npm run adminE2e:electron
+          - task: Bash@3
+            condition: always()
+            displayName: 'Generate report'
+            inputs:
+              targetType: inline
+              script: |
+                cd tests
+                npm run combine:reports
+
+          - task: PublishTestResults@2
+            condition: always()
+            displayName: 'Publish test results'
+            inputs:
+              testResultsFiles: '**/combined-report.xml'
+              searchFolder: 'tests'

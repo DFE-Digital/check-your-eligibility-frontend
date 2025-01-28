@@ -108,6 +108,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> ApplicationDetail(string id)
         {
             var response = await _adminService.GetApplication(id);
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            var org = _Claims.Organisation.Category.Name;
             if (response == null)
             {
                 return NotFound();
@@ -116,7 +118,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 return new ContentResult() { StatusCode = StatusCodes.Status403Forbidden };
             }
-
+            ViewData["OrganisationCategory"] = org;
             return View(GetViewData(response));
         }
 
@@ -404,6 +406,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         public async Task<IActionResult> ApplicationDetailLa(string id)
         {
             var response = await _adminService.GetApplication(id);
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            var org = _Claims.Organisation.Category.Name;
             if (response == null)
             {
                 return NotFound();
@@ -412,7 +416,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 return new UnauthorizedResult();
             }
-
+            ViewData["OrganisationCategory"] = org;
             return View(GetViewData(response));
         }
 
@@ -520,6 +524,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ParentNI = response.Data.ParentNationalInsuranceNumber,
                 Status = response.Data.Status,
                 ChildName = $"{response.Data.ChildFirstName} {response.Data.ChildLastName}",
+                School = response.Data.Establishment.Name,
             };
             viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
             viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");

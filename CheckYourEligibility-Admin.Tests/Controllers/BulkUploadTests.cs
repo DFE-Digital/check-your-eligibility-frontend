@@ -262,7 +262,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 s => s.PostBulkCheck(It.IsAny<CheckEligibilityRequestBulk_Fsm>()))
                 .ReturnsAsync(response);
 
-            _sut.TempData["ErrorMessage"] = "No more than 10 bulk check requests can be made per hour";
+            _sut.TempData["ErrorMessage"] = "No more than 10 batch check requests can be made per hour";
             var content = Resources.bulkchecktemplate_small_Valid;
 
             var stream = new MemoryStream();

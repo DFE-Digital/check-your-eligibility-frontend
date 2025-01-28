@@ -120,7 +120,21 @@
                     @Model.ChildName
                 </dd>
             </div>
+            @{
+                var organisationCategory = ViewData["OrganisationCategory"] as string;
+            }
 
+            @if (organisationCategory == "Local Authority")
+            {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        School
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.School
+                    </dd>
+                </div>
+            }
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Date of birth
