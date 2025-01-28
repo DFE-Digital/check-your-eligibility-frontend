@@ -19,7 +19,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? EmailAddress { get; set; }
 
         [NotMapped]
-        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
+        [Dob("date of birth", "parent or guardian", null ,"Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
         public string? DateOfBirth { get; set; }
 
         public string? Day { get; set; }

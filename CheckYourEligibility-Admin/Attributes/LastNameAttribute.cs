@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility_FrontEnd.ViewModels;
+﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.Net.Http.Headers;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -8,12 +9,32 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 {
     public class LastNameAttribute : ValidationAttribute
     {
+        private readonly string _fieldName;
+        private readonly string _objectName;
+        private readonly string _childIndexPropertyName;
+
         private static readonly string UnicodeOnlyPattern = @"^[\p{L}\-']+$";
 
         private static readonly Regex regex = new Regex(UnicodeOnlyPattern);
 
+        public LastNameAttribute(string fieldName, string objectName, string? childIndexPropertyName, string? errorMessage = null) : base(errorMessage)
+        {
+            _fieldName = fieldName;
+            _objectName = objectName;
+            _childIndexPropertyName = childIndexPropertyName;
+        }
+
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+            var model = validationContext.ObjectInstance;
+            int? childIndex = null;
+
+            // get the child index if it exists, this should return null only if the model is ParentGuardian
+            if (model.GetType() == typeof(Child))
+            {
+                model = validationContext.ObjectInstance as Child;
+                childIndex = GetPropertyIntValue(model, _childIndexPropertyName);
+            }
 
             if (string.IsNullOrEmpty(value?.ToString()))
             {
@@ -22,11 +43,26 @@ namespace CheckYourEligibility_FrontEnd.Attributes
 
             if (!regex.IsMatch(value.ToString()))
             {
-                return new ValidationResult(ErrorMessage);
+                if (childIndex != null)
+                {
+                    return new ValidationResult($"{_fieldName} contains an invalid character for {_objectName} {childIndex}");
+                }
+                else if (model.GetType() == typeof(ApplicationSearch))
+                {
+                    return new ValidationResult($"{_objectName} contains an invalid character for {_fieldName}");
+                }
+                else
+                {
+                    return new ValidationResult($"{_fieldName} contains an invalid character");
+                }
             }
 
-        
             return ValidationResult.Success;
+        }
+
+        private int? GetPropertyIntValue(object model, string propertyName)
+        {
+            return model.GetType().GetProperty(propertyName)?.GetValue(model) as int?;
         }
     }
 }

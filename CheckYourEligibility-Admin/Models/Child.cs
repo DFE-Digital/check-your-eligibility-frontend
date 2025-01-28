@@ -5,17 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CheckYourEligibility_FrontEnd.Models
 {
     public class Child
-    { 
-        [Name]
-        [Required(ErrorMessage = "Enter a child's first name")]
+    {
+        [NotMapped]
+        public int ChildIndex { get; set; }
+
+        [ChildName("first name")]
         public string? FirstName { get; set; }
 
-        [Name]
-        [Required(ErrorMessage = "Enter a child's last name")]
+        [ChildName("last name")]
+        [LastName("last name", "child", "ChildIndex")]
         public string? LastName { get; set; }
 
         [NotMapped]
-        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: true)]
+        [Dob("date of birth", "child", "ChildIndex", "Day", "Month", "Year", isRequired: true, applyAgeRange: true)]
         public string? DateOfBirth { get; set; }
 
         public string? Day { get; set; }

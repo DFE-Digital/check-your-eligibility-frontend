@@ -1,28 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
 using CheckYourEligibility_FrontEnd.Models;
-using Microsoft.AspNetCore.Authentication;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Drawing.Text;
-using System.Globalization;
+using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class DobAttribute : ValidationAttribute
 {
+    private readonly string _fieldName;
+    private readonly string _objectName;
     private readonly bool _isRequired;
     private readonly bool _applyAgeRange;
+    private readonly string _childIndexPropertyName;
     private readonly string _dayPropertyName;
     private readonly string _monthPropertyName;
     private readonly string _yearPropertyName;
 
 
-
-
-    public DobAttribute(string dayPropertyName, string monthPropertyName, string yearPropertyName, bool isRequired = true, bool applyAgeRange = false, string? errorMessage = null) : base(errorMessage)
+    public DobAttribute(string fieldName, string objectName, string? childIndexPropertyName, string dayPropertyName, string monthPropertyName, string yearPropertyName, bool isRequired = true, bool applyAgeRange = false, string? errorMessage = null) : base(errorMessage)
     {
+        _fieldName = fieldName;
+        _objectName = objectName;
         _isRequired = isRequired;
         _applyAgeRange = applyAgeRange;
+        _childIndexPropertyName = childIndexPropertyName;
         _dayPropertyName = dayPropertyName;
         _monthPropertyName = monthPropertyName;
         _yearPropertyName = yearPropertyName;
@@ -31,10 +30,18 @@ public class DobAttribute : ValidationAttribute
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
         var model = validationContext.ObjectInstance;
+        int? childIndex = null;
 
-        var dayString = GetPropertyValue(model, _dayPropertyName);
-        var monthString = GetPropertyValue(model, _monthPropertyName);
-        var yearString = GetPropertyValue(model, _yearPropertyName);
+        // get the child index if it exists, this should return null only if the model is ParentGuardian
+        if (model.GetType() == typeof(Child))
+        {
+            model = validationContext.ObjectInstance as Child;
+            childIndex = GetPropertyIntValue(model, _childIndexPropertyName);
+        }
+
+        var dayString = GetPropertyStringValue(model, _dayPropertyName);
+        var monthString = GetPropertyStringValue(model, _monthPropertyName);
+        var yearString = GetPropertyStringValue(model, _yearPropertyName);
 
         bool allFieldsEmpty = string.IsNullOrEmpty(dayString) &&
                               string.IsNullOrEmpty(monthString) &&
@@ -52,12 +59,27 @@ public class DobAttribute : ValidationAttribute
 
         if (missingFields.Count == 4)
         {
-            return new ValidationResult("Enter a date of birth", new[] { "DateOfBirth", "Day", "Month", "Year" });
+            if (childIndex != null)
+            {
+                return new ValidationResult($"Enter a {_fieldName} for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });
+            }
+            else
+            {
+                return new ValidationResult($"Enter a {_fieldName}", new[] { "DateOfBirth", "Day", "Month", "Year" });
+            }
         }
 
         if (missingFields.Count > 1)
         {
-            return new ValidationResult("Enter a complete date of birth", missingFields.ToArray());
+            if (childIndex != null)
+            {
+                return new ValidationResult($"Enter a complete {_fieldName} for {_objectName} {childIndex}", missingFields.ToArray());
+            }
+            else
+            {
+                return new ValidationResult($"Enter a complete {_fieldName}", missingFields.ToArray());
+            }
+                
         }
 
         // Check numeric input and ranges
@@ -75,13 +97,27 @@ public class DobAttribute : ValidationAttribute
         // Handle non-numeric inputs
         if (!int.TryParse(dayString, out _) || !int.TryParse(monthString, out _) || !int.TryParse(yearString, out _))
         {
-            return new ValidationResult("Enter a date of birth using numbers only", new[] { "DateOfBirth", "Day", "Month", "Year" });
+            if (childIndex != null)
+            {
+                return new ValidationResult($"Enter a {_fieldName} using numbers only for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });
+            }
+            else
+            {
+                return new ValidationResult($"Enter a {_fieldName} using numbers only", new[] { "DateOfBirth", "Day", "Month", "Year" });
+            }
         }
 
         // Handle invalid fields
         if (invalidFields.Count > 1)
         {
-            return new ValidationResult("Enter a valid date", invalidFields.ToArray());
+            if (childIndex != null)
+            {
+                return new ValidationResult($"Enter a valid date for {_objectName} {childIndex}", invalidFields.ToArray());
+            }
+            else
+            {
+                return new ValidationResult($"Enter a valid date for", invalidFields.ToArray());
+            }
         }
 
         try
@@ -90,12 +126,26 @@ public class DobAttribute : ValidationAttribute
 
             if (dob > DateTime.Now)
             {
-                return new ValidationResult("Enter a date in the past", new[] { "DateOfBirth", "Day", "Month", "Year" });
+                if (childIndex != null)
+                {
+                    return new ValidationResult($"Enter a date in the past for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });
+                }
+                else
+                {
+                    return new ValidationResult($"Enter a date in the past", new[] { "DateOfBirth", "Day", "Month", "Year" });
+                }
             }
 
             if (dayInt > DateTime.DaysInMonth(yearInt, monthInt))
             {
-                return new ValidationResult("Enter a valid day", new[] { "DateOfBirth", "Day" });
+                if (childIndex != null)
+                {
+                    return new ValidationResult($"Enter a valid day for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day" });
+                }
+                else
+                {
+                    return new ValidationResult($"Enter a valid day", new[] { "DateOfBirth", "Day" });
+                }
             }
 
             if (_applyAgeRange)
@@ -104,23 +154,36 @@ public class DobAttribute : ValidationAttribute
 
                 if (age < 4 || age > 19)
                 {
-                    return new ValidationResult("Enter an age between 4 and 19", new[] { "DateOfBirth", "Day", "Month", "Year" });
+
+                    return new ValidationResult($"Enter an age between 4 and 19 for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });   
                 }
             }
         }
         catch
         {
-            return new ValidationResult("Enter a valid date of birth");
+            if (childIndex != null)
+            {
+                return new ValidationResult($"Enter a valid {_fieldName} for child {childIndex}");
+            }
+            else
+            {
+                return new ValidationResult($"Enter a valid {_fieldName}");
+            }
         }
-
         return ValidationResult.Success;
     }
 
 
-    private string GetPropertyValue(object model, string propertyName)
+    private string GetPropertyStringValue(object model, string propertyName)
     {
         return model.GetType().GetProperty(propertyName)?.GetValue(model) as string;
     }
+
+    private int? GetPropertyIntValue(object model, string propertyName)
+    {
+        return model.GetType().GetProperty(propertyName)?.GetValue(model) as int?;
+    }
+
 
     private int CalculateAge(DateTime birthDate, DateTime now)
     {
