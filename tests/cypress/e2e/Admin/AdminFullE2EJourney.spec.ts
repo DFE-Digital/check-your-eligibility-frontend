@@ -66,6 +66,8 @@ describe('Full journey of creating an application through school portal through 
                 .then((text) => {
                     referenceNumber = text;
                     cy.log(text);
+
+                    cy.writeFile('cypress/fixtures/reference.txt', text)
                 });
 
             cy.then(() => {
@@ -145,6 +147,13 @@ describe('Full journey of creating an application through school portal through 
 
             cy.contains('.govuk-link', 'Pending applications').click();
             cy.url().should('contain', 'Application/PendingApplications');
+            cy.readFile('cypress/fixtures/reference.txt').then((ref) => {
+                referenceNumber = ref;
+                cy.log(ref);
+            });
+            cy.wait(100);
+            cy.log(referenceNumber);
+            cy.log("WARNING");
             cy.scanPagesForValue(referenceNumber);
 
             cy.contains('.govuk-button', 'Approve application').click();
@@ -191,7 +200,11 @@ describe('Full journey of creating an application through school portal through 
 
             cy.contains('Finalise applications').click();
             cy.url().should('contain', 'Application/FinaliseApplications');
-            cy.log(referenceNumber)
+            cy.readFile('cypress/fixtures/reference.txt').then((ref) => {
+                referenceNumber = ref;
+                cy.log(ref);
+            });
+            cy.wait(100);
             cy.findApplicationFinalise(referenceNumber);
 
             cy.contains('.govuk-button', 'Finalise applications').click();
