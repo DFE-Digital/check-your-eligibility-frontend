@@ -297,3 +297,16 @@ describe("Feedback link in header", () => {
         cy.contains("Thank you for participating in this survey")
     });
 });
+
+describe("Error Content on FinaliseApplication page", () =>{
+    it("Should give an error message if no applications are selected", () => {
+
+        cy.SignInSchool();
+        cy.wait(1000);
+        cy.get('h1').should('include.text', 'The Telford Park School');
+    
+        cy.get('#finalise').click();
+        cy.get('#submit').click();
+        cy.get('.govuk-error-message').should('contain', 'Select records to finalise');
+    });
+});
