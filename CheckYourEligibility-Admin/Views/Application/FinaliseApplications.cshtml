@@ -3,6 +3,7 @@
 
 @{
     ViewData["Layout"] = "full";
+    var errorMessage = TempData["ErrorMessage"] as string;
 }
 
 <a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
@@ -31,12 +32,18 @@
 <div class="govuk-!-padding-bottom-3"></div>
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
+    <div class="govuk-grid-column-full @(string.IsNullOrEmpty(errorMessage) ? "" : "govuk-form-group--error")">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p id="file-upload-1-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @errorMessage
+            </p>
+        }
         @using (Html.BeginForm("FinaliseSelectedApplications", "Application", FormMethod.Post, new { encType = "multipart/form-data", name = "myform" }))
         {
             <div class="moj-button-action">
 
-                <input type="submit" name="operation" id="submit" value="Finalise applications" class="govuk-button" data-module="govuk-button" />
+                <input type="submit" name="operation" id="submit" value="Finalise applications" class="govuk-button  @(string.IsNullOrEmpty(errorMessage) ? "" : "govuk-file-upload--error")" data-module="govuk-button" />
 
                 @Html.ActionLink("Download all files", "FinalisedApplicationsdownload", "Application", null, new { @class = "govuk-button govuk-button--secondary" })
             </div>
