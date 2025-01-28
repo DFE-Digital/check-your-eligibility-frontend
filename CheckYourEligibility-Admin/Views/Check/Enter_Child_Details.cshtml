@@ -20,9 +20,10 @@
 </h1>
 
 <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
-    <input type="hidden" id="ChildIndex" />
+
     @for (int i = 0; i < Model.ChildList.Count; i++)
     {
+        <input type="hidden" asp-for="ChildList[i].ChildIndex" value="@(i + 1)" id="ChildIndex" />
         <div id="childNumber@(@i)">
         <fieldset class="govuk-fieldset moj-add-another__item">
             <legend class="govuk-fieldset__legend moj-add-another__title govuk-fieldset__legend--m">
