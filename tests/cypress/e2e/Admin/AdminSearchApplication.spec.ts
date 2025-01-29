@@ -67,6 +67,8 @@ describe('Admin journey search for application', () => {
             .invoke('text')
             .then((text) => {
                 referenceNumber = text;
+                cy.writeFile('cypress/fixtures/reference.txt', text);
+
             });
     });
 
@@ -128,6 +130,11 @@ describe('Admin journey search for application', () => {
         cy.visit(Cypress.config().baseUrl ?? "");
 
         cy.contains('Search all records').click();
+        cy.readFile('cypress/fixtures/reference.txt').then((ref) => {
+            referenceNumber = ref;
+            cy.log(ref);
+        });
+        cy.wait(100);
         cy.get('#Reference').type(referenceNumber);
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
