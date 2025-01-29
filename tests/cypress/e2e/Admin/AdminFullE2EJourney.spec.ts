@@ -11,10 +11,10 @@ describe('Full journey of creating an application through school portal through 
         beforeEach(() => {
             cy.session("Session 1", () => {
                 cy.SignInSchool();
-
                 cy.wait(1);
             });
         });
+        
         it('Will allow a school user to create an application that may not be elligible and send it for appeal', () => {
             cy.visit(Cypress.config().baseUrl ?? "");
             cy.wait(1);
@@ -36,8 +36,9 @@ describe('Full journey of creating an application through school portal through 
             cy.contains('button', 'Perform check').click();
 
             cy.url().should('include', 'Check/Loader');
-            cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
-            cy.contains('a.govuk-button', 'Appeal now').click();
+            cy.get('.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+            // UPDATED: Changed selector for Appeal now button
+            cy.contains('.govuk-button', 'Appeal now').click();
 
             cy.url().should('include', '/Enter_Child_Details');
             cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
@@ -66,17 +67,13 @@ describe('Full journey of creating an application through school portal through 
                 .then((text) => {
                     referenceNumber = text;
                     cy.log(text);
-
                     cy.writeFile('cypress/fixtures/reference.txt', text)
                 });
 
             cy.then(() => {
                 cy.visit('/')
-
                 cy.contains('Process appeals').click();
-
                 cy.scanPagesForValue(referenceNumber);
-
                 cy.contains(referenceNumber).click();
             })
 
@@ -86,8 +83,8 @@ describe('Full journey of creating an application through school portal through 
             cy.url().should('contain', 'ApplicationDetailAppealConfirmation');
             cy.get('p').should('include.text', 'Send this record to the local authority?');
             cy.contains('.govuk-button', 'Yes, send now').click();
-
         });
+
         it('Will allow a school user to create an application is eligible and submit an application', () => {
             cy.visit(Cypress.config().baseUrl ?? "");
             cy.wait(1);
@@ -110,7 +107,8 @@ describe('Full journey of creating an application through school portal through 
 
             cy.url().should('include', 'Check/Loader');
             cy.get('.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian are eligible for free school meals');
-            cy.contains('a.govuk-button', "Add children's details").click();
+            // UPDATED: Changed selector for Add children's details button
+            cy.contains('.govuk-button', "Add children's details").click();
 
             cy.url().should('include', '/Enter_Child_Details');
             cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
@@ -132,8 +130,8 @@ describe('Full journey of creating an application through school portal through 
             cy.url().should('include', '/Check/ApplicationsRegistered');
         });
     });
-    describe('', () => {
 
+    describe('', () => {
         beforeEach(() => {
             cy.session("Session 2", () => {
                 cy.SignInLA();
@@ -156,6 +154,7 @@ describe('Full journey of creating an application through school portal through 
             cy.log("WARNING");
             cy.scanPagesForValue(referenceNumber);
 
+            // UPDATED: Changed approve button selectors
             cy.contains('.govuk-button', 'Approve application').click();
             cy.contains('.govuk-button', 'Yes, approve now').click();
 
@@ -188,7 +187,6 @@ describe('Full journey of creating an application through school portal through 
     });
 
     describe('', () => {
-
         beforeEach(() => {
             cy.session("Session 3", () => {
                 cy.SignInSchool();
@@ -207,9 +205,9 @@ describe('Full journey of creating an application through school portal through 
             cy.wait(100);
             cy.findApplicationFinalise(referenceNumber);
 
+            // UPDATED: Changed finalise button selectors
             cy.contains('.govuk-button', 'Finalise applications').click();
             cy.contains('.govuk-button', 'Yes, finalise now').click();
-
         });
     });
 });
