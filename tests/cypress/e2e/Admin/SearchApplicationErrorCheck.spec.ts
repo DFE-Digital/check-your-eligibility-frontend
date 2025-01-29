@@ -15,7 +15,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Generate results').click();
         cy.get('h2').should('include.text', 'There is a problem');
 
-        cy.get('li').should('contain.text', 'Child last name field contains an invalid character');
+        cy.get('.field-validation-error').should('contain.text', 'Child last name field contains an invalid character');
 
     });
 
@@ -27,7 +27,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Generate results').click();
         cy.get('h2').should('include.text', 'There is a problem');
 
-        cy.get('.field-validation-error').should('contain.text', 'Parent or Guardian last name field contains an invalid character');
+        cy.get('.field-validation-error').should('contain.text', 'Parent or guardian last name field contains an invalid character');
 
     });
 
@@ -43,7 +43,7 @@ describe('Admin journey search for application', () => {
 
     });
 
-    it('Returns the correct warning message when an invalid Child data of birth is input', () => {
+    it('Returns the correct warning message when an invalid Child date of birth is input', () => {
         cy.visit(Cypress.config().baseUrl ?? "");
         cy.wait(1);
 
@@ -72,7 +72,7 @@ describe('Admin journey search for application', () => {
 
     });
 
-    it('Returns the correct warning message when an invalid Parent data of birth is input', () => {
+    it('Returns the correct warning message when an invalid Parent date of birth is input', () => {
         cy.visit(Cypress.config().baseUrl ?? "");
         cy.wait(1);
 
