@@ -49,7 +49,7 @@ namespace CheckYourEligibility_FrontEnd.Attributes
                 }
                 else if (model.GetType() == typeof(ApplicationSearch))
                 {
-                    return new ValidationResult($"{_objectName} contains an invalid character for {_fieldName}");
+                    return new ValidationResult($"{_objectName} {_fieldName} field contains an invalid character");
                 }
                 else
                 {
