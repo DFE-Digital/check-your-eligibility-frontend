@@ -5,6 +5,7 @@ using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,39 +23,37 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private ILogger<CheckController> _loggerMock;
         private IEcsServiceParent _object;
         DfeClaims? _Claims;
+        private readonly IAdminLoadParentDetailsUseCase _adminLoadParentDetailsUseCase;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IEcsCheckService ecsCheckService, IConfiguration configuration)
+        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IEcsCheckService ecsCheckService, IConfiguration configuration, IAdminLoadParentDetailsUseCase adminLoadParentDetailsUseCase)
         {
             _config = configuration;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsServiceParent ?? throw new ArgumentNullException(nameof(ecsServiceParent));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
+            _adminLoadParentDetailsUseCase = adminLoadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminLoadParentDetailsUseCase));
         }
 
         [HttpGet]
-        public IActionResult Enter_Details()
+        public async Task<IActionResult> Enter_Details()
         {
-            // start with empty page model
-            ParentGuardian request = null;
+            var viewModel = await _adminLoadParentDetailsUseCase.ExecuteAsync(
+                TempData["ParentDetails"]?.ToString(),
+                TempData["Errors"]?.ToString()
+            );
 
-            // if this page is loaded again after a POST then get the request and update the page with any errors
-            if (TempData["ParentDetails"] != null)
+            if (viewModel.ValidationErrors != null)
             {
-                request = JsonConvert.DeserializeObject<ParentGuardian>(TempData["ParentDetails"].ToString());
-            }
-            if (TempData["Errors"] != null)
-            {
-                var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
-                foreach (var kvp in errors)
+                foreach (var (key, errorList) in viewModel.ValidationErrors)
                 {
-                    foreach (var error in kvp.Value)
+                    foreach (var error in errorList)
                     {
-                        ModelState.AddModelError(kvp.Key, error);
+                        ModelState.AddModelError(key, error);
                     }
                 }
             }
 
-            return View(request);
+            return View(viewModel.Parent);
         }
 
         [HttpPost]
@@ -207,7 +206,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 case CheckEligibilityStatus.eligible:
                     return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
                 case CheckEligibilityStatus.notEligible:
-                    return (isLA ? View("Outcome/Not_Eligible_LA")  : View("Outcome/Not_Eligible"));
+                    return (isLA ? View("Outcome/Not_Eligible_LA") : View("Outcome/Not_Eligible"));
                 case CheckEligibilityStatus.parentNotFound:
                     return View("Outcome/Not_Found");
                 case CheckEligibilityStatus.DwpError:
@@ -352,9 +351,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
                 { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
             }
-            
+
             TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
-            if(responseApplication.Data.Status == "Entitled")
+            if (responseApplication.Data.Status == "Entitled")
             {
                 return RedirectToAction("ApplicationsRegistered");
             }

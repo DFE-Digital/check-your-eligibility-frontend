@@ -6,6 +6,7 @@ using CheckYourEligibility.TestBase;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
@@ -23,12 +24,10 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
     [TestFixture]
     public class CheckControllerTests : TestBase
     {
-        // mocks
         private ILogger<CheckController> _loggerMock;
         private Mock<IEcsServiceParent> _parentServiceMock;
         private Mock<IEcsCheckService> _checkServiceMock;
-
-        // system under test
+        private Mock<IAdminLoadParentDetailsUseCase> _adminLoadParentDetailsUseCaseMock;
         private CheckController _sut;
 
         [SetUp]
@@ -37,8 +36,15 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _parentServiceMock = new Mock<IEcsServiceParent>();
             _checkServiceMock = new Mock<IEcsCheckService>();
             _loggerMock = Mock.Of<ILogger<CheckController>>();
+            _adminLoadParentDetailsUseCaseMock = new Mock<IAdminLoadParentDetailsUseCase>();
 
-            _sut = new CheckController(_loggerMock, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object);
+            _sut = new CheckController(
+                _loggerMock,
+                _parentServiceMock.Object,
+                _checkServiceMock.Object,
+                _configMock.Object,
+                _adminLoadParentDetailsUseCaseMock.Object
+            );
 
             base.SetUp();
 
@@ -53,87 +59,115 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public void Given_Enter_Details_Should_Load_EnterDetailsPage()
+        public async Task Given_Enter_Details_Should_Load_EnterDetailsPage()
         {
+            // Arrange
+            var expectedViewModel = new AdminLoadParentDetailsViewModel();
+            _adminLoadParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null, null))
+                .ReturnsAsync(expectedViewModel);
+
             // Act
-            var result = _sut.Enter_Details();
+            var result = await _sut.Enter_Details();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.Model.Should().BeNull();
+            _adminLoadParentDetailsUseCaseMock.Verify(x => x.ExecuteAsync(null, null), Times.Once);
         }
 
         [Test]
-        [TestCase(false, "AB123456C", null)]
-        [TestCase(true, null, "2407001")]
-        public void Given_Enter_Details_When_ModelState_Is_NotValid_Should_SetTempData_And_LoadEnter_DetailsPage(bool isNassSelected, string? nino, string? nass)
+        public async Task Given_Enter_Details_When_TempData_Contains_ParentDetails_Should_Load_Parent_Data()
         {
             // Arrange
-            _sut.ModelState.AddModelError("Error Key", "Error Message");
+            var parent = _fixture.Create<ParentGuardian>();
+            var parentJson = JsonConvert.SerializeObject(parent);
+            _sut.TempData["ParentDetails"] = parentJson;
 
-            var request = _fixture.Create<ParentGuardian>();
-            request.NationalInsuranceNumber = nino;
-            request.NationalAsylumSeekerServiceNumber = nass;
-            request.NinAsrSelection = ParentGuardian.NinAsrSelect.NinSelected;
-            request.Day = "1";
-            request.Month = "1";
-            request.Year = "1990";
+            var expectedViewModel = new AdminLoadParentDetailsViewModel
+            {
+                Parent = parent
+            };
+
+            _adminLoadParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(parentJson, null))
+                .ReturnsAsync(expectedViewModel);
 
             // Act
-            var result = _sut.Enter_Details(request);
+            var result = await _sut.Enter_Details();
 
             // Assert
-            var actionResult = result.Result as RedirectToActionResult;
-            actionResult.ActionName.Should().Be("Enter_Details");
-
-            var parentDetails = _sut.TempData["ParentDetails"] as string;
-            var errors = _sut.TempData["Errors"] as string;
-
-            parentDetails.Should().NotBeNull();
-            errors.Should().NotBeNull();
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.Model.Should().BeEquivalentTo(parent);
+            _adminLoadParentDetailsUseCaseMock.Verify(
+                x => x.ExecuteAsync(parentJson, null),
+                Times.Once);
         }
 
         [Test]
-        [TestCase(ParentGuardian.NinAsrSelect.NinSelected, "AB123456C", null)]
-        [TestCase(ParentGuardian.NinAsrSelect.AsrnSelected, null, "2407001")]
-        public void Given_Enter_Details_When_ModelState_IsValid_Should_SetSessionData_CreateEligibilityRequest_And_LoadLoaderPage(ParentGuardian.NinAsrSelect NINAS, string? nino, string? nass)
+        public async Task Given_Enter_Details_When_ValidationErrors_Exist_Should_Add_To_ModelState()
         {
             // Arrange
-            var request = _fixture.Create<ParentGuardian>();
-            request.NationalInsuranceNumber = nino;
-            request.NationalAsylumSeekerServiceNumber = nass;
-            request.NinAsrSelection = NINAS;
-            request.Day = "01";
-            request.Month = "01";
-            request.Year = "1990";
+            var errors = new Dictionary<string, List<string>>
+        {
+            { "Field1", new List<string> { "Error1" } }
+        };
+            var errorsJson = JsonConvert.SerializeObject(errors);
+            _sut.TempData["Errors"] = errorsJson;
 
-            var response = _fixture.Create<CheckEligibilityResponse>();
-            _checkServiceMock.Setup(x => x.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>())).ReturnsAsync(response);
+            var expectedViewModel = new AdminLoadParentDetailsViewModel
+            {
+                ValidationErrors = errors
+            };
+
+            _adminLoadParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null, errorsJson))
+                .ReturnsAsync(expectedViewModel);
 
             // Act
-            var result = _sut.Enter_Details(request);
+            var result = await _sut.Enter_Details();
 
             // Assert
-            var actionResult = result.Result as RedirectToActionResult;
-            actionResult.Should().NotBeNull();
-            actionResult.ActionName.Should().Be("Loader");
+            _sut.ModelState["Field1"].Errors.Should().ContainSingle()
+                .Which.ErrorMessage.Should().Be("Error1");
+            _adminLoadParentDetailsUseCaseMock.Verify(
+                x => x.ExecuteAsync(null, errorsJson),
+                Times.Once);
+        }
 
-            _sut.HttpContext.Session.GetString("ParentFirstName").Should().Be(request.FirstName);
-            _sut.HttpContext.Session.GetString("ParentLastName").Should().Be(request.LastName);
-            _sut.HttpContext.Session.GetString("ParentDOB").Should().Be($"{request.Year}-{request.Month:D2}-{request.Day:D2}");
-            _sut.HttpContext.Session.GetString("ParentEmail").Should().Be(request.EmailAddress);
+        [Test]
+        public async Task Given_Enter_Details_When_NIN_ASR_ValidationErrors_Exist_Should_Handle_Special_Case()
+        {
+            // Arrange
+            var errors = new Dictionary<string, List<string>>
+        {
+            { "NationalInsuranceNumber", new List<string> { "Please select one option" } },
+            { "NationalAsylumSeekerServiceNumber", new List<string> { "Please select one option" } }
+        };
+            var errorsJson = JsonConvert.SerializeObject(errors);
+            _sut.TempData["Errors"] = errorsJson;
 
-            _checkServiceMock.Invocations.Should().HaveCount(1); // PostCheck should have been called on the mocked service once
-
-            if (NINAS == ParentGuardian.NinAsrSelect.AsrnSelected)
+            var expectedViewModel = new AdminLoadParentDetailsViewModel
             {
-                _sut.HttpContext.Session.GetString("ParentNASS").Should().Be(request.NationalAsylumSeekerServiceNumber);
-            }
-            else
+                ValidationErrors = new Dictionary<string, List<string>>
             {
-                _sut.HttpContext.Session.GetString("ParentNINO").Should().Be(request.NationalInsuranceNumber?.ToUpper());
+                { "NINAS", new List<string> { "Please select one option" } }
             }
+            };
+
+            _adminLoadParentDetailsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null, errorsJson))
+                .ReturnsAsync(expectedViewModel);
+
+            // Act
+            var result = await _sut.Enter_Details();
+
+            // Assert
+            _sut.ModelState["NINAS"].Errors.Should().ContainSingle()
+                .Which.ErrorMessage.Should().Be("Please select one option");
+            _sut.ModelState.Should().NotContainKey("NationalInsuranceNumber");
+            _sut.ModelState.Should().NotContainKey("NationalAsylumSeekerServiceNumber");
         }
 
         [Test]
