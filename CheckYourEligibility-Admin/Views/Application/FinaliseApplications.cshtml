@@ -63,30 +63,18 @@
 
                 @Html.EditorFor(model => model.People)
             </table>
-            <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
-                <ul class="govuk-pagination__list">
-                    @if (ViewBag.CurrentPage > 1)
-                    {
-                        <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("FinaliseApplications", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
-                        </li>
-                    }
+        }
+        @{
+            var paginationModel = new PaginationPartialViewModel
+            {
+                CurrentPage = ViewBag.CurrentPage,
+                TotalPages = ViewBag.TotalPages,
+                RecordsPerPage = ViewBag.RecordsPerPage,
+                TotalRecords = ViewBag.TotalRecords,
+                ControllerName = "FinaliseApplications"
+            };
 
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("FinaliseApplications", new { PageNumber = i })">@i</a>
-                        </li>
-                    }
-
-                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-                    {
-                        <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("FinaliseApplications", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
-                        </li>
-                    }
-                </ul>
-            </nav>
+            @Html.Partial("PaginationPartial", paginationModel)
         }
     </div>
 </div>

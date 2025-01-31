@@ -514,9 +514,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.CurrentPage = applicationSearch.PageNumber;
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
-            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel { DetailView = detailView, ShowSelectorCheck = showSelector, Person = x, ShowSchool = showSchool, ShowParentDob = showParentDob });
-            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
+            ViewBag.RecordsPerPage = applicationSearch.PageSize;
 
+            var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel
+            {
+                DetailView = detailView,
+                ShowSelectorCheck = showSelector,
+                Person = x,
+                ShowSchool = showSchool,
+                ShowParentDob = showParentDob
+            });
+            var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
             return View(viewData);
         }
 
