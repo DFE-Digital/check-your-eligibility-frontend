@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Checking Loader";
+    ViewData["Title"] = "Checking";
     ViewData["Layout"] = "full";
 }
 
@@ -10,9 +10,7 @@
     <div class="govuk-grid-column-full">
         <div class="flex-container">
             <div class="container">
-                <h1 class="govuk-heading-l">
-                    Checking
-                </h1>
+                <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
                 <p class="govuk-body-l">Please wait. This may take a few minutes</p>
                 <span id="currentCounter">@TempData["currentCounter"]</span>/
                 <span id="totalCounter">@TempData["totalCounter"] records processed.</span>

@@ -2,6 +2,7 @@
 @model ApplicationDetailViewModel
 
 @{
+    ViewData["Title"] = @Model.ParentName;
     ViewData["Layout"] = "full";
 }
 
@@ -11,7 +12,7 @@
 <div class="moj-page-header-actions">
 
     <div class="moj-page-header-actions__title">
-        <h1 class="govuk-heading-xl">@Model.ParentName</h1>
+        <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
     </div>
 
 

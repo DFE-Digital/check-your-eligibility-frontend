@@ -1,7 +1,7 @@
 ﻿@model CheckYourEligibility_FrontEnd.Models.BulkCheckUpload
 
 @{
-    ViewData["Title"] = "Check Details";
+    ViewData["Title"] = "Run a batch check for multiple parents or guardians";
     ViewData["Layout"] = "two_thirds";
     var errorMessage = TempData["ErrorMessage"] as string;
 }
@@ -16,7 +16,7 @@
 }
 
 <form asp-controller="BulkCheck" asp-action="Bulk_Check" method="post" enctype="multipart/form-data">
-    <h1 class="govuk-heading-l">Run a batch check for multiple parents or guardians</h1>
+    <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
     <p>Upload a template with details of the parents or guardians who applied for free school meals.</p>
     <h2 class="govuk-heading-m">Running a batch check</h2>
     <ol class="govuk-list govuk-list--number">

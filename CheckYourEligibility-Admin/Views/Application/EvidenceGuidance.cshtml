@@ -1,11 +1,12 @@
 ﻿@{
+    ViewData["Title"] = "Guidance for collecting evidence";
     ViewData["Layout"] = "two_thirds";
 }
 
 <a class="govuk-back-link" href="@Url.Action("Application", "AppealsApplications")" onclick="history.back(); return false;">Back</a>
 @* <a class="govuk-back-link-nolink"></a> *@
 
-<h1 class="govuk-heading-l">Guidance for collecting evidence</h1>
+<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
 <h2 class="govuk-heading-m">To support local authority review of an application for free school meals, you’ll need to ask the parent or guardian for supporting evidence. </h2>
 
 <p class="govuk-body">The following kinds of evidence are acceptable: </p>

@@ -1,7 +1,7 @@
 @model CheckYourEligibility_FrontEnd.Models.ApplicationSearch;
 
 @{
-    ViewData["Title"] = "Application Search";
+    ViewData["Title"] = "Search all records";
     ViewData["Layout"] = "full";
 }
 
@@ -14,9 +14,7 @@
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
-<h1 class="govuk-heading-l">
-    Search all records
-</h1>
+<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
 <p>Fill in any of the fields on this page to find a free school meal record.</p>
 
 <form asp-controller="Application" asp-action="SearchResults" method="post" class="form">

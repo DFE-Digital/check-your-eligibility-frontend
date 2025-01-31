@@ -1,7 +1,7 @@
 ﻿@model CheckYourEligibility_FrontEnd.Models.Children
 
 @{
-    ViewData["Title"] = "Provide details of your children";
+    ViewData["Title"] = "Provide details of all children";
     ViewData["Layout"] = "two_thirds";
     var childIndex = TempData["childIndex"] as int?;
 }
@@ -15,9 +15,7 @@
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
-<h1 class="govuk-heading-l" tabindex="-1">
-    Provide details of all children
-</h1>
+<h1 class="govuk-heading-l" tabindex="-1">@ViewData["Title"]</h1>
 
 <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
 

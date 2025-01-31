@@ -1,7 +1,7 @@
 ﻿@using CheckYourEligibility_FrontEnd.ViewModels
 @model ApplicationConfirmationEntitledViewModel
 @{
-    ViewData["Title"] = "Appeal Sent";
+    ViewData["Title"] = "Children details added";
     ViewData["Layout"] = "full";
     var currentDate = DateTime.Now.ToString("d MMMM yyyy");
 }
@@ -11,7 +11,7 @@
 
 @if (!ViewData.ModelState.IsValid)
 {
-    ViewData["Title"] = "Appeal Sent";
+    ViewData["Title"] = "Children details added";
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
