@@ -54,7 +54,6 @@
             </a>
         </div>
     }
-    <p>Showing @((Model.CurrentPage - 1) * Model.RecordsPerPage + 1) to @(Math.Min(Model.CurrentPage * Model.RecordsPerPage, Model.TotalRecords)) of @Model.TotalRecords records</p>
 </nav>
 
 <p class="moj-pagination__results">Showing <b>@((Model.CurrentPage - 1) * Model.RecordsPerPage + 1)</b> to <b>@(Math.Min(Model.CurrentPage * Model.RecordsPerPage, Model.TotalRecords))</b> of <b>@Model.TotalRecords records</b></p>
