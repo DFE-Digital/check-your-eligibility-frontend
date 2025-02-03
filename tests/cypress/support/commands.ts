@@ -120,10 +120,10 @@ Cypress.Commands.add('findApplicationFinalise', (value: string) => {
       if (!referenceFound){
         cy.get('.govuk-link').contains('Next').then(($nextButton) => {
           if($nextButton.length > 0){
-            cy.wrap($nextButton).click().then(() => {
+            cy.wrap($nextButton).click({ force: true }).then(() => {
               cy.wait(500);
               searchOnPage();
-            })
+            });
           } else {
             cy.log('Reference number could not be found');
           }
