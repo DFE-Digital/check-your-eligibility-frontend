@@ -62,7 +62,7 @@ stages:
         displayName: Deploy App Cypress
         pool:
           name: Azure Pipelines
-          vmImage: 'windows-latest'
+          vmImage: 'ubuntu-latest'
         environment: CYPRESS
         strategy:
           runOnce:
