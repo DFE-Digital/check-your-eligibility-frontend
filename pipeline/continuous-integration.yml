@@ -95,7 +95,7 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
                       npm install
                 - task: Bash@3
                   displayName: 'RunTests'
