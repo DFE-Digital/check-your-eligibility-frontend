@@ -85,14 +85,14 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/tests
                       npm install
                 - task: Bash@3
                   displayName: 'RunTests'
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/tests
                       export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
                       export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
                       export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
