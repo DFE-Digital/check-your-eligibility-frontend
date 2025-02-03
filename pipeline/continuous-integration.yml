@@ -102,7 +102,7 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
                       export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
                       export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
                       export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
@@ -116,5 +116,5 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
                       npm run combine:reports
