@@ -30,6 +30,12 @@ stages:
               platform: '$(buildPlatform)'
               configuration: '$(buildConfiguration)'
 
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: 'tests'
+              Contents: '**'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/tests'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -72,14 +78,14 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Admin/tests
                       npm install
                 - task: Bash@3
                   displayName: 'RunTests'
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Admin/tests
                       export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
                       export CYPRESS_DFE_ADMIN_EMAIL_ADDRESS="$(DFE_ADMIN_EMAIL_ADDRESS)"
                       export CYPRESS_DFE_ADMIN_PASSWORD="$(DFE_ADMIN_PASSWORD)"
@@ -90,7 +96,7 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd tests
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Admin/tests
                       npm run combine:reports
       
                 - task: PublishTestResults@2
