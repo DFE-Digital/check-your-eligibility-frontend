@@ -58,7 +58,7 @@ stages:
             inputs:
               SourceFolder: 'tests'
               Contents: '**'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/tests'
               
           - task: PublishPipelineArtifact@1
             inputs:
