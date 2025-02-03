@@ -8,7 +8,7 @@ describe('After errors have been input initially a Parent with valid details can
         cy.get('input.govuk-radios__input[value="true"]').check();
         cy.get('button.govuk-button').click();
         cy.url().should('include', '/Check/Enter_Details');
-        cy.get('h1').should('include.text', 'Enter your details');
+        cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('Smith');
@@ -124,7 +124,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.url().should('include', '/Check/Enter_Details');
 
-        cy.get('h1').should('include.text', 'Enter your details');
+        cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
