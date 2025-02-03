@@ -1,3 +1,6 @@
+pr:
+  - main
+
 pool:
   name: Azure Pipelines
   vmImage: 'windows-latest'
@@ -50,6 +53,7 @@ stages:
               publishWebProjects: True
               arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
               zipAfterPublish: True
+              
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)'
@@ -85,14 +89,14 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      cd tests
                       npm install
                 - task: Bash@3
                   displayName: 'RunTests'
                   inputs:
                     targetType: inline
                     script: |
-                      cd $(Pipeline.Workspace)/tests
+                      cd tests
                       export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
                       export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
                       export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
