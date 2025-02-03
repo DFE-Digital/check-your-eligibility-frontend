@@ -104,4 +104,4 @@ stages:
                   displayName: 'Publish test results'
                   inputs:
                     testResultsFiles: '**/combined-report.xml'
-                    searchFolder: 'tests'
+                    searchFolder: '$(Pipeline.Workspace)/checkYourEligibility-Admin/tests'
