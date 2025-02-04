@@ -2,11 +2,12 @@
 <a class="govuk-back-link-nolink"></a>
 
 @{
+    ViewData["Title"] = "Application sent for review";
     ViewData["Layout"] = "two_thirds";
 }
 
 <span class="govuk-caption-l">Reference @ViewBag.AppReference</span>
-<h1 class="govuk-heading-xl">Application sent for review </h1>
+<h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
 <p>
     Its status has now changed to ‘Sent for review’.
 

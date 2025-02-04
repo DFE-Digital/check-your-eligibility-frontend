@@ -2,6 +2,7 @@
 @model PeopleSelectionViewModel;
 
 @{
+    ViewData["Title"] = "Search results (" + @ViewBag.TotalRecords + ")";
     ViewData["Layout"] = "full";
     int recordsPerPage = 10;
     int currentPage = ViewBag.CurrentPage ?? 1;
@@ -15,7 +16,7 @@
 <div class="moj-page-header-actions">
     <div class="moj-page-header-actions__title">
         <h1 class="govuk-heading-l">
-            Search results (@ViewBag.TotalRecords)
+            @ViewData["Title"]
         </h1>
     </div>
     <div class="moj-page-header-actions__actions">
