@@ -3,6 +3,7 @@
 @model ApplicationDetailViewModel
 
 @{
+    ViewData["Title"] = "Application declined";
     ViewData["Layout"] = "two_thirds";
 }
 
@@ -10,9 +11,7 @@
 <a class="govuk-back-link-nolink"></a>
 
 <div class="govuk-panel govuk-panel--confirmation">
-    <h1 class="govuk-panel__title">
-        Application declined
-    </h1>
+    <h1 class="govuk-panel__title">@ViewData["Title"]</h1>
     <div class="govuk-panel__body">
         Application reference number<br><strong>@Model.Reference</strong>
     </div>

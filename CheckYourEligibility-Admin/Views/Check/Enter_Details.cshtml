@@ -1,7 +1,7 @@
 ﻿@model CheckYourEligibility_FrontEnd.Models.ParentGuardian
 
 @{
-    ViewData["Title"] = "Check Details";
+    ViewData["Title"] = "Run a check for one parent or guardian";
     ViewData["Layout"] = "two_thirds";
 }
 
@@ -14,7 +14,7 @@
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
-<h1 class="govuk-heading-l">Run a check for one parent or guardian</h1>
+<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
 <p class="govuk-body">Enter the details of the parent or guardian who applied for free school meals.</p>
 <form asp-controller="Check" asp-action="Enter_Details" method="post">
     <fieldset class="govuk-fieldset">
