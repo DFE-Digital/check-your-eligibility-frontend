@@ -118,3 +118,9 @@ stages:
                     script: |
                       cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
                       npm run combine:reports
+                - task: PublishTestResults@2
+                  condition: always()
+                  displayName: 'Publish test results'
+                  inputs:
+                    testResultsFiles: '**/combined-report.xml'
+                    searchFolder: '$(Pipeline.Workspace)/checkYourEligibility-Parent/tests'
