@@ -414,3 +414,4 @@ FodyWeavers.xsd
 
 # Cypress
 /tests/cypress/downloads/
+/tests/cypress/fixtures/reference.*
