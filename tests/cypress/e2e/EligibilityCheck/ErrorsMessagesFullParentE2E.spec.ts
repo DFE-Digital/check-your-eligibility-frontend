@@ -66,10 +66,10 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('h2').should('contain.text', 'There is a problem');
 
-        cy.get('li').should('contain.text', "Enter child's first name");
-        cy.get('li').should('contain.text', "Enter child's last name");
-        cy.get('li').should('contain.text', 'School is required');
-        cy.get('li').should('contain.text', 'Enter a date of birth');
+        cy.get('li').should('contain.text', "Enter a first name for child");
+        cy.get('li').should('contain.text', "Enter a last name for child");
+        cy.get('li').should('contain.text', 'Select a school for child');
+        cy.get('li').should('contain.text', 'Enter a date of birth for child');
 
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');

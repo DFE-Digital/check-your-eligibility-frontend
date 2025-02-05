@@ -68,7 +68,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
         cy.get('[id="ChildList[0].LastName"]').type('Smith');
-        cy.get('[id="school-search-0"]').type('Hinde House 2-16 Academy');
+        cy.get('[id="ChildList[0].School"]').type('Hinde House 2-16 Academy');
 
         cy.get('#schoolList0')
             .should('be.visible')
