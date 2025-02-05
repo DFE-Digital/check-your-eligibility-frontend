@@ -1,42 +1,74 @@
-# Check Your Eligibility Frontend
-This repo contains the user-facing parts for Eligibility Checking Engine (ECE) and the Check Free School Meals (FSM) service.
+Cypress Setup User Guide
+Introduction
+This guide will walk you through the steps required to install and run Cypress with TypeScript locally.
+Prerequisites
+Before you begin, ensure that you have the following installed:
 
-## Setup
-This is a .NET 8 project - you'll need the latest .NET SDK etc to run it locally.
+Git Bash : 
+Node.js (version 12 or higher) : https://nodejs.org/en/download/prebuilt-installer
+•	npm (version 10 or higher ) - This is downloaded as part of Node.js
 
-### Config
-When you first clone the repo, you'll want to define your own config. You'll want to copy up the
-file [appsettings.json](CheckYourEligibility-Parent/appsettings.json), name the copy `appsettings.Developmnent.json`
-in the same folder. Update the values in this new file as needed. This file should not be committed, nor will it with our .gitignore.
+Check the Node.js is correctly installed by running the following commands
 
-## How to run tests
-We have two test-suites - one .NET NUnit for unit tests and one Cypress for integration and e2e tests. Cypress needs a running application responding to http calls.
+node -v
+npm -v
 
-### .NET
-VisualStudio does most of this for you, there'll be a button in your UI. Correctly set up Rider too.
-`
-cd CheckYourEligibility-Parent.Tests
-dotnet test
-`
+Setup Instructions
 
-### Cypress Testing
+1. Open Project in Visual Studio Code
+Open your project repository in Visual Studio Code and navigate to the test folder.
 
-There is a full breakdown of how to set up and run the Cypress tests along with our current standards for Cypress testing 
-within the tests folder.
+2. Install Cypress
+Inside a Bash Terminal
+
+CD into the tests folder 
+
+Install Cypress as a development dependency by running the following command in your terminal:
+npm install cypress@13.8.1 --save-dev
+
+Certain machines may struggle to install Cypress and receive a certificate error. This can be overcome by getting the portal URL for your VPN and adding it to this command: 
+
+- HTTP_PROXY=https{url} npm i
+
+3. Configuring Environment envariables
+
+Inside the tests directory create a file named "Cypress.env.json" and input the following, Populating the relevant information. The OneGov email and password will need to be yours that you can create.
+```
+{
+    "AUTHORIZATION_HEADER": "",
+    "AUTH_USERNAME": "",
+    "AUTH_PASSWORD": "",
+    "ONEGOV_EMAIL": "",
+    "ONEGOV_PASSWORD": ""
+}
+```
+
+4. Open Cypress
+Launch Cypress using the following command:
+- CYPRESS_BASE_URL={Test environment url} npx cypress open
+- Cypress UI will be launched. Run the tests via electron. 
+- Click on "E2E Testing" to see all the tests available.
+
+5. Running Tests
+You can run your Cypress tests in two ways:
+Interactive Mode
+To run tests in interactive mode, use:
+CYPRESS_BASE_URL="https://localhost:7228/" npx cypress open
+Headless Mode
+To run tests in headless mode, use:
+CYPRESS_BASE_URL={Test environment url} npx cypress run
+
+Cypress testing standards:
+
+Our goal is to make sure that our tests are easy to read and sturdy, to help keep to these standards please:
+
+1. Make sure that under no circumstances are the environmental variables committed to the repository.
+2. Make sure that test file names clearly express which areas are being tested.
+3. Name each test clearly so that anyone viewing/running them may understand what is currently being tested.
+4. When possible use built in Cypress features instead of creating unnecessary helper functions which will only abstract from the
+purpose of the test, when this is unavoidable please again make sure that the helper function is clearly named and will allow a user to understand its purpose.
 
 
-## Ways of working
-### Releasing code
-We submit PRs into `main` for functioning code. The reviewer checks that the automated tests pass, then approve.
 
-We expect the code reviewer to run the code locally, read through it and understand what it is trying to solve.
 
-If approved, the original code-creator merges the PR and deletes the branch.
-
-### Secrets
-We don't commit active secrets to this repo. If we do, it is crucial to notify DM/TL/PO, rewrite git history and follow DfE processes.
-
-## Resources
-### Deployment
-![Deployment](docs/images/frontend-pipeline.png)
 

@@ -197,19 +197,21 @@ describe('Full journey of creating an application through school portal through 
         })
         it('Allows a user when back logged into the School portal to finalise the application', () => {
             cy.visit(Cypress.config().baseUrl ?? "");
-
+          
             cy.contains('Finalise applications').click();
             cy.url().should('contain', 'Application/FinaliseApplications');
+            
             cy.readFile('cypress/fixtures/reference.txt').then((ref) => {
-                referenceNumber = ref;
-                cy.log(ref);
+              const referenceNumber = ref;
+              cy.log(ref);
+          
+              // Call the custom command and ensure it completes before proceeding
+              cy.findApplicationFinalise(referenceNumber).then(() => {
+                cy.contains('.govuk-button', 'Finalise applications').click();
+                cy.contains('.govuk-button', 'Yes, finalise now').click();
+              });
             });
-            cy.wait(100);
-            cy.findApplicationFinalise(referenceNumber);
-
-            cy.contains('.govuk-button', 'Finalise applications').click();
-            cy.contains('.govuk-button', 'Yes, finalise now').click();
-
-        });
+          });
+          
     });
 });

@@ -2,6 +2,7 @@
 @model PeopleSelectionViewModel;
 
 @{
+    ViewData["Title"] = "Process appeals (" + @ViewBag.TotalRecords + ")";
     ViewData["Layout"] = "full";
 }
 
@@ -11,7 +12,7 @@
 <div class="moj-page-header-actions">
 
     <div class="moj-page-header-actions__title">
-        <h1 class="govuk-heading-l">Process appeals (@ViewBag.TotalRecords)</h1>
+        <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
     </div>
 </div>
 <div class="govuk-width-container">
@@ -57,34 +58,23 @@
                 @Html.EditorFor(model => model.People)
             </table>
 
-            <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
-                <ul class="govuk-pagination__list">
-                    @if (ViewBag.CurrentPage > 1)
-                    {
-                        <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("AppealsApplications", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
-                        </li>
-                    }
+        }
+        @{
+            var paginationModel = new PaginationPartialViewModel
+            {
+                CurrentPage = ViewBag.CurrentPage,
+                TotalPages = ViewBag.TotalPages,
+                RecordsPerPage = ViewBag.RecordsPerPage,
+                TotalRecords = ViewBag.TotalRecords,
+                ControllerName = "AppealsApplications"
+            };
 
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("AppealsApplications", new { PageNumber = i })">@i</a>
-                        </li>
-                    }
-
-                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-                    {
-                        <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" href="@Url.Action("AppealsApplications", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
-                        </li>
-                    }
-                </ul>
-            </nav>
+            @Html.Partial("PaginationPartial", paginationModel)
+        }
         }
         else
         {
-            <p>No results found.</p>
+        <p>No results found.</p>
         }
     </div>
 </div>

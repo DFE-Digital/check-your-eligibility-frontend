@@ -2,7 +2,12 @@
 @model PeopleSelectionViewModel;
 
 @{
+    ViewData["Title"] = "Search results (" + @ViewBag.TotalRecords + ")";
     ViewData["Layout"] = "full";
+    int recordsPerPage = 10;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalRecords = ViewBag.TotalRecords;
+    int totalPages = (int)Math.Ceiling((double)totalRecords / recordsPerPage);
 }
 
 @* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a>*@
@@ -11,7 +16,7 @@
 <div class="moj-page-header-actions">
     <div class="moj-page-header-actions__title">
         <h1 class="govuk-heading-l">
-            Search results (@ViewBag.TotalRecords)
+            @ViewData["Title"]
         </h1>
     </div>
     <div class="moj-page-header-actions__actions">
@@ -48,82 +53,16 @@
         </thead>
         @Html.EditorFor(model => model.People)
     </table>
-
-    <nav class="govuk-pagination" aria-label="Pagination">
-        @if (ViewBag.CurrentPage > 1)
-        {
-            <div class="govuk-pagination__prev">
-                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage - 1 })" rel="prev">
-                    <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                        <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
-                    </svg>
-                    <span class="govuk-pagination__link-title">
-                        Previous<span class="govuk-visually-hidden"> page</span>
-                    </span>
-                </a>
-            </div>
-        }
-        <ul class="govuk-pagination__list">
-            @if (ViewBag.CurrentPage > 1)
-            {
-                <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="/Application/SearchResults?PageNumber=1" aria-label="Page 1">
-                        1
-                    </a>
-                </li>
-                <li class="govuk-pagination__item govuk-pagination__item--ellipses">
-                    &ctdot;
-                </li>
-            }
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                if (ViewBag.CurrentPage == i)
+    var paginationModel = new PaginationPartialViewModel
                 {
-                    if (i > 2)
-                    {
-                        <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" aria-label="Page @(i-1)" aria-current="page" href="@Url.Action("SearchResults", new { PageNumber = (i-1) })">@(i - 1)</a>
-                        </li>
-                    }
+                    CurrentPage = ViewBag.CurrentPage,
+                    TotalPages = ViewBag.TotalPages,
+                    RecordsPerPage = ViewBag.RecordsPerPage,
+                    TotalRecords = ViewBag.TotalRecords,
+                    ControllerName = "SearchResults"
+                };
 
-                    <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                        <a class="govuk-link govuk-pagination__link" aria-label="Page @i" aria-current="page" href="@Url.Action("SearchResults", new { PageNumber = i })">@i</a>
-                    </li>
-
-                    if (i < ViewBag.TotalPages - 1)
-                    {
-                        <li class="govuk-pagination__item">
-                            <a class="govuk-link govuk-pagination__link" aria-label="Page @(i+1)" aria-current="page" href="@Url.Action("SearchResults", new { PageNumber = (i+1) })">@(i + 1)</a>
-                        </li>
-                    }
-                }
-            }
-            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-            {
-                <li class="govuk-pagination__item govuk-pagination__item--ellipses">
-                    &ctdot;
-                </li>
-                <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="/Application/SearchResults?PageNumber=@ViewBag.TotalPages" aria-label="Page @ViewBag.TotalPages">
-                        @ViewBag.TotalPages
-                    </a>
-                </li>
-            }
-        </ul>
-        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-        {
-            <div class="govuk-pagination__next">
-                <a class="govuk-link govuk-pagination__link" href="@Url.Action("SearchResults", new { PageNumber = ViewBag.CurrentPage + 1 })" rel="next">
-                    <span class="govuk-pagination__link-title">
-                        Next<span class="govuk-visually-hidden"> page</span>
-                    </span>
-                    <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                        <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
-                    </svg>
-                </a>
-            </div>
-        }
-    </nav>
+    @Html.Partial("PaginationPartial", paginationModel)
 }
 else
 {

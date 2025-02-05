@@ -1,6 +1,8 @@
 ﻿@model Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary
 
 @{
+    ViewData["Title"] = "There is a problem";
+
     List<string> propertyOrder;
 
     if (Model.ContainsKey("FirstName"))

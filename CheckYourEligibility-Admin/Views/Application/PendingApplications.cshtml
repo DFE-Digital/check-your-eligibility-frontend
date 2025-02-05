@@ -21,6 +21,7 @@
         {"ReviewedEntitled", "Reviewed Entitled"},
         {"ReviewedNotEntitled", "Reviewed Not Entitled"}
     };
+    ViewData["Title"] = "Pending applications (" + @ViewBag.TotalRecords + ")";
     ViewData["Layout"] = "full";
 }
 
@@ -29,7 +30,7 @@
 
 <div class="moj-page-header-actions">
     <div class="moj-page-header-actions__title">
-        <h1 class="govuk-heading-l">Pending applications (@ViewBag.TotalRecords)</h1>
+        <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
     </div>
 </div>
 <details class="govuk-details">
@@ -46,57 +47,46 @@
 
 <div class="govuk-grid-row">
 
-            <div class="govuk-grid-column-full">
-                <table class="govuk-table">
-                    <thead class="govuk-table__head">
-                        <tr class="govuk-table__row">
-                            <th class="govuk-table__header" scope="col" id="select-all"></th>
-                            <th class="govuk-table__header" scope="col">Reference</th>
-                            <th class="govuk-table__header" scope="col">Parent / Guardian</th>
-                            <th class="govuk-table__header" scope="col">Parent date of birth</th>
-                            <th class="govuk-table__header" scope="col">Child</th>
-                            <th class="govuk-table__header" scope="col">School</th>
-                            <th class="govuk-table__header" scope="col">Submission date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var person in Model.People)
-                        {
-                            <tr>
-                                <td></td>
-                                <td class="govuk-table__cell">@Html.ActionLink(person.Person.Reference, person.DetailView, "application", new { id = person.Person.Id }, new { @class = "govuk-link" })</td>
-                                <td class="govuk-table__cell">@(@person.Person.ParentFirstName + " " + @person.Person.ParentLastName)</td>
-                                <td class="govuk-table__cell">@Convert.ToDateTime(person.Person.ParentDateOfBirth).ToString("dd MMM yyyy")</td>
-                                <td class="govuk-table__cell">@(@person.Person.ChildFirstName + " " + person.Person.ChildLastName)</td>
-                                <td class="govuk-table__cell">@(@person.Person.Establishment.Name)</td>
-                                <td class="govuk-table__cell">@person.Person.Created.ToString("dd MMM yyyy")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                <nav class="govuk-pagination" role="navigation" aria-label="results navigation">
-                    <ul class="govuk-pagination__list">
-                        @if (ViewBag.CurrentPage > 1)
-                        {
-                            <li class="govuk-pagination__item">
-                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("PendingApplications", new { PageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
-                            </li>
-                        }
-
-                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+    <div class="govuk-grid-column-full">
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header" scope="col" id="select-all"></th>
+                    <th class="govuk-table__header" scope="col">Reference</th>
+                    <th class="govuk-table__header" scope="col">Parent / Guardian</th>
+                    <th class="govuk-table__header" scope="col">Parent date of birth</th>
+                    <th class="govuk-table__header" scope="col">Child</th>
+                    <th class="govuk-table__header" scope="col">School</th>
+                    <th class="govuk-table__header" scope="col">Submission date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var person in Model.People)
                 {
-                    <li class="govuk-pagination__item @(ViewBag.CurrentPage == i ? "govuk-pagination__item--current" : "")">
-                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("PendingApplications", new { PageNumber = i })">@i</a>
-                    </li>
+                    <tr>
+                        <td></td>
+                        <td class="govuk-table__cell">@Html.ActionLink(person.Person.Reference, person.DetailView, "application", new { id = person.Person.Id }, new { @class = "govuk-link" })</td>
+                        <td class="govuk-table__cell">@(@person.Person.ParentFirstName + " " + @person.Person.ParentLastName)</td>
+                        <td class="govuk-table__cell">@Convert.ToDateTime(person.Person.ParentDateOfBirth).ToString("dd MMM yyyy")</td>
+                        <td class="govuk-table__cell">@(@person.Person.ChildFirstName + " " + person.Person.ChildLastName)</td>
+                        <td class="govuk-table__cell">@(@person.Person.Establishment.Name)</td>
+                        <td class="govuk-table__cell">@person.Person.Created.ToString("dd MMM yyyy")</td>
+                    </tr>
                 }
+            </tbody>
+        </table>
+        }
+        @{
+            var paginationModel = new PaginationPartialViewModel
+            {
+                CurrentPage = ViewBag.CurrentPage,
+                TotalPages = ViewBag.TotalPages,
+                RecordsPerPage = ViewBag.RecordsPerPage,
+                TotalRecords = ViewBag.TotalRecords,
+                ControllerName = "PendingApplications"
+            };
 
-                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-                {
-                    <li class="govuk-pagination__item">
-                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("PendingApplications", new { PageNumber = ViewBag.CurrentPage + 1 })">Next</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+            @Html.Partial("PaginationPartial", paginationModel)
+        }
     </div>
 </div>
