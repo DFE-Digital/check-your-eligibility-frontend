@@ -40,10 +40,11 @@
 <p>Include all children who are in compulsory education..</p>
 
 <form asp-controller="Check" asp-action="Enter_Child_Details" method="post" novalidate>
-   <input type="hidden" id="ChildIndex" />
+
 
     @for (int i = 0; i < Model.ChildList.Count; i++)
     {
+        <input type="hidden" asp-for="ChildList[i].ChildIndex" value="@(i + 1)" id="ChildIndex" />
         <div id="childNumber@(@i)">
         <fieldset class="govuk-fieldset moj-add-another__item">
             <legend class="govuk-fieldset__legend moj-add-another__title govuk-fieldset__legend--m">
@@ -64,7 +65,7 @@
                     <span asp-validation-for="ChildList[i].FirstName"></span>
                 </p>
                    
-                    @if (childIndex ==i)
+                    @if (childIndex == i)
                     {
                         <input asp-for="ChildList[i].FirstName" id="ChildList[@i].FirstName" class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" aria-label="First name" autofocus/>
                     } else 
@@ -96,13 +97,14 @@
                     <p class="govuk-error-message">
                         <span asp-validation-for="ChildList[i].School.URN"></span>
                     </p>
-                        <input id="school-search-@i"
+                        <input id="ChildList[@i].School"
                                class="noJsRemove govuk-search school-search govuk-input govuk-!-width-two-thirds @(ViewData.ModelState[$"ChildList[{@i}].School.URN"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
                                value="@(Model.ChildList[i].School != null && !String.IsNullOrEmpty(Model.ChildList[i].School.URN) ? string.Join(", ", new[] { Model.ChildList[i].School.Name, Model.ChildList[i].School.URN, Model.ChildList[i].School.Postcode, Model.ChildList[i].School.LA }) : "")"
                                type="text"
                                autocomplete="off"
                                aria-label="School Search" />
 
+                    <input hidden asp-for="ChildList[i].School.ChildIndex" id="ChildList[@i].School.ChildIndex" value="@(i + 1)" />
                     <input hidden asp-for="ChildList[i].School.Name" id="ChildList[@i].School.Name" />
                     
                     <label class="govuk-label govuk-!-font-weight-bold noJsShow" for="ChildList[@i].School.URN">

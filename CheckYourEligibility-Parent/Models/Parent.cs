@@ -15,7 +15,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         public string? LastName { get; set; }
 
         [NotMapped]
-        [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
+        [Dob("date of birth", "parent", null, "Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
         public string? DateOfBirth { get; set; }
 
         public string? Day { get; set; }
