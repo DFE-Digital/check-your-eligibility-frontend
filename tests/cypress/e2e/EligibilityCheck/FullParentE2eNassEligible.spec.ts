@@ -90,7 +90,6 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.get('[id="ChildList[0].FirstName"]').type('Tim');
         cy.get('[id="ChildList[0].LastName"]').type('Simpson');
 
-        // cy.get('[id="school-search-0"]').type('Hinde House 2-16 Academy');
         cy.get('[id="ChildList[0].School"]').type('Hinde House 2-16 Academy');
         
         cy.get('#schoolList0')

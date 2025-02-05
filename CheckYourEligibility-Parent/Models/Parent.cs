@@ -16,7 +16,6 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         [NotMapped]
         [Dob("date of birth", "parent", null, "Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
-        // [Dob("Day", "Month", "Year", isRequired: true, applyAgeRange: false)]
         public string? DateOfBirth { get; set; }
 
         public string? Day { get; set; }
