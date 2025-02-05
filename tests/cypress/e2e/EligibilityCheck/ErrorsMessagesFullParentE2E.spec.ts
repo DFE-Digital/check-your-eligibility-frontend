@@ -74,7 +74,7 @@ describe('After errors have been input initially a Parent with valid details can
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
         cy.get('[id="ChildList[0].LastName"]').type('Smith');
-        cy.get('[id="ChildList[0].School]').type('Hinde House 2-16 Academy');
+        cy.get('[id="ChildList[0].School"]').type('Hinde House 2-16 Academy');
 
         cy.get('#schoolList0', {timeout: 5000})
             .contains('Hinde House 2-16 Academy, 139856, S5 6AG, Sheffield')
