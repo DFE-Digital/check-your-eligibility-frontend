@@ -273,14 +273,17 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var updatedChildren = _addChildUseCase.Execute(request);
+                Children updatedChildren = _addChildUseCase.Execute(request);
 
                 TempData["IsChildAddOrRemove"] = true;
 
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
             }
-
             catch (MaxChildrenException e)
+            {
+                TempData["ChildList"] = request;
+            }
+            catch (Exception e)
             {
                 TempData["ChildList"] = request;
             }
