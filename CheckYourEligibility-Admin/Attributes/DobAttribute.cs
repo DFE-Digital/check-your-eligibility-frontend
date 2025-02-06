@@ -14,7 +14,6 @@ public class DobAttribute : ValidationAttribute
     private readonly string _monthPropertyName;
     private readonly string _yearPropertyName;
 
-
     public DobAttribute(string fieldName, string objectName, string? childIndexPropertyName, string dayPropertyName, string monthPropertyName, string yearPropertyName, bool isRequired = true, bool applyAgeRange = false, string? errorMessage = null) : base(errorMessage)
     {
         _fieldName = fieldName;
@@ -25,14 +24,13 @@ public class DobAttribute : ValidationAttribute
         _dayPropertyName = dayPropertyName;
         _monthPropertyName = monthPropertyName;
         _yearPropertyName = yearPropertyName;
-
     }
+
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
         var model = validationContext.ObjectInstance;
         int? childIndex = null;
 
-        // get the child index if it exists, this should return null only if the model is ParentGuardian
         if (model.GetType() == typeof(Child))
         {
             model = validationContext.ObjectInstance as Child;
@@ -44,135 +42,140 @@ public class DobAttribute : ValidationAttribute
         var yearString = GetPropertyStringValue(model, _yearPropertyName);
 
         bool allFieldsEmpty = string.IsNullOrEmpty(dayString) &&
-                              string.IsNullOrEmpty(monthString) &&
-                              string.IsNullOrEmpty(yearString);
+                            string.IsNullOrEmpty(monthString) &&
+                            string.IsNullOrEmpty(yearString);
 
         if (!_isRequired && allFieldsEmpty)
         {
             return ValidationResult.Success;
         }
 
-        var missingFields = new List<string> { "DateOfBirth" };
-        if (string.IsNullOrWhiteSpace(dayString)) missingFields.Add("Day");
-        if (string.IsNullOrWhiteSpace(monthString)) missingFields.Add("Month");
-        if (string.IsNullOrWhiteSpace(yearString)) missingFields.Add("Year");
+        // Collect all invalid fields for highlighting
+        var errorFields = new List<string>();
 
-        if (missingFields.Count == 4)
+        // Check for missing fields first
+        bool hasEmptyFields = false;
+        if (string.IsNullOrWhiteSpace(dayString)) { errorFields.Add("Day"); hasEmptyFields = true; }
+        if (string.IsNullOrWhiteSpace(monthString)) { errorFields.Add("Month"); hasEmptyFields = true; }
+        if (string.IsNullOrWhiteSpace(yearString)) { errorFields.Add("Year"); hasEmptyFields = true; }
+
+        // Check for invalid values even if some fields are empty
+        if (!string.IsNullOrWhiteSpace(yearString))
         {
-            if (childIndex != null)
+            if (int.TryParse(yearString, out int yearInt))
             {
-                return new ValidationResult($"Enter a {_fieldName} for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });
-            }
-            else
-            {
-                return new ValidationResult($"Enter a {_fieldName}", new[] { "DateOfBirth", "Day", "Month", "Year" });
-            }
-        }
-
-        if (missingFields.Count > 1)
-        {
-            if (childIndex != null)
-            {
-                return new ValidationResult($"Enter a complete {_fieldName} for {_objectName} {childIndex}", missingFields.ToArray());
-            }
-            else
-            {
-                return new ValidationResult($"Enter a complete {_fieldName}", missingFields.ToArray());
-            }
-                
-        }
-
-        // Check numeric input and ranges
-        var invalidFields = new List<string> { "DateOfBirth" };
-
-        bool isDayInvalid = !int.TryParse(dayString, out int dayInt) || dayInt < 1 || dayInt > 31;
-        if (isDayInvalid) invalidFields.Add("Day");
-
-        bool isMonthInvalid = !int.TryParse(monthString, out int monthInt) || monthInt < 1 || monthInt > 12;
-        if (isMonthInvalid) invalidFields.Add("Month");
-
-        bool isYearInvalid = !int.TryParse(yearString, out int yearInt) || yearInt < 1900;
-        if (isYearInvalid) invalidFields.Add("Year");
-
-        // Handle non-numeric inputs
-        if (!int.TryParse(dayString, out _) || !int.TryParse(monthString, out _) || !int.TryParse(yearString, out _))
-        {
-            if (childIndex != null)
-            {
-                return new ValidationResult($"Enter a {_fieldName} using numbers only for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });
-            }
-            else
-            {
-                return new ValidationResult($"Enter a {_fieldName} using numbers only", new[] { "DateOfBirth", "Day", "Month", "Year" });
-            }
-        }
-
-        // Handle invalid fields
-        if (invalidFields.Count > 1)
-        {
-            if (childIndex != null)
-            {
-                return new ValidationResult($"Enter a valid date for {_objectName} {childIndex}", invalidFields.ToArray());
-            }
-            else
-            {
-                return new ValidationResult($"Enter a valid date for", invalidFields.ToArray());
-            }
-        }
-
-        try
-        {
-            var dob = new DateTime(yearInt, monthInt, dayInt);
-
-            if (dob > DateTime.Now)
-            {
-                if (childIndex != null)
+                if (yearInt < 1900)
                 {
-                    return new ValidationResult($"Enter a date in the past for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });
-                }
-                else
-                {
-                    return new ValidationResult($"Enter a date in the past", new[] { "DateOfBirth", "Day", "Month", "Year" });
+                    if (!errorFields.Contains("Year")) errorFields.Add("Year");
                 }
             }
-
-            if (dayInt > DateTime.DaysInMonth(yearInt, monthInt))
+            else if (!errorFields.Contains("Year"))
             {
-                if (childIndex != null)
-                {
-                    return new ValidationResult($"Enter a valid day for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day" });
-                }
-                else
-                {
-                    return new ValidationResult($"Enter a valid day", new[] { "DateOfBirth", "Day" });
-                }
-            }
-
-            if (_applyAgeRange)
-            {
-                int age = CalculateAge(dob, DateTime.Now);
-
-                if (age < 4 || age > 19)
-                {
-
-                    return new ValidationResult($"Enter an age between 4 and 19 for {_objectName} {childIndex}", new[] { "DateOfBirth", "Day", "Month", "Year" });   
-                }
+                errorFields.Add("Year");
             }
         }
-        catch
+
+        if (!string.IsNullOrWhiteSpace(monthString))
         {
-            if (childIndex != null)
+            if (int.TryParse(monthString, out int monthInt))
             {
-                return new ValidationResult($"Enter a valid {_fieldName} for child {childIndex}");
+                if (monthInt < 1 || monthInt > 12)
+                {
+                    if (!errorFields.Contains("Month")) errorFields.Add("Month");
+                }
             }
-            else
+            else if (!errorFields.Contains("Month"))
             {
-                return new ValidationResult($"Enter a valid {_fieldName}");
+                errorFields.Add("Month");
             }
         }
-        return ValidationResult.Success;
+
+        if (!string.IsNullOrWhiteSpace(dayString))
+        {
+            if (int.TryParse(dayString, out int dayInt))
+            {
+                if (dayInt < 1 || dayInt > 31)
+                {
+                    if (!errorFields.Contains("Day")) errorFields.Add("Day");
+                }
+            }
+            else if (!errorFields.Contains("Day"))
+            {
+                errorFields.Add("Day");
+            }
+        }
+
+        // Always add DateOfBirth to error fields if we have any errors
+        if (errorFields.Any() && !errorFields.Contains("DateOfBirth"))
+        {
+            errorFields.Insert(0, "DateOfBirth");
+        }
+
+        // Determine the appropriate error message while maintaining all error fields
+        string message;
+        if (hasEmptyFields)
+        {
+            if (errorFields.Count == 2) // One field missing (plus DateOfBirth)
+            {
+                string missingField = errorFields[1]; // [0] is DateOfBirth
+                message = $"Date of birth must include a {missingField.ToLower()}";
+            }
+            else if (errorFields.Count == 4) // All fields missing
+            {
+                message = childIndex != null
+                    ? $"Enter a {_fieldName} for {_objectName} {childIndex}"
+                    : $"Enter a {_fieldName}";
+            }
+            else // Multiple but not all fields missing
+            {
+                message = $"Enter a complete date of birth";
+            }
+        }
+        else if (errorFields.Any())
+        {
+            message = "Date of birth must be a real date";
+        }
+        else
+        {
+            try
+            {
+                int yearInt = int.Parse(yearString);
+                int monthInt = int.Parse(monthString);
+                int dayInt = int.Parse(dayString);
+
+                var dob = new DateTime(yearInt, monthInt, dayInt);
+
+                if (dob > DateTime.Now)
+                {
+                    return new ValidationResult(
+                        childIndex != null ? $"Enter a date in the past for {_objectName} {childIndex}" : $"Enter a date in the past",
+                        new[] { "DateOfBirth", "Day", "Month", "Year" });
+                }
+
+                if (_applyAgeRange)
+                {
+                    int age = CalculateAge(dob, DateTime.Now);
+                    if (age < 4 || age > 19)
+                    {
+                        return new ValidationResult(
+                            $"Enter an age between 4 and 19 for {_objectName} {childIndex}",
+                            new[] { "DateOfBirth", "Day", "Month", "Year" });
+                    }
+                }
+
+                return ValidationResult.Success;
+            }
+            catch
+            {
+                message = "Date of birth must be a real date";
+                if (!errorFields.Contains("Day")) errorFields.Add("Day");
+                if (!errorFields.Contains("Month")) errorFields.Add("Month");
+                if (!errorFields.Contains("Year")) errorFields.Add("Year");
+            }
+        }
+
+        return new ValidationResult(message, errorFields);
     }
-
 
     private string GetPropertyStringValue(object model, string propertyName)
     {
@@ -183,7 +186,6 @@ public class DobAttribute : ValidationAttribute
     {
         return model.GetType().GetProperty(propertyName)?.GetValue(model) as int?;
     }
-
 
     private int CalculateAge(DateTime birthDate, DateTime now)
     {

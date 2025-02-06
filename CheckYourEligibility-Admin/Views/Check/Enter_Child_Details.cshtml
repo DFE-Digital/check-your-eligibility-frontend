@@ -6,6 +6,40 @@
     var childIndex = TempData["childIndex"] as int?;
 }
 
+@* Debug information block *@
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="debug-info" style="background: #f5f5f5; padding: 10px; margin: 10px; border: 1px solid #ddd;">
+        <h4>ModelState Debug Information:</h4>
+        @foreach (var modelStateEntry in ViewData.ModelState)
+        {
+            <div style="margin-bottom: 10px;">
+                <strong>Key:</strong> @modelStateEntry.Key
+                <br />
+                <strong>Errors:</strong>
+                @if (modelStateEntry.Value.Errors.Any())
+                {
+                    <ul>
+                        @foreach (var error in modelStateEntry.Value.Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span>No errors</span>
+                }
+                <strong>Raw Value:</strong> @modelStateEntry.Value.RawValue
+                <br />
+                <strong>Attempted Value:</strong> @modelStateEntry.Value.AttemptedValue
+                <br />
+                <strong>Validation State:</strong> @modelStateEntry.Value.ValidationState
+            </div>
+        }
+    </div>
+}
+
 @* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a>*@
 <a class="govuk-back-link-nolink"></a>
 
@@ -122,6 +156,5 @@
         </button>
     </div>
 </form>
-
 
 <script src="/js/validationSummary.js"></script>
