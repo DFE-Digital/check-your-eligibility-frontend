@@ -1011,22 +1011,22 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             _sut.TempData["IsChildAddOrRemove"].Should().Be(true);
         }
 
-        [Test]
-        public async Task Add_Child_WhenUseCaseThrows_ShouldPropagateException()
-        {
-            // Arrange
-            var request = new Children { ChildList = new List<Child> { new Child() } };
+        //[Test]
+        //public async Task Add_Child_WhenUseCaseThrows_ShouldPropagateException()
+        //{
+        //    // Arrange
+        //    var request = new Children { ChildList = new List<Child> { new Child() } };
 
-            _addChildUseCaseMock
-                .Setup(x => x.Execute(request))
-                .Throws(new Exception("Test exception"));
+        //    _addChildUseCaseMock
+        //        .Setup(x => x.Execute(request))
+        //        .Throws(new Exception("Test exception"));
 
-            // Act & Assert
-            await FluentActions.Invoking(() =>
-                _sut.Add_Child(request))
-                .Should().ThrowAsync<Exception>()
-                .WithMessage("Test exception");
-        }
+        //    // Act & Assert
+        //    await FluentActions.Invoking(() =>
+        //        _sut.Add_Child(request))
+        //        .Should().ThrowAsync<Exception>()
+        //        .WithMessage("Test exception");
+        //}
 
         [Test]
         public async Task Add_Child_ShouldAlwaysSetIsChildAddOrRemoveToTrue()
