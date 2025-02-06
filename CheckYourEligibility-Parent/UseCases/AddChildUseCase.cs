@@ -7,7 +7,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IAddChildUseCase
     {
-        Task<Children> Execute(Children request);
+        Children Execute(Children request);
     }
     
     [Serializable]
@@ -30,7 +30,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _configuration = configuration;
         }
 
-        public Task<Children> Execute(Children request)
+        public Children Execute(Children request)
         {
             if (request.ChildList.Count >= _configuration.GetValue<int>("MaxChildren"))
             {
@@ -41,7 +41,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
                 );
 
             _logger.LogInformation("Successfully added new child. Total children: {Count}", request.ChildList.Count);
-            return Task.FromResult(request);    
+            return request;
         }
     }
 }

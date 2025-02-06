@@ -273,7 +273,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var updatedChildren = await _addChildUseCase.Execute(request);
+                var updatedChildren = _addChildUseCase.Execute(request);
 
                 TempData["IsChildAddOrRemove"] = true;
 

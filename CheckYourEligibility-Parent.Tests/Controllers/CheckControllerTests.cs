@@ -332,7 +332,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<Children>()))
-                .ReturnsAsync((new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
+                .Returns((new Children { ChildList = new List<Child>(_children.ChildList) { new Child() } }));
 
             _removeChildUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<Children>(), It.IsAny<int>()))
@@ -750,7 +750,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.Execute(request))
-                .ReturnsAsync(updatedChildren);
+                .Returns(updatedChildren);
 
             // Act
             var result = await _sut.Add_Child(request);
@@ -1000,7 +1000,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.Execute(request))
-                .ReturnsAsync(request);
+                .Returns(request);
 
             // Act
             var result = await _sut.Add_Child(request);
@@ -1019,7 +1019,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.Execute(request))
-                .ThrowsAsync(new Exception("Test exception"));
+                .Throws(new Exception("Test exception"));
 
             // Act & Assert
             await FluentActions.Invoking(() =>
@@ -1040,7 +1040,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.Execute(request))
-                .ReturnsAsync(updatedChildren);
+                .Returns(updatedChildren);
 
             // Act
             await _sut.Add_Child(request);
@@ -1061,7 +1061,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _addChildUseCaseMock
                 .Setup(x => x.Execute(request))
-                .ReturnsAsync(updatedChildren);
+                .Returns(updatedChildren);
 
             // Act
             await _sut.Add_Child(request);
