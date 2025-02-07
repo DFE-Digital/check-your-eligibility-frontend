@@ -49,11 +49,11 @@ describe('Full journey of creating an application through school portal through 
 
             cy.get('h1').should('include.text', 'Check your answers before submitting');
 
-            cy.CheckValuesInSummaryCard('Parent or guardian details','Name', `${parentFirstName} ${parentLastName}`);
-            cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '1990-01-01');
-            cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', NIN);
-            cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', parentEmailAddress);
-            cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1990-01-01');
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', NIN);
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
+            cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);
             cy.contains('button', 'Add details').click();
 
             cy.url().should('include', '/Check/AppealsRegistered');
@@ -67,7 +67,6 @@ describe('Full journey of creating an application through school portal through 
                     referenceNumber = text;
                     cy.log(text);
 
-                    cy.writeFile('cypress/fixtures/reference.txt', text)
                 });
 
             cy.then(() => {
@@ -122,11 +121,11 @@ describe('Full journey of creating an application through school portal through 
 
             cy.get('h1').should('include.text', 'Check your answers before submitting');
 
-            cy.CheckValuesInSummaryCard('Parent or guardian details','Name', `${parentFirstName} ${parentLastName}`);
-            cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '1990-01-01');
-            cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', "NN123456C");
-            cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', parentEmailAddress);
-            cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1990-01-01');
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', "NN123456C");
+            cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
+            cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);
             cy.contains('button', 'Add details').click();
 
             cy.url().should('include', '/Check/ApplicationsRegistered');
@@ -147,13 +146,7 @@ describe('Full journey of creating an application through school portal through 
 
             cy.contains('.govuk-link', 'Pending applications').click();
             cy.url().should('contain', 'Application/PendingApplications');
-            cy.readFile('cypress/fixtures/reference.txt').then((ref) => {
-                referenceNumber = ref;
-                cy.log(ref);
-            });
-            cy.wait(100);
-            cy.log(referenceNumber);
-            cy.log("WARNING");
+
             cy.scanPagesForValue(referenceNumber);
 
             cy.contains('.govuk-button', 'Approve application').click();
@@ -197,21 +190,17 @@ describe('Full journey of creating an application through school portal through 
         })
         it('Allows a user when back logged into the School portal to finalise the application', () => {
             cy.visit(Cypress.config().baseUrl ?? "");
-          
+
             cy.contains('Finalise applications').click();
             cy.url().should('contain', 'Application/FinaliseApplications');
-            
-            cy.readFile('cypress/fixtures/reference.txt').then((ref) => {
-              const referenceNumber = ref;
-              cy.log(ref);
-          
-              // Call the custom command and ensure it completes before proceeding
-              cy.findApplicationFinalise(referenceNumber).then(() => {
+
+            // Call the custom command and ensure it completes before proceeding
+            cy.findApplicationFinalise(referenceNumber).then(() => {
                 cy.contains('.govuk-button', 'Finalise applications').click();
                 cy.contains('.govuk-button', 'Yes, finalise now').click();
-              });
             });
-          });
-          
+
+        });
+
     });
 });
