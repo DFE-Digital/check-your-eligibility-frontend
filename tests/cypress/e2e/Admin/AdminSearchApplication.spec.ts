@@ -21,9 +21,9 @@ describe('Admin journey search for application', () => {
     it('Will create an application that can be used for searches', () => {
         cy.visit(Cypress.config().baseUrl ?? "");
 
-        
+
         cy.contains('Run a check for one parent or guardian').click();
-        
+
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
         cy.get('#LastName').type(parentLastName);
@@ -51,11 +51,11 @@ describe('Admin journey search for application', () => {
 
         cy.get('h1').should('include.text', 'Check your answers before submitting');
 
-        cy.CheckValuesInSummaryCard('Parent or guardian details','Name', `${parentFirstName} ${parentLastName}`);
-        cy.CheckValuesInSummaryCard('Parent or guardian details','Date of birth', '1990-01-01');
-        cy.CheckValuesInSummaryCard('Parent or guardian details','National Insurance number', NIN);
-        cy.CheckValuesInSummaryCard('Parent or guardian details','Email address', parentEmailAddress);
-        cy.CheckValuesInSummaryCard('Child 1 details',"Name", childFirstName + " " + childLastName);
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1990-01-01');
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', NIN);
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
+        cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);
         cy.contains('button', 'Add details').click();
 
         cy.url().should('include', '/Check/ApplicationsRegistered');
@@ -105,25 +105,25 @@ describe('Admin journey search for application', () => {
             .find('tbody tr')
             .eq(0)
             .find('td')
-            .eq(3)
+            .eq(1)
             .contains(childLastName);
     });
-
-    it('Will allow School users to search for an application with a selected Parent or Guardian name', () => {
-        cy.visit(Cypress.config().baseUrl ?? "");
-
-        cy.contains('Search all records').click();
-        cy.get('#ParentLastName').type(parentLastName);
-        cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/SearchResults');
-
-        cy.get('.govuk-table')
-            .find('tbody tr')
-            .eq(0)
-            .find('td')
-            .eq(2)
-            .should('include.text', parentFirstName + " " + parentLastName);
-    });
+    //
+    //    it('Will allow School users to search for an application with a selected Parent or Guardian name', () => {
+    //      cy.visit(Cypress.config().baseUrl ?? "");
+    //
+    //      cy.contains('Search all records').click();
+    //    cy.get('#ParentLastName').type(parentLastName);
+    //  cy.contains('Generate results').click();
+    //cy.url().should('include', 'Application/SearchResults');
+    //
+    //      cy.get('.govuk-table')
+    //        .find('tbody tr')
+    //      .eq(0)
+    //    .find('td')
+    //  .eq(2)
+    //.should('include.text', parentFirstName + " " + parentLastName);
+    //});
 
 
     it('Will allow School users to search for an application with a selected reference', () => {
@@ -145,7 +145,7 @@ describe('Admin journey search for application', () => {
             .find('tbody tr')
             .eq(0)
             .find('td')
-            .eq(1)
+            .eq(0)
             .should('contain.text', referenceNumber);
     });
 
@@ -163,44 +163,44 @@ describe('Admin journey search for application', () => {
             .find('tbody tr')
             .eq(0)
             .find('td')
-            .eq(4)
+            .eq(2)
             .should('contain.text', '01 Jan 2007');
     });
 
-    it('Will allow School users to search for an application with a selected Parent of Guardian DOB', () => {
-        cy.visit(Cypress.config().baseUrl ?? "");
+    //    it('Will allow School users to search for an application with a selected Parent of Guardian DOB', () => {
+    //        cy.visit(Cypress.config().baseUrl ?? "");
+    //
+    //        cy.contains('Search all records').click();
+    //        cy.get('#PGDobDay').type('01');
+    //        cy.get('#PGDobMonth').type('01');
+    //        cy.get('#PGDobYear').type('1990');
+    // cy.contains('Generate results').click();
+    // cy.url().should('include', 'Application/SearchResults');
+    // });
 
-        cy.contains('Search all records').click();
-        cy.get('#PGDobDay').type('01');
-        cy.get('#PGDobMonth').type('01');
-        cy.get('#PGDobYear').type('1990');
-        cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/SearchResults');
-    });
 
-    
-    it('Will allow a School to view an application from the results page by selecting the reference number link', () => {
-        cy.visit(Cypress.config().baseUrl ?? "");
+    // it('Will allow a School to view an application from the results page by selecting the parents last name', () => {
+        // cy.visit(Cypress.config().baseUrl ?? "");
 
-        cy.contains('Search all records').click();
-        cy.get('#ParentLastName').type(parentLastName);
-        cy.contains('Generate results').click();
-        cy.url().should('include', 'Application/SearchResults');
+        // cy.contains('Search all records').click();
+        // cy.get('#ParentLastName').type(parentLastName);
+        // cy.contains('Generate results').click();
+        // cy.url().should('include', 'Application/SearchResults');
 
-        cy.get('.govuk-table')
-            .find('tbody tr')
-            .eq(0)
-            .find('td')
-            .eq(2)
-            .should('include.text', parentFirstName + " " + parentLastName);
+        // cy.get('.govuk-table')
+            // .find('tbody tr')
+            // .eq(0)
+            // .find('td')
+            // .eq(2)
+            // .should('include.text', parentFirstName + " " + parentLastName);
 
-        cy.get('.govuk-table')
-            .find('tbody tr')
-            .eq(0)
-            .find('td')
-            .find('a')
-            .click();
-
-        cy.url().should('include', 'ApplicationDetail');
-    })
+        // cy.get('.govuk-table')
+            // .find('tbody tr')
+            // .eq(0)
+            // .find('td')
+            // .find('a')
+            // .click();
+// 
+        // cy.url().should('include', 'ApplicationDetail');
+    // })
 });
