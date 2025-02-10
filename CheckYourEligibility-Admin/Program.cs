@@ -27,6 +27,7 @@ builder.Services.AddScoped<IAdminProcessChildDetailsUseCase, AdminProcessChildDe
 builder.Services.AddScoped<IAdminProcessParentDetailsUseCase, AdminProcessParentDetailsUseCase>();
 builder.Services.AddScoped<IAdminRegistrationResponseUseCase, AdminRegistrationResponseUseCase>();
 builder.Services.AddScoped<IAdminRemoveChildUseCase, AdminRemoveChildUseCase>();
+builder.Services.AddScoped<IAdminApplicationsRegisteredUseCase, AdminApplicationsRegisteredUseCase>();
 
 builder.Services.AddSession();
 

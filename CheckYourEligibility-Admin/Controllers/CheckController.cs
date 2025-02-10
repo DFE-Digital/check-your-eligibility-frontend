@@ -26,6 +26,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IAdminRemoveChildUseCase _adminRemoveChildUseCase;
         private readonly IAdminChangeChildDetailsUseCase _adminChangeChildDetailsUseCase;
         private readonly IAdminRegistrationResponseUseCase _adminRegistrationResponseUseCase;
+        private readonly IAdminApplicationsRegisteredUseCase _adminApplicationsRegisteredUseCase;
 
         public CheckController(
             ILogger<CheckController> logger,
@@ -40,7 +41,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             IAdminAddChildUseCase adminAddChildUseCase,
             IAdminRemoveChildUseCase adminRemoveChildUseCase,
             IAdminChangeChildDetailsUseCase adminChangeChildDetailsUseCase,
-            IAdminRegistrationResponseUseCase adminRegistrationResponseUseCase)
+            IAdminRegistrationResponseUseCase adminRegistrationResponseUseCase,
+            IAdminApplicationsRegisteredUseCase adminApplicationsRegisteredUseCase)
         {
             _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,6 +57,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _adminRemoveChildUseCase = adminRemoveChildUseCase ?? throw new ArgumentNullException(nameof(adminRemoveChildUseCase));
             _adminChangeChildDetailsUseCase = adminChangeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminChangeChildDetailsUseCase));
             _adminRegistrationResponseUseCase = adminRegistrationResponseUseCase ?? throw new ArgumentNullException(nameof(adminRegistrationResponseUseCase));
+            _adminApplicationsRegisteredUseCase = adminApplicationsRegisteredUseCase ?? throw new ArgumentNullException(nameof(adminApplicationsRegisteredUseCase));
         }
 
         [HttpGet]
@@ -267,44 +270,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                // Retrieve and log the raw JSON from TempData
                 var applicationJson = TempData["confirmationApplication"]?.ToString();
-                _logger.LogInformation("confirmationApplication JSON: {json}", applicationJson);
+                var result = await _adminApplicationsRegisteredUseCase.Execute(applicationJson);
 
-                // Check if the JSON is null or empty
-                if (string.IsNullOrEmpty(applicationJson))
+                if (!result.IsSuccess)
                 {
-                    _logger.LogWarning("TempData[\"confirmationApplication\"] is null or empty.");
-                    return View("Outcome/Technical_Error");
-                }
-
-                // Deserialize the JSON and log if it fails (i.e. returns null)
-                var viewModel = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(applicationJson);
-                if (viewModel == null)
-                {
-                    _logger.LogWarning("Deserialization returned null for confirmationApplication.");
-                    return View("Outcome/Technical_Error");
-                }
-
-                // Validate key properties of the view model
-                if (string.IsNullOrEmpty(viewModel.ParentName))
-                {
-                    _logger.LogWarning("viewModel.ParentName is null or empty.");
-                }
-                if (viewModel.Children == null)
-                {
-                    _logger.LogWarning("viewModel.Children is null. Initializing to an empty list.");
-                    viewModel.Children = new List<Child>();
+                    return View(result.ErrorViewName);
                 }
 
                 // Preserve the TempData if it might be needed later
                 TempData.Keep("confirmationApplication");
-
-                return View("ApplicationsRegistered", viewModel);
+                return View("ApplicationsRegistered", result.ViewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in ApplicationsRegistered action");
+                _logger.LogError(ex, "Error in admin ApplicationsRegistered action");
                 return View("Outcome/Technical_Error");
             }
         }

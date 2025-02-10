@@ -36,6 +36,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         private Mock<IAdminRemoveChildUseCase> _adminRemoveChildUseCaseMock;
         private Mock<IAdminChangeChildDetailsUseCase> _adminChangeChildDetailsUseCaseMock;
         private Mock<IAdminRegistrationResponseUseCase> _adminRegistrationResponseUseCaseMock;
+        private Mock<IAdminApplicationsRegisteredUseCase> _adminApplicationsRegisteredUseCaseMock;
         private Mock<HttpContext> _httpContextMock;
         private Mock<ISession> _sessionMock;
         private ITempDataDictionary _tempData;
@@ -67,6 +68,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _adminRemoveChildUseCaseMock = new Mock<IAdminRemoveChildUseCase>();
             _adminChangeChildDetailsUseCaseMock = new Mock<IAdminChangeChildDetailsUseCase>();
             _adminRegistrationResponseUseCaseMock = new Mock<IAdminRegistrationResponseUseCase>();
+            _adminApplicationsRegisteredUseCaseMock = new Mock<IAdminApplicationsRegisteredUseCase>();
         }
 
         private void SetupController()
@@ -84,7 +86,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 _adminAddChildUseCaseMock.Object,
                 _adminRemoveChildUseCaseMock.Object,
                 _adminChangeChildDetailsUseCaseMock.Object,
-                _adminRegistrationResponseUseCaseMock.Object
+                _adminRegistrationResponseUseCaseMock.Object,
+                _adminApplicationsRegisteredUseCaseMock.Object
             );
         }
 
@@ -125,6 +128,36 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             _disposed = true;
         }
+
+        [Test]
+        public async Task ApplicationsRegistered_WhenSuccessful_ReturnsCorrectViewAndPreservesTempData()
+        {
+            // Arrange
+            var viewModel = _fixture.Create<ApplicationConfirmationEntitledViewModel>();
+            var applicationJson = JsonConvert.SerializeObject(viewModel);
+            _tempData["confirmationApplication"] = applicationJson;
+
+            var result = new AdminApplicationsRegisteredResult
+            {
+                IsSuccess = true,
+                ViewModel = viewModel
+            };
+
+            _adminApplicationsRegisteredUseCaseMock
+                .Setup(x => x.Execute(applicationJson))
+                .ReturnsAsync(result);
+
+            // Act
+            var actionResult = await _sut.ApplicationsRegistered();
+
+            // Assert
+            var viewResult = actionResult as ViewResult;
+            viewResult.Should().NotBeNull();
+            viewResult.ViewName.Should().Be("ApplicationsRegistered");
+            viewResult.Model.Should().BeEquivalentTo(viewModel);
+            _tempData.Keys.Should().Contain("confirmationApplication");
+        }
+
 
         [Test]
         public async Task Enter_Details_Get_WhenSuccessful_ShouldReturnView()
