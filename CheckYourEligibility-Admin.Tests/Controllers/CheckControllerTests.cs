@@ -1,522 +1,179 @@
 ﻿using AutoFixture;
 using CheckYourEligibility.Domain.Enums;
-using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
-using CheckYourEligibility.TestBase;
+using CheckYourEligibility_DfeSignIn;
+using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
 using CheckYourEligibility_FrontEnd.ViewModels;
-using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using System.Security.Claims;
-using Child = CheckYourEligibility_FrontEnd.Models.Child;
-using School = CheckYourEligibility_FrontEnd.Models.School;
 
 namespace CheckYourEligibility_Admin.Tests.Controllers
 {
     [TestFixture]
-    public class CheckControllerTests : TestBase
+    public class CheckControllerTests : IDisposable
     {
-        // mocks
-        private ILogger<CheckController> _loggerMock;
+        private Mock<ILogger<CheckController>> _loggerMock;
         private Mock<IEcsServiceParent> _parentServiceMock;
         private Mock<IEcsCheckService> _checkServiceMock;
-
-        // system under test
+        private Mock<IConfiguration> _configMock;
+        private Mock<IAdminLoadParentDetailsUseCase> _adminLoadParentDetailsUseCaseMock;
+        private Mock<IAdminProcessParentDetailsUseCase> _adminProcessParentDetailsUseCaseMock;
+        private Mock<IAdminLoaderUseCase> _adminLoaderUseCaseMock;
+        private Mock<IAdminEnterChildDetailsUseCase> _adminEnterChildDetailsUseCaseMock;
+        private Mock<IAdminProcessChildDetailsUseCase> _adminProcessChildDetailsUseCaseMock;
+        private Mock<IAdminAddChildUseCase> _adminAddChildUseCaseMock;
+        private Mock<IAdminRemoveChildUseCase> _adminRemoveChildUseCaseMock;
+        private Mock<IAdminChangeChildDetailsUseCase> _adminChangeChildDetailsUseCaseMock;
+        private Mock<IAdminRegistrationResponseUseCase> _adminRegistrationResponseUseCaseMock;
+        private Mock<HttpContext> _httpContextMock;
+        private Mock<ISession> _sessionMock;
+        private ITempDataDictionary _tempData;
+        private Fixture _fixture;
         private CheckController _sut;
+        private bool _disposed;
 
         [SetUp]
         public void SetUp()
         {
+            _fixture = new Fixture();
+            SetupMocks();
+            SetupController();
+            SetupSessionAndTempData();
+        }
+
+        private void SetupMocks()
+        {
+            _loggerMock = new Mock<ILogger<CheckController>>();
             _parentServiceMock = new Mock<IEcsServiceParent>();
             _checkServiceMock = new Mock<IEcsCheckService>();
-            _loggerMock = Mock.Of<ILogger<CheckController>>();
+            _configMock = new Mock<IConfiguration>();
+            _adminLoadParentDetailsUseCaseMock = new Mock<IAdminLoadParentDetailsUseCase>();
+            _adminProcessParentDetailsUseCaseMock = new Mock<IAdminProcessParentDetailsUseCase>();
+            _adminLoaderUseCaseMock = new Mock<IAdminLoaderUseCase>();
+            _adminEnterChildDetailsUseCaseMock = new Mock<IAdminEnterChildDetailsUseCase>();
+            _adminProcessChildDetailsUseCaseMock = new Mock<IAdminProcessChildDetailsUseCase>();
+            _adminAddChildUseCaseMock = new Mock<IAdminAddChildUseCase>();
+            _adminRemoveChildUseCaseMock = new Mock<IAdminRemoveChildUseCase>();
+            _adminChangeChildDetailsUseCaseMock = new Mock<IAdminChangeChildDetailsUseCase>();
+            _adminRegistrationResponseUseCaseMock = new Mock<IAdminRegistrationResponseUseCase>();
+        }
 
-            _sut = new CheckController(_loggerMock, _parentServiceMock.Object, _checkServiceMock.Object, _configMock.Object);
+        private void SetupController()
+        {
+            _sut = new CheckController(
+                _loggerMock.Object,
+                _parentServiceMock.Object,
+                _checkServiceMock.Object,
+                _configMock.Object,
+                _adminLoadParentDetailsUseCaseMock.Object,
+                _adminProcessParentDetailsUseCaseMock.Object,
+                _adminLoaderUseCaseMock.Object,
+                _adminEnterChildDetailsUseCaseMock.Object,
+                _adminProcessChildDetailsUseCaseMock.Object,
+                _adminAddChildUseCaseMock.Object,
+                _adminRemoveChildUseCaseMock.Object,
+                _adminChangeChildDetailsUseCaseMock.Object,
+                _adminRegistrationResponseUseCaseMock.Object
+            );
+        }
 
-            base.SetUp();
+        private void SetupSessionAndTempData()
+        {
+            _httpContextMock = new Mock<HttpContext>();
+            _sessionMock = new Mock<ISession>();
+            _httpContextMock.Setup(x => x.Session).Returns(_sessionMock.Object);
 
+            var httpContext = new DefaultHttpContext();
+            var tempDataProvider = Mock.Of<ITempDataProvider>();
+            var tempDataDictionaryFactory = new TempDataDictionaryFactory(tempDataProvider);
+            _tempData = tempDataDictionaryFactory.GetTempData(httpContext);
             _sut.TempData = _tempData;
-            _sut.ControllerContext.HttpContext = _httpContext.Object;
+            _sut.ControllerContext = new ControllerContext
+            {
+                HttpContext = _httpContextMock.Object
+            };
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
-            _sut.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _sut = null;
+                _fixture = null;
+                _tempData = null;
+            }
+
+            _disposed = true;
         }
 
         [Test]
-        public void Given_Enter_Details_Should_Load_EnterDetailsPage()
+        public async Task Enter_Details_Get_WhenSuccessful_ShouldReturnView()
         {
+            // Arrange
+            var parent = _fixture.Create<ParentGuardian>();
+            var validationErrors = new Dictionary<string, List<string>>();
+
+            _adminLoadParentDetailsUseCaseMock
+                .Setup(x => x.Execute(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((parent, validationErrors));
+
             // Act
-            var result = _sut.Enter_Details();
+            var result = await _sut.Enter_Details();
 
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.Model.Should().BeNull();
+            viewResult.Model.Should().BeEquivalentTo(parent);
         }
 
         [Test]
-        [TestCase(false, "AB123456C", null)]
-        [TestCase(true, null, "2407001")]
-        public void Given_Enter_Details_When_ModelState_Is_NotValid_Should_SetTempData_And_LoadEnter_DetailsPage(bool isNassSelected, string? nino, string? nass)
-        {
-            // Arrange
-            _sut.ModelState.AddModelError("Error Key", "Error Message");
-
-            var request = _fixture.Create<ParentGuardian>();
-            request.NationalInsuranceNumber = nino;
-            request.NationalAsylumSeekerServiceNumber = nass;
-            request.NinAsrSelection = ParentGuardian.NinAsrSelect.NinSelected;
-            request.Day = "1";
-            request.Month = "1";
-            request.Year = "1990";
-
-            // Act
-            var result = _sut.Enter_Details(request);
-
-            // Assert
-            var actionResult = result.Result as RedirectToActionResult;
-            actionResult.ActionName.Should().Be("Enter_Details");
-
-            var parentDetails = _sut.TempData["ParentDetails"] as string;
-            var errors = _sut.TempData["Errors"] as string;
-
-            parentDetails.Should().NotBeNull();
-            errors.Should().NotBeNull();
-        }
-
-        [Test]
-        [TestCase(ParentGuardian.NinAsrSelect.NinSelected, "AB123456C", null)]
-        [TestCase(ParentGuardian.NinAsrSelect.AsrnSelected, null, "2407001")]
-        public void Given_Enter_Details_When_ModelState_IsValid_Should_SetSessionData_CreateEligibilityRequest_And_LoadLoaderPage(ParentGuardian.NinAsrSelect NINAS, string? nino, string? nass)
+        public async Task Enter_Details_Post_WhenModelStateInvalid_ShouldRedirectWithErrors()
         {
             // Arrange
             var request = _fixture.Create<ParentGuardian>();
-            request.NationalInsuranceNumber = nino;
-            request.NationalAsylumSeekerServiceNumber = nass;
-            request.NinAsrSelection = NINAS;
-            request.Day = "01";
-            request.Month = "01";
-            request.Year = "1990";
-
-            var response = _fixture.Create<CheckEligibilityResponse>();
-            _checkServiceMock.Setup(x => x.PostCheck(It.IsAny<CheckEligibilityRequest_Fsm>())).ReturnsAsync(response);
+            _sut.ModelState.AddModelError("test", "test error");
 
             // Act
-            var result = _sut.Enter_Details(request);
+            var result = await _sut.Enter_Details(request);
 
             // Assert
-            var actionResult = result.Result as RedirectToActionResult;
-            actionResult.Should().NotBeNull();
-            actionResult.ActionName.Should().Be("Loader");
-
-            _sut.HttpContext.Session.GetString("ParentFirstName").Should().Be(request.FirstName);
-            _sut.HttpContext.Session.GetString("ParentLastName").Should().Be(request.LastName);
-            _sut.HttpContext.Session.GetString("ParentDOB").Should().Be($"{request.Year}-{request.Month:D2}-{request.Day:D2}");
-            _sut.HttpContext.Session.GetString("ParentEmail").Should().Be(request.EmailAddress);
-
-            _checkServiceMock.Invocations.Should().HaveCount(1); // PostCheck should have been called on the mocked service once
-
-            if (NINAS == ParentGuardian.NinAsrSelect.AsrnSelected)
-            {
-                _sut.HttpContext.Session.GetString("ParentNASS").Should().Be(request.NationalAsylumSeekerServiceNumber);
-            }
-            else
-            {
-                _sut.HttpContext.Session.GetString("ParentNINO").Should().Be(request.NationalInsuranceNumber?.ToUpper());
-            }
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Enter_Details");
+            _tempData.Should().ContainKey("ParentDetails");
+            _tempData.Should().ContainKey("Errors");
         }
 
         [Test]
-        public void Enter_Child_Details_TempData_IsChildAddOrRemove_False_Returns_View_With_Empty_ChildList()
-        {
-            _tempData["IsChildAddOrRemove"] = false;
-
-            var result = _sut.Enter_Child_Details();
-
-            var viewResult = result as ViewResult;
-            var model = viewResult.Model as Children;
-            model.ChildList.Should().NotBeNullOrEmpty();
-            model.ChildList[0].FirstName.Should().BeNull();
-            model.ChildList[0].LastName.Should().BeNull();
-        }
-
-        [Test]
-        public void Enter_Child_Details_TempData_IsChildAddOrRemove_True_Returns_View_With_ChildList_From_TempData()
-        {
-            _tempData["IsChildAddOrRemove"] = true;
-
-            var children = _fixture.Create<List<Child>>();
-            var childListJson = JsonConvert.SerializeObject(children);
-
-            _tempData["ChildList"] = childListJson;
-
-            var result = _sut.Enter_Child_Details();
-
-            var viewResult = result as ViewResult;
-            var model = viewResult.Model as Children;
-            model.ChildList.Should().NotBeNullOrEmpty();
-            model.ChildList[0].FirstName.Should().Be(children[0].FirstName);
-            model.ChildList[0].LastName.Should().Be(children[0].LastName);
-        }
-
-        [Test]
-        public void Given_Enter_Child_Details_When_TempData_IsRedirect_IsTrue_Returns_View_With_Request()
+        public async Task Loader_WhenSuccessful_ShouldReturnView()
         {
             // Arrange
-            _tempData["FsmApplication"] = _fixture.Create<FsmApplication>();
-            _tempData["IsRedirect"] = true;
-            var request = _fixture.Create<Children>();
+            var claims = new List<Claim>();
+            _httpContextMock.Setup(x => x.User.Claims).Returns(claims);
 
-            // Act
-            var result = _sut.Enter_Child_Details(request);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            var model = viewResult.Model;
-
-            viewResult.ViewName.Should().Be("Enter_Child_Details");
-            model.Should().BeSameAs(request);
-            _sut.ModelState.IsValid.Should().Be(true);
-        }
-
-        [Test]
-        public void Given_Enter_Child_Details_When_ModelState_IsNotValid_Returns_SameView_With_Request()
-        {
-            // Arrange
-            _sut.ModelState.AddModelError("Error Key", "Error Message");
-            var request = _fixture.Create<Children>();
-
-            // Act
-            var result = _sut.Enter_Child_Details(request);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            var model = viewResult.Model as Children;
-
-            viewResult.ViewName.Should().Be("Enter_Child_Details");
-            model.Should().BeSameAs(request);
-            _sut.ModelState.IsValid.Should().Be(false);
-        }
-
-        [Test]
-        public void Given_Enter_Child_Details_When_ModelState_IsValid_Returns_Check_Answers_View_With_FsmApplication()
-        {
-            // Arrange
-            var request = _fixture.Create<Children>();
-
-            // Act
-            var result = _sut.Enter_Child_Details(request);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Check_Answers");
-            var model = viewResult.Model as FsmApplication;
-            model.Children.Should().BeSameAs(request);
-            _sut.ModelState.IsValid.Should().Be(true);
-        }
-
-        [Test]
-        public void Given_Add_Child_When_ChildList_ContainsLessThan99Children_ItAddsNewChild_And_Redirects_To_Enter_Child_Details_Page()
-        {
-            // Arrange
-            var request = _fixture.Create<Children>();
-            var children = _fixture.CreateMany<Child>(5).ToList();
-            request.ChildList.Clear();
-            request.ChildList = children;
-
-            // Act
-            var result = _sut.Add_Child(request);
-
-            // Assert
-            var redirectToActionResult = result as RedirectToActionResult;
-            redirectToActionResult.ActionName.Should().Be("Enter_Child_Details");
-            _sut.TempData["ChildList"].Should().NotBeNull();
-            var convertedTempData = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string);
-            convertedTempData.Count.Should().Be(6);
-        }
-
-        [Test]
-        public void Given_Add_Child_When_ChildList_ContainsExactly99Children_ItDoesNotAddNewChild_And_Redirects_To_Enter_Child_Details_Page()
-        {
-
-            var request = _fixture.Create<Children>();
-            var children = _fixture.CreateMany<Child>(99).ToList();
-            request.ChildList.Clear();
-            request.ChildList = children;
-
-            var result = _sut.Add_Child(request);
-
-            var redirectToActionResult = result as RedirectToActionResult;
-            redirectToActionResult.ActionName.Should().Be("Enter_Child_Details");
-            _sut.TempData["ChildList"].Should().BeNull();
-        }
-
-        [Test]
-        public void Given_Remove_Child_When_ValidIndexIsProvided_The_ChildIsRemovedFrom_ChildList_AtGivenIndex()
-        {
-            // Arrange
-            var request = _fixture.Create<Children>();
-            var childListCount = request.ChildList.Count();
-
-            // Act
-            var result = _sut.Remove_Child(request, 1);
-
-            // Assert
-            _sut.TempData["ChildList"].Should().NotBeNull();
-            var convertedTempData = JsonConvert.DeserializeObject<List<Child>>(_sut.TempData["ChildList"] as string);
-            convertedTempData.Count.Should().Be(childListCount - 1); // has 1 less
-        }
-
-        [Test]
-        public void Given_Remove_Child_When_InvalidIndexIsProvided_NoChild_IsRemovedFrom_ChildList_AtGivenIndex_And_ArgumentOutOfRangeException_IsThrown()
-        {
-            // Arrange
-            var request = _fixture.Create<Children>();
-            var childListCount = request.ChildList.Count();
-            var nonExistantIndex = childListCount + 1;
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => _sut.Remove_Child(request, nonExistantIndex));
-            _sut.TempData["ChildList"].Should().BeNull();
-        }
-
-        [Test]
-        public void Given_Check_Answers_PageLoads()
-        {
-            // Act
-            var result = _sut.Check_Answers();
-
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Check_Answers");
-            viewResult.Model.Should().BeNull();
-        }
-
-        [Test]
-        public void Given_Check_Answers_With_Valid_FsmApplication_Not_Eligible_RedirectsTo_AppealsRegistered_Page()
-        {
-            // Arrange
-            var serviceMockRequest = _fixture.Create<ApplicationRequest>();
-            var serviceMockResponse = _fixture.Create<Task<ApplicationSaveItemResponse>>();
-            //var serviceMockResponse = Task.FromResult(_fixture.Create<ApplicationSaveItemResponse>());
-            var userCreateResponse = _fixture.Create<UserSaveItemResponse>();
-            var request = _fixture.Create<FsmApplication>();
-            request.Children = new Children()
-            {
-                ChildList = new List<Child>()
-                {
-                    new Child()
-                    {
-                        FirstName = "Tomothy",
-                        LastName = "Smithothy",
-                        Day = "01",
-                        Month = "01",
-                        Year = "2018",
-                        School = _fixture.Create<School>()
-                    },
-                    new Child()
-                    {
-                        FirstName = "Tony",
-                        LastName = "Smith",
-                        Day = "01",
-                        Month = "02",
-                        Year = "2019",
-                        School = _fixture.Create<School>()
-
-                    }
-
-                }
-            };
-            _parentServiceMock.Setup(x => x.CreateUser(It.IsAny<UserCreateRequest>()))
-                .ReturnsAsync(userCreateResponse);
-            _parentServiceMock.Setup(x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
-                .Returns(serviceMockResponse);
-
-            // Act
-            var result = _sut.Check_Answers(request);
-            var tempData = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(_sut.TempData["confirmationApplication"] as string);
-
-            // Assert
-            var redirectToActionResult = result.Result as RedirectToActionResult;
-            redirectToActionResult.ActionName.Should().Be("AppealsRegistered");
-            tempData.Children[0].ChildName.Should().Be($"{serviceMockResponse.Result.Data.ChildFirstName} {serviceMockResponse.Result.Data.ChildLastName}");
-
-        }
-
-        [Test]
-        public void Given_Check_Answers_With_Valid_FsmApplication_Not_Eligible_RedirectsTo_ApplicationsRegistered_Page()
-        {
-            // Arrange
-            var serviceMockRequest = _fixture.Create<ApplicationRequest>();
-            var serviceMockItemResponse = _fixture.Create<ApplicationSaveItemResponse>();
-            serviceMockItemResponse.Data = new ApplicationResponse()
-            {
-                Status = "Entitled"
-            };
-            var serviceMockResponse = Task.FromResult(serviceMockItemResponse);
-            var userCreateResponse = _fixture.Create<UserSaveItemResponse>();
-            var request = _fixture.Create<FsmApplication>();
-            request.Children = new Children()
-            {
-                ChildList = new List<Child>()
-                {
-                    new Child()
-                    {
-                        FirstName = "Tomothy",
-                        LastName = "Smithothy",
-                        Day = "01",
-                        Month = "01",
-                        Year = "2018",
-                        School = _fixture.Create<School>()
-                    },
-                    new Child()
-                    {
-                        FirstName = "Tony",
-                        LastName = "Smith",
-                        Day = "01",
-                        Month = "02",
-                        Year = "2019",
-                        School = _fixture.Create<School>()
-                    }
-                }
-            };
-            _parentServiceMock.Setup(x => x.CreateUser(It.IsAny<UserCreateRequest>()))
-                .ReturnsAsync(userCreateResponse);
-            _parentServiceMock.Setup(x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
-                .Returns(serviceMockResponse);
-            // Act
-            var result = _sut.Check_Answers(request);
-            var tempData = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(_sut.TempData["confirmationApplication"] as string);
-
-            // Assert
-            var redirectToActionResult = result.Result as RedirectToActionResult;
-            redirectToActionResult.ActionName.Should().Be("ApplicationsRegistered");
-            tempData.Children[0].ChildName.Should().Be($"{serviceMockResponse.Result.Data.ChildFirstName} {serviceMockResponse.Result.Data.ChildLastName}");
-        }
-
-        [Test]
-        public void Given_Check_Answers_With_Invalid_FsmApplication_ThrowsException()
-        {
-            // Arrange
-            var request = new FsmApplication(); // Invalid request with missing required fields
-
-            _parentServiceMock.Setup(x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()))
-                .Throws(new NullReferenceException("Invalid request"));
-
-            // Act & Assert
-            Assert.ThrowsAsync<NullReferenceException>(() => _sut.Check_Answers(request));
-        }
-
-        [Test]
-        public void Given_ApplicationsRegistered_It_ReturnsView_With_ApplicationConfirmationEntitledViewModel()
-        {
-            // Arrange
-            var fixture = _fixture.Create<ApplicationConfirmationEntitledViewModel>();
-            _sut.TempData["confirmationApplication"] = JsonConvert.SerializeObject(fixture);
-
-            // Act
-            var result = _sut.ApplicationsRegistered();
-
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("ApplicationsRegistered");
-            viewResult.Model.Should().NotBeNull();
-            var model = viewResult.Model as ApplicationConfirmationEntitledViewModel;
-            model.Children[0].ChildName.Should().Be(fixture.Children[0].ChildName);
-            model.Children[0].ParentName.Should().Be(fixture.Children[0].ParentName);
-            model.Children[1].ChildName.Should().Be(fixture.Children[1].ChildName);
-        }
-
-        [Test]
-        public void Given_ChangeChildDetails_With_Valid_TempData_Returns_View()
-        {
-            // Arrange
-            var fsmApplication = _fixture.Create<FsmApplication>();
-
-            _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
-
-            // Act
-            int child = 0;
-            var result = _sut.ChangeChildDetails(child);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Enter_Child_Details");
-            var model = viewResult.Model as Children;
-            model.Should().BeEquivalentTo(fsmApplication.Children);
-        }
-
-        [TestCase(CheckEligibilityStatus.eligible, "Outcome/Eligible")]
-        [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible")]
-        [TestCase(CheckEligibilityStatus.parentNotFound, "Outcome/Not_Found")]
-        [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Technical_Error")]
-        public async Task Given_Poll_Status_With_Valid_Status_Returns_Correct_View(CheckEligibilityStatus status, string expectedView)
-        {
-            // Arrange
-
-            // Build status value fixture first since AutoFixture With() does not allow assignment on nested properties like x.Data.Status
-            var statusValue = _fixture.Build<StatusValue>()
-                .With(x => x.Status, status.ToString())
-                .Create();
-
-            var checkEligibilityResponse = _fixture.Build<CheckEligibilityResponse>()
-                .With(x => x.Data, statusValue)
-                .Create();
-
-            var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
-            _tempData["Response"] = responseJson;
-
-            var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
-                .With(x => x.Data, checkEligibilityResponse.Data)
-                .Create();
-
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-            // Mock the _Claims object with all necessary claims
-            _sut.ControllerContext.HttpContext = new DefaultHttpContext();
-            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
-    {
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "12345"),
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "test@example.com"),
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "John"),
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Doe"),
-        new Claim("OrganisationCategoryName", CheckYourEligibility_FrontEnd.Models.Constants.CategoryTypeLA)
-    }));
-
-            // Act
-            var result = await _sut.Loader();
-
-            // Assert
-            if (result is ViewResult viewResult)
-            {
-                viewResult.ViewName.Should().Be(expectedView);
-            }
-            else if (result is RedirectToActionResult redirectResult)
-            {
-                redirectResult.ActionName.Should().Be("Application_Sent"); // Adjust this if you expect a different action
-            }
-            else
-            {
-                Assert.Fail("Unexpected result type");
-            }
-        }
-
-        [Test]
-        public async Task Given_Poll_Status_When_Response_Is_Null_Returns_Error_Status()
-        {
-            // Arrange
-            _tempData["Response"] = null;
+            _adminLoaderUseCaseMock
+                .Setup(x => x.Execute(It.IsAny<string>(), claims))
+                .ReturnsAsync(("TestView", CheckEligibilityStatus.eligible));
 
             // Act
             var result = await _sut.Loader();
@@ -524,33 +181,222 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be("TestView");
+        }
+
+        [Test]
+        public async Task Enter_Child_Details_Get_WhenSuccessful_ShouldReturnView()
+        {
+            // Arrange
+            var children = _fixture.Create<Children>();
+            _adminEnterChildDetailsUseCaseMock
+                .Setup(x => x.Execute(It.IsAny<string>(), It.IsAny<bool?>()))
+                .ReturnsAsync(children);
+
+            // Act
+            var result = await _sut.Enter_Child_Details();
+
+            // Assert
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.Model.Should().BeEquivalentTo(children);
+        }
+
+        [Test]
+        public async Task Add_Child_WhenSuccessful_ShouldRedirectToEnterDetails()
+        {
+            // Arrange
+            var request = _fixture.Create<Children>();
+            var updatedChildren = _fixture.Create<Children>();
+
+            _adminAddChildUseCaseMock
+                .Setup(x => x.Execute(request))
+                .ReturnsAsync(updatedChildren);
+
+            // Act
+            var result = await _sut.Add_Child(request);
+
+            // Assert
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+            _tempData["IsChildAddOrRemove"].Should().Be(true);
+            _tempData.Should().ContainKey("ChildList");
+        }
+
+        [Test]
+        public async Task Check_Answers_Post_WhenSuccessful_ShouldRedirectToRegistration()
+        {
+            // Arrange
+            var request = _fixture.Create<FsmApplication>();
+            var response = _fixture.Create<ApplicationConfirmationEntitledViewModel>();
+
+            _adminRegistrationResponseUseCaseMock
+                .Setup(x => x.Execute(request))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _sut.Check_Answers(request);
+
+            // Assert
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ActionName.Should().Be("ApplicationsRegistered");
+            _tempData.Should().ContainKey("confirmationApplication");
+        }
+
+        private DfeClaims SetupDfeClaims()
+        {
+            var claims = new List<Claim>
+            {
+                new Claim("email", "test@test.com"),
+                new Claim("sub", "testId"),
+                new Claim("organisation", JsonConvert.SerializeObject(new { urn = "12345" }))
+            };
+
+            _httpContextMock.Setup(x => x.User.Claims).Returns(claims);
+            return DfeSignInExtensions.GetDfeClaims(claims);
+        }
+
+        [Test]
+        public async Task AppealsRegistered_WhenCalled_ShouldReturnCorrectView()
+        {
+            // Arrange
+            var viewModel = _fixture.Create<ApplicationConfirmationEntitledViewModel>();
+            _tempData["confirmationApplication"] = JsonConvert.SerializeObject(viewModel);
+
+            // Act
+            var result = await _sut.AppealsRegistered();
+
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.ViewName.Should().Be("AppealsRegistered");
+            viewResult.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
+        public async Task AppealsRegistered_WhenExceptionOccurs_ShouldReturnTechnicalError()
+        {
+            // Arrange
+            _tempData["confirmationApplication"] = "invalid json";
+
+            // Act
+            var result = await _sut.AppealsRegistered();
+
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
             viewResult.ViewName.Should().Be("Outcome/Technical_Error");
         }
 
         [Test]
-        public async Task Given_Poll_Status_When_Status_Is_Processing_Returns_Processing()
+        public async Task Enter_Child_Details_Post_WhenSuccessful_ShouldProcessRequest()
         {
             // Arrange
-            var response = new CheckEligibilityResponse
-            {
-                Data = new StatusValue { Status = "processing" }
-            };
-            _tempData["Response"] = JsonConvert.SerializeObject(response);
+            var request = _fixture.Create<Children>();
+            var fsmApplication = _fixture.Create<FsmApplication>();
 
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(new CheckEligibilityStatusResponse { Data = response.Data });
+            _adminProcessChildDetailsUseCaseMock
+                .Setup(x => x.Execute(request, It.IsAny<bool>(), _sessionMock.Object))
+                .ReturnsAsync(fsmApplication);
 
             // Act
-            var result = await _sut.Loader();
+            var result = await _sut.Enter_Child_Details(request);
 
             // Assert
-            result.Should().BeOfType<ViewResult>();
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("Loader");
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.Model.Should().BeEquivalentTo(fsmApplication);
+            _tempData.Should().ContainKey("FsmApplication");
         }
 
+        [Test]
+        public async Task Enter_Child_Details_Post_WhenValidationFails_ShouldReturnWithErrors()
+        {
+            // Arrange
+            var request = _fixture.Create<Children>();
+            _adminProcessChildDetailsUseCaseMock
+                .Setup(x => x.Execute(request, false, _sessionMock.Object))
+                .ThrowsAsync(new AdminProcessChildDetailsException("Validation failed"));
 
+            // Act
+            var result = await _sut.Enter_Child_Details(request);
 
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            _sut.ModelState.ErrorCount.Should().Be(1);
+            viewResult.Model.Should().Be(request);
+        }
 
+        [Test]
+        public async Task Change_Child_Details_WhenSuccessful_ShouldReturnView()
+        {
+            // Arrange
+            var children = _fixture.Create<Children>();
+
+            _adminChangeChildDetailsUseCaseMock
+                .Setup(x => x.Execute(It.IsAny<string>()))
+                .ReturnsAsync(children);
+
+            // Act
+            var result = await _sut.ChangeChildDetails(1);
+
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.Model.Should().BeEquivalentTo(children);
+            _tempData["IsRedirect"].Should().Be(true);
+            _tempData["childIndex"].Should().Be(1);
+        }
+
+        [Test]
+        public async Task Change_Child_Details_WhenUnsuccessful_ShouldRedirectToEnterDetails()
+        {
+            // Arrange
+            _adminChangeChildDetailsUseCaseMock
+                .Setup(x => x.Execute(It.IsAny<string>()))
+                .ReturnsAsync(new Children
+                {
+                    ChildList = new List<CheckYourEligibility_FrontEnd.Models.Child>()
+                });
+
+            // Act
+            var result = await _sut.ChangeChildDetails(1);
+
+            // Assert
+            var redirectResult = result.Should().BeOfType<RedirectToActionResult>().Subject;
+            redirectResult.ActionName.Should().Be("Enter_Child_Details");
+        }
+
+        [Test]
+        public async Task Remove_Child_WhenExceptionOccurs_ShouldReturnTechnicalError()
+        {
+            // Arrange
+            var request = _fixture.Create<Children>();
+            _adminRemoveChildUseCaseMock
+                .Setup(x => x.Execute(request, 0))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await _sut.Remove_Child(request, 0);
+
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.ViewName.Should().Be("Outcome/Technical_Error");
+        }
+
+        [Test]
+        public async Task Add_Child_WhenExceptionOccurs_ShouldReturnTechnicalError()
+        {
+            // Arrange
+            var request = _fixture.Create<Children>();
+            _adminAddChildUseCaseMock
+                .Setup(x => x.Execute(request))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await _sut.Add_Child(request);
+
+            // Assert
+            var viewResult = result.Should().BeOfType<ViewResult>().Subject;
+            viewResult.ViewName.Should().Be("Outcome/Technical_Error");
+        }
     }
 }

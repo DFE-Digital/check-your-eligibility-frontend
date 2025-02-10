@@ -1,98 +1,99 @@
 ﻿using CheckYourEligibility.Domain.Enums;
-using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
     public class CheckController : BaseController
     {
-
         private readonly ILogger<CheckController> _logger;
         private readonly IEcsCheckService _checkService;
         private readonly IEcsServiceParent _parentService;
         private readonly IConfiguration _config;
-        private ILogger<CheckController> _loggerMock;
-        private IEcsServiceParent _object;
-        DfeClaims? _Claims;
+        private readonly IAdminLoadParentDetailsUseCase _adminLoadParentDetailsUseCase;
+        private readonly IAdminProcessParentDetailsUseCase _adminProcessParentDetailsUseCase;
+        private readonly IAdminLoaderUseCase _adminLoaderUseCase;
+        private readonly IAdminEnterChildDetailsUseCase _adminEnterChildDetailsUseCase;
+        private readonly IAdminProcessChildDetailsUseCase _adminProcessChildDetailsUseCase;
+        private readonly IAdminAddChildUseCase _adminAddChildUseCase;
+        private readonly IAdminRemoveChildUseCase _adminRemoveChildUseCase;
+        private readonly IAdminChangeChildDetailsUseCase _adminChangeChildDetailsUseCase;
+        private readonly IAdminRegistrationResponseUseCase _adminRegistrationResponseUseCase;
 
-        public CheckController(ILogger<CheckController> logger, IEcsServiceParent ecsServiceParent, IEcsCheckService ecsCheckService, IConfiguration configuration)
+        public CheckController(
+            ILogger<CheckController> logger,
+            IEcsServiceParent ecsServiceParent,
+            IEcsCheckService ecsCheckService,
+            IConfiguration configuration,
+            IAdminLoadParentDetailsUseCase adminLoadParentDetailsUseCase,
+            IAdminProcessParentDetailsUseCase adminProcessParentDetailsUseCase,
+            IAdminLoaderUseCase adminLoaderUseCase,
+            IAdminEnterChildDetailsUseCase adminEnterChildDetailsUseCase,
+            IAdminProcessChildDetailsUseCase adminProcessChildDetailsUseCase,
+            IAdminAddChildUseCase adminAddChildUseCase,
+            IAdminRemoveChildUseCase adminRemoveChildUseCase,
+            IAdminChangeChildDetailsUseCase adminChangeChildDetailsUseCase,
+            IAdminRegistrationResponseUseCase adminRegistrationResponseUseCase)
         {
-            _config = configuration;
+            _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = ecsServiceParent ?? throw new ArgumentNullException(nameof(ecsServiceParent));
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
+            _adminLoadParentDetailsUseCase = adminLoadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminLoadParentDetailsUseCase));
+            _adminProcessParentDetailsUseCase = adminProcessParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessParentDetailsUseCase));
+            _adminLoaderUseCase = adminLoaderUseCase ?? throw new ArgumentNullException(nameof(adminLoaderUseCase));
+            _adminEnterChildDetailsUseCase = adminEnterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminEnterChildDetailsUseCase));
+            _adminProcessChildDetailsUseCase = adminProcessChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessChildDetailsUseCase));
+            _adminAddChildUseCase = adminAddChildUseCase ?? throw new ArgumentNullException(nameof(adminAddChildUseCase));
+            _adminRemoveChildUseCase = adminRemoveChildUseCase ?? throw new ArgumentNullException(nameof(adminRemoveChildUseCase));
+            _adminChangeChildDetailsUseCase = adminChangeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminChangeChildDetailsUseCase));
+            _adminRegistrationResponseUseCase = adminRegistrationResponseUseCase ?? throw new ArgumentNullException(nameof(adminRegistrationResponseUseCase));
         }
 
         [HttpGet]
-        public IActionResult Enter_Details()
+        public async Task<IActionResult> Enter_Details()
         {
-            // start with empty page model
-            ParentGuardian request = null;
+            try
+            {
+                var (parent, validationErrors) = await _adminLoadParentDetailsUseCase.Execute(
+                    TempData["ParentDetails"]?.ToString(),
+                    TempData["Errors"]?.ToString()
+                );
 
-            // if this page is loaded again after a POST then get the request and update the page with any errors
-            if (TempData["ParentDetails"] != null)
-            {
-                request = JsonConvert.DeserializeObject<ParentGuardian>(TempData["ParentDetails"].ToString());
-            }
-            if (TempData["Errors"] != null)
-            {
-                var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(TempData["Errors"].ToString());
-                foreach (var kvp in errors)
+                if (validationErrors != null)
                 {
-                    foreach (var error in kvp.Value)
+                    foreach (var (key, errorList) in validationErrors)
                     {
-                        ModelState.AddModelError(kvp.Key, error);
+                        foreach (var error in errorList)
+                        {
+                            ModelState.AddModelError(key, error);
+                        }
                     }
                 }
-            }
 
-            return View(request);
+                return View(parent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading parent details");
+                return View("Outcome/Technical_Error");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Enter_Details(ParentGuardian request)
         {
-            if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.None)
+            try
             {
                 if (!ModelState.IsValid)
                 {
-                    // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
-                    TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                    var errors = ModelState
-                        .Where(x => x.Value.Errors.Count > 0)
-                        .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
-
-                    if (errors.ContainsKey("NationalInsuranceNumber") && errors.ContainsKey("NationalAsylumSeekerServiceNumber"))
-                    {
-                        string targetValue = "Please select one option";
-
-                        if (errors["NationalInsuranceNumber"].Contains(targetValue) && errors["NationalAsylumSeekerServiceNumber"].Contains(targetValue))
-                        {
-                            errors.Remove("NationalInsuranceNumber");
-                            errors.Remove("NationalAsylumSeekerServiceNumber");
-                            errors["NINAS"] = new List<string> { targetValue };
-                        }
-                    }
-                    TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                    return RedirectToAction("Enter_Details");
-                }
-            }
-
-            if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.AsrnSelected)
-            {
-                ModelState.Remove("NationalInsuranceNumber");
-
-                if (!ModelState.IsValid)
-                {
-                    // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
                     TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
                     var errors = ModelState
                         .Where(x => x.Value.Errors.Count > 0)
@@ -101,214 +102,157 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     return RedirectToAction("Enter_Details");
                 }
 
-                // build object for api soft-check
-                var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
-                {
-                    Data = new CheckEligibilityRequestData_Fsm
-                    {
-                        LastName = request.LastName,
-                        NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber,
-                        DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd"),
-                    }
-                };
-
-                // set important parent details in session storage
-                HttpContext.Session.SetString("ParentFirstName", request.FirstName);
-                HttpContext.Session.SetString("ParentLastName", request.LastName);
-                HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
-                HttpContext.Session.SetString("ParentEmail", request.EmailAddress);
-
-                // set nass detail in session aswell
-                HttpContext.Session.SetString("ParentNASS", request.NationalAsylumSeekerServiceNumber);
-
-                // queue api soft-check
-                var response = await _checkService.PostCheck(checkEligibilityRequest);
-
-                TempData["Response"] = JsonConvert.SerializeObject(response);
-
-                _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
+                var result = await _adminProcessParentDetailsUseCase.Execute(request, HttpContext.Session);
+                TempData["Response"] = JsonConvert.SerializeObject(result.Response);
+                return RedirectToAction(result.RedirectAction);
             }
-            else
+            catch (AdminParentDetailsValidationException ex)
             {
-                ModelState.Remove("NationalAsylumSeekerServiceNumber");
-
-                if (!ModelState.IsValid)
-                {
-                    // Use PRG pattern so that after this POST the page retrieve informaton from data and performs a GET to avoid browser resubmit confirm error
-                    TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                    var errors = ModelState
-                        .Where(x => x.Value.Errors.Count > 0)
-                        .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
-                    TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                    return RedirectToAction("Enter_Details");
-                }
-
-                // build object for api soft-check
-                var checkEligibilityRequest = new CheckEligibilityRequest_Fsm()
-                {
-                    Data = new CheckEligibilityRequestData_Fsm
-                    {
-                        LastName = request.LastName,
-                        NationalInsuranceNumber = request.NationalInsuranceNumber?.ToUpper(),
-                        DateOfBirth = new DateOnly(int.Parse(request.Year), int.Parse(request.Month), int.Parse(request.Day)).ToString("yyyy-MM-dd")
-                    }
-                };
-
-                // set important parent details in session storage
-                HttpContext.Session.SetString("ParentFirstName", request.FirstName);
-                HttpContext.Session.SetString("ParentLastName", request.LastName);
-                HttpContext.Session.SetString("ParentDOB", checkEligibilityRequest.Data.DateOfBirth);
-                HttpContext.Session.SetString("ParentEmail", request.EmailAddress);
-
-                // set nino detail in session aswell
-                HttpContext.Session.SetString("ParentNINO", request.NationalInsuranceNumber);
-
-                // queue api soft-check
-                var response = await _checkService.PostCheck(checkEligibilityRequest);
-
-                TempData["Response"] = JsonConvert.SerializeObject(response);
-
-                _logger.LogInformation($"Check processed:- {response.Data.Status} {response.Links.Get_EligibilityCheck}");
-
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                TempData["Errors"] = ex.Message;
+                return RedirectToAction("Enter_Details");
             }
-
-            return RedirectToAction("Loader");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing parent details");
+                return View("Outcome/Technical_Error");
+            }
         }
 
         public async Task<IActionResult> Loader()
         {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-
-            // Retrieve the API response from TempData
-            var responseJson = TempData["Response"] as string;
-            if (responseJson == null)
+            try
             {
-                _logger.LogWarning("No response data found in TempData.");
+                var responseJson = TempData["Response"] as string;
+                var result = await _adminLoaderUseCase.Execute(responseJson, HttpContext.User.Claims);
+
+                if (result.Model != null)
+                {
+                    TempData["OutcomeStatus"] = result.Model;
+                }
+
+                if (result.ViewName == "Loader")
+                {
+                    TempData["Response"] = responseJson;
+                }
+
+                return View(result.ViewName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in loader");
                 return View("Outcome/Technical_Error");
             }
-
-            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
-            _logger.LogInformation($"Check status processed: {response?.Data?.Status}");
-
-            // Call the service to check the current status
-            var check = await _checkService.GetStatus(response);
-            if (check == null || check.Data == null)
-            {
-                _logger.LogWarning("Null response received from GetStatus.");
-                return View("Outcome/Technical_Error");
-            }
-
-            _logger.LogInformation($"Received status: {check.Data.Status}");
-            Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
-            TempData["OutcomeStatus"] = status;
-            bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
-            switch (status)
-            {
-                case CheckEligibilityStatus.eligible:
-                    return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
-                case CheckEligibilityStatus.notEligible:
-                    return (isLA ? View("Outcome/Not_Eligible_LA")  : View("Outcome/Not_Eligible"));
-                case CheckEligibilityStatus.parentNotFound:
-                    return View("Outcome/Not_Found");
-                case CheckEligibilityStatus.DwpError:
-                    return View("Outcome/Technical_Error");
-                case CheckEligibilityStatus.queuedForProcessing:
-                    _logger.LogInformation("Still queued for processing.");
-                    // Save the response back to TempData for the next poll
-                    TempData["Response"] = JsonConvert.SerializeObject(response);
-                    // Render the loader view which will auto-refresh
-                    return View("Loader");
-                default:
-                    _logger.LogError($"Unknown Status {status}");
-                    return View("Outcome/Technical_Error");
-            }
         }
 
-        public IActionResult Enter_Child_Details()
-        {
-            var children = new Children() { ChildList = [new()] };
 
-            // Check if this is a redirect after add or remove child
-            if (TempData["IsChildAddOrRemove"] != null && (bool)TempData["IsChildAddOrRemove"] == true)
-            {
-                ModelState.Clear();
-
-                // Retrieve Children from TempData
-                var childDetails = TempData["ChildList"] as string;
-                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
-            }
-
-            return View(children);
-        }
-
-        [HttpPost]
-        public IActionResult Enter_Child_Details(Children request)
-        {
-            if (TempData["FsmApplication"] != null && TempData["IsRedirect"] != null && (bool)TempData["IsRedirect"] == true)
-            {
-                return View("Enter_Child_Details", request);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View("Enter_Child_Details", request);
-            }
-
-            var fsmApplication = new FsmApplication
-            {
-                ParentFirstName = HttpContext.Session.GetString("ParentFirstName"),
-                ParentLastName = HttpContext.Session.GetString("ParentLastName"),
-                ParentDateOfBirth = HttpContext.Session.GetString("ParentDOB"),
-                ParentNass = HttpContext.Session.GetString("ParentNASS") ?? null,
-                ParentNino = HttpContext.Session.GetString("ParentNINO") ?? null,
-                ParentEmail = HttpContext.Session.GetString("ParentEmail"),
-                Children = request
-            };
-
-            TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
-
-            return View("Check_Answers", fsmApplication);
-        }
-
-        [HttpPost]
-        public IActionResult Add_Child(Children request)
-        {
-            // set initial tempdata
-            TempData["IsChildAddOrRemove"] = true;
-
-            // don't allow the model to contain more than 99 items
-            if (request.ChildList.Count >= 99)
-            {
-                return RedirectToAction("Enter_Child_Details");
-            }
-
-            request.ChildList.Add(new Child());
-
-            TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
-
-            return RedirectToAction("Enter_Child_Details");
-        }
-
-        [HttpPost]
-        public IActionResult Remove_Child(Children request, int index)
+        public async Task<IActionResult> Enter_Child_Details()
         {
             try
             {
-                // remove child at given index
-                var child = request.ChildList[index];
-                request.ChildList.Remove(child);
+                var children = await _adminEnterChildDetailsUseCase.Execute(
+                    TempData["ChildList"]?.ToString(),
+                    TempData["IsChildAddOrRemove"] as bool?
+                );
 
-                // set up tempdata so page can be correctly rendered
+                return View(children);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error entering child details");
+                return View("Outcome/Technical_Error");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Enter_Child_Details(Children request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var isRedirect = TempData["FsmApplication"] != null &&
+                           TempData["IsRedirect"] != null &&
+                           (bool)TempData["IsRedirect"] == true;
+
+            var validationErrors = ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .ToDictionary(
+                    k => k.Key,
+                    v => v.Value.Errors.Select(e => e.ErrorMessage).ToArray());
+
+            if (isRedirect)
+            {
+                return View("Enter_Child_Details", request);
+            }
+
+            try
+            {
+                var model = await _adminProcessChildDetailsUseCase.Execute(
+                    request,
+                    HttpContext.Session,
+                    validationErrors);
+
+                if (model is FsmApplication fsmApplication)
+                {
+                    TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
+                }
+                return View("Check_Answers", model);
+            }
+
+            catch (AdminProcessChildDetailsUseCase.AdminProcessChildDetailsValidationException e)
+            {
+                Dictionary<string, string[]> errors = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(e.Message);
+                foreach (var error in errors)
+                {
+                    foreach (var message in error.Value)
+                    {
+                        ModelState.AddModelError(error.Key, message);
+                    }
+                }
+
+                return View("Enter_Child_Details");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add_Child(Children request)
+        {
+            try
+            {
+                var result = await _adminAddChildUseCase.Execute(request);
                 TempData["IsChildAddOrRemove"] = true;
-                TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
-
+                TempData["ChildList"] = JsonConvert.SerializeObject(result.ChildList);
                 return RedirectToAction("Enter_Child_Details");
             }
-            catch (IndexOutOfRangeException ex)
+            catch (Exception ex)
             {
-                throw ex;
+                _logger.LogError(ex, "Error adding child");
+                return View("Outcome/Technical_Error");
             }
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> Remove_Child(Children request, int index)
+        {
+            try
+            {
+                var result = await _adminRemoveChildUseCase.Execute(request, index);
+                TempData["IsChildAddOrRemove"] = true;
+                TempData["ChildList"] = JsonConvert.SerializeObject(result.ChildList);
+                return RedirectToAction("Enter_Child_Details");
+            }
+            catch (AdminRemoveChildException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return RedirectToAction("Enter_Child_Details");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing child");
+                return View("Outcome/Technical_Error");
+            }
         }
 
         public IActionResult Check_Answers()
@@ -319,77 +263,77 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Check_Answers(FsmApplication request)
         {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            var user = await _parentService.CreateUser(new UserCreateRequest { Data = new UserData { Email = _Claims.User.Email, Reference = _Claims.User.Id } });
-            var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
-            var response = new ApplicationConfirmationEntitledViewModel { ParentName = parentName, Children = new List<ApplicationConfirmationEntitledChildViewModel>() };
-            ApplicationSaveItemResponse responseApplication = null;
-
-            foreach (var child in request.Children.ChildList)
+            try
             {
-                var fsmApplication = new ApplicationRequest
-                {
-                    Data = new ApplicationRequestData()
-                    {
-                        Type = CheckEligibilityType.FreeSchoolMeals,
-                        // Set the properties for each child
-                        ParentFirstName = request.ParentFirstName,
-                        ParentLastName = request.ParentLastName,
-                        ParentEmail = request.ParentEmail,
-                        ParentDateOfBirth = request.ParentDateOfBirth,
-                        ParentNationalInsuranceNumber = request.ParentNino,
-                        ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
-                        ChildFirstName = child.FirstName,
-                        ChildLastName = child.LastName,
-                        ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
-                        Establishment = int.Parse(_Claims.Organisation.Urn),
-                        UserId = user.Data
-                    }
-                };
-
-                // Send each application individually
-                responseApplication = await _parentService.PostApplication_Fsm(fsmApplication);
-                response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
-                { ParentName = parentName, ChildName = $"{responseApplication.Data.ChildFirstName} {responseApplication.Data.ChildLastName}", Reference = responseApplication.Data.Reference });
-            }
-            
-            TempData["confirmationApplication"] = JsonConvert.SerializeObject(response);
-            if(responseApplication.Data.Status == "Entitled")
-            {
+                var result = await _adminRegistrationResponseUseCase.Execute(request);
+                TempData["confirmationApplication"] = JsonConvert.SerializeObject(result);
                 return RedirectToAction("ApplicationsRegistered");
             }
-            else
+            catch (AdminRegistrationResponseException ex)
             {
-                return RedirectToAction("AppealsRegistered");
+                _logger.LogError(ex, "Error processing registration");
+                ModelState.AddModelError("", ex.Message);
+                return View(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in check answers");
+                return View("Outcome/Technical_Error");
             }
         }
 
         [HttpGet]
-        public IActionResult ApplicationsRegistered()
+        public async Task<IActionResult> ApplicationsRegistered()
         {
-            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
-            return View("ApplicationsRegistered", vm);
+            try
+            {
+                var applicationJson = TempData["confirmationApplication"]?.ToString();
+                var viewModel = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(applicationJson);
+                return View("ApplicationsRegistered", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in applications registered");
+                return View("Outcome/Technical_Error");
+            }
         }
 
         [HttpGet]
-        public IActionResult AppealsRegistered()
+        public async Task<IActionResult> AppealsRegistered()
         {
-            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
-            return View("AppealsRegistered", vm);
+            try
+            {
+                var applicationJson = TempData["confirmationApplication"]?.ToString();
+                var viewModel = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(applicationJson);
+                return View("AppealsRegistered", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in appeals registered");
+                return View("Outcome/Technical_Error");
+            }
         }
 
-        public IActionResult ChangeChildDetails(int child)
+        public async Task<IActionResult> ChangeChildDetails(int child)
         {
-            // set up tempdata and access existing temp data object
-            TempData["IsRedirect"] = true;
-            TempData["childIndex"] = child;
-            var responseJson = TempData["FsmApplication"] as string;
-            // deserialize
-            var responses = JsonConvert.DeserializeObject<FsmApplication>(responseJson);
-            // get children details
-            var children = responses.Children;
-            // populate enter_child_details page with children model
-            return View("Enter_Child_Details", children);
+            try
+            {
+                TempData["IsRedirect"] = true;
+                TempData["childIndex"] = child;
+                var responseJson = TempData["FsmApplication"] as string;
+
+                var children = await _adminChangeChildDetailsUseCase.Execute(responseJson);
+                if (children?.ChildList == null || !children.ChildList.Any())
+                {
+                    return RedirectToAction("Enter_Child_Details");
+                }
+
+                return View("Enter_Child_Details", children);
+            }
+            catch (AdminChangeChildDetailsException)
+            {
+                return RedirectToAction("Enter_Child_Details");
+            }
         }
     }
 }
