@@ -172,47 +172,27 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View(request);
             }
 
-            var isRedirect = TempData["FsmApplication"] != null &&
-                           TempData["IsRedirect"] != null &&
-                           (bool)TempData["IsRedirect"] == true;
-
             var validationErrors = ModelState
                 .Where(x => x.Value.Errors.Count > 0)
                 .ToDictionary(
                     k => k.Key,
                     v => v.Value.Errors.Select(e => e.ErrorMessage).ToArray());
 
-            if (isRedirect)
-            {
-                return View("Enter_Child_Details", request);
-            }
-
             try
             {
-                var model = await _adminProcessChildDetailsUseCase.Execute(
-                    request,
-                    HttpContext.Session,
-                    validationErrors);
-
+                var model = await _adminProcessChildDetailsUseCase.Execute(request, HttpContext.Session, validationErrors);
                 if (model is FsmApplication fsmApplication)
                 {
                     TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
+                    return View("Check_Answers", model);
                 }
-                return View("Check_Answers", model);
+                ModelState.AddModelError("", "Invalid response from service");
+                return View(request);
             }
-
-            catch (AdminProcessChildDetailsUseCase.AdminProcessChildDetailsValidationException e)
+            catch (AdminProcessChildDetailsException e)
             {
-                Dictionary<string, string[]> errors = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(e.Message);
-                foreach (var error in errors)
-                {
-                    foreach (var message in error.Value)
-                    {
-                        ModelState.AddModelError(error.Key, message);
-                    }
-                }
-
-                return View("Enter_Child_Details");
+                ModelState.AddModelError("", e.Message);
+                return View(request);
             }
         }
 
@@ -287,16 +267,48 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
+                // Retrieve and log the raw JSON from TempData
                 var applicationJson = TempData["confirmationApplication"]?.ToString();
+                _logger.LogInformation("confirmationApplication JSON: {json}", applicationJson);
+
+                // Check if the JSON is null or empty
+                if (string.IsNullOrEmpty(applicationJson))
+                {
+                    _logger.LogWarning("TempData[\"confirmationApplication\"] is null or empty.");
+                    return View("Outcome/Technical_Error");
+                }
+
+                // Deserialize the JSON and log if it fails (i.e. returns null)
                 var viewModel = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(applicationJson);
+                if (viewModel == null)
+                {
+                    _logger.LogWarning("Deserialization returned null for confirmationApplication.");
+                    return View("Outcome/Technical_Error");
+                }
+
+                // Validate key properties of the view model
+                if (string.IsNullOrEmpty(viewModel.ParentName))
+                {
+                    _logger.LogWarning("viewModel.ParentName is null or empty.");
+                }
+                if (viewModel.Children == null)
+                {
+                    _logger.LogWarning("viewModel.Children is null. Initializing to an empty list.");
+                    viewModel.Children = new List<Child>();
+                }
+
+                // Preserve the TempData if it might be needed later
+                TempData.Keep("confirmationApplication");
+
                 return View("ApplicationsRegistered", viewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in applications registered");
+                _logger.LogError(ex, "Error in ApplicationsRegistered action");
                 return View("Outcome/Technical_Error");
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> AppealsRegistered()

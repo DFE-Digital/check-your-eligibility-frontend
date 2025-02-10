@@ -294,9 +294,10 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var request = _fixture.Create<Children>();
             var fsmApplication = _fixture.Create<FsmApplication>();
+            var validationErrors = new Dictionary<string, string[]>();
 
             _adminProcessChildDetailsUseCaseMock
-                .Setup(x => x.Execute(request, It.IsAny<bool>(), _sessionMock.Object))
+                .Setup(x => x.Execute(request, _sessionMock.Object, validationErrors))
                 .ReturnsAsync(fsmApplication);
 
             // Act
@@ -313,8 +314,10 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             // Arrange
             var request = _fixture.Create<Children>();
+            var validationErrors = new Dictionary<string, string[]>();
+
             _adminProcessChildDetailsUseCaseMock
-                .Setup(x => x.Execute(request, false, _sessionMock.Object))
+                .Setup(x => x.Execute(request, _sessionMock.Object, validationErrors))
                 .ThrowsAsync(new AdminProcessChildDetailsException("Validation failed"));
 
             // Act

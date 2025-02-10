@@ -63,7 +63,7 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
             // Act & Assert
             await FluentActions.Invoking(() =>
                 _sut.Execute(children))
-                .Should().ThrowAsync<AdminAddChildException>()
+                .Should().ThrowAsync<AddChildException>()
                 .WithMessage("Maximum limit of 99 children reached");
         }
 
