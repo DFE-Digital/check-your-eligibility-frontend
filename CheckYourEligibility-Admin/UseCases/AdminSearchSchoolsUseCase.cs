@@ -1,14 +1,14 @@
 ﻿using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
 
-namespace CheckYourEligibility_Admin.UseCases
+namespace CheckYourEligibility_FrontEnd.UseCases.Admin
 {
-    public interface ISearchSchoolsUseCase
+    public interface IAdminSearchSchoolsUseCase
     {
         Task<IEnumerable<Establishment>> Execute(string query);
     }
 
-    public class AdminSearchSchoolsUseCase : ISearchSchoolsUseCase
+    public class AdminSearchSchoolsUseCase : IAdminSearchSchoolsUseCase
     {
         private readonly IEcsServiceParent _parentService;
 

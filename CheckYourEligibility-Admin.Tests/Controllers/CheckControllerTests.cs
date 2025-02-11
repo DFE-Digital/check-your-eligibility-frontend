@@ -34,9 +34,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         private Mock<IAdminProcessChildDetailsUseCase> _adminProcessChildDetailsUseCaseMock;
         private Mock<IAdminAddChildUseCase> _adminAddChildUseCaseMock;
         private Mock<IAdminRemoveChildUseCase> _adminRemoveChildUseCaseMock;
+        private Mock<IAdminCreateUserUseCase> _adminCreateUserUseCaseMock;
         private Mock<IAdminChangeChildDetailsUseCase> _adminChangeChildDetailsUseCaseMock;
         private Mock<IAdminRegistrationResponseUseCase> _adminRegistrationResponseUseCaseMock;
         private Mock<IAdminApplicationsRegisteredUseCase> _adminApplicationsRegisteredUseCaseMock;
+        private Mock<IAdminAppealsRegisteredUseCase> _adminAppealsRegisteredResultUseCaseMock;
         private Mock<HttpContext> _httpContextMock;
         private Mock<ISession> _sessionMock;
         private ITempDataDictionary _tempData;
@@ -66,9 +68,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _adminProcessChildDetailsUseCaseMock = new Mock<IAdminProcessChildDetailsUseCase>();
             _adminAddChildUseCaseMock = new Mock<IAdminAddChildUseCase>();
             _adminRemoveChildUseCaseMock = new Mock<IAdminRemoveChildUseCase>();
+            _adminCreateUserUseCaseMock = new Mock<IAdminCreateUserUseCase>();
             _adminChangeChildDetailsUseCaseMock = new Mock<IAdminChangeChildDetailsUseCase>();
             _adminRegistrationResponseUseCaseMock = new Mock<IAdminRegistrationResponseUseCase>();
             _adminApplicationsRegisteredUseCaseMock = new Mock<IAdminApplicationsRegisteredUseCase>();
+            _adminAppealsRegisteredResultUseCaseMock = new Mock<IAdminAppealsRegisteredUseCase>();
         }
 
         private void SetupController()
@@ -80,14 +84,16 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 _configMock.Object,
                 _adminLoadParentDetailsUseCaseMock.Object,
                 _adminProcessParentDetailsUseCaseMock.Object,
-                _adminLoaderUseCaseMock.Object,
                 _adminEnterChildDetailsUseCaseMock.Object,
                 _adminProcessChildDetailsUseCaseMock.Object,
                 _adminAddChildUseCaseMock.Object,
+                _adminLoaderUseCaseMock.Object,
                 _adminRemoveChildUseCaseMock.Object,
                 _adminChangeChildDetailsUseCaseMock.Object,
                 _adminRegistrationResponseUseCaseMock.Object,
-                _adminApplicationsRegisteredUseCaseMock.Object
+                _adminApplicationsRegisteredUseCaseMock.Object,
+                _adminCreateUserUseCaseMock.Object,
+                _adminAppealsRegisteredResultUseCaseMock.Object
             );
         }
 
@@ -198,15 +204,29 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Loader_WhenSuccessful_ShouldReturnView()
+        public async Task Loader_WhenSuccessful_ShouldReturnCorrectView()
         {
             // Arrange
-            var claims = new List<Claim>();
+            var responseJson = JsonConvert.SerializeObject(new CheckEligibilityResponse());
+            _tempData["Response"] = responseJson;
+
+            var claims = new List<Claim>
+            {
+               new Claim("organisation", "LocalAuthority")
+             };
             _httpContextMock.Setup(x => x.User.Claims).Returns(claims);
 
+            var statusResponse = new CheckEligibilityStatusResponse
+            {
+                Data = new StatusValue
+                {
+                    Status = CheckEligibilityStatus.eligible.ToString()
+                }
+            };
+
             _adminLoaderUseCaseMock
-                .Setup(x => x.Execute(It.IsAny<string>(), claims))
-                .ReturnsAsync(("TestView", CheckEligibilityStatus.eligible));
+                .Setup(x => x.Execute(responseJson, It.IsAny<IEnumerable<Claim>>()))
+                .ReturnsAsync(("Outcome/Eligible_LA", (object)null));
 
             // Act
             var result = await _sut.Loader();
@@ -214,7 +234,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Assert
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be("TestView");
+            viewResult.ViewName.Should().Be("Outcome/Eligible_LA");
+            viewResult.Model.Should().BeNull();
         }
 
         [Test]

@@ -81,27 +81,31 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
                 return errors;
             }
 
-            // Add additional validation logic here
-            // Example:
-            // if (string.IsNullOrWhiteSpace(request.FirstName))
-            // {
-            //     errors.Add("FirstName", new[] { "First name is required" });
-            // }
-
-            // You can also add async validations using _parentService if needed
-            try
+            if (request.ChildList == null || !request.ChildList.Any())
             {
-                // Example:
-                // var existingChild = await _parentService.CheckExistingChild(request.Id);
-                // if (existingChild != null)
-                // {
-                //     errors.Add("Id", new[] { "Child already exists in the system" });
-                // }
+                errors.Add("Children", new[] { "At least one child is required" });
+                return errors;
             }
-            catch (Exception ex)
+
+            // Validate schools
+            foreach (var child in request.ChildList)
             {
-                _logger.LogError(ex, "Error during child validation");
-                errors.Add("General", new[] { "An error occurred during validation" });
+                try
+                {
+                    if (child.School?.URN != null)
+                    {
+                        var schools = await _parentService.GetSchool(child.School.URN);
+                        if (schools?.Data == null || !schools.Data.Any())
+                        {
+                            errors.Add($"School_{child.ChildIndex}", new[] { "The selected school does not exist in our service" });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error validating school for child {ChildIndex}", child.ChildIndex);
+                    errors.Add($"School_{child.ChildIndex}", new[] { "An error occurred validating the school" });
+                }
             }
 
             return errors;

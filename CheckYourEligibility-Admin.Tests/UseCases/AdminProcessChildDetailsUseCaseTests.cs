@@ -1,90 +1,242 @@
-﻿using CheckYourEligibility_FrontEnd.Models;
+﻿using CheckYourEligibility.Domain.Responses;
+using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Moq;
+using System.Text;
+using ModelChild = CheckYourEligibility_FrontEnd.Models.Child;
+using static CheckYourEligibility_FrontEnd.UseCases.Admin.AdminProcessChildDetailsUseCase;
 
-namespace CheckYourEligibility_FrontEnd_Admin.Tests.UseCase
+namespace CheckYourEligibility_Admin.Tests.UseCases
 {
-    public interface IAdminProcessChildDetailsUseCase
+    [TestFixture]
+    public class AdminProcessChildDetailsUseCaseTests
     {
-        Task<FsmApplication> Execute(Children request, bool isRedirect, ISession session);
-    }
+        private Mock<ILogger<AdminProcessChildDetailsUseCase>> _loggerMock;
+        private Mock<IEcsServiceParent> _parentServiceMock;
+        private Mock<ISession> _sessionMock;
+        private AdminProcessChildDetailsUseCase _sut;
+        private Dictionary<string, byte[]> _sessionData;
 
-    [Serializable]
-    public class AdminProcessChildDetailsException : Exception
-    {
-        public AdminProcessChildDetailsException(string message) : base(message)
+        [SetUp]
+        public void SetUp()
         {
-        }
-    }
+            _loggerMock = new Mock<ILogger<AdminProcessChildDetailsUseCase>>();
+            _parentServiceMock = new Mock<IEcsServiceParent>();
+            _sessionMock = new Mock<ISession>();
+            _sessionData = new Dictionary<string, byte[]>();
 
-    public class AdminProcessChildDetailsUseCase : IAdminProcessChildDetailsUseCase
-    {
-        private readonly ILogger<AdminProcessChildDetailsUseCase> _logger;
-        private readonly IEcsServiceParent _parentService;
+            _sut = new AdminProcessChildDetailsUseCase(
+                _loggerMock.Object,
+                _parentServiceMock.Object);
 
-        public AdminProcessChildDetailsUseCase(
-            ILogger<AdminProcessChildDetailsUseCase> logger,
-            IEcsServiceParent parentService)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
+            SetupSessionMock();
         }
 
-        public async Task<FsmApplication> Execute(Children request, bool isRedirect, ISession session)
+        private void SetupSessionMock()
         {
-            try
-            {
-                if (request == null)
+            _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                .Returns((string key, out byte[] value) =>
                 {
-                    throw new AdminProcessChildDetailsException("Invalid request - children object is null");
-                }
+                    if (_sessionData.TryGetValue(key, out var data))
+                    {
+                        value = data;
+                        return true;
+                    }
+                    value = null;
+                    return false;
+                });
 
-                await ValidateSchools(request);
+            void SetSessionValue(string key, string value) =>
+                _sessionData[key] = Encoding.UTF8.GetBytes(value);
 
-                return CreateFsmApplication(request, session);
-            }
-            catch (Exception ex) when (ex is not AdminProcessChildDetailsException)
-            {
-                _logger.LogError(ex, "Failed to process child details");
-                throw new AdminProcessChildDetailsException($"Failed to validate school: {ex.Message}");
-            }
+            SetSessionValue("ParentFirstName", "TestFirst");
+            SetSessionValue("ParentLastName", "TestLast");
+            SetSessionValue("ParentDOB", "1990-01-01");
+            SetSessionValue("ParentNINO", "AB123456C");
+            SetSessionValue("ParentEmail", "test@example.com");
         }
 
-        private async Task ValidateSchools(Children request)
+        [Test]
+        public async Task Execute_WithValidRequest_ShouldCreateFsmApplication()
         {
-            foreach (var child in request.ChildList)
+            // Arrange
+            var request = new Children
             {
-                if (child.School?.URN == null) continue;
-
-                if (child.School.URN.Length != 6 || !int.TryParse(child.School.URN, out _))
+                ChildList = new List<ModelChild>
                 {
-                    throw new AdminProcessChildDetailsException("School URN should be a 6 digit number");
+                    new ModelChild { FirstName = "TestChild", LastName = "TestLast" }
                 }
-
-                var schools = await _parentService.GetSchool(child.School.URN);
-
-                if (schools?.Data == null || !schools.Data.Any())
-                {
-                    throw new AdminProcessChildDetailsException("The selected school does not exist in our service");
-                }
-
-                child.School.Name = schools.Data.First().Name;
-            }
-        }
-
-        private FsmApplication CreateFsmApplication(Children request, ISession session)
-        {
-            return new FsmApplication
-            {
-                ParentFirstName = session.GetString("ParentFirstName"),
-                ParentLastName = session.GetString("ParentLastName"),
-                ParentDateOfBirth = session.GetString("ParentDOB"),
-                ParentNino = session.GetString("ParentNINO"),
-                ParentNass = session.GetString("ParentNASS"),
-                ParentEmail = session.GetString("ParentEmail"),
-                Children = request
             };
+            var validationErrors = new Dictionary<string, string[]>();
+
+            // Act
+            var result = await _sut.Execute(request, _sessionMock.Object, validationErrors);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.ParentFirstName.Should().Be("TestFirst");
+            result.ParentLastName.Should().Be("TestLast");
+            result.Children.Should().BeEquivalentTo(request);
+        }
+
+        [Test]
+        public async Task Execute_WithValidationErrors_ShouldThrowException()
+        {
+            // Arrange
+            var request = new Children
+            {
+                ChildList = new List<ModelChild>
+                {
+                    new ModelChild { FirstName = "TestChild", LastName = "TestLast" }
+                }
+            };
+            var validationErrors = new Dictionary<string, string[]>
+            {
+                { "TestField", new[] { "Test error" } }
+            };
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Execute(request, _sessionMock.Object, validationErrors))
+                .Should().ThrowAsync<AdminProcessChildDetailsValidationException>();
+        }
+
+        [Test]
+        public async Task Execute_WithNullRequest_ShouldThrowValidationException()
+        {
+            // Arrange
+            var validationErrors = new Dictionary<string, string[]>();
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Execute(null, _sessionMock.Object, validationErrors))
+                .Should().ThrowAsync<AdminProcessChildDetailsValidationException>()
+                .WithMessage("{\"Children\":[\"Child details are required\"]}");
+        }
+
+        [Test]
+        public async Task Execute_WhenServiceThrows_ShouldThrowValidationException()
+        {
+            // Arrange
+            var request = new Children
+            {
+                ChildList = new List<ModelChild>
+        {
+            new ModelChild
+            {
+                ChildIndex = 1,
+                FirstName = "TestChild",
+                LastName = "TestLast",
+                Day = "1",
+                Month = "1",
+                Year = "2020",
+                School = new School
+                {
+                    URN = "123456",
+                    Name = "Test School"
+                }
+            }
+        }
+            };
+
+            // Setup GetSchool to throw when validating the school
+            _parentServiceMock
+                .Setup(x => x.GetSchool("123456"))
+                .ThrowsAsync(new Exception("Service error"));
+
+            var validationErrors = new Dictionary<string, string[]>();
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Execute(request, _sessionMock.Object, validationErrors))
+                .Should().ThrowAsync<AdminProcessChildDetailsValidationException>()
+                .WithMessage("{\"School_1\":[\"An error occurred validating the school\"]}");
+
+            // Verify the service method was called
+            _parentServiceMock.Verify(x => x.GetSchool("123456"), Times.Once);
+
+            // Verify the error was logged
+            _loggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Error validating school for child 1")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task Execute_WithInvalidSchool_ShouldThrowValidationException()
+        {
+            // Arrange
+            var request = new Children
+            {
+                ChildList = new List<ModelChild>
+        {
+            new ModelChild
+            {
+                ChildIndex = 1,
+                FirstName = "TestChild",
+                LastName = "TestLast",
+                Day = "1",
+                Month = "1",
+                Year = "2020",
+                School = new School
+                {
+                    URN = "123456",
+                    Name = "Test School"
+                }
+            }
+        }
+            };
+
+            // Setup GetSchool to return empty list indicating school not found
+            _parentServiceMock
+                .Setup(x => x.GetSchool("123456"))
+                .ReturnsAsync(new EstablishmentSearchResponse { Data = new List<Establishment>() });
+
+            var validationErrors = new Dictionary<string, string[]>();
+
+            // Act & Assert
+            await FluentActions.Invoking(() =>
+                _sut.Execute(request, _sessionMock.Object, validationErrors))
+                .Should().ThrowAsync<AdminProcessChildDetailsValidationException>()
+                .WithMessage("{\"School_1\":[\"The selected school does not exist in our service\"]}");
+
+            // Verify the service method was called
+            _parentServiceMock.Verify(x => x.GetSchool("123456"), Times.Once);
+        }
+
+        [Test]
+        public async Task Execute_ShouldLogInformation()
+        {
+            // Arrange
+            var request = new Children
+            {
+                ChildList = new List<ModelChild>
+                {
+                    new ModelChild { FirstName = "TestChild", LastName = "TestLast" }
+                }
+            };
+            var validationErrors = new Dictionary<string, string[]>();
+
+            // Act
+            await _sut.Execute(request, _sessionMock.Object, validationErrors);
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Creating new FSM application")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

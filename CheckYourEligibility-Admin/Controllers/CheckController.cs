@@ -19,30 +19,34 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IConfiguration _config;
         private readonly IAdminLoadParentDetailsUseCase _adminLoadParentDetailsUseCase;
         private readonly IAdminProcessParentDetailsUseCase _adminProcessParentDetailsUseCase;
-        private readonly IAdminLoaderUseCase _adminLoaderUseCase;
         private readonly IAdminEnterChildDetailsUseCase _adminEnterChildDetailsUseCase;
         private readonly IAdminProcessChildDetailsUseCase _adminProcessChildDetailsUseCase;
         private readonly IAdminAddChildUseCase _adminAddChildUseCase;
+        private readonly IAdminLoaderUseCase _adminLoaderUseCase;
         private readonly IAdminRemoveChildUseCase _adminRemoveChildUseCase;
         private readonly IAdminChangeChildDetailsUseCase _adminChangeChildDetailsUseCase;
         private readonly IAdminRegistrationResponseUseCase _adminRegistrationResponseUseCase;
         private readonly IAdminApplicationsRegisteredUseCase _adminApplicationsRegisteredUseCase;
+        private readonly IAdminCreateUserUseCase _adminCreateUserUseCase;
+        private readonly IAdminAppealsRegisteredUseCase _adminAppealsRegisteredUseCase;
 
         public CheckController(
-            ILogger<CheckController> logger,
+           ILogger<CheckController> logger,
             IEcsServiceParent ecsServiceParent,
             IEcsCheckService ecsCheckService,
             IConfiguration configuration,
             IAdminLoadParentDetailsUseCase adminLoadParentDetailsUseCase,
             IAdminProcessParentDetailsUseCase adminProcessParentDetailsUseCase,
-            IAdminLoaderUseCase adminLoaderUseCase,
             IAdminEnterChildDetailsUseCase adminEnterChildDetailsUseCase,
             IAdminProcessChildDetailsUseCase adminProcessChildDetailsUseCase,
             IAdminAddChildUseCase adminAddChildUseCase,
+            IAdminLoaderUseCase adminLoaderUseCase,
             IAdminRemoveChildUseCase adminRemoveChildUseCase,
             IAdminChangeChildDetailsUseCase adminChangeChildDetailsUseCase,
             IAdminRegistrationResponseUseCase adminRegistrationResponseUseCase,
-            IAdminApplicationsRegisteredUseCase adminApplicationsRegisteredUseCase)
+            IAdminApplicationsRegisteredUseCase adminApplicationsRegisteredUseCase,
+            IAdminCreateUserUseCase adminCreateUserUseCase,
+             IAdminAppealsRegisteredUseCase adminAppealsRegisteredUseCase)
         {
             _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,14 +54,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
             _adminLoadParentDetailsUseCase = adminLoadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminLoadParentDetailsUseCase));
             _adminProcessParentDetailsUseCase = adminProcessParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessParentDetailsUseCase));
-            _adminLoaderUseCase = adminLoaderUseCase ?? throw new ArgumentNullException(nameof(adminLoaderUseCase));
             _adminEnterChildDetailsUseCase = adminEnterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminEnterChildDetailsUseCase));
             _adminProcessChildDetailsUseCase = adminProcessChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessChildDetailsUseCase));
             _adminAddChildUseCase = adminAddChildUseCase ?? throw new ArgumentNullException(nameof(adminAddChildUseCase));
+            _adminLoaderUseCase = adminLoaderUseCase ?? throw new ArgumentNullException(nameof(adminLoaderUseCase));
             _adminRemoveChildUseCase = adminRemoveChildUseCase ?? throw new ArgumentNullException(nameof(adminRemoveChildUseCase));
             _adminChangeChildDetailsUseCase = adminChangeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminChangeChildDetailsUseCase));
             _adminRegistrationResponseUseCase = adminRegistrationResponseUseCase ?? throw new ArgumentNullException(nameof(adminRegistrationResponseUseCase));
             _adminApplicationsRegisteredUseCase = adminApplicationsRegisteredUseCase ?? throw new ArgumentNullException(nameof(adminApplicationsRegisteredUseCase));
+            _adminCreateUserUseCase = adminCreateUserUseCase ?? throw new ArgumentNullException(nameof(adminCreateUserUseCase));
+            _adminAppealsRegisteredUseCase = adminAppealsRegisteredUseCase ?? throw new ArgumentNullException(nameof(adminAppealsRegisteredUseCase));
         }
 
         [HttpGet]
@@ -127,23 +133,25 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             try
             {
                 var responseJson = TempData["Response"] as string;
-                var result = await _adminLoaderUseCase.Execute(responseJson, HttpContext.User.Claims);
-
-                if (result.Model != null)
+                if (responseJson == null)
                 {
-                    TempData["OutcomeStatus"] = result.Model;
+                    _logger.LogWarning("No response data found in TempData.");
+                    return View("Outcome/Technical_Error");
                 }
 
-                if (result.ViewName == "Loader")
+                var (viewName, model) = await _adminLoaderUseCase.Execute(responseJson, HttpContext.User.Claims);
+
+                // Handle queued status separately to maintain polling
+                if (viewName == "Loader")
                 {
                     TempData["Response"] = responseJson;
                 }
 
-                return View(result.ViewName);
+                return View(viewName, model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in loader");
+                _logger.LogError(ex, "Error in Loader action");
                 return View("Outcome/Technical_Error");
             }
         }

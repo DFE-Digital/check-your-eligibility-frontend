@@ -1,94 +1,192 @@
 ﻿using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Moq;
 using System.Security.Claims;
+using Newtonsoft.Json;
 
-namespace CheckYourEligibility_FrontEnd_Admin.Tests.UseCases
+namespace CheckYourEligibility_Admin.Tests.UseCases
 {
-    public interface IAdminLoaderUseCase
+    [TestFixture]
+    public class AdminLoaderUseCaseTests : IDisposable
     {
-        Task<(string ViewName, object Model)> Execute(string responseJson, IEnumerable<Claim> claims);
-    }
+        private Mock<ILogger<AdminLoaderUseCase>> _loggerMock;
+        private Mock<IEcsCheckService> _checkServiceMock;
+        private AdminLoaderUseCase _sut;
+        private List<Claim> _claims;
+        private bool _disposed;
 
-    [Serializable]
-    public class AdminLoaderException : Exception
-    {
-        public AdminLoaderException(string message) : base(message)
+        [SetUp]
+        public void SetUp()
         {
-        }
-    }
+            _loggerMock = new Mock<ILogger<AdminLoaderUseCase>>();
+            _checkServiceMock = new Mock<IEcsCheckService>();
+            _sut = new AdminLoaderUseCase(_loggerMock.Object, _checkServiceMock.Object);
 
-    public class AdminLoaderUseCase : IAdminLoaderUseCase
-    {
-        private readonly ILogger<AdminLoaderUseCase> _logger;
-        private readonly IEcsCheckService _checkService;
-
-        public AdminLoaderUseCase(
-            ILogger<AdminLoaderUseCase> logger,
-            IEcsCheckService checkService)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _checkService = checkService ?? throw new ArgumentNullException(nameof(checkService));
-        }
-
-        public async Task<(string ViewName, object Model)> Execute(string responseJson, IEnumerable<Claim> claims)
-        {
-            try
+            _claims = new List<Claim>
             {
-                if (string.IsNullOrEmpty(responseJson))
-                {
-                    return ("Outcome/Technical_Error", null);
-                }
-
-                var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
-                var check = await _checkService.GetStatus(response);
-
-                if (check?.Data == null)
-                {
-                    return ("Outcome/Technical_Error", null);
-                }
-
-                var isLocalAuthority = claims
-                    .First(c => c.Type == "organisation")
-                    .Value.Contains("LocalAuthority");
-
-                return GetViewForStatus(check.Data.Status, isLocalAuthority);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to process eligibility check status");
-                throw new AdminLoaderException($"Failed to process eligibility check status: {ex.Message}");
-            }
-        }
-
-        private (string ViewName, object Model) GetViewForStatus(string status, bool isLocalAuthority)
-        {
-            return status switch
-            {
-                nameof(CheckEligibilityStatus.eligible) => (
-                    isLocalAuthority ? "Outcome/Eligible_LA" : "Outcome/Eligible",
-                    null),
-
-                nameof(CheckEligibilityStatus.notEligible) => (
-                    isLocalAuthority ? "Outcome/Not_Eligible_LA" : "Outcome/Not_Eligible",
-                    null),
-
-                nameof(CheckEligibilityStatus.parentNotFound) => (
-                    "Outcome/Not_Found",
-                    null),
-
-                nameof(CheckEligibilityStatus.DwpError) => (
-                    "Outcome/Technical_Error",
-                    null),
-
-                nameof(CheckEligibilityStatus.queuedForProcessing) => (
-                    "Loader",
-                    null),
-
-                _ => ("Outcome/Technical_Error", null)
+                new Claim("organisation", "LocalAuthority")
             };
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _sut = null;
+            }
+
+            _disposed = true;
+        }
+
+        [Test]
+        public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            FluentActions.Invoking(() => new AdminLoaderUseCase(null, _checkServiceMock.Object))
+                .Should().Throw<ArgumentNullException>()
+                .WithParameterName("logger");
+        }
+
+        [Test]
+        public void Constructor_WithNullCheckService_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            FluentActions.Invoking(() => new AdminLoaderUseCase(_loggerMock.Object, null))
+                .Should().Throw<ArgumentNullException>()
+                .WithParameterName("checkService");
+        }
+
+        [Test]
+        public async Task Execute_WithNullJson_ReturnsTechnicalError()
+        {
+            // Act
+            var result = await _sut.Execute(null, _claims);
+
+            // Assert
+            result.ViewName.Should().Be("Outcome/Technical_Error");
+            result.Model.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Execute_WithEmptyJson_ReturnsTechnicalError()
+        {
+            // Act
+            var result = await _sut.Execute("", _claims);
+
+            // Assert
+            result.ViewName.Should().Be("Outcome/Technical_Error");
+            result.Model.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Execute_WhenCheckServiceReturnsNullResponse_ReturnsTechnicalError()
+        {
+            // Arrange
+            var response = new CheckEligibilityResponse();
+            var json = JsonConvert.SerializeObject(response);
+
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync((CheckEligibilityStatusResponse)null);
+
+            // Act
+            var result = await _sut.Execute(json, _claims);
+
+            // Assert
+            result.ViewName.Should().Be("Outcome/Technical_Error");
+            result.Model.Should().BeNull();
+        }
+
+        [TestCase(CheckEligibilityStatus.eligible, "Outcome/Eligible_LA", true)]
+        [TestCase(CheckEligibilityStatus.eligible, "Outcome/Eligible", false)]
+        [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible_LA", true)]
+        [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible", false)]
+        [TestCase(CheckEligibilityStatus.parentNotFound, "Outcome/Not_Found", true)]
+        [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Technical_Error", true)]
+        [TestCase(CheckEligibilityStatus.queuedForProcessing, "Loader", true)]
+        public async Task Execute_WithStatus_ReturnsCorrectView(
+            CheckEligibilityStatus status,
+            string expectedView,
+            bool isLocalAuthority)
+        {
+            // Arrange
+            var response = new CheckEligibilityResponse();
+            var json = JsonConvert.SerializeObject(response);
+            var claims = new List<Claim>
+            {
+                new Claim("organisation", isLocalAuthority ? "LocalAuthority" : "other")
+            };
+
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(new CheckEligibilityStatusResponse
+                {
+                    Data = new StatusValue
+                    {
+                        Status = status.ToString()
+                    }
+                });
+
+            // Act
+            var result = await _sut.Execute(json, claims);
+
+            // Assert
+            result.ViewName.Should().Be(expectedView);
+            result.Model.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Execute_WhenServiceThrows_ThrowsAdminLoaderException()
+        {
+            // Arrange
+            var response = new CheckEligibilityResponse();
+            var json = JsonConvert.SerializeObject(response);
+
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ThrowsAsync(new Exception("Service error"));
+
+            // Act & Assert
+            await FluentActions.Invoking(() => _sut.Execute(json, _claims))
+                .Should().ThrowAsync<AdminLoaderException>()
+                .WithMessage("Failed to process eligibility check status: Service error");
+
+            _loggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Failed to process eligibility check status")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task Execute_WhenCheckServiceReturnsNullData_ReturnsTechnicalError()
+        {
+            // Arrange
+            var response = new CheckEligibilityResponse();
+            var json = JsonConvert.SerializeObject(response);
+
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(new CheckEligibilityStatusResponse { Data = null });
+
+            // Act
+            var result = await _sut.Execute(json, _claims);
+
+            // Assert
+            result.ViewName.Should().Be("Outcome/Technical_Error");
+            result.Model.Should().BeNull();
         }
     }
 }

@@ -1,81 +1,122 @@
 ﻿using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Newtonsoft.Json;
 
-namespace CheckYourEligibility_FrontEnd_Admin.Tests.UseCases
+namespace CheckYourEligibility_Admin.Tests.UseCases
 {
-    public interface IAdminLoadParentDetailsUseCase
+    [TestFixture]
+    public class AdminLoadParentDetailsUseCaseTests
     {
-        Task<(ParentGuardian Parent, Dictionary<string, List<string>> ValidationErrors)> Execute(
-            string parentDetailsJson = null,
-            string validationErrorsJson = null);
-    }
+        private Mock<ILogger<AdminLoadParentDetailsUseCase>> _loggerMock;
+        private AdminLoadParentDetailsUseCase _sut;
 
-    [Serializable]
-    public class AdminLoadParentDetailsException : Exception
-    {
-        public AdminLoadParentDetailsException(string message) : base(message)
+        [SetUp]
+        public void SetUp()
         {
-        }
-    }
-
-    public class AdminLoadParentDetailsUseCase : IAdminLoadParentDetailsUseCase
-    {
-        private readonly ILogger<AdminLoadParentDetailsUseCase> _logger;
-
-        public AdminLoadParentDetailsUseCase(ILogger<AdminLoadParentDetailsUseCase> logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _loggerMock = new Mock<ILogger<AdminLoadParentDetailsUseCase>>();
+            _sut = new AdminLoadParentDetailsUseCase(_loggerMock.Object);
         }
 
-        public async Task<(ParentGuardian Parent, Dictionary<string, List<string>> ValidationErrors)> Execute(
-            string parentDetailsJson = null,
-            string validationErrorsJson = null)
+        [Test]
+        public async Task Execute_WithNoData_ShouldReturnNulls()
         {
-            ParentGuardian parent = null;
-            Dictionary<string, List<string>> validationErrors = null;
+            // Act
+            var (parent, errors) = await _sut.Execute();
 
-            try
-            {
-                if (!string.IsNullOrEmpty(parentDetailsJson))
-                {
-                    parent = JsonConvert.DeserializeObject<ParentGuardian>(parentDetailsJson);
-                }
-
-                if (!string.IsNullOrEmpty(validationErrorsJson))
-                {
-                    validationErrors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(validationErrorsJson);
-                    ProcessSpecialCaseValidations(validationErrors);
-                }
-
-                return (parent, validationErrors);
-            }
-            catch (JsonReaderException ex)
-            {
-                _logger.LogError(ex, "Failed to deserialize details");
-                throw new AdminLoadParentDetailsException($"Failed to load parent details: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to deserialize parent details");
-                return (null, null);
-            }
+            // Assert
+            parent.Should().BeNull();
+            errors.Should().BeNull();
         }
 
-        private void ProcessSpecialCaseValidations(Dictionary<string, List<string>> errors)
+        [Test]
+        public async Task Execute_WithValidParentJson_ShouldDeserializeParent()
         {
-            if (errors == null) return;
-
-            const string targetValue = "Please select one option";
-            if (errors.TryGetValue("NationalInsuranceNumber", out var ninoErrors) &&
-                errors.TryGetValue("NationalAsylumSeekerServiceNumber", out var nassErrors) &&
-                ninoErrors.Contains(targetValue) && nassErrors.Contains(targetValue))
+            // Arrange
+            var expectedParent = new ParentGuardian
             {
-                errors.Remove("NationalInsuranceNumber");
-                errors.Remove("NationalAsylumSeekerServiceNumber");
-                errors["NINAS"] = new List<string> { targetValue };
-            }
+                FirstName = "Test",
+                LastName = "Parent",
+                EmailAddress = "test@example.com"
+            };
+            var parentJson = JsonConvert.SerializeObject(expectedParent);
+
+            // Act
+            var (parent, errors) = await _sut.Execute(parentJson);
+
+            // Assert
+            parent.Should().BeEquivalentTo(expectedParent);
+            errors.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Execute_WithValidErrorsJson_ShouldDeserializeErrors()
+        {
+            // Arrange
+            var expectedErrors = new Dictionary<string, List<string>>
+            {
+                { "Field1", new List<string> { "Error1" } }
+            };
+            var errorsJson = JsonConvert.SerializeObject(expectedErrors);
+
+            // Act
+            var (parent, errors) = await _sut.Execute(null, errorsJson);
+
+            // Assert
+            parent.Should().BeNull();
+            errors.Should().BeEquivalentTo(expectedErrors);
+        }
+
+        [Test]
+        public async Task Execute_WithInvalidParentJson_ShouldReturnNull()
+        {
+            // Arrange
+            var invalidJson = "invalid json";
+
+            // Act
+            var (parent, errors) = await _sut.Execute(invalidJson);
+
+            // Assert
+            parent.Should().BeNull();
+            errors.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Execute_WithNinoNassValidation_ShouldProcessSpecialCase()
+        {
+            // Arrange
+            var validationErrors = new Dictionary<string, List<string>>
+            {
+                { "NationalInsuranceNumber", new List<string> { "Please select one option" } },
+                { "NationalAsylumSeekerServiceNumber", new List<string> { "Please select one option" } }
+            };
+            var errorsJson = JsonConvert.SerializeObject(validationErrors);
+
+            // Act
+            var (_, errors) = await _sut.Execute(null, errorsJson);
+
+            // Assert
+            errors.Should().NotContainKey("NationalInsuranceNumber");
+            errors.Should().NotContainKey("NationalAsylumSeekerServiceNumber");
+            errors.Should().ContainKey("NINAS");
+            errors["NINAS"].Should().Contain("Please select one option");
+        }
+
+        [Test]
+        public async Task Execute_WithInvalidErrorsJson_ShouldReturnNullErrors()
+        {
+            // Arrange
+            var invalidJson = "invalid json";
+
+            // Act
+            var (parent, errors) = await _sut.Execute(null, invalidJson);
+
+            // Assert
+            parent.Should().BeNull();
+            errors.Should().BeNull();
         }
     }
 }

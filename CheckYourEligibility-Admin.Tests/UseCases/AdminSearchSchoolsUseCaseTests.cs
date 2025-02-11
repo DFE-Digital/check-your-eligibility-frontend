@@ -1,6 +1,6 @@
 ﻿using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_Admin.UseCases;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -34,7 +34,6 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
         {
             // Act & Assert
             Func<Task> act = () => _sut.Execute(query);
-
             await act.Should().ThrowAsync<ArgumentException>()
                 .WithMessage("Query must be at least 3 characters long.*");
         }

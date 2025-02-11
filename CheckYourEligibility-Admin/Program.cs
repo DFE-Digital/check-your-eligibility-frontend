@@ -1,8 +1,8 @@
 using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
-using System.Text;
 using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_Admin.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationInsightsTelemetry();
@@ -28,6 +28,9 @@ builder.Services.AddScoped<IAdminProcessParentDetailsUseCase, AdminProcessParent
 builder.Services.AddScoped<IAdminRegistrationResponseUseCase, AdminRegistrationResponseUseCase>();
 builder.Services.AddScoped<IAdminRemoveChildUseCase, AdminRemoveChildUseCase>();
 builder.Services.AddScoped<IAdminApplicationsRegisteredUseCase, AdminApplicationsRegisteredUseCase>();
+builder.Services.AddScoped<IAdminAppealsRegisteredUseCase, AdminAppealsRegisteredUseCase>();
+builder.Services.AddScoped<IAdminCreateUserUseCase, AdminCreateUserUseCase>();
+builder.Services.AddScoped<IAdminSearchSchoolsUseCase, AdminSearchSchoolsUseCase>();
 
 builder.Services.AddSession();
 
