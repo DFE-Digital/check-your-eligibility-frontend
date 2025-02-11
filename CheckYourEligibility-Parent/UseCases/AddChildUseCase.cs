@@ -32,14 +32,12 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
         public Children Execute(Children request)
         {
-            _logger.LogError(_configuration.GetValue<string>("MaxChildren"));
-            if (request.ChildList.Count >= int.Parse(_configuration.GetValue<string>("MaxChildren")))
+            if (request.ChildList.Count >= _configuration.GetValue<int>("MaxChildren"))
             {
                 throw new MaxChildrenException("");
             }
 
-            request.ChildList.Add(new Child()
-                );
+            request.ChildList.Add(new Child());
 
             _logger.LogInformation("Successfully added new child. Total children: {Count}", request.ChildList.Count);
             return request;

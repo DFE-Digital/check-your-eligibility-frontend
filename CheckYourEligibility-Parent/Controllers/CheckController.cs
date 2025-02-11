@@ -209,10 +209,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Enter_Child_Details()
         {
-            _logger.LogError("TempData state");
-            _logger.LogError(TempData["ChildList"] as string);
-            _logger.LogError("IsChildAddRemoveState");
-            _logger.LogError(TempData["IsChildAddOrRemove"] as string);
             var childrenModel = _enterChildDetailsUseCase.Execute(
                 TempData["ChildList"] as string,
                 TempData["IsChildAddOrRemove"] as bool?);
@@ -276,31 +272,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Add_Child(Children request)
         {
-            /*try
-            {*/
-                _logger.LogError("Before use case");
-                _logger.LogError(JsonConvert.SerializeObject(request.ChildList));
-            
+            try
+            {
                 TempData["IsChildAddOrRemove"] = true;
-                
-                _logger.LogError("Actual Max Child Count");
                 
                 Children updatedChildren = _addChildUseCase.Execute(request);
 
-                _logger.LogError("Between use case and serialisation");
-                
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
-                _logger.LogError("After use case");
-                _logger.LogError(TempData["ChildList"] as string);
-            /*}
+            }
             catch (MaxChildrenException e)
             {
                 TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
             }
-            catch (Exception e)
-            {
-                TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
-            }*/
 
             return RedirectToAction("Enter_Child_Details");
         }
