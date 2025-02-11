@@ -42,7 +42,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            var result = await _sut.Execute(children);
+            var result =  _sut.Execute(children);
 
             // Assert
             result.ChildList.Should().HaveCount(2);
@@ -61,8 +61,8 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            await FluentActions.Invoking(() =>_sut.Execute(children))
-                .Should().ThrowAsync<MaxChildrenException>();
+            FluentActions.Invoking(() =>_sut.Execute(children))
+                .Should().Throw<MaxChildrenException>();
         }
     }
 }

@@ -5,7 +5,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IEnterChildDetailsUseCase
     {
-        Task<Children> Execute(string childListJson, bool? isChildAddOrRemove);
+        Children Execute(string childListJson, bool? isChildAddOrRemove);
     }
 
     public class EnterChildDetailsUseCase : IEnterChildDetailsUseCase
@@ -17,7 +17,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task<Children> Execute(string childListJson, bool? isChildAddOrRemove)
+        public Children Execute(string childListJson, bool? isChildAddOrRemove)
         {
             var children = new Children { ChildList = new List<Child> { new Child() } };
 
@@ -30,7 +30,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
                 }
             }
 
-            return Task.FromResult(children);
+            return children;
         }
     }
 }

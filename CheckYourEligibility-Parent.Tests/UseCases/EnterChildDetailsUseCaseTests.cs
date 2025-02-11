@@ -24,7 +24,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
         public async Task Execute_WithNoData_ShouldReturnDefaultChildren()
         {
             // Act
-            var result = await _sut.Execute(null, null);
+            var result = _sut.Execute(null, null);
 
             // Assert
             result.Should().NotBeNull();
@@ -45,7 +45,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
             var childListJson = JsonConvert.SerializeObject(childList);
 
             // Act
-            var result = await _sut.Execute(childListJson, true);
+            var result = _sut.Execute(childListJson, true);
 
             // Assert
             result.Should().NotBeNull();
@@ -66,7 +66,7 @@ namespace CheckYourEligibility_Parent.Tests.Usecases
             var childListJson = JsonConvert.SerializeObject(childList);
 
             // Act
-            var result = await _sut.Execute(childListJson, false);
+            var result = _sut.Execute(childListJson, false);
 
             // Assert
             result.Should().NotBeNull();
