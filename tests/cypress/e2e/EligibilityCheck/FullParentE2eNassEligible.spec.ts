@@ -125,7 +125,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
 
     });
 
-    it('Parent can make the full journey using correct details', () => {
+    it('Parent can make the full journey for two children using correct details', () => {
         cy.visit('/');
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
