@@ -281,11 +281,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             catch (MaxChildrenException e)
             {
-                TempData["ChildList"] = request;
+                TempData["ChildList"] = JsonConvert.SerializeObject(request);
             }
             catch (Exception e)
             {
-                TempData["ChildList"] = request;
+                TempData["ChildList"] = JsonConvert.SerializeObject(request);
             }
 
             return RedirectToAction("Enter_Child_Details");
