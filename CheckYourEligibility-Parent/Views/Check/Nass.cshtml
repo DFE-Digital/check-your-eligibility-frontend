@@ -3,7 +3,7 @@
 @model CheckYourEligibility_FrontEnd.Models.Parent
 
 @{
-    ViewData["Title"] = "Nass Number";
+    ViewData["Title"] = "Do you have an asylum support reference number?";
     ViewData["Layout"] = "two_thirds";
     var request = TempData["ParentDetails"] as string;
     var parent = JsonConvert.DeserializeObject<Parent>(request);
@@ -14,7 +14,7 @@
 
 @if (!ViewData.ModelState.IsValid)
 {
-    ViewData["Title"] = "Error: Nass Number";
+    ViewData["Title"] = "Error: Do you have an asylum support reference number?";
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
@@ -31,9 +31,7 @@
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset" aria-describedby="nass-number-hint">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
-                            Do you have an asylum support reference number?
-                        </h1>
+                        <h1 class="govuk-fieldset__heading">@ViewData["Title"]</h1>
                     </legend>
 
                     <div id="nass-number-hint" class="govuk-hint">
