@@ -209,7 +209,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Enter_Child_Details()
         {
-            var childrenModel = await _enterChildDetailsUseCase.Execute(
+            var childrenModel = _enterChildDetailsUseCase.Execute(
                 TempData["ChildList"]?.ToString(),
                 TempData["IsChildAddOrRemove"] as bool?);
 
@@ -273,9 +273,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
+                TempData["IsChildAddOrRemove"] = true;
+                
                 Children updatedChildren = _addChildUseCase.Execute(request);
 
-                TempData["IsChildAddOrRemove"] = true;
 
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
             }
