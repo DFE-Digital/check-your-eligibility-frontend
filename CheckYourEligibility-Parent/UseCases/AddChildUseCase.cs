@@ -32,7 +32,8 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
         public Children Execute(Children request)
         {
-            if (request.ChildList.Count >= _configuration.GetValue<int>("MaxChildren"))
+            _logger.LogError(_configuration.GetValue<string>("MaxChildren"));
+            if (request.ChildList.Count >= int.Parse(_configuration.GetValue<string>("MaxChildren")))
             {
                 throw new MaxChildrenException("");
             }

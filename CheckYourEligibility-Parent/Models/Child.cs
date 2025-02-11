@@ -15,7 +15,7 @@ namespace CheckYourEligibility_FrontEnd.Models
         [ChildName("last name")]
         public string? LastName { get; set; }
 
-        public School? School { get; set; }
+        public School School { get; set; }
         
         [NotMapped]
         [Dob("date of birth", "child", "ChildIndex", "Day", "Month", "Year", isRequired: true, applyAgeRange: true)]

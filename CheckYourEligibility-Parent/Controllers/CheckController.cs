@@ -283,8 +283,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
                 TempData["IsChildAddOrRemove"] = true;
                 
+                _logger.LogError("Actual Max Child Count");
+                
                 Children updatedChildren = _addChildUseCase.Execute(request);
 
+                _logger.LogError("Between use case and serialisation");
+                
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
                 _logger.LogError("After use case");
                 _logger.LogError(TempData["ChildList"] as string);
