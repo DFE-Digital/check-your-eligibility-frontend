@@ -204,3 +204,17 @@ img, svg {
 }
 
 /*END - Remove whitespace from ApplicationDetailLA below name and actions */
+
+/*BEGIN - Inline style replace for search all records design team customised styles */
+
+.govuk-page-header-customisation {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+}
+
+.govuk-heading-m-customisation {
+    margin: 0;
+}
+
+/*END - Inline style replace for search all records design team customised styles */
