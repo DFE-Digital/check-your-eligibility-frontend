@@ -64,7 +64,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                return RedirectToAction("SearchResults");
+                return View();
             }
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);

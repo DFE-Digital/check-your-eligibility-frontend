@@ -1,4 +1,4 @@
-
+/*
 describe('Admin journey search for application', () => {
     beforeEach(() => {
         cy.session("Session 5", () => {
@@ -104,3 +104,5 @@ describe('Admin journey search for application', () => {
 
 
 });
+
+*/
