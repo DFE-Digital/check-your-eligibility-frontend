@@ -244,6 +244,7 @@
                                         <div class="moj-scrollable-pane">
                                             @{
                                                 if (Model != null)
+                                                {
                                                     if (Model.People != null && Model.People.Any())
                                                     {
                                                         <table class="govuk-table" id="resultsTable">
@@ -284,10 +285,22 @@
                     };
                                                         @Html.Partial("PaginationPartial", paginationModel)
                                                     }
-                                                    else
-                                                    {
-                                                        <p>No results found.</p>
-                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <table class="govuk-table" id="resultsTable">
+                                                        <thead class="govuk-table__head">
+                                                            <tr class="govuk-table__row">
+                                                                <th class="govuk-table__header" scope="col"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="govuk-table__cell">No results found.</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                }
                                             }
                                         </div>
                                     </div>

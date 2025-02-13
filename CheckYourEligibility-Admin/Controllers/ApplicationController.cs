@@ -528,7 +528,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
             {
                 TempData["Message"] = "There are no records matching your search.";
-                return RedirectToAction("SearchResults");
+                return View();
             }
 
             var criteria = JsonConvert.SerializeObject(applicationSearch);
