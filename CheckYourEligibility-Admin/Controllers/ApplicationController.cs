@@ -1,7 +1,7 @@
 // Ignore Spelling: Finalise
 
 using Azure;
-using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility_FrontEnd.Domain;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
@@ -87,11 +87,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    ChildLastName = request.ChildLastName,
-                    ParentLastName = request.ParentLastName,
-                    Reference = request.Reference,
-                    ChildDateOfBirth = !string.IsNullOrWhiteSpace(request.ChildDobYear) ? new DateOnly(int.Parse(request.ChildDobYear), int.Parse(request.ChildDobMonth), int.Parse(request.ChildDobDay)).ToString("yyyy-MM-dd") : null,
-                    ParentDateOfBirth = !string.IsNullOrWhiteSpace(request.PGDobYear) ? new DateOnly(int.Parse(request.PGDobYear), int.Parse(request.PGDobMonth), int.Parse(request.PGDobDay)).ToString("yyyy-MM-dd") : null,
+                    Keyword = request.Keyword
                 }
             };
 
