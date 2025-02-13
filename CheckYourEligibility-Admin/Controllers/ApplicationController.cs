@@ -36,7 +36,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         #region Search
         [HttpGet]
         public IActionResult Search()
-        {
+            {
             if (TempData["Message"] != null)
             {
                 ViewBag.Message = TempData["Message"];
@@ -55,16 +55,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> SearchResults(int PageNumber)
-        {
-
-            var applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
-            applicationSearch.PageNumber = PageNumber;
-            return await GetResults(applicationSearch, "ApplicationDetail", false, false, false);
-        }
-
-        [HttpPost]
         public async Task<IActionResult> SearchResults(ApplicationSearch request)
         {
             if (!ModelState.IsValid)
@@ -74,7 +64,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                return RedirectToAction("Search");
+                return View();
             }
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
@@ -96,8 +86,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 applicationSearch.Data.Statuses = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>() { request.Status.Value };
             }
 
+            TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
 
-            return await GetResults(applicationSearch, "ApplicationDetail", false, false, false);
+
+            return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
         }
 
         [HttpGet]
@@ -336,7 +328,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(GetViewData(response));
         }
 
-        [HttpPost]
+        [HttpPost]  
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
             var selectedIds = model.getSelectedIds();
@@ -520,10 +512,40 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ShowSchool = showSchool,
                 ShowParentDob = showParentDob
             });
+
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
             return View(viewData);
         }
 
+        private async Task<IActionResult> GetResultsForSearch(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
+        {
+            var response = await _adminService.PostApplicationSearch(applicationSearch);
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return RedirectToAction("SearchResults");
+            }
+
+            var criteria = JsonConvert.SerializeObject(applicationSearch);
+            TempData["SearchCriteria"] = criteria;
+            ViewBag.CurrentPage = applicationSearch.PageNumber;
+            ViewBag.TotalPages = response.TotalPages;
+            ViewBag.TotalRecords = response.TotalRecords;
+            ViewBag.RecordsPerPage = applicationSearch.PageSize;
+
+            var viewModel = response.Data.Select(x => new SearchAllRecordsViewModel
+            {
+                DetailView = detailView,
+                ShowSelectorCheck = showSelector,
+                Person = x,
+                ShowSchool = showSchool,
+                ShowParentDob = showParentDob
+            });
+
+            var viewData = new SearchAllRecordsViewModel { People = viewModel.ToList() };
+            return View(viewData);
+        }
         private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
         {
             var viewData = new ApplicationDetailViewModel
