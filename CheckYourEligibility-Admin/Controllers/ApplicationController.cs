@@ -1,7 +1,7 @@
 // Ignore Spelling: Finalise
 
 using Azure;
-using CheckYourEligibility_FrontEnd.Domain;
+using CheckYourEligibility_FrontEnd.Services.Domain;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
@@ -69,7 +69,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
-            var applicationSearch = new ApplicationRequestSearch()
+            var applicationSearch = new ApplicationRequestSearch2()
             {
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
@@ -120,7 +120,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
                 // Get the current search criteria the same way the search does
-                var currentSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+                var currentSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch2>(TempData["SearchCriteria"].ToString());
 
                 // Ensure we get all results for the current search
                 currentSearch.PageSize = int.MaxValue;
@@ -284,13 +284,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
 
-        private ApplicationRequestSearch GetApplicationsForStatuses(IEnumerable<CheckYourEligibility.Domain.Enums.ApplicationStatus> statuses, int pageNumber, int pageSize)
+        private ApplicationRequestSearch2 GetApplicationsForStatuses(IEnumerable<CheckYourEligibility.Domain.Enums.ApplicationStatus> statuses, int pageNumber, int pageSize)
         {
-            ApplicationRequestSearch applicationSearch;
+            ApplicationRequestSearch2 applicationSearch;
             if (pageNumber == 0)
             {
                 _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-                applicationSearch = new ApplicationRequestSearch()
+                applicationSearch = new ApplicationRequestSearch2()
                 {
                     PageNumber = 1,
                     PageSize = pageSize,
@@ -305,7 +305,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+                applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch2>(TempData["SearchCriteria"].ToString());
                 applicationSearch.PageNumber = pageNumber;
             }
 
@@ -487,7 +487,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
-        private async Task<IActionResult> GetResults(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
+        private async Task<IActionResult> GetResults(ApplicationRequestSearch2? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
         {
             var response = await _adminService.PostApplicationSearch(applicationSearch);
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
@@ -517,7 +517,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(viewData);
         }
 
-        private async Task<IActionResult> GetResultsForSearch(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
+        private async Task<IActionResult> GetResultsForSearch(ApplicationRequestSearch2? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
         {
             var response = await _adminService.PostApplicationSearch(applicationSearch);
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
