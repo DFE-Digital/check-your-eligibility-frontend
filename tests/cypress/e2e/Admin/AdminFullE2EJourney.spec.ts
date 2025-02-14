@@ -118,7 +118,7 @@ describe('Full journey of creating an application through school portal through 
         cy.get('h1').should('include.text', 'Check your answers before submitting');
 
         cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
-        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1 Jan 1990');
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1 January 1990');
         cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', "NN123456C");
         cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
         cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);
