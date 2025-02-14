@@ -15,6 +15,8 @@ using System.Globalization;
 using System.Reflection;
 using CheckYourEligibility_DfeSignIn.Models;
 using System.Text;
+using Azure.Core;
+using CheckYourEligibility.Domain.Enums;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -77,7 +79,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Keyword = request.Keyword
+                    Keyword = request.Keyword,
                 }
             };
 
@@ -503,7 +505,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
             ViewBag.RecordsPerPage = applicationSearch.PageSize;
-
+           
             var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel
             {
                 DetailView = detailView,
@@ -533,7 +535,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
             ViewBag.RecordsPerPage = applicationSearch.PageSize;
-
+            if (applicationSearch.Data.Keyword != null)
+            {
+                ViewBag.Keyword = applicationSearch.Data.Keyword;
+            }
+            if (applicationSearch.Data.Statuses != null)
+            {
+                ViewBag.Status = applicationSearch.Data.Statuses;
+            }
             var viewModel = response.Data.Select(x => new SearchAllRecordsViewModel
             {
                 DetailView = detailView,

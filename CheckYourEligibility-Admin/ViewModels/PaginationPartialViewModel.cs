@@ -1,4 +1,6 @@
 
+using CheckYourEligibility.Domain.Enums;
+
 namespace CheckYourEligibility_FrontEnd.ViewModels
 {
     public class PaginationPartialViewModel
@@ -8,5 +10,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
         public int RecordsPerPage { get; set; }
         public int TotalRecords { get; set; }
         public string ControllerName { get; set; }
+        public string? Keyword { get; set; }
+        public IEnumerable<ApplicationStatus>? Status { get; set; }
     }
 }
