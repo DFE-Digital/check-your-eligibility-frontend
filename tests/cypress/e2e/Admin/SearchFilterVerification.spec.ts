@@ -1,0 +1,176 @@
+
+describe('Keyword search validation', () => {
+    const parentFirstName = 'Sinkler';
+    const parentLastName = Cypress.env('lastName');
+    const parentEmailAddress = 'TimJones@Example.com';
+    const NIN = 'PN668797B'
+    const childFirstName = 'Timmy';
+    const childLastName = 'Smith';
+    let referenceNumber: string;
+    let found = false;
+    let index = 0;
+
+    it('Will allow a school user to create an application that may not be elligible and send it for appeal', () => {
+
+    cy.SignInSchool();
+    cy.wait(1);
+    cy.visit(Cypress.config().baseUrl ?? "");
+    cy.wait(1);
+    cy.get('h1').should('include.text', 'The Telford Park School');
+
+    cy.contains('Run a check for one parent or guardian').click();
+
+    cy.url().should('include', '/Check/Enter_Details');
+    cy.get('#FirstName').type(parentFirstName);
+    cy.get('#LastName').type(parentLastName);
+    cy.get('#EmailAddress').type(parentEmailAddress);
+    cy.get('#Day').type('01');
+    cy.get('#Month').type('01');
+    cy.get('#Year').type('1990');
+
+    cy.get('#NinAsrSelection').click();
+    cy.get('#NationalInsuranceNumber').type(NIN);
+
+    cy.contains('button', 'Perform check').click();
+
+    cy.url().should('include', 'Check/Loader');
+    cy.get('p.govuk-notification-banner__heading', { timeout: 80000 }).should('include.text', 'The children of this parent or guardian may not be eligible for free school meals');
+    cy.contains('a.govuk-button', 'Appeal now').click();
+
+    cy.url().should('include', '/Enter_Child_Details');
+    cy.get('[id="ChildList[0].FirstName"]').type(childFirstName);
+    cy.get('[id="ChildList[0].LastName"]').type(childLastName);
+    cy.get('[id="ChildList[0].Day"]').type('01');
+    cy.get('[id="ChildList[0].Month"]').type('01');
+    cy.get('[id="ChildList[0].Year"]').type('2007');
+    cy.contains('button', 'Save and continue').click();
+
+    cy.get('h1').should('include.text', 'Check your answers before submitting');
+
+    cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
+    cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1990-01-01');
+    cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', NIN);
+    cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
+    cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);
+    cy.contains('button', 'Add details').click();
+
+    cy.url().should('include', '/Check/AppealsRegistered');
+    cy.get('.govuk-table')
+        .find('tbody tr')
+        .eq(0)
+        .find('td')
+        .eq(1)
+        .invoke('text')
+        .then((text) => {
+            referenceNumber = text.trim().toString();
+            cy.wrap('referenceNumber').as(referenceNumber);
+        });
+    });
+
+    it('Returns the correct record when searching Parent Last Name ', () => {
+        cy.SignInSchool();
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+        cy.get("#Keyword").type(parentFirstName);
+        cy.contains(".govuk-button", "Apply filters").click();
+        cy.wait(100);
+        cy.get('.govuk-table').find('tbody tr').each(($tr, i) => {
+            if (!found) {
+              cy.wrap($tr).find('td').each(($td) => {
+                if ($td.text().includes(referenceNumber)) {
+                  found = true;
+                  index = i;
+                  return false;
+                }
+              });
+            }
+          })
+    });
+    it('Returns the correct record when searching Parent Last Name ', () => {
+        cy.SignInSchool();
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+        cy.get("#Keyword").type(parentLastName);
+        cy.contains(".govuk-button", "Apply filters").click();
+        cy.wait(100);
+        cy.get('.govuk-table').find('tbody tr').each(($tr, i) => {
+            if (!found) {
+              cy.wrap($tr).find('td').each(($td) => {
+                if ($td.text().includes(referenceNumber)) {
+                  found = true;
+                  index = i;
+                  return false;
+                }
+              });
+            }
+          })
+    });
+    it('Returns the correct record when searching Child First Name ', () => {
+        cy.SignInSchool();
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+        cy.get("#Keyword").type(childFirstName);
+        cy.contains(".govuk-button", "Apply filters").click();
+        cy.wait(100);
+        cy.get('.govuk-table').find('tbody tr').each(($tr, i) => {
+            if (!found) {
+              cy.wrap($tr).find('td').each(($td) => {
+                if ($td.text().includes(referenceNumber)) {
+                  found = true;
+                  index = i;
+                  return false;
+                }
+              });
+            }
+          })
+    });
+    it('Returns the correct record when searching Child Last Name ', () => {
+        cy.SignInSchool();
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+        cy.get("#Keyword").type(childLastName);
+        cy.contains(".govuk-button", "Apply filters").click();
+        cy.wait(100);
+        cy.get('.govuk-table').find('tbody tr').each(($tr, i) => {
+            if (!found) {
+              cy.wrap($tr).find('td').each(($td) => {
+                if ($td.text().includes(referenceNumber)) {
+                  found = true;
+                  index = i;
+                  return false;
+                }
+              });
+            }
+          })
+    });
+    it('Returns the correct record when searching National Insurance number ', () => {
+        cy.SignInSchool();
+        cy.visit(Cypress.config().baseUrl ?? "");
+        cy.wait(1);
+
+        cy.contains('Search all records').click();
+        cy.get("#Keyword").type(NIN);
+        cy.contains(".govuk-button", "Apply filters").click();
+        cy.wait(100);
+        cy.get('.govuk-table').find('tbody tr').each(($tr, i) => {
+            if (!found) {
+              cy.wrap($tr).find('td').each(($td) => {
+                if ($td.text().includes(referenceNumber)) {
+                  found = true;
+                  index = i;
+                  return false;
+                }
+              });
+            }
+          })
+    });
+});
+
