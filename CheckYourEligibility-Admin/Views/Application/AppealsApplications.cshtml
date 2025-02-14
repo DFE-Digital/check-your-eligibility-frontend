@@ -57,8 +57,12 @@
                 </thead>
                 @Html.EditorFor(model => model.People)
             </table>
-
         }
+        else
+        {
+            <p>No results found.</p>
+        }
+
         @{
             var paginationModel = new PaginationPartialViewModel
             {
@@ -70,11 +74,6 @@
             };
 
             @Html.Partial("PaginationPartial", paginationModel)
-        }
-        }
-        else
-        {
-        <p>No results found.</p>
         }
     </div>
 </div>
