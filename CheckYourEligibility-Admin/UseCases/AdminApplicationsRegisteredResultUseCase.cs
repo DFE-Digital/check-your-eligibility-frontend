@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace CheckYourEligibility_FrontEnd.UseCases.Admin
 {
-   
+
     public class AdminApplicationsRegisteredResult
     {
         public bool IsSuccess { get; set; }
@@ -20,11 +20,6 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
 
     public interface IAdminApplicationsRegisteredUseCase
     {
-        /// <summary>
-        /// Processes the admin applications registered request by validating and deserializing the stored application data.
-        /// </summary>
-        /// <param name="applicationJson">The JSON string containing the application data.</param>
-        /// <returns>An AdminApplicationsRegisteredResult indicating success or failure with appropriate data.</returns>
         Task<AdminApplicationsRegisteredResult> Execute(string? applicationJson);
     }
 
@@ -41,7 +36,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
         {
             try
             {
-                await Task.CompletedTask; 
+                await Task.CompletedTask;
 
                 _logger.LogInformation("Processing admin applications registered request with JSON: {json}", applicationJson);
 

@@ -17,14 +17,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
 
     public interface IAdminEnterChildDetailsUseCase
     {
-        /// <summary>
-        /// Processes the enter child details request, handling both initial loads and redirects after add/remove operations.
-        /// </summary>
-        /// <param name="isChildAddOrRemove">Flag indicating if this is a redirect after add/remove child operation</param>
-        /// <param name="childListJson">JSON string of child list when redirecting after add/remove</param>
-        /// <param name="fsmApplicationJson">JSON string of FSM application when redirecting from check answers</param>
-        /// <param name="isRedirect">Flag indicating if this is a redirect from check answers</param>
-        /// <returns>Result containing Children model and redirect/validation state</returns>
+       
         Task<AdminEnterChildDetailsResult> Execute(
             bool? isChildAddOrRemove = null,
             string childListJson = null,

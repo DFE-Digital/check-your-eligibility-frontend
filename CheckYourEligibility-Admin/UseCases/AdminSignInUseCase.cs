@@ -17,7 +17,6 @@ namespace CheckYourEligibility_Admin.UseCases
                 RedirectUri = redirectUri
             };
 
-            // Setting the vector_of_trust directly in the Items dictionary
             properties.Items["vector_of_trust"] = @"[""Cl""]";
 
             return Task.FromResult(properties);

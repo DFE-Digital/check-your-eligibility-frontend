@@ -24,7 +24,6 @@ builder.Services.AddSession();
 builder.Services.AddScoped<IAdminAddChildUseCase, AdminAddChildUseCase>();
 builder.Services.AddScoped<IAdminChangeChildDetailsUseCase, AdminChangeChildDetailsUseCase>();
 builder.Services.AddScoped<IAdminEnterChildDetailsUseCase, AdminEnterChildDetailsUseCase>();
-builder.Services.AddScoped<IAdminLoaderUseCase, AdminLoaderUseCase>();
 builder.Services.AddScoped<IAdminLoadParentDetailsUseCase, AdminLoadParentDetailsUseCase>();
 builder.Services.AddScoped<IAdminProcessChildDetailsUseCase, AdminProcessChildDetailsUseCase>();
 builder.Services.AddScoped<IAdminProcessParentDetailsUseCase, AdminProcessParentDetailsUseCase>();

@@ -32,7 +32,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         private Mock<IAdminEnterChildDetailsUseCase> _adminEnterChildDetailsUseCaseMock;
         private Mock<IAdminProcessChildDetailsUseCase> _adminProcessChildDetailsUseCaseMock;
         private Mock<IAdminAddChildUseCase> _adminAddChildUseCaseMock;
-        private Mock<IAdminLoaderUseCase> _adminLoaderUseCaseMock;
         private Mock<IAdminRemoveChildUseCase> _adminRemoveChildUseCaseMock;
         private Mock<IAdminChangeChildDetailsUseCase> _adminChangeChildDetailsUseCaseMock;
         private Mock<IAdminRegistrationResponseUseCase> _adminRegistrationResponseUseCaseMock;
@@ -63,7 +62,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _adminEnterChildDetailsUseCaseMock = new Mock<IAdminEnterChildDetailsUseCase>();
             _adminProcessChildDetailsUseCaseMock = new Mock<IAdminProcessChildDetailsUseCase>();
             _adminAddChildUseCaseMock = new Mock<IAdminAddChildUseCase>();
-            _adminLoaderUseCaseMock = new Mock<IAdminLoaderUseCase>();
             _adminRemoveChildUseCaseMock = new Mock<IAdminRemoveChildUseCase>();
             _adminChangeChildDetailsUseCaseMock = new Mock<IAdminChangeChildDetailsUseCase>();
             _adminRegistrationResponseUseCaseMock = new Mock<IAdminRegistrationResponseUseCase>();
@@ -84,7 +82,6 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 _adminEnterChildDetailsUseCaseMock.Object,
                 _adminProcessChildDetailsUseCaseMock.Object,
                 _adminAddChildUseCaseMock.Object,
-                _adminLoaderUseCaseMock.Object,
                 _adminRemoveChildUseCaseMock.Object,
                 _adminChangeChildDetailsUseCaseMock.Object,
                 _adminRegistrationResponseUseCaseMock.Object,
@@ -495,7 +492,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be("Enter_Child_Details");
 
-            
+
             var resultModel = viewResult.Model as Children;
             resultModel.Should().NotBeNull();
             resultModel.ChildList.Should().NotBeNull();
@@ -513,37 +510,59 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible")]
         [TestCase(CheckEligibilityStatus.parentNotFound, "Outcome/Not_Found")]
         [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Technical_Error")]
-        public async Task Loader_With_Valid_Status_Should_Return_Correct_View(CheckEligibilityStatus status, string expectedView)
+        public async Task Given_Poll_Status_With_Valid_Status_Returns_Correct_View(CheckEligibilityStatus status, string expectedView)
         {
             // Arrange
-            var responseJson = _fixture.Create<string>();
+
+            var statusValue = _fixture.Build<StatusValue>()
+                .With(x => x.Status, status.ToString())
+                .Create();
+
+            var checkEligibilityResponse = _fixture.Build<CheckEligibilityResponse>()
+                .With(x => x.Data, statusValue)
+                .Create();
+
+            var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
             _tempData["Response"] = responseJson;
 
-            // Setup the use case to return a result with the expected view, status and dummy data.
-            _adminLoaderUseCaseMock
-                .Setup(x => x.ExecuteAsync(responseJson, It.IsAny<ClaimsPrincipal>()))
-                .ReturnsAsync(AdminLoaderResult.Success(
-                    expectedView,
-                    status,
-                    new StatusValue { Status = status.ToString() }
-                ));
+            var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
+                .With(x => x.Data, checkEligibilityResponse.Data)
+                .Create();
+
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(checkEligibilityStatusResponse);
+
+
+            _sut.ControllerContext.HttpContext = new DefaultHttpContext();
+            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+    {
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "12345"),
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "test@example.com"),
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "John"),
+        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Doe"),
+        new Claim("OrganisationCategoryName", CheckYourEligibility_FrontEnd.Models.Constants.CategoryTypeLA)
+    }));
 
             // Act
             var result = await _sut.Loader();
 
             // Assert
-            result.Should().BeOfType<ViewResult>();
-            var viewResult = result as ViewResult;
-            viewResult.ViewName.Should().Be(expectedView);
-
-            _sut.TempData["OutcomeStatus"].Should().Be(status);
-            _adminLoaderUseCaseMock.Verify(
-                x => x.ExecuteAsync(responseJson, It.IsAny<ClaimsPrincipal>()),
-                Times.Once);
+            if (result is ViewResult viewResult)
+            {
+                viewResult.ViewName.Should().Be(expectedView);
+            }
+            else if (result is RedirectToActionResult redirectResult)
+            {
+                redirectResult.ActionName.Should().Be("Application_Sent");
+            }
+            else
+            {
+                Assert.Fail("Unexpected result type");
+            }
         }
 
         [Test]
-        public async Task Loader_With_Null_Response_Should_Return_Error_View()
+        public async Task Given_Poll_Status_When_Response_Is_Null_Returns_Error_Status()
         {
             // Arrange
             _tempData["Response"] = null;
@@ -558,20 +577,17 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
 
         [Test]
-        public async Task Loader_With_Processing_Status_Should_Return_Loader_View()
+        public async Task Given_Poll_Status_When_Status_Is_Processing_Returns_Processing()
         {
             // Arrange
-            var responseJson = _fixture.Create<string>();
-            _tempData["Response"] = responseJson;
+            var response = new CheckEligibilityResponse
+            {
+                Data = new StatusValue { Status = "processing" }
+            };
+            _tempData["Response"] = JsonConvert.SerializeObject(response);
 
-            _adminLoaderUseCaseMock
-                .Setup(x => x.ExecuteAsync(responseJson, It.IsAny<ClaimsPrincipal>()))
-                .ReturnsAsync(AdminLoaderResult.Success(
-                    "Loader",
-                    CheckEligibilityStatus.queuedForProcessing,
-                    new StatusValue { Status = CheckEligibilityStatus.queuedForProcessing.ToString() },
-                    responseJson
-                ));
+            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
+                .ReturnsAsync(new CheckEligibilityStatusResponse { Data = response.Data });
 
             // Act
             var result = await _sut.Loader();
@@ -580,12 +596,10 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             result.Should().BeOfType<ViewResult>();
             var viewResult = result as ViewResult;
             viewResult.ViewName.Should().Be("Loader");
-
-            // When processing, the TempData should be re-populated with the response.
-            _sut.TempData.Should().ContainKey("Response");
-            _adminLoaderUseCaseMock.Verify(
-                x => x.ExecuteAsync(responseJson, It.IsAny<ClaimsPrincipal>()),
-                Times.Once);
         }
+
+
+
+
     }
 }

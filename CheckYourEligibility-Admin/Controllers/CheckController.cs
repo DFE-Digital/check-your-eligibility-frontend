@@ -1,4 +1,5 @@
 ﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
@@ -7,6 +8,7 @@ using CheckYourEligibility_FrontEnd.UseCases.Admin;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Child = CheckYourEligibility_FrontEnd.Models.Child;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -21,7 +23,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IAdminEnterChildDetailsUseCase _adminEnterChildDetailsUseCase;
         private readonly IAdminProcessChildDetailsUseCase _adminProcessChildDetailsUseCase;
         private readonly IAdminAddChildUseCase _adminAddChildUseCase;
-        private readonly IAdminLoaderUseCase _adminLoaderUseCase;
         private readonly IAdminRemoveChildUseCase _adminRemoveChildUseCase;
         private readonly IAdminChangeChildDetailsUseCase _adminChangeChildDetailsUseCase;
         private readonly IAdminRegistrationResponseUseCase _adminRegistrationResponseUseCase;
@@ -40,7 +41,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             IAdminEnterChildDetailsUseCase adminEnterChildDetailsUseCase,
             IAdminProcessChildDetailsUseCase adminProcessChildDetailsUseCase,
             IAdminAddChildUseCase adminAddChildUseCase,
-            IAdminLoaderUseCase adminLoaderUseCase,
             IAdminRemoveChildUseCase adminRemoveChildUseCase,
             IAdminChangeChildDetailsUseCase adminChangeChildDetailsUseCase,
             IAdminRegistrationResponseUseCase adminRegistrationResponseUseCase,
@@ -59,7 +59,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             _adminEnterChildDetailsUseCase = adminEnterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminEnterChildDetailsUseCase));
             _adminProcessChildDetailsUseCase = adminProcessChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessChildDetailsUseCase));
             _adminAddChildUseCase = adminAddChildUseCase ?? throw new ArgumentNullException(nameof(adminAddChildUseCase));
-            _adminLoaderUseCase = adminLoaderUseCase ?? throw new ArgumentNullException(nameof(adminLoaderUseCase));
             _adminRemoveChildUseCase = adminRemoveChildUseCase ?? throw new ArgumentNullException(nameof(adminRemoveChildUseCase));
             _adminChangeChildDetailsUseCase = adminChangeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminChangeChildDetailsUseCase));
             _adminRegistrationResponseUseCase = adminRegistrationResponseUseCase ?? throw new ArgumentNullException(nameof(adminRegistrationResponseUseCase));
@@ -133,6 +132,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         public async Task<IActionResult> Loader()
         {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+
             // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
             if (responseJson == null)
@@ -141,20 +142,43 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View("Outcome/Technical_Error");
             }
 
-            // Execute the use case.
-            var result = await _adminLoaderUseCase.ExecuteAsync(responseJson, HttpContext.User);
+            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
+            _logger.LogInformation($"Check status processed: {response?.Data?.Status}");
 
-            // If the status is queued for processing, put the response back into TempData.
-            if (result.UpdatedResponseJson != null)
+            // Call the service to check the current status
+            var check = await _checkService.GetStatus(response);
+            if (check == null || check.Data == null)
             {
-                TempData["Response"] = result.UpdatedResponseJson;
+                _logger.LogWarning("Null response received from GetStatus.");
+                return View("Outcome/Technical_Error");
             }
 
-            // IMPORTANT: Set OutcomeStatus so that your tests can verify it.
-            TempData["OutcomeStatus"] = result.Status;
-
-            return View(result.ViewName);
+            _logger.LogInformation($"Received status: {check.Data.Status}");
+            Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
+            TempData["OutcomeStatus"] = status;
+            bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
+            switch (status)
+            {
+                case CheckEligibilityStatus.eligible:
+                    return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
+                case CheckEligibilityStatus.notEligible:
+                    return (isLA ? View("Outcome/Not_Eligible_LA") : View("Outcome/Not_Eligible"));
+                case CheckEligibilityStatus.parentNotFound:
+                    return View("Outcome/Not_Found");
+                case CheckEligibilityStatus.DwpError:
+                    return View("Outcome/Technical_Error");
+                case CheckEligibilityStatus.queuedForProcessing:
+                    _logger.LogInformation("Still queued for processing.");
+                    // Save the response back to TempData for the next poll
+                    TempData["Response"] = JsonConvert.SerializeObject(response);
+                    // Render the loader view which will auto-refresh
+                    return View("Loader");
+                default:
+                    _logger.LogError($"Unknown Status {status}");
+                    return View("Outcome/Technical_Error");
+            }
         }
+
 
 
         [HttpGet]

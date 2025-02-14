@@ -30,8 +30,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
         {
             try
             {
-                // Exactly match original date formatting
-                var dateOfBirth = new DateOnly(
+                    var dateOfBirth = new DateOnly(
                     int.Parse(request.Year),
                     int.Parse(request.Month),
                     int.Parse(request.Day))
@@ -46,13 +45,13 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
                     }
                 };
 
-                // Store details in session exactly as original
+                
                 session.SetString("ParentFirstName", request.FirstName);
                 session.SetString("ParentLastName", request.LastName);
                 session.SetString("ParentDOB", dateOfBirth);
                 session.SetString("ParentEmail", request.EmailAddress);
 
-                // Handle NASS vs NINO exactly as original
+                
                 if (request.NinAsrSelection == ParentGuardian.NinAsrSelect.AsrnSelected)
                 {
                     checkEligibilityRequest.Data.NationalAsylumSeekerServiceNumber = request.NationalAsylumSeekerServiceNumber;
