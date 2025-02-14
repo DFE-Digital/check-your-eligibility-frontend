@@ -43,11 +43,11 @@
     <td class="govuk-table__cell">@(@Model.Person.ChildFirstName + " " + Model.Person.ChildLastName)</td>
     @if (Model.ShowParentDob)
     {
-        <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ParentDateOfBirth).ToString("dd MMM yyyy")</td>
+        <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ParentDateOfBirth).ToString("d MMM yyyy")</td>
     }
     else
     {
-        <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ChildDateOfBirth).ToString("dd MMM yyyy")</td>
+        <td class="govuk-table__cell">@Convert.ToDateTime(Model.Person.ChildDateOfBirth).ToString("d MMM yyyy")</td>
     }
     @if(Model.ShowSchool)
     {
@@ -61,7 +61,7 @@
         </strong>
     </td>
     }
-    <td class="govuk-table__cell">@Model.Person.Created.ToString("dd MMM yyyy")</td>
+    <td class="govuk-table__cell">@Model.Person.Created.ToString("d MMM yyyy")</td>
   
    
 </tr>
