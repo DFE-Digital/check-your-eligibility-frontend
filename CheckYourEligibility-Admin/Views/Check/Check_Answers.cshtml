@@ -38,7 +38,7 @@
                             Date of birth
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            @Model.ParentDateOfBirth
+                            @DateTime.Parse(@Model.ParentDateOfBirth).ToString("d MMMM yyyy");
                         </dd>
                     </div>
 
@@ -82,7 +82,7 @@
         @for (var i = 0; i < Model.Children.ChildList.Count; i++)
         {
             var child = Model.Children.ChildList[i];
-            string formattedChildDob = $"{child.Day.PadLeft(2, '0')}/{child.Month.PadLeft(2, '0')}/{child.Year}";
+            string formattedChildDob = DateTime.Parse($"{child.Day}/{child.Month}/{child.Year}").ToString("d MMMM yyyy");
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
                     <h2 class="govuk-summary-card__title">
