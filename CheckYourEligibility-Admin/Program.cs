@@ -2,6 +2,8 @@ using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
 using System.Text;
+using CheckYourEligibility_Admin.UseCases;
+using CheckYourEligibility_FrontEnd.UseCases.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,25 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 
 // Add services to the container.
 builder.Services.AddServices(builder.Configuration);
+builder.Services.AddSession();
+
+builder.Services.AddScoped<IAdminAddChildUseCase, AdminAddChildUseCase>();
+builder.Services.AddScoped<IAdminChangeChildDetailsUseCase, AdminChangeChildDetailsUseCase>();
+builder.Services.AddScoped<IAdminEnterChildDetailsUseCase, AdminEnterChildDetailsUseCase>();
+builder.Services.AddScoped<IAdminLoaderUseCase, AdminLoaderUseCase>();
+builder.Services.AddScoped<IAdminLoadParentDetailsUseCase, AdminLoadParentDetailsUseCase>();
+builder.Services.AddScoped<IAdminProcessChildDetailsUseCase, AdminProcessChildDetailsUseCase>();
+builder.Services.AddScoped<IAdminProcessParentDetailsUseCase, AdminProcessParentDetailsUseCase>();
+builder.Services.AddScoped<IAdminRegistrationResponseUseCase, AdminRegistrationResponseUseCase>();
+builder.Services.AddScoped<IAdminRegistrationUseCase, AdminRegistrationUseCase>();
+builder.Services.AddScoped<IAdminRemoveChildUseCase, AdminRemoveChildUseCase>();
+builder.Services.AddScoped<IAdminApplicationsRegisteredUseCase, AdminApplicationsRegisteredUseCase>();
+builder.Services.AddScoped<IAdminCreateUserUseCase, AdminCreateUserUseCase>();
+builder.Services.AddScoped<IAdminSearchSchoolsUseCase, AdminSearchSchoolsUseCase>();
+builder.Services.AddScoped<IAdminSubmitApplicationUseCase, AdminSubmitApplicationUseCase>();
+builder.Services.AddScoped<IAdminValidateParentDetailsUseCase, AdminValidateParentDetailsUseCase>();
+builder.Services.AddScoped<ISignInUseCase, AdminSignInUseCase>();
+builder.Services.AddScoped<IAdminInitializeCheckAnswersUseCase, AdminInitializeCheckAnswersUseCase>();
 builder.Services.AddSession();
 
 var dfeSignInConfiguration = new DfeSignInConfiguration();
