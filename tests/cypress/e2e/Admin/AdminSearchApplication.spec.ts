@@ -78,7 +78,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Search all records').click();
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
-        cy.get('h1').should('include.text', 'Search results');
+        cy.get('h1').should('include.text', 'Search all records');
 
     });
 
@@ -89,7 +89,7 @@ describe('Admin journey search for application', () => {
         cy.get('#Status').select('Entitled');
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
-        cy.get('h1').should('include.text', 'Search results');
+        cy.get('h1').should('include.text', 'Search all records');
 
     });
 
@@ -139,7 +139,7 @@ describe('Admin journey search for application', () => {
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
 
-        cy.get('h1').should('contain.text', 'Search results (1)');
+        cy.get('h1').should('contain.text', 'Search all records');
 
         cy.get('.govuk-table')
             .find('tbody tr')

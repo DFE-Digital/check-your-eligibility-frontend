@@ -18,7 +18,7 @@ describe('Admin journey export CSV', () => {
         cy.get('.govuk-table').should('be.visible');
 
         // Click export and verify response
-        cy.contains('Export as csv').should('be.visible').click();
+        cy.contains('Export as CSV').should('be.visible').click();
         cy.wait('@exportRequest').then((interception) => {
             expect(interception.response?.headers['content-type']).to.include('text/csv');
             expect(interception.response?.headers['content-disposition']).to.match(/eligibility-applications-\d{14}\.csv/);

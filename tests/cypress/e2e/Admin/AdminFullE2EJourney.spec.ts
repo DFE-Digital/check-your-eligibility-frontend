@@ -136,7 +136,6 @@ describe('Full journey of creating an application through school portal through 
 
         cy.contains('.govuk-link', 'Pending applications').click();
         cy.url().should('contain', 'Application/PendingApplications');
-        cy.log(referenceNumber);
         cy.scanPagesForValue(referenceNumber);
         cy.contains('.govuk-button', 'Approve application').click();
         cy.contains('.govuk-button', 'Yes, approve now').click();
@@ -151,7 +150,7 @@ describe('Full journey of creating an application through school portal through 
         cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
 
-        cy.get('h1').should('contain.text', 'Search results (1)');
+        cy.get('h2').should('contain.text', 'Showing 1 results');
 
         cy.get('.govuk-table')
             .find('tbody tr')
