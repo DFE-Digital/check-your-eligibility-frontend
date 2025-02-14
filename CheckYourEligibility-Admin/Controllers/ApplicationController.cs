@@ -377,9 +377,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Reference = x.Reference,
                 Parent = $"{x.ParentFirstName} {x.ParentLastName}",
                 Child = $"{x.ChildFirstName} {x.ChildLastName}",
-                ChildDOB = Convert.ToDateTime(x.ChildDateOfBirth).ToString("dd MMM yyyy"),
+                ChildDOB = Convert.ToDateTime(x.ChildDateOfBirth).ToString("d MMM yyyy"),
                 Status = x.Status.GetFsmStatusDescription(),
-                SubmisionDate = x.Created.ToString("dd MMM yyyy")
+                SubmisionDate = x.Created.ToString("d MMM yyyy")
 
             }));
             var memoryStream = new MemoryStream(result);
@@ -526,7 +526,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
             {
                 TempData["Message"] = "There are no records matching your search.";
-                return RedirectToAction("SearchResults");
+                return View();
             }
 
             var criteria = JsonConvert.SerializeObject(applicationSearch);
@@ -569,8 +569,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ChildName = $"{response.Data.ChildFirstName} {response.Data.ChildLastName}",
                 School = response.Data.Establishment.Name,
             };
-            viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
-            viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("d MMMM yyyy");
+            viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("d MMMM yyyy");
 
             return viewData;
         }
