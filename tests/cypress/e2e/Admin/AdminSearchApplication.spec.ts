@@ -52,7 +52,7 @@ describe('Admin journey search for application', () => {
         cy.get('h1').should('include.text', 'Check your answers before submitting');
 
         cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
-        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1990-01-01');
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1 January 1990');
         cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', NIN);
         cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
         cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);
@@ -164,7 +164,7 @@ describe('Admin journey search for application', () => {
             .eq(0)
             .find('td')
             .eq(2)
-            .should('contain.text', '01 Jan 2007');
+            .should('contain.text', '1 Jan 2007');
     });
 
     //    it('Will allow School users to search for an application with a selected Parent of Guardian DOB', () => {
