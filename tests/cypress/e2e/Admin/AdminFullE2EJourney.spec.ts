@@ -143,11 +143,11 @@ describe('Full journey of creating an application through school portal through 
         cy.visit('/');
 
         cy.contains('Search all records').click();
-        cy.url().should('contain', 'Application/Search');
+        cy.url().should('contain', 'Application/SearchResults');
 
-        cy.get('#Reference').type(referenceNumber);
+        cy.get('#Keyword').type(referenceNumber);
 
-        cy.contains('Generate results').click();
+        cy.contains('Apply Filters').click();
         cy.url().should('include', 'Application/SearchResults');
 
         cy.get('h2').should('contain.text', 'Showing 1 results');
