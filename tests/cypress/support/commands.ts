@@ -55,6 +55,34 @@ Cypress.Commands.add('scanPagesForValue', (value: string) => {
   });
 });
 
+Cypress.Commands.add('scanPagesForNewValue', (value) => {
+  // Function to check for the value on the current page
+  const checkForValue = () => {
+    cy.get('body').then((body) => {
+      if (body.find(`td a:contains("${value}")`).length > 0) {
+        cy.get(`td a:contains("${value}")`).click();
+      } else {
+        // If 'Previous' button is present, click it and continue scanning
+        if (body.find('.govuk-pagination__prev a').length > 0) {
+          cy.get('.govuk-pagination__prev a').click().then(() => {
+            checkForValue();
+          });
+        }
+      }
+    });
+  };
+
+  // Start by navigating to the last page
+  cy.get('.govuk-pagination__list')
+    .find('a[href*="PageNumber"]')
+    .not('[rel="next"]')
+    .last()
+    .click()
+    .then(() => {
+      checkForValue();
+    });
+});
+
 Cypress.Commands.add('scanPagesForStatusAndClick', (value: string) => {
 
   cy.get('body').then(($body) => {

@@ -258,19 +258,23 @@ describe("Condtional content on ApplicationDetail page", () => {
         cy.get('.govuk-table__cell').eq(1).invoke('text').then((referenceNumber) => {
             const refNumber = referenceNumber.trim();
 
-            cy.visit("/Application/Search");
+            cy.visit("/Application/SearchResults");
             cy.wait(1000);
+            cy.get('#Status_EvidenceNeeded').check();
+            cy.wait(100);
             cy.get('button.govuk-button').click();
             cy.wait(100);
-            cy.scanPagesForValue(refNumber);
+            cy.scanPagesForNewValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
             cy.get('a.govuk-button').click();
             cy.get('a.govuk-button--primary').click();
-            cy.visit("/Application/Search");
+            cy.visit("/Application/SearchResults");
             cy.wait(1000);
+            cy.get('#Status_SentForReview').check();
+            cy.wait(100);
             cy.get('button.govuk-button').click();
             cy.wait(100);
-            cy.scanPagesForValue(refNumber);
+            cy.scanPagesForNewValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
         });
     });
