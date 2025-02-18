@@ -13,7 +13,6 @@ describe('Admin journey export CSV', () => {
         // Navigate to results
         cy.visit(Cypress.config().baseUrl ?? "");
         cy.contains('Search all records').click();
-        cy.contains('Generate results').click();
         cy.url().should('include', 'Application/SearchResults');
         cy.get('.govuk-table').should('be.visible');
 

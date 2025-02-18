@@ -48,7 +48,7 @@ describe('Keyword search validation', () => {
     cy.get('h1').should('include.text', 'Check your answers before submitting');
 
     cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', `${parentFirstName} ${parentLastName}`);
-    cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1990-01-01');
+    cy.CheckValuesInSummaryCard('Parent or guardian details', 'Date of birth', '1 January 1990');
     cy.CheckValuesInSummaryCard('Parent or guardian details', 'National Insurance number', NIN);
     cy.CheckValuesInSummaryCard('Parent or guardian details', 'Email address', parentEmailAddress);
     cy.CheckValuesInSummaryCard('Child 1 details', "Name", childFirstName + " " + childLastName);

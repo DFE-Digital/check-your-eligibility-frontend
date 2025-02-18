@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using CheckYourEligibility_FrontEnd.Services.Domain;
 using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
@@ -67,7 +68,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                    .ReturnsAsync(response);
 
             var request = new ApplicationSearch();
@@ -167,7 +168,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                    .ReturnsAsync(response);
 
             var request = new ApplicationSearch();
@@ -191,7 +192,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //Arrange
             _sut.TempData = _tempData;
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                 .ReturnsAsync(default(ApplicationSearchResponse));
 
             var request = new ApplicationSearch();
@@ -338,7 +339,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                    .ReturnsAsync(response);
 
             var request = new ApplicationSearch();
@@ -362,7 +363,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //Arrange
             _sut.TempData = _tempData;
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                 .ReturnsAsync(default(ApplicationSearchResponse));
 
             var request = new ApplicationSearch();
@@ -499,7 +500,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 item.ParentDateOfBirth = "1990-01-01";
             }
 
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                    .ReturnsAsync(response);
 
             var request = new ApplicationSearch();
@@ -525,7 +526,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _sut.TempData = _tempData;
             var response = _fixture.Create<ApplicationSearchResponse>();
 
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                    .ReturnsAsync(response);
 
             var request = new ApplicationSearch();
@@ -549,7 +550,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         {
             //Arrange
             _sut.TempData = _tempData;
-            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch>()))
+            _adminServiceMock.Setup(s => s.PostApplicationSearch(It.IsAny<ApplicationRequestSearch2>()))
                 .ReturnsAsync(default(ApplicationSearchResponse));
 
             var request = new ApplicationSearch();
