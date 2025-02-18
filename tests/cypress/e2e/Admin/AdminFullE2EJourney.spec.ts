@@ -147,7 +147,7 @@ describe('Full journey of creating an application through school portal through 
 
         cy.get('#Keyword').type(referenceNumber);
 
-        cy.contains('Apply Filters').click();
+        cy.get('button.govuk-button[title="Apply filters"]').click();
         cy.url().should('include', 'Application/SearchResults');
 
         cy.get('h2').should('contain.text', 'Showing 1 results');

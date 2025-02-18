@@ -82,7 +82,7 @@
                         <div class="moj-filter__options">
                             <form asp-controller="Application" asp-action="SearchResults" method="post" class="form">
                                 <div class="govuk-form-group">
-                                    <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button">
+                                    <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button" title="Apply filters">
                                         Apply filters
                                     </button>
                                     <fieldset class="govuk-fieldset">
@@ -183,15 +183,15 @@
                                                             </tbody>
                                                         </table>
                                                         var paginationModel = new PaginationPartialViewModel
-                                            {
-                                            CurrentPage = ViewBag.CurrentPage,
-                                            TotalPages = ViewBag.TotalPages,
-                                            RecordsPerPage = ViewBag.RecordsPerPage,
-                                            TotalRecords = ViewBag.TotalRecords,
-                                            ControllerName = "SearchResults",
-                                            Status = ViewBag.Status,
-                                            Keyword = ViewBag.Keyword
-                                            };
+                    {
+                        CurrentPage = ViewBag.CurrentPage,
+                        TotalPages = ViewBag.TotalPages,
+                        RecordsPerPage = ViewBag.RecordsPerPage,
+                        TotalRecords = ViewBag.TotalRecords,
+                        ControllerName = "SearchResults",
+                        Status = ViewBag.Status,
+                        Keyword = ViewBag.Keyword
+                    };
                                                         @Html.Partial("PaginationPartial", paginationModel)
                                                     }
                                                 }
