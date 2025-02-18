@@ -3,7 +3,7 @@ describe('Eligible and Not Eligible responses in LA and School portal will route
     const parentLastName = Cypress.env('lastName');
     const parentEmailAddress = 'TimJones@Example.com';
     const NINE = 'NN668767B'
-    const NINNE = 'PG815354C'
+    const NINNE = 'PN668767B'
 
     it('Will route to the School variant of outcome pages when logged in as School', () => {
         cy.SignInSchool();

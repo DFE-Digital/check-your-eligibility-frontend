@@ -49,6 +49,7 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year for parent or guardian using numbers only")]
         public string? PGDobYear { get; set; }
+        public string? Keyword { get; set; }
 
 
     }
