@@ -13,7 +13,7 @@ namespace CheckYourEligibility_FrontEnd.Models
 
         public int? LocalAuthority { get; set; }
         public int? School { get; set; }
-        public ApplicationStatus? Status { get; set; }
+        public List<CheckYourEligibility.Domain.Enums.ApplicationStatus> Status { get; set; } = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>();
 
         [LastName("last name", "Child", "ChildIndex")]
         public string? ChildLastName { get; set; }
