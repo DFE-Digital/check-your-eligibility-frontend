@@ -200,7 +200,7 @@ describe("Conditional content on ApplicationDetailAppeal page", () => {
             cy.get('a.govuk-button--primary').click();
             cy.visit("/Application/AppealsApplications?PageNumber=0");
             cy.wait(1000);
-            cy.scanPagesForValue(refNumber);
+            cy.scanPagesForNewValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');
         });
     });

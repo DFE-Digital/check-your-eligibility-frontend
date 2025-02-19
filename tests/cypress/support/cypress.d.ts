@@ -27,6 +27,7 @@ declare namespace Cypress {
       scanPagesForNewValue(value: string): Chainable<void>;
       scanPagesForStatusAndClick(value: string): Chainable<void>;
       findApplicationFinalise(value: string): Chainable<void>;
+      findNewApplicationFinalise(value: string): Chainable<void>;
       clickButtonByText(buttonText: string): Chainable<Element>;
       typeIntoInput(selector: string, text: string): Chainable<void>;
       verifyFieldVisibility(selector: string, isVisible: boolean): Chainable<void>;
