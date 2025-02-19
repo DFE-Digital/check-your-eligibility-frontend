@@ -136,7 +136,7 @@ describe('Full journey of creating an application through school portal through 
 
         cy.contains('.govuk-link', 'Pending applications').click();
         cy.url().should('contain', 'Application/PendingApplications');
-        cy.scanPagesForValue(referenceNumber);
+        cy.scanPagesForNewValue(referenceNumber);
         cy.contains('.govuk-button', 'Approve application').click();
         cy.contains('.govuk-button', 'Yes, approve now').click();
 
@@ -147,7 +147,7 @@ describe('Full journey of creating an application through school portal through 
 
         cy.get('#Keyword').type(referenceNumber);
 
-        cy.get('button.govuk-button[title="Apply filters"]').click();
+        cy.get('button.govuk-button').click(); //Apply filters
         cy.url().should('include', 'Application/SearchResults');
 
         cy.get('h2').should('contain.text', 'Showing 1 results');
@@ -176,7 +176,7 @@ describe('Full journey of creating an application through school portal through 
         cy.contains('Finalise applications').click();
         cy.url().should('contain', 'Application/FinaliseApplications');
 
-        cy.findApplicationFinalise(referenceNumber).then(() => {
+        cy.findNewApplicationFinalise(referenceNumber).then(() => {
             cy.contains('.govuk-button', 'Finalise applications').click();
             cy.contains('.govuk-button', 'Yes, finalise now').click();
         });

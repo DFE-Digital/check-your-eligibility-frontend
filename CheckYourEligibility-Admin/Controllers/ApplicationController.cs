@@ -57,42 +57,37 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        public async Task<IActionResult> SearchResults(ApplicationSearch request)
+public async Task<IActionResult> SearchResults(ApplicationSearch request)
+{
+    if (!ModelState.IsValid)
+    {
+        TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
+        var errors = ModelState
+            .Where(x => x.Value.Errors.Count > 0)
+            .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+        TempData["Errors"] = JsonConvert.SerializeObject(errors);
+        return View();
+    }
+
+    _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+
+    var applicationSearch = new ApplicationRequestSearch2()
+    {
+        PageNumber = request.PageNumber,
+        PageSize = request.PageSize,
+        Data = new ApplicationRequestSearchData
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
-                TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                return View();
-            }
-
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-
-            var applicationSearch = new ApplicationRequestSearch2()
-            {
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
-                Data = new ApplicationRequestSearchData
-                {
-                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-                    Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    Keyword = request.Keyword,
-                }
-            };
-
-            if (request.Status != null)
-            {
-                applicationSearch.Data.Statuses = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>() { request.Status.Value };
-            }
-
-            TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
-
-
-            return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
+            LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+            Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+            Keyword = request.Keyword,
+            Statuses = request.Status.Any() ? request.Status : null // Apply filter only if statuses are selected
         }
+    };
+
+    TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
+
+    return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
+}
 
         [HttpGet]
         public async Task<IActionResult> ApplicationDetail(string id)

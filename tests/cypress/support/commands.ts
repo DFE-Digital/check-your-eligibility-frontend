@@ -55,6 +55,34 @@ Cypress.Commands.add('scanPagesForValue', (value: string) => {
   });
 });
 
+Cypress.Commands.add('scanPagesForNewValue', (value) => {
+  // Function to check for the value on the current page
+  const checkForValue = () => {
+    cy.get('body').then((body) => {
+      if (body.find(`td a:contains("${value}")`).length > 0) {
+        cy.get(`td a:contains("${value}")`).click();
+      } else {
+        // If 'Previous' button is present, click it and continue scanning
+        if (body.find('.govuk-pagination__prev a').length > 0) {
+          cy.get('.govuk-pagination__prev a').click().then(() => {
+            checkForValue();
+          });
+        }
+      }
+    });
+  };
+
+  // Start by navigating to the last page
+  cy.get('.govuk-pagination__list')
+    .find('a[href*="PageNumber"]')
+    .not('[rel="next"]')
+    .last()
+    .click()
+    .then(() => {
+      checkForValue();
+    });
+});
+
 Cypress.Commands.add('scanPagesForStatusAndClick', (value: string) => {
 
   cy.get('body').then(($body) => {
@@ -70,40 +98,6 @@ Cypress.Commands.add('scanPagesForStatusAndClick', (value: string) => {
   )};
   });
 })
-
-
-
-
-// Cypress.Commands.add('findApplicationFinalise', (value: string) => {
-//   let referenceFound = false;
-//   function searchOnPage() {
-//     cy.get('.govuk-table tbody tr').each(($row) => {
-//       cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
-//           if (text.trim() === value) {
-//               referenceFound = true;
-//               cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
-//               return false;
-//           }
-//       });
-//     }).then(() => {
-//       if (!referenceFound){
-//         cy.contains('.govuk-link', 'Next').click();
-//         searchOnPage();
-//         cy.debug();
-//         // cy.get('body').then((body) => {
-//           // if(body.find('.govuk-pagination__link:contains("Next")}').length > 0) {
-//           //   cy.contains('.govuk-pagination__link', 'Next').click();
-//           //   cy.findApplicationFinalise(value);
-//           // }
-//           // else{
-//           //   cy.log('Reference number not found')
-//           // }
-//         // });
-//       }
-//     });
-//   }
-//   searchOnPage();
-// })
 
 Cypress.Commands.add('findApplicationFinalise', (value: string) => {
   let referenceFound = false;
@@ -134,6 +128,42 @@ Cypress.Commands.add('findApplicationFinalise', (value: string) => {
   searchOnPage();
 });
 
+Cypress.Commands.add('findNewApplicationFinalise', (value: string) => {
+  let referenceFound = false;
+  function searchOnPage() {
+    cy.get('.govuk-table tbody tr').each(($row) => {
+      cy.wrap($row).find('td').eq(1).invoke('text').then((text) => {
+          if (text.trim() === value) {
+              referenceFound = true;
+              cy.wrap($row).find('td').eq(0).find('input[type="checkbox"]').click();
+              return false;
+          }
+      });
+    }).then(() => {
+      if (!referenceFound){
+        cy.get('.govuk-link').contains('Previous').then(($previousButton) => {
+          if($previousButton.length > 0){
+            cy.wrap($previousButton).click({ force: true }).then(() => {
+              cy.wait(500);
+              searchOnPage();
+            });
+          } else {
+            cy.log('Reference number could not be found');
+          }
+        })
+      }
+    });
+  }
+    // Start by navigating to the last page
+    cy.get('.govuk-pagination__list')
+    .find('a[href*="PageNumber"]')
+    .not('[rel="next"]')
+    .last()
+    .click()
+    .then(() => {
+      searchOnPage();
+    });
+});
 
 Cypress.Commands.add('verifyFieldVisibility', (selector: string, isVisible: boolean) => {
   if (isVisible) {
