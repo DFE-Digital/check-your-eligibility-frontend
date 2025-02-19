@@ -1,7 +1,7 @@
 // Ignore Spelling: Finalise
 
 using Azure;
-using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility_FrontEnd.Services.Domain;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
@@ -15,6 +15,8 @@ using System.Globalization;
 using System.Reflection;
 using CheckYourEligibility_DfeSignIn.Models;
 using System.Text;
+using Azure.Core;
+using CheckYourEligibility.Domain.Enums;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -36,7 +38,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         #region Search
         [HttpGet]
         public IActionResult Search()
-        {
+            {
             if (TempData["Message"] != null)
             {
                 ViewBag.Message = TempData["Message"];
@@ -55,16 +57,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> SearchResults(int PageNumber)
-        {
-
-            var applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
-            applicationSearch.PageNumber = PageNumber;
-            return await GetResults(applicationSearch, "ApplicationDetail", false, false, false);
-        }
-
-        [HttpPost]
         public async Task<IActionResult> SearchResults(ApplicationSearch request)
         {
             if (!ModelState.IsValid)
@@ -74,12 +66,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                return RedirectToAction("Search");
+                return View();
             }
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
-            var applicationSearch = new ApplicationRequestSearch()
+            var applicationSearch = new ApplicationRequestSearch2()
             {
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
@@ -87,11 +79,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 {
                     LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
                     Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-                    ChildLastName = request.ChildLastName,
-                    ParentLastName = request.ParentLastName,
-                    Reference = request.Reference,
-                    ChildDateOfBirth = !string.IsNullOrWhiteSpace(request.ChildDobYear) ? new DateOnly(int.Parse(request.ChildDobYear), int.Parse(request.ChildDobMonth), int.Parse(request.ChildDobDay)).ToString("yyyy-MM-dd") : null,
-                    ParentDateOfBirth = !string.IsNullOrWhiteSpace(request.PGDobYear) ? new DateOnly(int.Parse(request.PGDobYear), int.Parse(request.PGDobMonth), int.Parse(request.PGDobDay)).ToString("yyyy-MM-dd") : null,
+                    Keyword = request.Keyword,
                 }
             };
 
@@ -100,8 +88,10 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 applicationSearch.Data.Statuses = new List<CheckYourEligibility.Domain.Enums.ApplicationStatus>() { request.Status.Value };
             }
 
+            TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
 
-            return await GetResults(applicationSearch, "ApplicationDetail", false, false, false);
+
+            return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
         }
 
         [HttpGet]
@@ -132,7 +122,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
                 // Get the current search criteria the same way the search does
-                var currentSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+                var currentSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch2>(TempData["SearchCriteria"].ToString());
 
                 // Ensure we get all results for the current search
                 currentSearch.PageSize = int.MaxValue;
@@ -296,13 +286,13 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
 
-        private ApplicationRequestSearch GetApplicationsForStatuses(IEnumerable<CheckYourEligibility.Domain.Enums.ApplicationStatus> statuses, int pageNumber, int pageSize)
+        private ApplicationRequestSearch2 GetApplicationsForStatuses(IEnumerable<CheckYourEligibility.Domain.Enums.ApplicationStatus> statuses, int pageNumber, int pageSize)
         {
-            ApplicationRequestSearch applicationSearch;
+            ApplicationRequestSearch2 applicationSearch;
             if (pageNumber == 0)
             {
                 _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-                applicationSearch = new ApplicationRequestSearch()
+                applicationSearch = new ApplicationRequestSearch2()
                 {
                     PageNumber = 1,
                     PageSize = pageSize,
@@ -317,7 +307,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             }
             else
             {
-                applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch>(TempData["SearchCriteria"].ToString());
+                applicationSearch = JsonConvert.DeserializeObject<ApplicationRequestSearch2>(TempData["SearchCriteria"].ToString());
                 applicationSearch.PageNumber = pageNumber;
             }
 
@@ -340,7 +330,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(GetViewData(response));
         }
 
-        [HttpPost]
+        [HttpPost]  
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
             var selectedIds = model.getSelectedIds();
@@ -387,9 +377,9 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 Reference = x.Reference,
                 Parent = $"{x.ParentFirstName} {x.ParentLastName}",
                 Child = $"{x.ChildFirstName} {x.ChildLastName}",
-                ChildDOB = Convert.ToDateTime(x.ChildDateOfBirth).ToString("dd MMM yyyy"),
+                ChildDOB = Convert.ToDateTime(x.ChildDateOfBirth).ToString("d MMM yyyy"),
                 Status = x.Status.GetFsmStatusDescription(),
-                SubmisionDate = x.Created.ToString("dd MMM yyyy")
+                SubmisionDate = x.Created.ToString("d MMM yyyy")
 
             }));
             var memoryStream = new MemoryStream(result);
@@ -499,7 +489,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
         #endregion
 
-        private async Task<IActionResult> GetResults(ApplicationRequestSearch? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
+        private async Task<IActionResult> GetResults(ApplicationRequestSearch2? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
         {
             var response = await _adminService.PostApplicationSearch(applicationSearch);
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
@@ -515,7 +505,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
             ViewBag.RecordsPerPage = applicationSearch.PageSize;
-
+           
             var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel
             {
                 DetailView = detailView,
@@ -524,10 +514,47 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ShowSchool = showSchool,
                 ShowParentDob = showParentDob
             });
+
             var viewData = new PeopleSelectionViewModel { People = viewModel.ToList() };
             return View(viewData);
         }
 
+        private async Task<IActionResult> GetResultsForSearch(ApplicationRequestSearch2? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
+        {
+            var response = await _adminService.PostApplicationSearch(applicationSearch);
+            response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
+            if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
+            {
+                TempData["Message"] = "There are no records matching your search.";
+                return View();
+            }
+
+            var criteria = JsonConvert.SerializeObject(applicationSearch);
+            TempData["SearchCriteria"] = criteria;
+            ViewBag.CurrentPage = applicationSearch.PageNumber;
+            ViewBag.TotalPages = response.TotalPages;
+            ViewBag.TotalRecords = response.TotalRecords;
+            ViewBag.RecordsPerPage = applicationSearch.PageSize;
+            if (applicationSearch.Data.Keyword != null)
+            {
+                ViewBag.Keyword = applicationSearch.Data.Keyword;
+            }
+            if (applicationSearch.Data.Statuses != null)
+            {
+                ViewBag.Status = applicationSearch.Data.Statuses;
+            }
+            var viewModel = response.Data.Select(x => new SearchAllRecordsViewModel
+            {
+                DetailView = detailView,
+                ShowSelectorCheck = showSelector,
+                Person = x,
+                ShowSchool = showSchool,
+                ShowParentDob = showParentDob
+            });
+
+            var viewData = new SearchAllRecordsViewModel { People = viewModel.ToList() };
+            return View(viewData);
+        }
         private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
         {
             var viewData = new ApplicationDetailViewModel
@@ -542,8 +569,8 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 ChildName = $"{response.Data.ChildFirstName} {response.Data.ChildLastName}",
                 School = response.Data.Establishment.Name,
             };
-            viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
-            viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd MMMM yyyy");
+            viewData.ParentDob = DateTime.ParseExact(response.Data.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("d MMMM yyyy");
+            viewData.ChildDob = DateTime.ParseExact(response.Data.ChildDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("d MMMM yyyy");
 
             return viewData;
         }

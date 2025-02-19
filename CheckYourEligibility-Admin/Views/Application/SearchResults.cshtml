@@ -1,70 +1,230 @@
 ﻿@using CheckYourEligibility_FrontEnd.ViewModels
-@model PeopleSelectionViewModel;
-
+@using Newtonsoft.Json
+@model SearchAllRecordsViewModel;
+@using System.Collections.Generic;
 @{
-    ViewData["Title"] = "Search results (" + @ViewBag.TotalRecords + ")";
+    ViewData["Title"] = "Search all records";
     ViewData["Layout"] = "full";
     int recordsPerPage = 10;
     int currentPage = ViewBag.CurrentPage ?? 1;
-    int totalRecords = ViewBag.TotalRecords;
+    int totalRecords = ViewBag.TotalRecords ?? 0;
     int totalPages = (int)Math.Ceiling((double)totalRecords / recordsPerPage);
 }
 
-@* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a>*@
-<a class="govuk-back-link-nolink"></a>
+<a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
+@* <a class="govuk-back-link-nolink"></a> *@
 
-<div class="moj-page-header-actions">
-    <div class="moj-page-header-actions__title">
+@{
+    var statusColor = new Dictionary<string, string>()
+    {
+        {"Entitled", "govuk-tag--green"},
+        {"EvidenceNeeded", "govuk-tag--light-blue"},
+        {"Receiving", "govuk-tag--pink"},
+        {"SentForReview", "govuk--tag-blue"},
+        {"ReviewedEntitled", "govuk--tag-green"},
+        {"ReviewedNotEntitled", "govuk--tag-red"}
+    };
+
+    var statusName = new Dictionary<string, string>()
+    {
+        {"Entitled", "Entitled"},
+        {"EvidenceNeeded", "Evidence Needed"},
+        {"Receiving", "Receiving Entitlement"},
+        {"SentForReview", "Sent for Review"},
+        {"ReviewedEntitled", "Reviewed Entitled"},
+        {"ReviewedNotEntitled", "Reviewed Not Entitled"}
+    };
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    ViewData["Title"] = "Error: Check Details";
+    <partial name="_ValidationSummary" model="ViewData.ModelState" />
+}
+
+
+@{
+    var applicationSearchJson = TempData["ApplicationSearch"] as string;
+    var applicationSearch = string.IsNullOrEmpty(applicationSearchJson) ? new ApplicationSearch() : JsonConvert.DeserializeObject<ApplicationSearch>(applicationSearchJson);
+    var selectedStatus = applicationSearch.Status?.ToString();
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">
             @ViewData["Title"]
         </h1>
     </div>
-    <div class="moj-page-header-actions__actions">
-        <div class="moj-button-menu">
-            <div class="moj-button-menu__wrapper">
-                @Html.ActionLink("Export as csv", "ExportSearchResults", "Application", null,
-                         new
-                         {
-                             @class = "govuk-button moj-button-menu__item govuk-button--secondary moj-page-header-actions__action",
-                             role = "button",
-                             draggable = "false",
-                             data_module = "govuk-button"
-                         })
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="moj-filter-layout">
+            <div class="moj-filter-layout__filter">
+                <div class="moj-filter">
+                    <div class="moj-filter__header">
+                        <h2 class="govuk-heading-m">Filter</h2>
+                    </div>
+                    <div class="moj-filter__content">
+                        @* <div class="moj-filter__selected">
+                        <div class="moj-filter__selected-heading">
+                        <div class="moj-filter__heading-title">
+                        <h2 class="govuk-heading-m">Selected filters</h2>
+                        </div>
+                        <div class="moj-filter__heading-action">
+                        <p>
+                        <a class="govuk-link govuk-link--no-visited-state" href="#" onclick="clearFilters()">Clear filters</a>
+                        </p>
+                        </div>
+                        </div>
+                        </div> *@
+
+                        <div class="moj-filter__options">
+                            <form asp-controller="Application" asp-action="SearchResults" method="post" class="form">
+                                <div class="govuk-form-group">
+                                    <button class="govuk-button govuk-button HO-button-white moj-button-menu__item govuk-!-margin-top-6" data-module="govuk-button" title="Apply filters">
+                                        Apply filters
+                                    </button>
+                                    <fieldset class="govuk-fieldset">
+                                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                            <h1 class="govuk-fieldset__heading">Keywords</h1>
+                                        </legend>
+                                        <p class="govuk-error-message">
+                                            <span asp-validation-for="ApplicationSearch.Keyword"></span>
+                                        </p>
+                                        <input id="Keyword" class="govuk-input @(ViewData.ModelState["Keyword"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" name="Keyword" value="@applicationSearch.Keyword">
+                                    </fieldset>
+                                </div>
+
+                                <div class="govuk-form-group">
+                                    <fieldset class="govuk-fieldset">
+                                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                            <h1 class="govuk-fieldset__heading">Status</h1>
+                                        </legend>
+                                        <div class="govuk-form-group">
+                                            <select class="govuk-select" id="Status" name="Status">
+                                                <option selected="@(selectedStatus == null ? true : false)" value="">All statuses</option>
+                                                <option selected="@(selectedStatus == "Entitled" ? true : false)" value="Entitled">Entitled</option>
+                                                <option selected="@(selectedStatus == "EvidenceNeeded" ? true : false)" value="EvidenceNeeded">Evidence needed</option>
+                                                <option selected="@(selectedStatus == "SentForReview" ? true : false)" value="SentForReview">Sent for review</option>
+                                                <option selected="@(selectedStatus == "ReviewedEntitled" ? true : false)" value="ReviewedEntitled">Reviewed entitled</option>
+                                                <option selected="@(selectedStatus == "ReviewedNotEntitled" ? true : false)" value="ReviewedNotEntitled">Reviewed not entitled</option>
+                                                <option selected="@(selectedStatus == "Receiving" ? true : false)" value="Receiving">Receiving entitlement</option>
+                                            </select>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="moj-filter-layout__content">
+                <div class="moj-action-bar">
+                    <div class="moj-action-bar__filter"></div>
+                    <div class="moj-button-menu">
+                        <div class="moj-button-menu__wrapper">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="moj-filter-layout__content">
+                <div class="moj-scrollable-pane">
+                    <div class="govuk-page-header govuk-page-header-customisation">
+                        <h2 class="govuk-heading-m govuk-heading-m-customisation">
+                            Showing <span id="resultCount">@ViewBag.TotalRecords</span> results
+                        </h2>
+                        @Html.ActionLink("Export as CSV", "ExportSearchResults", "Application", null,
+                                 new
+                                 {
+                                     @class = "govuk-button govuk-button--secondary",
+                                     role = "button",
+                                     draggable = "false",
+                                     data_module = "govuk-button"
+                                 })
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <div class="moj-filter-layout">
+                                <div class="moj-filter-layout__content">
+                                    <div class="moj-scrollable-pane">
+                                        <div class="moj-scrollable-pane">
+                                            @{
+                                                if (Model != null)
+                                                {
+                                                    if (Model.People != null && Model.People.Any())
+                                                    {
+                                                        <table class="govuk-table" id="resultsTable">
+                                                            <thead class="govuk-table__head">
+                                                                <tr class="govuk-table__row">
+                                                                    <th class="govuk-table__header" scope="col">Reference</th>
+                                                                    <th class="govuk-table__header" scope="col">Child name</th>
+                                                                    <th class="govuk-table__header" scope="col">Child DOB</th>
+                                                                    <th class="govuk-table__header" scope="col">Date submitted</th>
+                                                                    <th class="govuk-table__header" scope="col">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var person in Model.People)
+                                                                {
+                                                                    <tr>
+                                                                        <td class="govuk-table__cell">@Html.ActionLink(person.Person.Reference, person.DetailView, "application", new { id = person.Person.Id }, new { @class = "govuk-link" })</td>
+                                                                        <td class="govuk-table__cell">@(@person.Person.ChildFirstName + " " + person.Person.ChildLastName)</td>
+                                                                        <td class="govuk-table__cell">@(Convert.ToDateTime(@person.Person.ChildDateOfBirth).ToString("d MMM yyyy"))</td>
+                                                                        <td class="govuk-table__cell">@person.Person.Created.ToString("d MMM yyyy")</td>
+                                                                        <td class="govuk-table__cell">
+                                                                            <strong class="govuk-tag @statusColor[person.Person.Status]">
+                                                                                @statusName[person.Person.Status]
+                                                                            </strong>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                        var paginationModel = new PaginationPartialViewModel
+                    {
+                        CurrentPage = ViewBag.CurrentPage,
+                        TotalPages = ViewBag.TotalPages,
+                        RecordsPerPage = ViewBag.RecordsPerPage,
+                        TotalRecords = ViewBag.TotalRecords,
+                        ControllerName = "SearchResults",
+                        Status = ViewBag.Status,
+                        Keyword = ViewBag.Keyword
+                    };
+                                                        @Html.Partial("PaginationPartial", paginationModel)
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <table class="govuk-table" id="resultsTable">
+                                                        <thead class="govuk-table__head">
+                                                            <tr class="govuk-table__row">
+                                                                <th class="govuk-table__header" scope="col"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="govuk-table__cell">No results found.</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-quarter">
+                                    <form action="eligible-list" method="post" novalidate="">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<p><a href="search">Search again</a></p>
-
-@if (Model.People != null && Model.People.Any())
-{
-    <table class="govuk-table">
-        <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th class="govuk-table__header" scope="col" id="select-all"></th>
-                <th class="govuk-table__header" scope="col">Reference</th>
-                <th class="govuk-table__header" scope="col">Parent / Guardian</th>
-                <th class="govuk-table__header" scope="col">Child</th>
-                <th class="govuk-table__header" scope="col">Child DOB</th>
-                <th class="govuk-table__header" scope="col">Status</th>
-                <th class="govuk-table__header" scope="col">Submission date</th>
-            </tr>
-        </thead>
-        @Html.EditorFor(model => model.People)
-    </table>
-    var paginationModel = new PaginationPartialViewModel
-                {
-                    CurrentPage = ViewBag.CurrentPage,
-                    TotalPages = ViewBag.TotalPages,
-                    RecordsPerPage = ViewBag.RecordsPerPage,
-                    TotalRecords = ViewBag.TotalRecords,
-                    ControllerName = "SearchResults"
-                };
-
-    @Html.Partial("PaginationPartial", paginationModel)
-}
-else
-{
-    <p>No results found.</p>
-}

@@ -1,4 +1,5 @@
 ﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility_FrontEnd.Services.Domain;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using Microsoft.Extensions.Configuration;
@@ -35,7 +36,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
         }
 
-        public async Task<ApplicationSearchResponse> PostApplicationSearch(ApplicationRequestSearch requestBody)
+        public async Task<ApplicationSearchResponse> PostApplicationSearch(ApplicationRequestSearch2 requestBody)
         {
             try
             {
