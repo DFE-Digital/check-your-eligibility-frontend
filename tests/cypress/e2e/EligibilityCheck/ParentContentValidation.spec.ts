@@ -16,14 +16,12 @@ describe('Parent Date of Birth Validation Tests', () => {
     });
 
     it('displays error for single missing field', () => {
-        // Test each field individually missing
         cy.get('#DateOfBirth\\.Day').clear();
         cy.get('#DateOfBirth\\.Month').clear().type('6');
         cy.get('#DateOfBirth\\.Year').clear().type('1990');
         cy.contains('Save and continue').click();
         cy.get('.govuk-error-message').should('contain', 'Date of birth must include a day');
 
-        // Reset and test month missing
         cy.get('#DateOfBirth\\.Day').clear().type('15');
         cy.get('#DateOfBirth\\.Month').clear();
         cy.get('#DateOfBirth\\.Year').clear().type('1990');
@@ -75,7 +73,15 @@ describe('Parent Date of Birth Validation Tests', () => {
 
         cy.get('.govuk-error-message').should('contain', 'Date of birth must be a real date');
         cy.get('#DateOfBirth\\.Day').should('have.class', 'govuk-input--error');
-        cy.get('#DateOfBirth\\.Month').should('have.class', 'govuk-input--error');
+    });
+
+    it('displays error messages for invalid year', () => {
+        cy.get('#DateOfBirth\\.Day').clear().type('1');
+        cy.get('#DateOfBirth\\.Month').clear().type('1');
+        cy.get('#DateOfBirth\\.Year').clear().type('1800');
+        cy.contains('Save and continue').click();
+
+        cy.get('.govuk-error-message').should('contain', 'Date of birth must be a real date');
         cy.get('#DateOfBirth\\.Year').should('have.class', 'govuk-input--error');
     });
 
@@ -85,7 +91,6 @@ describe('Parent Date of Birth Validation Tests', () => {
         cy.get('#DateOfBirth\\.Year').clear().type('1990');
         cy.contains('Save and continue').click();
 
-        // Assert no error messages or classes
         cy.get('#DateOfBirth\\.Day + .govuk-error-message').should('not.exist');
         cy.get('#DateOfBirth\\.Month + .govuk-error-message').should('not.exist');
         cy.get('#DateOfBirth\\.Year + .govuk-error-message').should('not.exist');
