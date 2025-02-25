@@ -25,21 +25,6 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
     builder.Configuration.AddAzureKeyVault(new Uri(kvUri), new DefaultAzureCredential());
 }
 
-// Add services to the container.
-builder.Services.AddServices(builder.Configuration);
-builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
-builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
-builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
-builder.Services.AddScoped<IPerformEligibilityCheckUseCase,  PerformEligibilityCheckUseCase>();
-builder.Services.AddScoped<ISubmitApplicationUseCase, SubmitApplicationUseCase>();
-builder.Services.AddScoped<ISignInUseCase, SignInUseCase>();
-builder.Services.AddScoped<IEnterChildDetailsUseCase, EnterChildDetailsUseCase>();
-builder.Services.AddScoped<IProcessChildDetailsUseCase, ProcessChildDetailsUseCase>();
-builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
-builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
-builder.Services.AddScoped<IGetCheckStatusUseCase, GetCheckStatusUseCase>();
-builder.Services.AddScoped<IChangeChildDetailsUseCase, ChangeChildDetailsUseCase>();
-
 builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultScheme = "UNKNOWN";
@@ -89,16 +74,26 @@ builder.Services.AddAuthentication(opt =>
             if(context.Request.Path=="/Check/CreateUser") {
                 return "OneLogin";
             }
-            
-            Console.WriteLine(context.Request.Path);
 
             return "BasicAuthentication";
         };
     });;
 
-//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-//builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks();
+
+builder.Services.AddServices(builder.Configuration);
+builder.Services.AddScoped<ISearchSchoolsUseCase, SearchSchoolsUseCase>();
+builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
+builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
+builder.Services.AddScoped<IPerformEligibilityCheckUseCase,  PerformEligibilityCheckUseCase>();
+builder.Services.AddScoped<ISubmitApplicationUseCase, SubmitApplicationUseCase>();
+builder.Services.AddScoped<ISignInUseCase, SignInUseCase>();
+builder.Services.AddScoped<IEnterChildDetailsUseCase, EnterChildDetailsUseCase>();
+builder.Services.AddScoped<IProcessChildDetailsUseCase, ProcessChildDetailsUseCase>();
+builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
+builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
+builder.Services.AddScoped<IGetCheckStatusUseCase, GetCheckStatusUseCase>();
+builder.Services.AddScoped<IChangeChildDetailsUseCase, ChangeChildDetailsUseCase>();
 
 var app = builder.Build();
 
@@ -131,10 +126,12 @@ app.Use((context, next) =>
     return next.Invoke();
 });
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseSession();
+app.MapControllers().RequireAuthorization();
+app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",
