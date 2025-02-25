@@ -45,15 +45,39 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
             }
 
             Response.StatusCode = 401;
-            Response.Headers.Add("WWW-Authenticate", "Basic realm=\"dotnetthoughts.net\"");
+            Response.Headers.Add("WWW-Authenticate", "Basic realm=\"\"");
             return Task.FromResult(AuthenticateResult.Fail("Invalid Authorization Header"));
         }
         
-        else
+        var refererHeader = Request.Headers["Referer"].ToString();
+        var allowedReferer = _configuration["BasicReferer"];
+        if (!String.IsNullOrEmpty(allowedReferer)) 
         {
-            Response.StatusCode = 401;
-            Response.Headers.Add("WWW-Authenticate", "Basic realm=\"dotnetthoughts.net\"");
-            return Task.FromResult(AuthenticateResult.Fail("Invalid Authorization Header"));
+            if (!String.IsNullOrEmpty(refererHeader) && refererHeader.Contains(allowedReferer))
+            {
+                var claims = new[] { new Claim("name", allowedReferer), new Claim(ClaimTypes.Role, "Admin") };
+                var identity = new ClaimsIdentity(claims, "Basic");
+                var claimsPrincipal = new ClaimsPrincipal(identity);
+
+                Context.Response.Cookies.Append("referer", allowedReferer);
+
+                return Task.FromResult(
+                    AuthenticateResult.Success(new AuthenticationTicket(claimsPrincipal, Scheme.Name)));
+            }
+
+            if (Context.Request.Cookies["referer"] != null && Context.Request.Cookies["referer"] == allowedReferer)
+            {
+                var claims = new[] { new Claim("name", allowedReferer), new Claim(ClaimTypes.Role, "Admin") };
+                var identity = new ClaimsIdentity(claims, "Basic");
+                var claimsPrincipal = new ClaimsPrincipal(identity);
+                
+                return Task.FromResult(
+                    AuthenticateResult.Success(new AuthenticationTicket(claimsPrincipal, Scheme.Name)));
+            }
         }
+
+        Response.StatusCode = 401;
+        Response.Headers.Add("WWW-Authenticate", "Basic realm=\"\"");
+        return Task.FromResult(AuthenticateResult.Fail("Invalid Authorization Header"));
     }
 }
