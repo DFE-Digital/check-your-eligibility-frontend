@@ -12,7 +12,7 @@
 
 @if (!ViewData.ModelState.IsValid)
 {
-    ViewData["Title"] = "Error: Check Details";
+    ViewData["Title"] = "Error: Add details of your children";
     <partial name="_ValidationSummary" model="ViewData.ModelState" />
 }
 
@@ -33,9 +33,7 @@
 </div>
 </noscript>
 
-<h1 class="govuk-heading-l" tabindex="-1">
-    Add details of your children
-</h1>
+<h1 class="govuk-heading-l" tabindex="-1">@ViewData["Title"]</h1>
 
 <p>Include all children who are in compulsory education..</p>
 

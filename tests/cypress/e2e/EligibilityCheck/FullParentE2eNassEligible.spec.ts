@@ -11,7 +11,7 @@ describe('Parent with valid NASS number can complete full Eligibility check and 
         cy.get('button.govuk-button').click();
         
         cy.url().should('include', '/Check/Enter_Details');
-        cy.get('h1').should('include.text', 'Enter your details');
+        cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type('Simpson');
