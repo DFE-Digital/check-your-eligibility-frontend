@@ -4,11 +4,11 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
 {
     public class SearchAllRecordsViewModel
     {
-        public Models.ApplicationSearch ApplicationSearch { get; set; }
+        public Models.ApplicationSearch? ApplicationSearch { get; set; }
 
         public bool Selected { get; set; }
-        public ApplicationResponse Person { get; set; }
-        public string DetailView { get; set; }
+        public ApplicationResponse? Person { get; set; }
+        public string? DetailView { get; set; }
         public bool ShowSelectorCheck { get; internal set; }
         public bool ShowSchool { get; internal set; }
         public bool ShowParentDob { get; internal set; }
