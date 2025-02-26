@@ -108,7 +108,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
 
                     if (DataLoad.Count > checkRowLimit)
                     {
-                        TempData["ErrorMessage"] = "CSV File cannot contain more than 250 records";
+                        TempData["ErrorMessage"] = $"CSV File cannot contain more than {checkRowLimit} records";
                         return RedirectToAction("Bulk_Check");
                     }
 

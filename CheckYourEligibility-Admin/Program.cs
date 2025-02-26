@@ -1,3 +1,4 @@
+using System.Globalization;
 using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
@@ -7,6 +8,8 @@ using CheckYourEligibility_FrontEnd.UseCases.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
+CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-GB");
+CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-GB");
 
 builder.Services.AddApplicationInsightsTelemetry();
 if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
