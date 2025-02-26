@@ -1,4 +1,5 @@
 ﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Attributes;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -50,7 +51,13 @@ namespace CheckYourEligibility_FrontEnd.Models
         [RegularExpression(@"^\d+$", ErrorMessage = "Enter a year for parent or guardian using numbers only")]
         public string? PGDobYear { get; set; }
         public string? Keyword { get; set; }
-
-
+        public DateRange? DateRange { get; set; }
+    }
+    public class DateRange
+    {
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
     }
 }
+    
+

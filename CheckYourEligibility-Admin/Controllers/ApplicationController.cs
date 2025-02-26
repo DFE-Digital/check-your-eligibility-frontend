@@ -2,6 +2,7 @@
 
 using Azure;
 using CheckYourEligibility_FrontEnd.Services.Domain;
+//using CheckYourEligibility_FrontEnd.Services.Domain;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Models;
@@ -17,6 +18,10 @@ using CheckYourEligibility_DfeSignIn.Models;
 using System.Text;
 using Azure.Core;
 using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Requests;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Drawing.Printing;
+using DateRange = CheckYourEligibility_FrontEnd.Services.Domain.DateRange;
 
 namespace CheckYourEligibility_FrontEnd.Controllers
 {
@@ -38,7 +43,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         #region Search
         [HttpGet]
         public IActionResult Search()
-            {
+        {
             if (TempData["Message"] != null)
             {
                 ViewBag.Message = TempData["Message"];
@@ -57,37 +62,41 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View();
         }
 
-public async Task<IActionResult> SearchResults(ApplicationSearch request)
-{
-    if (!ModelState.IsValid)
-    {
-        TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
-        var errors = ModelState
-            .Where(x => x.Value.Errors.Count > 0)
-            .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
-        TempData["Errors"] = JsonConvert.SerializeObject(errors);
-        return View();
-    }
-
-    _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-
-    var applicationSearch = new ApplicationRequestSearch2()
-    {
-        PageNumber = request.PageNumber,
-        PageSize = request.PageSize,
-        Data = new ApplicationRequestSearchData
+        public async Task<IActionResult> SearchResults(ApplicationSearch request)
         {
-            LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
-            Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
-            Keyword = request.Keyword,
-            Statuses = request.Status.Any() ? request.Status : null // Apply filter only if statuses are selected
+            if (!ModelState.IsValid)
+            {
+                TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                TempData["Errors"] = JsonConvert.SerializeObject(errors);
+                return View();
+            }
+
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            var applicationSearch = new ApplicationRequestSearch2()
+            {
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                Data = new ApplicationRequestSearchData2
+                {
+                    LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
+                    Establishment = _Claims.Organisation.Category.Name == Constants.CategoryTypeSchool ? Convert.ToInt32(_Claims.Organisation.Urn) : null,
+                    Keyword = request.Keyword,
+                    DateRange = request.DateRange != null ? new DateRange
+                    {
+                        DateFrom = request.DateRange.DateFrom,
+                        DateTo = DateTime.Now
+                    } : null ,
+                    Statuses = request.Status.Any() ? request.Status : null // Apply filter only if statuses are selected
+
+                }
+            };
+                TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
+
+            return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
         }
-    };
-
-    TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
-
-    return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
-}
 
         [HttpGet]
         public async Task<IActionResult> ApplicationDetail(string id)
@@ -291,7 +300,7 @@ public async Task<IActionResult> SearchResults(ApplicationSearch request)
                 {
                     PageNumber = 1,
                     PageSize = pageSize,
-                    Data = new ApplicationRequestSearchData
+                    Data = new ApplicationRequestSearchData2
                     {
 
                         LocalAuthority = _Claims.Organisation.Category.Name == Constants.CategoryTypeLA ? Convert.ToInt32(_Claims.Organisation.EstablishmentNumber) : null,
@@ -325,7 +334,7 @@ public async Task<IActionResult> SearchResults(ApplicationSearch request)
             return View(GetViewData(response));
         }
 
-        [HttpPost]  
+        [HttpPost]
         public ActionResult FinaliseSelectedApplications(PeopleSelectionViewModel model)
         {
             var selectedIds = model.getSelectedIds();
@@ -500,7 +509,7 @@ public async Task<IActionResult> SearchResults(ApplicationSearch request)
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
             ViewBag.RecordsPerPage = applicationSearch.PageSize;
-           
+
             var viewModel = response.Data.Select(x => new SelectPersonEditorViewModel
             {
                 DetailView = detailView,
@@ -530,6 +539,10 @@ public async Task<IActionResult> SearchResults(ApplicationSearch request)
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
             ViewBag.RecordsPerPage = applicationSearch.PageSize;
+            if(applicationSearch.Data.DateRange?.DateFrom != null)
+            {
+                ViewBag.DateFrom = applicationSearch.Data.DateRange.DateFrom?.ToString("yyyy-MM-dd");
+            }
             if (applicationSearch.Data.Keyword != null)
             {
                 ViewBag.Keyword = applicationSearch.Data.Keyword;

@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using CheckYourEligibility_FrontEnd.Services.Domain;
 using CheckYourEligibility.Domain.Enums;
-using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility.TestBase;
 using CheckYourEligibility_DfeSignIn;

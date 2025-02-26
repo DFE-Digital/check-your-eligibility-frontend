@@ -9,6 +9,10 @@
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalRecords = ViewBag.TotalRecords ?? 0;
     int totalPages = (int)Math.Ceiling((double)totalRecords / recordsPerPage);
+    var firstDayOfCurrentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("yyyy-MM-dd");
+    var formattedThreeMonthsAgo = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd");
+    var formattedSixMonthsAgo = DateTime.Now.AddMonths(-6).ToString("yyyy-MM-dd");
+    var formattedTwelveMonthsAgo = DateTime.Now.AddMonths(-12).ToString("yyyy-MM-dd");
 }
 
 <a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
@@ -92,7 +96,41 @@
                                         <input id="Keyword" class="govuk-input @(ViewData.ModelState["Keyword"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" name="Keyword" value="@applicationSearch.Keyword">
                                     </fieldset>
                                 </div>
-
+                                <div class="govuk-form-group">
+                                    <fieldset class="govuk-fieldset">
+                                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                            <h1 class="govuk-fieldset__heading">
+                                                Submission date range
+                                            </h1>
+                                        </legend>
+                                        <div class="govuk-radios govuk-radios--small" data-module="govuk-radios" data-govuk-radios-init="">
+                                            <div class="govuk-radios__item">
+                                                <input class="govuk-radios__input" id="DateRangeNow" name="DateRange.DateFrom" type="radio" value="@firstDayOfCurrentMonth" @(ViewBag.DateFrom == firstDayOfCurrentMonth ? "checked" : "")>
+                                                <label class="govuk-label govuk-radios__label" for="date range">
+                                                    Current month to date
+                                                </label>
+                                            </div>
+                                            <div class="govuk-radios__item">
+                                                <input class="govuk-radios__input" id="DateRange-3" name="DateRange.DateFrom" type="radio" value="@formattedThreeMonthsAgo" @(ViewBag.DateFrom == formattedThreeMonthsAgo ? "checked" : "")>
+                                                <label class="govuk-label govuk-radios__label" for="date range-2">
+                                                    Last 3 months
+                                                </label>
+                                            </div>
+                                            <div class="govuk-radios__item">
+                                                <input class="govuk-radios__input" id="DateRange-6" name="DateRange.DateFrom" type="radio" value="@formattedSixMonthsAgo" @(ViewBag.DateFrom == formattedSixMonthsAgo ? "checked" : "")>
+                                                <label class="govuk-label govuk-radios__label" for="date range-3">
+                                                    Last 6 months
+                                                </label>
+                                            </div>
+                                            <div class="govuk-radios__item">
+                                                <input class="govuk-radios__input" id="DateRange-12" name="DateRange.DateFrom" type="radio" value="@formattedTwelveMonthsAgo" @(ViewBag.DateFrom == formattedTwelveMonthsAgo ? "checked" : "")>
+                                                <label class="govuk-label govuk-radios__label" for="date range-3">
+                                                    Last 12 months
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
                                 <div class="govuk-form-group">
                                     <fieldset class="govuk-fieldset">
                                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
