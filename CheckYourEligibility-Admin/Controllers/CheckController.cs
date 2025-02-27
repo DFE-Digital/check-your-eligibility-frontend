@@ -4,7 +4,7 @@ using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,164 +18,135 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         private readonly IEcsCheckService _checkService;
         private readonly IEcsServiceParent _parentService;
         private readonly IConfiguration _config;
-        private readonly IAdminLoadParentDetailsUseCase _adminLoadParentDetailsUseCase;
-        private readonly IAdminProcessParentDetailsUseCase _adminProcessParentDetailsUseCase;
-        private readonly IAdminEnterChildDetailsUseCase _adminEnterChildDetailsUseCase;
-        private readonly IAdminProcessChildDetailsUseCase _adminProcessChildDetailsUseCase;
-        private readonly IAdminAddChildUseCase _adminAddChildUseCase;
-        private readonly IAdminRemoveChildUseCase _adminRemoveChildUseCase;
-        private readonly IAdminChangeChildDetailsUseCase _adminChangeChildDetailsUseCase;
-        private readonly IAdminRegistrationResponseUseCase _adminRegistrationResponseUseCase;
-        private readonly IAdminApplicationsRegisteredUseCase _adminApplicationsRegisteredUseCase;
-        private readonly IAdminCreateUserUseCase _adminCreateUserUseCase;
-        private readonly IAdminSubmitApplicationUseCase _adminSubmitApplicationUseCase;
-        private readonly IAdminValidateParentDetailsUseCase _adminValidateParentDetailsUseCase;
-        private readonly IAdminInitializeCheckAnswersUseCase _adminInitializeCheckAnswersUseCase;
+        private readonly ILoadParentDetailsUseCase _loadParentDetailsUseCase;
+        private readonly IPerformEligibilityCheckUseCase _performEligibilityCheckUseCase;
+        private readonly IEnterChildDetailsUseCase _enterChildDetailsUseCase;
+        private readonly IProcessChildDetailsUseCase _processChildDetailsUseCase;
+        private readonly IGetCheckStatusUseCase _getCheckStatusUseCase;
+        private readonly IAddChildUseCase _addChildUseCase;
+        private readonly IRemoveChildUseCase _removeChildUseCase;
+        private readonly IChangeChildDetailsUseCase _changeChildDetailsUseCase;
+        private readonly ICreateUserUseCase _createUserUseCase;
+        private readonly ISubmitApplicationUseCase _submitApplicationUseCase;
+        private readonly IValidateParentDetailsUseCase _validateParentDetailsUseCase;
         public CheckController(
             ILogger<CheckController> logger,
             IEcsServiceParent ecsServiceParent,
             IEcsCheckService ecsCheckService,
             IConfiguration configuration,
-            IAdminLoadParentDetailsUseCase adminLoadParentDetailsUseCase,
-            IAdminProcessParentDetailsUseCase adminProcessParentDetailsUseCase,
-            IAdminEnterChildDetailsUseCase adminEnterChildDetailsUseCase,
-            IAdminProcessChildDetailsUseCase adminProcessChildDetailsUseCase,
-            IAdminAddChildUseCase adminAddChildUseCase,
-            IAdminRemoveChildUseCase adminRemoveChildUseCase,
-            IAdminChangeChildDetailsUseCase adminChangeChildDetailsUseCase,
-            IAdminRegistrationResponseUseCase adminRegistrationResponseUseCase,
-            IAdminApplicationsRegisteredUseCase adminApplicationsRegisteredUseCase,
-            IAdminCreateUserUseCase adminCreateUserUseCase,
-            IAdminSubmitApplicationUseCase adminSubmitApplicationUseCase,
-            IAdminValidateParentDetailsUseCase adminValidateParentDetailsUseCase,
-            IAdminInitializeCheckAnswersUseCase adminInitializeCheckAnswersUseCase)
+            ILoadParentDetailsUseCase loadParentDetailsUseCase,
+            IPerformEligibilityCheckUseCase performEligibilityCheckUseCase,
+            IEnterChildDetailsUseCase enterChildDetailsUseCase,
+            IProcessChildDetailsUseCase processChildDetailsUseCase,
+            IGetCheckStatusUseCase getCheckStatusUseCase,
+            IAddChildUseCase addChildUseCase,
+            IRemoveChildUseCase removeChildUseCase,
+            IChangeChildDetailsUseCase changeChildDetailsUseCase,
+            ICreateUserUseCase createUserUseCase,
+            ISubmitApplicationUseCase submitApplicationUseCase,
+            IValidateParentDetailsUseCase validateParentDetailsUseCase)
         {
-            _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _parentService = ecsServiceParent ?? throw new ArgumentNullException(nameof(ecsServiceParent));
-            _checkService = ecsCheckService ?? throw new ArgumentNullException(nameof(ecsCheckService));
-            _adminLoadParentDetailsUseCase = adminLoadParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminLoadParentDetailsUseCase));
-            _adminProcessParentDetailsUseCase = adminProcessParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessParentDetailsUseCase));
-            _adminEnterChildDetailsUseCase = adminEnterChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminEnterChildDetailsUseCase));
-            _adminProcessChildDetailsUseCase = adminProcessChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminProcessChildDetailsUseCase));
-            _adminAddChildUseCase = adminAddChildUseCase ?? throw new ArgumentNullException(nameof(adminAddChildUseCase));
-            _adminRemoveChildUseCase = adminRemoveChildUseCase ?? throw new ArgumentNullException(nameof(adminRemoveChildUseCase));
-            _adminChangeChildDetailsUseCase = adminChangeChildDetailsUseCase ?? throw new ArgumentNullException(nameof(adminChangeChildDetailsUseCase));
-            _adminRegistrationResponseUseCase = adminRegistrationResponseUseCase ?? throw new ArgumentNullException(nameof(adminRegistrationResponseUseCase));
-            _adminApplicationsRegisteredUseCase = adminApplicationsRegisteredUseCase ?? throw new ArgumentNullException(nameof(adminApplicationsRegisteredUseCase));
-            _adminCreateUserUseCase = adminCreateUserUseCase ?? throw new ArgumentNullException(nameof(adminCreateUserUseCase));
-            _adminSubmitApplicationUseCase = adminSubmitApplicationUseCase ?? throw new ArgumentNullException(nameof(adminSubmitApplicationUseCase));
-            _adminValidateParentDetailsUseCase = adminValidateParentDetailsUseCase ?? throw new ArgumentNullException(nameof(adminValidateParentDetailsUseCase));
-            _adminInitializeCheckAnswersUseCase = adminInitializeCheckAnswersUseCase ?? throw new ArgumentNullException(nameof(adminInitializeCheckAnswersUseCase));
+            _config = configuration;
+            _logger = logger;
+            _parentService = ecsServiceParent;
+            _checkService = ecsCheckService;
+            _loadParentDetailsUseCase = loadParentDetailsUseCase;
+            _performEligibilityCheckUseCase = performEligibilityCheckUseCase;
+            _enterChildDetailsUseCase = enterChildDetailsUseCase;
+            _processChildDetailsUseCase = processChildDetailsUseCase;
+            _getCheckStatusUseCase = getCheckStatusUseCase;
+            _addChildUseCase = addChildUseCase;
+            _removeChildUseCase = removeChildUseCase;
+            _changeChildDetailsUseCase = changeChildDetailsUseCase;
+            _createUserUseCase = createUserUseCase;
+            _submitApplicationUseCase = submitApplicationUseCase;
+            _validateParentDetailsUseCase = validateParentDetailsUseCase;
         }
 
         [HttpGet]
         public async Task<IActionResult> Enter_Details()
         {
-            try
+            var (parent, validationErrors) = await _loadParentDetailsUseCase.Execute(
+                TempData["ParentDetails"]?.ToString(),
+                TempData["Errors"]?.ToString()
+            );
+
+            if (validationErrors != null)
             {
-                if (TempData["Response"] != null)
+                foreach (var (key, errorList) in validationErrors)
                 {
-                    return RedirectToAction("Loader");
-                }
-
-                var (parent, validationErrors) = await _adminLoadParentDetailsUseCase.Execute(
-                    TempData["ParentDetails"]?.ToString(),
-                    TempData["Errors"]?.ToString()
-                );
-
-                if (validationErrors != null)
-                {
-                    foreach (var (key, errorList) in validationErrors)
+                    foreach (var error in errorList)
                     {
-                        foreach (var error in errorList)
-                        {
-                            ModelState.AddModelError(key, error);
-                        }
+                        ModelState.AddModelError(key, error);
                     }
                 }
+            }
 
-                return View(parent);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error loading parent details");
-                return View("Outcome/Technical_Error");
-            }
+            return View(parent);
         }
 
         [HttpPost]
         public async Task<IActionResult> Enter_Details(ParentGuardian request)
         {
-            try
+            var validationResult = _validateParentDetailsUseCase.Execute(request, ModelState);
+
+            if (!validationResult.IsValid)
             {
-                var validationResult = _adminValidateParentDetailsUseCase.Execute(request, ModelState);
-
-                if (!validationResult.IsValid)
-                {
-                    TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
-                    TempData["Errors"] = JsonConvert.SerializeObject(validationResult.Errors);
-                    return RedirectToAction("Enter_Details");
-                }
-
-                var response = await _adminProcessParentDetailsUseCase.Execute(request, HttpContext.Session);
-                TempData["Response"] = JsonConvert.SerializeObject(response);
-
-                return RedirectToAction("Loader");
+                TempData["ParentDetails"] = JsonConvert.SerializeObject(request);
+                TempData["Errors"] = JsonConvert.SerializeObject(validationResult.Errors);
+                return RedirectToAction("Enter_Details");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing parent details");
-                return View("Outcome/Technical_Error");
-            }
+
+            var response = await _performEligibilityCheckUseCase.Execute(request, HttpContext.Session);
+            TempData["Response"] = JsonConvert.SerializeObject(response);
+
+            return RedirectToAction("Loader");
+            
         }
 
         public async Task<IActionResult> Loader()
         {
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
 
-            // Retrieve the API response from TempData
             var responseJson = TempData["Response"] as string;
-            if (responseJson == null)
+            try
             {
-                _logger.LogWarning("No response data found in TempData.");
-                return View("Outcome/Technical_Error");
-            }
+                string outcome = await _getCheckStatusUseCase.Execute(responseJson, HttpContext.Session);
 
-            var response = JsonConvert.DeserializeObject<CheckEligibilityResponse>(responseJson);
-            _logger.LogInformation($"Check status processed: {response?.Data?.Status}");
-
-            // Call the service to check the current status
-            var check = await _checkService.GetStatus(response);
-            if (check == null || check.Data == null)
-            {
-                _logger.LogWarning("Null response received from GetStatus.");
-                return View("Outcome/Technical_Error");
-            }
-
-            _logger.LogInformation($"Received status: {check.Data.Status}");
-            Enum.TryParse(check.Data.Status, out CheckEligibilityStatus status);
-            TempData["OutcomeStatus"] = status;
-            bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
-            switch (status)
-            {
-                case CheckEligibilityStatus.eligible:
-                    return (isLA ? View("Outcome/Eligible_LA") : View("Outcome/Eligible"));
-                case CheckEligibilityStatus.notEligible:
-                    return (isLA ? View("Outcome/Not_Eligible_LA") : View("Outcome/Not_Eligible"));
-                case CheckEligibilityStatus.parentNotFound:
-                    return View("Outcome/Not_Found");
-                case CheckEligibilityStatus.DwpError:
-                    return View("Outcome/Technical_Error");
-                case CheckEligibilityStatus.queuedForProcessing:
-                    _logger.LogInformation("Still queued for processing.");
+                if (outcome == "queuedForProcessing")
+                {
                     // Save the response back to TempData for the next poll
-                    TempData["Response"] = JsonConvert.SerializeObject(response);
-                    // Render the loader view which will auto-refresh
-                    return View("Loader");
-                default:
-                    _logger.LogError($"Unknown Status {status}");
-                    return View("Outcome/Technical_Error");
+                    TempData["Response"] = responseJson;
+                }
+
+                _logger.LogError(outcome);
+                
+                bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
+                switch (outcome)
+                {
+                    case "eligible":
+                        return View(isLA?"Outcome/Eligible_LA":"Outcome/Eligible");
+                        break;
+
+                    case "notEligible":
+                        return View(isLA?"Outcome/Not_Eligible_LA":"Outcome/Not_Eligible");
+                        break;
+
+                    case "parentNotFound":
+                        return View("Outcome/Not_Found");
+                        break;
+
+                    case "queuedForProcessing":
+                        return View("Loader");
+                        break;
+
+                    default:
+                        return View("Outcome/Technical_Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Outcome/Technical_Error");
             }
         }
 
@@ -184,17 +155,12 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public IActionResult Enter_Child_Details()
         {
-            var children = new Children() { ChildList = [new()] };
+            var childrenModel = _enterChildDetailsUseCase.Execute(
+                TempData["ChildList"] as string,
+                TempData["IsChildAddOrRemove"] as bool?);
+            
 
-            if (TempData["IsChildAddOrRemove"] != null && (bool)TempData["IsChildAddOrRemove"] == true)
-            {
-                ModelState.Clear();
-
-                var childDetails = TempData["ChildList"] as string;
-                children.ChildList = JsonConvert.DeserializeObject<List<Child>>(childDetails);
-            }
-
-            return View(children);
+            return View(childrenModel);
         }
 
         [HttpPost]
@@ -210,7 +176,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 return View("Enter_Child_Details", request);
             }
 
-            var fsmApplication = _adminProcessChildDetailsUseCase.Execute(request, HttpContext.Session).Result;
+            var fsmApplication = _processChildDetailsUseCase.Execute(request, HttpContext.Session).Result;
             TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
 
             return View("Check_Answers", fsmApplication);
@@ -219,11 +185,18 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpPost]
         public IActionResult Add_Child(Children request)
         {
-            TempData["IsChildAddOrRemove"] = true;
+            try
+            {
+                TempData["IsChildAddOrRemove"] = true;
+                
+                Children updatedChildren = _addChildUseCase.Execute(request);
 
-            var result = _adminAddChildUseCase.Execute(request);
-
-            TempData["ChildList"] = JsonConvert.SerializeObject(result.ChildList);
+                TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
+            }
+            catch (MaxChildrenException e)
+            {
+                TempData["ChildList"] = JsonConvert.SerializeObject(request.ChildList);
+            }
 
             return RedirectToAction("Enter_Child_Details");
         }
@@ -233,37 +206,20 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             try
             {
-                var result = await _adminRemoveChildUseCase.Execute(request, index);
-
                 TempData["IsChildAddOrRemove"] = true;
-                TempData["ChildList"] = JsonConvert.SerializeObject(result.ChildList);
+                
+                var updatedChildren = await _removeChildUseCase.Execute(request, index);
 
+                TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
+                
                 return RedirectToAction("Enter_Child_Details");
             }
-            catch (IndexOutOfRangeException)
+
+            catch (RemoveChildValidationException e)
             {
-                throw;
+                ModelState.AddModelError(string.Empty, e.Message);
+                return RedirectToAction("Enter_Child_Details");
             }
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> Check_Answers(FsmApplication request)
-        {
-            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
-            var userId = await _adminCreateUserUseCase.Execute(HttpContext.User.Claims);
-
-            var (result, lastResponse) = await _adminSubmitApplicationUseCase.Execute(
-                request,
-                userId,
-                _Claims.Organisation.Urn);
-
-            TempData["confirmationApplication"] = JsonConvert.SerializeObject(result);
-
-            return RedirectToAction(
-                lastResponse.Data.Status == "Entitled"
-                    ? "ApplicationsRegistered"
-                    : "AppealsRegistered");
         }
 
         public IActionResult Check_Answers()
@@ -271,22 +227,53 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View("Check_Answers");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Check_Answers(FsmApplication request)
+        {
+            _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
+            var userId = await _createUserUseCase.Execute(HttpContext.User.Claims);
+
+            var responses = await _submitApplicationUseCase.Execute(
+                request,
+                userId,
+                _Claims.Organisation.Urn);
+
+            TempData["FsmApplicationResponse"] = JsonConvert.SerializeObject(responses);
+
+            return RedirectToAction(
+                responses.FirstOrDefault()?.Data.Status == "Entitled"
+                    ? "ApplicationsRegistered"
+                    : "AppealsRegistered");
+        }
+
 
         public IActionResult ChangeChildDetails(int child)
         {
             TempData["IsRedirect"] = true;
-            TempData["childIndex"] = child;
-            var responseJson = TempData["FsmApplication"] as string;
-            var children = _adminChangeChildDetailsUseCase.Execute(responseJson);
-            return View("Enter_Child_Details", children);
-            return View("Enter_Child_Details", children);
+            Children model = new Children { ChildList = new List<Child>() };
+            
+            try
+            {
+                model = _changeChildDetailsUseCase.Execute(
+                    TempData["FsmApplication"] as string);
+            }
+            catch (JSONException e)
+            {
+                ;
+            }
+            catch (NoChildException)
+            {
+                ;
+            }
+
+            return View("Enter_Child_Details", model);
         }
 
 
         [HttpGet]
         public IActionResult ApplicationsRegistered()
         {
-            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
+            var vm = JsonConvert.DeserializeObject<List<ApplicationSaveItemResponse>>(TempData["FsmApplicationResponse"].ToString());
             return View("ApplicationsRegistered", vm);
         }
 
@@ -294,7 +281,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         [HttpGet]
         public IActionResult AppealsRegistered()
         {
-            var vm = JsonConvert.DeserializeObject<ApplicationConfirmationEntitledViewModel>(TempData["confirmationApplication"].ToString());
+            var vm = JsonConvert.DeserializeObject<List<ApplicationSaveItemResponse>>(TempData["FsmApplicationResponse"].ToString());
             return View("AppealsRegistered", vm);
         }
     }

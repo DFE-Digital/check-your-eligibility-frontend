@@ -1,6 +1,6 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -9,9 +9,9 @@ using NUnit.Framework;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class AdminProcessChildDetailsUseCaseTests
+    public class ProcessChildDetailsUseCaseTests
     {
-        private AdminProcessChildDetailsUseCase _sut;
+        private ProcessChildDetailsUseCase _sut;
         private Fixture _fixture;
         private Mock<ISession> _sessionMock;
         private Dictionary<string, byte[]> _sessionStore;
@@ -19,7 +19,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         [SetUp]
         public void SetUp()
         {
-            _sut = new AdminProcessChildDetailsUseCase();
+            _sut = new ProcessChildDetailsUseCase();
             _fixture = new Fixture();
             _sessionMock = new Mock<ISession>();
             _sessionStore = new Dictionary<string, byte[]>();

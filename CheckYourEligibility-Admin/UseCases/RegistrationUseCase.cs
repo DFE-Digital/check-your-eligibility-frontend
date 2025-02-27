@@ -1,4 +1,4 @@
-﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -6,18 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IAdminRegistrationUseCase
+    public interface IRegistrationUseCase
     {
         Task<ApplicationConfirmationEntitledViewModel> Execute(string applicationJson);
     }
 
-    public class AdminRegistrationUseCase : IAdminRegistrationUseCase
+    public class RegistrationUseCase : IRegistrationUseCase
     {
-        private readonly ILogger<AdminRegistrationUseCase> _logger;
+        private readonly ILogger<RegistrationUseCase> _logger;
 
-        public AdminRegistrationUseCase(ILogger<AdminRegistrationUseCase> logger)
+        public RegistrationUseCase(ILogger<RegistrationUseCase> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

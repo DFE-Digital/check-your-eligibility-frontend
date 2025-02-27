@@ -1,6 +1,6 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -9,17 +9,17 @@ using NUnit.Framework;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class AdminLoadParentDetailsUseCaseTests
+    public class LoadParentDetailsUseCaseTests
     {
-        private AdminLoadParentDetailsUseCase _sut;
-        private Mock<ILogger<AdminLoadParentDetailsUseCase>> _loggerMock;
+        private LoadParentDetailsUseCase _sut;
+        private Mock<ILogger<LoadParentDetailsUseCase>> _loggerMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminLoadParentDetailsUseCase>>();
-            _sut = new AdminLoadParentDetailsUseCase(_loggerMock.Object);
+            _loggerMock = new Mock<ILogger<LoadParentDetailsUseCase>>();
+            _sut = new LoadParentDetailsUseCase(_loggerMock.Object);
             _fixture = new Fixture();
         }
 

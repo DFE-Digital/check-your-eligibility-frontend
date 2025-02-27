@@ -1,4 +1,4 @@
-﻿using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility.Domain.Enums;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_FrontEnd.Models;
@@ -6,46 +6,39 @@ using CheckYourEligibility_FrontEnd.Services;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.Extensions.Logging;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IAdminSubmitApplicationUseCase
+    public interface ISubmitApplicationUseCase
     {
-        Task<(ApplicationConfirmationEntitledViewModel Result, ApplicationSaveItemResponse LastResponse)> Execute(
+        Task<List<ApplicationSaveItemResponse>> Execute(
             FsmApplication request,
             string userId,
             string establishment);
     }
 
-    public class AdminSubmitApplicationUseCase : IAdminSubmitApplicationUseCase
+    public class SubmitApplicationUseCase : ISubmitApplicationUseCase
     {
-        private readonly ILogger<AdminSubmitApplicationUseCase> _logger;
+        private readonly ILogger<SubmitApplicationUseCase> _logger;
         private readonly IEcsServiceParent _parentService;
 
-        public AdminSubmitApplicationUseCase(
-            ILogger<AdminSubmitApplicationUseCase> logger,
+        public SubmitApplicationUseCase(
+            ILogger<SubmitApplicationUseCase> logger,
             IEcsServiceParent parentService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parentService = parentService ?? throw new ArgumentNullException(nameof(parentService));
         }
 
-        public async Task<(ApplicationConfirmationEntitledViewModel Result, ApplicationSaveItemResponse LastResponse)> Execute(
-    FsmApplication request,
-    string userId,
-    string establishment)
+        public async Task<List<ApplicationSaveItemResponse>> Execute(
+            FsmApplication request,
+            string userId,
+            string establishment)
         {
-            var parentName = $"{request.ParentFirstName} {request.ParentLastName}";
-            var response = new ApplicationConfirmationEntitledViewModel
-            {
-                ParentName = parentName,
-                Children = new List<ApplicationConfirmationEntitledChildViewModel>()
-            };
-
-            ApplicationSaveItemResponse lastResponse = null;
+            var responses = new List<ApplicationSaveItemResponse>();
 
             foreach (var child in request.Children.ChildList)
             {
-                var fsmApplication = new ApplicationRequest
+                var application = new ApplicationRequest
                 {
                     Data = new ApplicationRequestData
                     {
@@ -66,18 +59,11 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
                         UserId = userId
                     }
                 };
-
-                lastResponse = await _parentService.PostApplication_Fsm(fsmApplication);
-
-                response.Children.Add(new ApplicationConfirmationEntitledChildViewModel
-                {
-                    ParentName = parentName,
-                    ChildName = $"{lastResponse.Data.ChildFirstName} {lastResponse.Data.ChildLastName}",
-                    Reference = lastResponse.Data.Reference
-                });
+                var response = await _parentService.PostApplication_Fsm(application);
+                responses.Add(response);
             }
 
-            return (response, lastResponse);
+            return responses;
         }
     }
 }

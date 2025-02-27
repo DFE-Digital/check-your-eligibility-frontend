@@ -1,19 +1,19 @@
-﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using Microsoft.Extensions.Logging;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IAdminRegistrationResponseUseCase
+    public interface IRegistrationResponseUseCase
     {
         Task<ApplicationConfirmationEntitledViewModel> Execute(FsmApplication request);
     }
 
-    public class AdminRegistrationResponseUseCase : IAdminRegistrationResponseUseCase
+    public class RegistrationResponseUseCase : IRegistrationResponseUseCase
     {
-        private readonly ILogger<AdminRegistrationResponseUseCase> _logger;
+        private readonly ILogger<RegistrationResponseUseCase> _logger;
 
-        public AdminRegistrationResponseUseCase(ILogger<AdminRegistrationResponseUseCase> logger)
+        public RegistrationResponseUseCase(ILogger<RegistrationResponseUseCase> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

@@ -6,7 +6,7 @@ using CheckYourEligibility.TestBase;
 using CheckYourEligibility_FrontEnd.Controllers;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
@@ -27,19 +27,19 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
     {
         // Mocks for use cases
         private ILogger<CheckController> _loggerMock;
-        private Mock<IAdminLoadParentDetailsUseCase> _adminLoadParentDetailsUseCaseMock;
-        private Mock<IAdminProcessParentDetailsUseCase> _adminProcessParentDetailsUseCaseMock;
-        private Mock<IAdminEnterChildDetailsUseCase> _adminEnterChildDetailsUseCaseMock;
-        private Mock<IAdminProcessChildDetailsUseCase> _adminProcessChildDetailsUseCaseMock;
-        private Mock<IAdminAddChildUseCase> _adminAddChildUseCaseMock;
-        private Mock<IAdminRemoveChildUseCase> _adminRemoveChildUseCaseMock;
-        private Mock<IAdminChangeChildDetailsUseCase> _adminChangeChildDetailsUseCaseMock;
-        private Mock<IAdminRegistrationResponseUseCase> _adminRegistrationResponseUseCaseMock;
-        private Mock<IAdminApplicationsRegisteredUseCase> _adminApplicationsRegisteredUseCaseMock;
-        private Mock<IAdminCreateUserUseCase> _adminCreateUserUseCaseMock;
-        private Mock<IAdminSubmitApplicationUseCase> _adminSubmitApplicationUseCaseMock;
-        private Mock<IAdminValidateParentDetailsUseCase> _adminValidateParentDetailsUseCaseMock;
-        private Mock<IAdminInitializeCheckAnswersUseCase> _adminInitializeCheckAnswersUseCaseMock;
+        private Mock<ILoadParentDetailsUseCase> _loadParentDetailsUseCaseMock;
+        private Mock<IPerformEligibilityCheckUseCase> _performEligibilityCheckUseCaseMock;
+        private Mock<IGetCheckStatusUseCase> _getCheckStatusUseCaseMock;
+        private Mock<IEnterChildDetailsUseCase> _enterChildDetailsUseCaseMock;
+        private Mock<IProcessChildDetailsUseCase> _processChildDetailsUseCaseMock;
+        private Mock<IAddChildUseCase> _addChildUseCaseMock;
+        private Mock<IRemoveChildUseCase> _removeChildUseCaseMock;
+        private Mock<IChangeChildDetailsUseCase> _changeChildDetailsUseCaseMock;
+        private Mock<IRegistrationResponseUseCase> _registrationResponseUseCaseMock;
+        private Mock<ICreateUserUseCase> _createUserUseCaseMock;
+        private Mock<ISubmitApplicationUseCase> _submitApplicationUseCaseMock;
+        private Mock<IValidateParentDetailsUseCase> _validateParentDetailsUseCaseMock;
+        private Mock<IInitializeCheckAnswersUseCase> _initializeCheckAnswersUseCaseMock;
 
         // Legacy service mocks - keep temporarily during transition
         private Mock<IEcsServiceParent> _parentServiceMock;
@@ -57,19 +57,19 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _loggerMock = Mock.Of<ILogger<CheckController>>();
 
             // Initialize use case mocks
-            _adminLoadParentDetailsUseCaseMock = new Mock<IAdminLoadParentDetailsUseCase>();
-            _adminProcessParentDetailsUseCaseMock = new Mock<IAdminProcessParentDetailsUseCase>();
-            _adminEnterChildDetailsUseCaseMock = new Mock<IAdminEnterChildDetailsUseCase>();
-            _adminProcessChildDetailsUseCaseMock = new Mock<IAdminProcessChildDetailsUseCase>();
-            _adminAddChildUseCaseMock = new Mock<IAdminAddChildUseCase>();
-            _adminRemoveChildUseCaseMock = new Mock<IAdminRemoveChildUseCase>();
-            _adminChangeChildDetailsUseCaseMock = new Mock<IAdminChangeChildDetailsUseCase>();
-            _adminRegistrationResponseUseCaseMock = new Mock<IAdminRegistrationResponseUseCase>();
-            _adminApplicationsRegisteredUseCaseMock = new Mock<IAdminApplicationsRegisteredUseCase>();
-            _adminCreateUserUseCaseMock = new Mock<IAdminCreateUserUseCase>();
-            _adminSubmitApplicationUseCaseMock = new Mock<IAdminSubmitApplicationUseCase>();
-            _adminValidateParentDetailsUseCaseMock = new Mock<IAdminValidateParentDetailsUseCase>();
-            _adminInitializeCheckAnswersUseCaseMock = new Mock<IAdminInitializeCheckAnswersUseCase>();
+            _loadParentDetailsUseCaseMock = new Mock<ILoadParentDetailsUseCase>();
+            _performEligibilityCheckUseCaseMock = new Mock<IPerformEligibilityCheckUseCase>();
+            _getCheckStatusUseCaseMock = new Mock<IGetCheckStatusUseCase>();
+            _enterChildDetailsUseCaseMock = new Mock<IEnterChildDetailsUseCase>();
+            _processChildDetailsUseCaseMock = new Mock<IProcessChildDetailsUseCase>();
+            _addChildUseCaseMock = new Mock<IAddChildUseCase>();
+            _removeChildUseCaseMock = new Mock<IRemoveChildUseCase>();
+            _changeChildDetailsUseCaseMock = new Mock<IChangeChildDetailsUseCase>();
+            _registrationResponseUseCaseMock = new Mock<IRegistrationResponseUseCase>();
+            _createUserUseCaseMock = new Mock<ICreateUserUseCase>();
+            _submitApplicationUseCaseMock = new Mock<ISubmitApplicationUseCase>();
+            _validateParentDetailsUseCaseMock = new Mock<IValidateParentDetailsUseCase>();
+            _initializeCheckAnswersUseCaseMock = new Mock<IInitializeCheckAnswersUseCase>();
 
             // Initialize controller with all dependencies
             _sut = new CheckController(
@@ -77,20 +77,21 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 _parentServiceMock.Object,
                 _checkServiceMock.Object,
                 _configMock.Object,
-                _adminLoadParentDetailsUseCaseMock.Object,
-                _adminProcessParentDetailsUseCaseMock.Object,
-                _adminEnterChildDetailsUseCaseMock.Object,
-                _adminProcessChildDetailsUseCaseMock.Object,
-                _adminAddChildUseCaseMock.Object,
-                _adminRemoveChildUseCaseMock.Object,
-                _adminChangeChildDetailsUseCaseMock.Object,
-                _adminRegistrationResponseUseCaseMock.Object,
-                _adminApplicationsRegisteredUseCaseMock.Object,
-                _adminCreateUserUseCaseMock.Object,
-                _adminSubmitApplicationUseCaseMock.Object,
-                _adminValidateParentDetailsUseCaseMock.Object,
-                _adminInitializeCheckAnswersUseCaseMock.Object
+                _loadParentDetailsUseCaseMock.Object,
+                _performEligibilityCheckUseCaseMock.Object,
+                _enterChildDetailsUseCaseMock.Object,
+                _processChildDetailsUseCaseMock.Object,
+                _getCheckStatusUseCaseMock.Object,
+                _addChildUseCaseMock.Object,
+                _removeChildUseCaseMock.Object,
+                _changeChildDetailsUseCaseMock.Object,
+                _createUserUseCaseMock.Object,
+                _submitApplicationUseCaseMock.Object,
+                _validateParentDetailsUseCaseMock.Object
             );
+            
+            SetUpSessionData();
+
 
             base.SetUp();
 
@@ -111,7 +112,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var expectedParent = _fixture.Create<ParentGuardian>();
             var expectedErrors = new Dictionary<string, List<string>>();
 
-            _adminLoadParentDetailsUseCaseMock
+            _loadParentDetailsUseCaseMock
                 .Setup(x => x.Execute(
                     It.IsAny<string>(),
                     It.IsAny<string>()))
@@ -152,7 +153,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         }
             };
 
-            _adminValidateParentDetailsUseCaseMock
+            _validateParentDetailsUseCaseMock
                 .Setup(x => x.Execute(request, It.IsAny<ModelStateDictionary>()))
                 .Returns(validationResult);
 
@@ -169,7 +170,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             _sut.TempData.Should().ContainKey("Errors");
 
             // Verify the mock was called with correct parameters
-            _adminValidateParentDetailsUseCaseMock.Verify(
+            _validateParentDetailsUseCaseMock.Verify(
                 x => x.Execute(request, It.IsAny<ModelStateDictionary>()),
                 Times.Once);
         }
@@ -194,11 +195,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var validationResult = new ValidationResult { IsValid = true };
             var checkEligibilityResponse = _fixture.Create<CheckEligibilityResponse>();
 
-            _adminValidateParentDetailsUseCaseMock
+            _validateParentDetailsUseCaseMock
                 .Setup(x => x.Execute(request, It.IsAny<ModelStateDictionary>()))
                 .Returns(validationResult);
 
-            _adminProcessParentDetailsUseCaseMock
+            _performEligibilityCheckUseCaseMock
                 .Setup(x => x.Execute(request, _sut.HttpContext.Session))
                 .ReturnsAsync(checkEligibilityResponse);
 
@@ -211,11 +212,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             redirectResult.ActionName.Should().Be("Loader");
             _sut.TempData["Response"].Should().NotBeNull();
 
-            _adminValidateParentDetailsUseCaseMock.Verify(
+            _validateParentDetailsUseCaseMock.Verify(
                 x => x.Execute(request, It.IsAny<ModelStateDictionary>()),
                 Times.Once);
 
-            _adminProcessParentDetailsUseCaseMock.Verify(
+            _performEligibilityCheckUseCaseMock.Verify(
                 x => x.Execute(request, _sut.HttpContext.Session),
                 Times.Once);
         }
@@ -225,27 +226,21 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public void Enter_Child_Details_Get_Should_Handle_Initial_Load()
         {
             // Arrange
-            var expectedResult = new AdminEnterChildDetailsResult
-            {
-                Children = new Children { ChildList = new List<Child> { new Child() } },
-                IsRedirect = false,
-                ModelState = new ModelStateDictionary()
-            };
+            var expectedResult = new Children { ChildList = new List<Child> { new Child() } };
 
-            _adminEnterChildDetailsUseCaseMock
+            _enterChildDetailsUseCaseMock
                 .Setup(x => x.Execute(
-                    It.IsAny<bool?>(),
                     It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<bool?>()))
-                .ReturnsAsync(expectedResult);
+                    It.IsAny<bool?>()
+                    ))
+                .Returns(expectedResult);
 
             // Act
             var result = _sut.Enter_Child_Details() as ViewResult;
 
             // Assert
             result.Should().NotBeNull();
-            result.Model.Should().BeEquivalentTo(expectedResult.Children);
+            result.Model.Should().BeEquivalentTo(expectedResult);
         }
 
         [Test]
@@ -255,7 +250,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = _fixture.Create<Children>();
             var fsmApplication = _fixture.Create<FsmApplication>();
 
-            _adminProcessChildDetailsUseCaseMock
+            _processChildDetailsUseCaseMock
                 .Setup(x => x.Execute(request, _sut.HttpContext.Session))
                 .ReturnsAsync(fsmApplication);
 
@@ -268,7 +263,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             viewResult.ViewName.Should().Be("Check_Answers");
             viewResult.Model.Should().Be(fsmApplication);
 
-            _adminProcessChildDetailsUseCaseMock.Verify(
+            _processChildDetailsUseCaseMock.Verify(
                 x => x.Execute(request, _sut.HttpContext.Session),
                 Times.Once);
         }
@@ -280,7 +275,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = _fixture.Create<Children>();
             var updatedChildren = _fixture.Create<Children>();
 
-            _adminAddChildUseCaseMock
+            _addChildUseCaseMock
                 .Setup(x => x.Execute(request))
                 .Returns(updatedChildren);
 
@@ -303,7 +298,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             };
             const int index = 1;
 
-            _adminRemoveChildUseCaseMock
+            _removeChildUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<Children>(), index))
                 .ReturnsAsync(expectedChildren);
 
@@ -315,7 +310,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var redirectResult = result as RedirectToActionResult;
             redirectResult.ActionName.Should().Be("Enter_Child_Details");
 
-            _adminRemoveChildUseCaseMock.Verify(
+            _removeChildUseCaseMock.Verify(
                 x => x.Execute(It.IsAny<Children>(), index),
                 Times.Once);
 
@@ -332,7 +327,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var request = _fixture.Create<Children>();
             const int invalidIndex = 999;
-            _adminRemoveChildUseCaseMock
+            _removeChildUseCaseMock
                 .Setup(x => x.Execute(request, invalidIndex))
                 .ThrowsAsync(new ArgumentOutOfRangeException());
 
@@ -367,13 +362,13 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 Data = new ApplicationResponse { Status = "NotEntitled" }
             };
 
-            _adminCreateUserUseCaseMock
+            _createUserUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<IEnumerable<Claim>>()))
                 .ReturnsAsync(userId);
 
-            _adminSubmitApplicationUseCaseMock
+            _submitApplicationUseCaseMock
                 .Setup(x => x.Execute(request, userId, It.IsAny<string>()))
-                .ReturnsAsync((new ApplicationConfirmationEntitledViewModel(), lastResponse));
+                .ReturnsAsync(new List<ApplicationSaveItemResponse>());
 
             // Act
             var result = await _sut.Check_Answers(request);
@@ -391,19 +386,16 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var request = _fixture.Create<FsmApplication>();
             var userId = "test-user-id";
-            var viewModel = _fixture.Create<ApplicationConfirmationEntitledViewModel>();
-            var lastResponse = new ApplicationSaveItemResponse
-            {
-                Data = new ApplicationResponse { Status = "Entitled" }
-            };
+            var viewModel = _fixture.Create<List<ApplicationSaveItemResponse>>();
+            viewModel.First().Data = new ApplicationResponse { Status = "Entitled" };
 
-            _adminCreateUserUseCaseMock
+            _createUserUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<IEnumerable<Claim>>()))
                 .ReturnsAsync(userId);
 
-            _adminSubmitApplicationUseCaseMock
+            _submitApplicationUseCaseMock
                 .Setup(x => x.Execute(request, userId, It.IsAny<string>()))
-                .ReturnsAsync((viewModel, lastResponse));
+                .ReturnsAsync(viewModel);
 
             // Act
             var result = await _sut.Check_Answers(request);
@@ -421,11 +413,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             var request = new FsmApplication();
             var userId = "test-user-id";
 
-            _adminCreateUserUseCaseMock
+            _createUserUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<IEnumerable<Claim>>()))
                 .ReturnsAsync(userId);
 
-            _adminSubmitApplicationUseCaseMock
+            _submitApplicationUseCaseMock
                 .Setup(x => x.Execute(request, userId, It.IsAny<string>()))
                 .ThrowsAsync(new NullReferenceException("Invalid request"));
 
@@ -440,11 +432,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 ex.Message.Should().Be("Invalid request");
             }
 
-            _adminCreateUserUseCaseMock.Verify(
+            _createUserUseCaseMock.Verify(
                 x => x.Execute(It.IsAny<IEnumerable<Claim>>()),
                 Times.Once);
 
-            _adminSubmitApplicationUseCaseMock.Verify(
+            _submitApplicationUseCaseMock.Verify(
                 x => x.Execute(request, userId, It.IsAny<string>()),
                 Times.Once);
         }
@@ -453,12 +445,8 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
         public void ApplicationsRegistered_Should_Process_And_Return_View()
         {
             // Arrange
-            var expectedViewModel = _fixture.Create<ApplicationConfirmationEntitledViewModel>();
-            var expectedResult = AdminApplicationsRegisteredResult.Success(expectedViewModel);
-            _adminApplicationsRegisteredUseCaseMock
-                .Setup(x => x.Execute(It.IsAny<string>()))
-                .ReturnsAsync(expectedResult);
-            _sut.TempData["confirmationApplication"] = JsonConvert.SerializeObject(expectedViewModel);
+            var expectedViewModel = _fixture.Create<List<ApplicationSaveItemResponse>>();
+            _sut.TempData["FsmApplicationResponse"] = JsonConvert.SerializeObject(expectedViewModel);
 
             // Act
             var result = _sut.ApplicationsRegistered();
@@ -480,7 +468,7 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
 
             _sut.TempData["FsmApplication"] = JsonConvert.SerializeObject(fsmApplication);
 
-            _adminChangeChildDetailsUseCaseMock
+            _changeChildDetailsUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<string>()))
                 .Returns(expectedChildren);
 
@@ -499,18 +487,18 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             resultModel.ChildList.Count.Should().Be(expectedChildren.ChildList.Count);
 
             _sut.TempData["IsRedirect"].Should().Be(true);
-            _sut.TempData["childIndex"].Should().Be(childIndex);
 
-            _adminChangeChildDetailsUseCaseMock.Verify(
+            _changeChildDetailsUseCaseMock.Verify(
                 x => x.Execute(It.IsAny<string>()),
                 Times.Once);
         }
 
-        [TestCase(CheckEligibilityStatus.eligible, "Outcome/Eligible")]
-        [TestCase(CheckEligibilityStatus.notEligible, "Outcome/Not_Eligible")]
-        [TestCase(CheckEligibilityStatus.parentNotFound, "Outcome/Not_Found")]
-        [TestCase(CheckEligibilityStatus.DwpError, "Outcome/Technical_Error")]
-        public async Task Given_Poll_Status_With_Valid_Status_Returns_Correct_View(CheckEligibilityStatus status, string expectedView)
+        [TestCase("eligible", "Outcome/Eligible")]
+        [TestCase("notEligible", "Outcome/Not_Eligible")]
+        [TestCase("parentNotFound", "Outcome/Not_Found")]
+        [TestCase("queuedForProcessing", "Loader")]
+        [TestCase("DwpError", "Outcome/Technical_Error")]
+        public async Task Given_Poll_Status_With_Valid_Status_Returns_Correct_View(string status, string expectedView)
         {
             // Arrange
 
@@ -522,43 +510,30 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
                 .With(x => x.Data, statusValue)
                 .Create();
 
+            _httpContext.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+            {
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "12345"),
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "test@example.com"),
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "John"),
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Doe"),
+                new Claim("OrganisationCategoryName", CheckYourEligibility_FrontEnd.Models.Constants.CategoryTypeLA)
+            }));
+
             var responseJson = JsonConvert.SerializeObject(checkEligibilityResponse);
             _tempData["Response"] = responseJson;
-
-            var checkEligibilityStatusResponse = _fixture.Build<CheckEligibilityStatusResponse>()
-                .With(x => x.Data, checkEligibilityResponse.Data)
-                .Create();
-
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(checkEligibilityStatusResponse);
-
-
-            _sut.ControllerContext.HttpContext = new DefaultHttpContext();
-            _sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
-    {
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "12345"),
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "test@example.com"),
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "John"),
-        new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Doe"),
-        new Claim("OrganisationCategoryName", CheckYourEligibility_FrontEnd.Models.Constants.CategoryTypeLA)
-    }));
+            _getCheckStatusUseCaseMock
+                .Setup(x => x.Execute(responseJson, _sessionMock.Object))
+                .ReturnsAsync(status);
 
             // Act
             var result = await _sut.Loader();
 
             // Assert
-            if (result is ViewResult viewResult)
-            {
-                viewResult.ViewName.Should().Be(expectedView);
-            }
-            else if (result is RedirectToActionResult redirectResult)
-            {
-                redirectResult.ActionName.Should().Be("Application_Sent");
-            }
-            else
-            {
-                Assert.Fail("Unexpected result type");
-            }
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = result as ViewResult;
+            viewResult.ViewName.Should().Be(expectedView);
+            _getCheckStatusUseCaseMock.Verify(x => x.Execute(responseJson, _sessionMock.Object), Times.Once);
         }
 
         [Test]
@@ -582,12 +557,11 @@ namespace CheckYourEligibility_Admin.Tests.Controllers
             // Arrange
             var response = new CheckEligibilityResponse
             {
-                Data = new StatusValue { Status = "processing" }
+                Data = new StatusValue { Status = "queuedForProcessing" },
             };
             _tempData["Response"] = JsonConvert.SerializeObject(response);
 
-            _checkServiceMock.Setup(x => x.GetStatus(It.IsAny<CheckEligibilityResponse>()))
-                .ReturnsAsync(new CheckEligibilityStatusResponse { Data = response.Data });
+            _getCheckStatusUseCaseMock.Setup(x => x.Execute(It.IsAny<string>(), _sessionMock.Object)).ReturnsAsync("queuedForProcessing");
 
             // Act
             var result = await _sut.Loader();

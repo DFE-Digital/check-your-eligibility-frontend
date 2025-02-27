@@ -1,9 +1,9 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using CheckYourEligibility_FrontEnd.ViewModels;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -12,19 +12,19 @@ using Moq;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class AdminSubmitApplicationUseCaseTests
+    public class SubmitApplicationUseCaseTests
     {
-        private AdminSubmitApplicationUseCase _sut;
-        private Mock<ILogger<AdminSubmitApplicationUseCase>> _loggerMock;
+        private SubmitApplicationUseCase _sut;
+        private Mock<ILogger<SubmitApplicationUseCase>> _loggerMock;
         private Mock<IEcsServiceParent> _parentServiceMock;
         private IFixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminSubmitApplicationUseCase>>();
+            _loggerMock = new Mock<ILogger<SubmitApplicationUseCase>>();
             _parentServiceMock = new Mock<IEcsServiceParent>();
-            _sut = new AdminSubmitApplicationUseCase(_loggerMock.Object, _parentServiceMock.Object);
+            _sut = new SubmitApplicationUseCase(_loggerMock.Object, _parentServiceMock.Object);
 
             _fixture = new Fixture();
 
@@ -88,12 +88,11 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
                 .ReturnsAsync(response);
 
             // Act
-            var (result, lastResponse) = await _sut.Execute(request, userId, establishment);
+            var result = await _sut.Execute(request, userId, establishment);
 
             // Assert
             result.Should().NotBeNull();
-            result.Children.Should().HaveCount(request.Children.ChildList.Count);
-            lastResponse.Should().BeEquivalentTo(response);
+            result.Should().HaveCount(request.Children.ChildList.Count);
 
             _parentServiceMock.Verify(
                 x => x.PostApplication_Fsm(It.IsAny<ApplicationRequest>()),

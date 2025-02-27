@@ -1,25 +1,34 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility.TestBase;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
-namespace CheckYourEligibility_Admin.Tests.UseCases
+namespace CheckYourEligibility_.Tests.UseCases
 {
     [TestFixture]
-    public class AdminAddChildUseCaseTests : TestBase
+    public class AddChildUseCaseTests : TestBase
     {
-        private Mock<ILogger<AdminAddChildUseCase>> _loggerMock;
-        private AdminAddChildUseCase _sut;
+        private Mock<ILogger<AddChildUseCase>> _loggerMock;
+        private AddChildUseCase _sut;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminAddChildUseCase>>();
-            _sut = new AdminAddChildUseCase(_loggerMock.Object);
+            _loggerMock = new Mock<ILogger<AddChildUseCase>>();
+            
+            var inMemorySettings = new Dictionary<string, string> {
+                {"MaxChildren", "99"}
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+            _sut = new AddChildUseCase(_loggerMock.Object, configuration);
         }
 
         [Test]
@@ -28,21 +37,6 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() => _sut.Execute(null));
             exception.ParamName.Should().Be("request");
-        }
-
-        [Test]
-        public void Execute_With_Null_ChildList_Should_Initialize_And_Add_Child()
-        {
-            // Arrange
-            var request = new Children { ChildList = null };
-
-            // Act
-            var result = _sut.Execute(request);
-
-            // Assert
-            result.ChildList.Should().NotBeNull();
-            result.ChildList.Should().HaveCount(1);
-            result.ChildList[0].Should().BeOfType<Child>();
         }
 
         [Test]

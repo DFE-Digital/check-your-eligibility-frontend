@@ -1,10 +1,10 @@
-﻿using CheckYourEligibility_DfeSignIn.Models;
+using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public class ValidationResult
     {
@@ -12,16 +12,16 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
         public Dictionary<string, List<string>> Errors { get; set; }
     }
 
-    public interface IAdminValidateParentDetailsUseCase
+    public interface IValidateParentDetailsUseCase
     {
         ValidationResult Execute(ParentGuardian request, ModelStateDictionary modelState);
     }
 
-    public class AdminValidateParentDetailsUseCase : IAdminValidateParentDetailsUseCase
+    public class ValidateParentDetailsUseCase : IValidateParentDetailsUseCase
     {
-        private readonly ILogger<AdminValidateParentDetailsUseCase> _logger;
+        private readonly ILogger<ValidateParentDetailsUseCase> _logger;
 
-        public AdminValidateParentDetailsUseCase(ILogger<AdminValidateParentDetailsUseCase> logger)
+        public ValidateParentDetailsUseCase(ILogger<ValidateParentDetailsUseCase> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

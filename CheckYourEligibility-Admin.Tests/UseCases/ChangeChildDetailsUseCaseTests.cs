@@ -1,25 +1,25 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 
-namespace CheckYourEligibility_Admin.Tests.UseCases
+namespace CheckYourEligibility_.Tests.UseCases
 {
     [TestFixture]
-    public class AdminChangeChildDetailsUseCaseTests
+    public class ChangeChildDetailsUseCaseTests
     {
-        private AdminChangeChildDetailsUseCase _sut;
-        private Mock<ILogger<AdminChangeChildDetailsUseCase>> _loggerMock;
+        private ChangeChildDetailsUseCase _sut;
+        private Mock<ILogger<ChangeChildDetailsUseCase>> _loggerMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminChangeChildDetailsUseCase>>();
-            _sut = new AdminChangeChildDetailsUseCase(_loggerMock.Object);
+            _loggerMock = new Mock<ILogger<ChangeChildDetailsUseCase>>();
+            _sut = new ChangeChildDetailsUseCase(_loggerMock.Object);
             _fixture = new Fixture();
         }
 
@@ -59,23 +59,6 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
             firstChild.Day.Should().Be("01");
             firstChild.Month.Should().Be("01");
             firstChild.Year.Should().Be("2020");
-        }
-
-        [Test]
-        public void Execute_WithNullOrEmptyJson_ReturnsDefaultChildren()
-        {
-            // Act
-            var result = _sut.Execute(null);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.ChildList.Should().NotBeNull();
-            result.ChildList.Should().HaveCount(1);
-
-            var defaultChild = result.ChildList.First();
-            defaultChild.Should().NotBeNull();
-            defaultChild.FirstName.Should().BeNull();
-            defaultChild.LastName.Should().BeNull();
         }
     }
 }
