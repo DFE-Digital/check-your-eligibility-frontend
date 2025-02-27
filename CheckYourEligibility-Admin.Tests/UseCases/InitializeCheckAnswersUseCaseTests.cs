@@ -1,6 +1,6 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
@@ -9,17 +9,17 @@ using Newtonsoft.Json;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class AdminInitializeCheckAnswersUseCaseTests
+    public class InitializeCheckAnswersUseCaseTests
     {
-        private AdminInitializeCheckAnswersUseCase _sut;
-        private Mock<ILogger<AdminInitializeCheckAnswersUseCase>> _loggerMock;
+        private InitializeCheckAnswersUseCase _sut;
+        private Mock<ILogger<InitializeCheckAnswersUseCase>> _loggerMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminInitializeCheckAnswersUseCase>>();
-            _sut = new AdminInitializeCheckAnswersUseCase(_loggerMock.Object);
+            _loggerMock = new Mock<ILogger<InitializeCheckAnswersUseCase>>();
+            _sut = new InitializeCheckAnswersUseCase(_loggerMock.Object);
             _fixture = new Fixture();
         }
 

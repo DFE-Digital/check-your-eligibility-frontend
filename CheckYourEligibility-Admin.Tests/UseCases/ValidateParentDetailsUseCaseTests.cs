@@ -1,27 +1,27 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
-namespace CheckYourEligibility_Admin.Tests.UseCases
+namespace CheckYourEligibility_Frontend.Tests.UseCases
 {
     [TestFixture]
-    public class AdminValidateParentDetailsUseCaseTests
+    public class ValidateParentDetailsUseCaseTests
     {
-        private Mock<ILogger<AdminValidateParentDetailsUseCase>> _loggerMock;
-        private AdminValidateParentDetailsUseCase _sut;
+        private Mock<ILogger<ValidateParentDetailsUseCase>> _loggerMock;
+        private ValidateParentDetailsUseCase _sut;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminValidateParentDetailsUseCase>>();
-            _sut = new AdminValidateParentDetailsUseCase(_loggerMock.Object);
+            _loggerMock = new Mock<ILogger<ValidateParentDetailsUseCase>>();
+            _sut = new ValidateParentDetailsUseCase(_loggerMock.Object);
             _fixture = new Fixture();
         }
 

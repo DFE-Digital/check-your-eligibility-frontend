@@ -3,8 +3,7 @@ using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
 using System.Text;
-using CheckYourEligibility_Admin.UseCases;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,22 +23,20 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddSession();
 
-builder.Services.AddScoped<IAdminAddChildUseCase, AdminAddChildUseCase>();
-builder.Services.AddScoped<IAdminChangeChildDetailsUseCase, AdminChangeChildDetailsUseCase>();
-builder.Services.AddScoped<IAdminEnterChildDetailsUseCase, AdminEnterChildDetailsUseCase>();
-builder.Services.AddScoped<IAdminLoadParentDetailsUseCase, AdminLoadParentDetailsUseCase>();
-builder.Services.AddScoped<IAdminProcessChildDetailsUseCase, AdminProcessChildDetailsUseCase>();
-builder.Services.AddScoped<IAdminProcessParentDetailsUseCase, AdminProcessParentDetailsUseCase>();
-builder.Services.AddScoped<IAdminRegistrationResponseUseCase, AdminRegistrationResponseUseCase>();
-builder.Services.AddScoped<IAdminRegistrationUseCase, AdminRegistrationUseCase>();
-builder.Services.AddScoped<IAdminRemoveChildUseCase, AdminRemoveChildUseCase>();
-builder.Services.AddScoped<IAdminApplicationsRegisteredUseCase, AdminApplicationsRegisteredUseCase>();
-builder.Services.AddScoped<IAdminCreateUserUseCase, AdminCreateUserUseCase>();
-builder.Services.AddScoped<IAdminSearchSchoolsUseCase, AdminSearchSchoolsUseCase>();
-builder.Services.AddScoped<IAdminSubmitApplicationUseCase, AdminSubmitApplicationUseCase>();
-builder.Services.AddScoped<IAdminValidateParentDetailsUseCase, AdminValidateParentDetailsUseCase>();
-builder.Services.AddScoped<ISignInUseCase, AdminSignInUseCase>();
-builder.Services.AddScoped<IAdminInitializeCheckAnswersUseCase, AdminInitializeCheckAnswersUseCase>();
+builder.Services.AddScoped<IAddChildUseCase, AddChildUseCase>();
+builder.Services.AddScoped<IChangeChildDetailsUseCase, ChangeChildDetailsUseCase>();
+builder.Services.AddScoped<IEnterChildDetailsUseCase, EnterChildDetailsUseCase>();
+builder.Services.AddScoped<ILoadParentDetailsUseCase, LoadParentDetailsUseCase>();
+builder.Services.AddScoped<IProcessChildDetailsUseCase, ProcessChildDetailsUseCase>();
+builder.Services.AddScoped<IPerformEligibilityCheckUseCase, PerformEligibilityCheckUseCase>();
+builder.Services.AddScoped<IGetCheckStatusUseCase, GetCheckStatusUseCase>();
+builder.Services.AddScoped<IRegistrationResponseUseCase, RegistrationResponseUseCase>();
+builder.Services.AddScoped<IRegistrationUseCase, RegistrationUseCase>();
+builder.Services.AddScoped<IRemoveChildUseCase, RemoveChildUseCase>();
+builder.Services.AddScoped<ICreateUserUseCase, CreateUserUseCase>();
+builder.Services.AddScoped<ISubmitApplicationUseCase, SubmitApplicationUseCase>();
+builder.Services.AddScoped<IValidateParentDetailsUseCase, ValidateParentDetailsUseCase>();
+builder.Services.AddScoped<IInitializeCheckAnswersUseCase, InitializeCheckAnswersUseCase>();
 builder.Services.AddSession();
 
 var dfeSignInConfiguration = new DfeSignInConfiguration();

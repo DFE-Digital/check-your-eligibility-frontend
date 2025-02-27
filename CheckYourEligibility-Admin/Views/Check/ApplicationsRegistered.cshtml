@@ -1,5 +1,5 @@
-﻿@using CheckYourEligibility_FrontEnd.ViewModels
-@model ApplicationConfirmationEntitledViewModel
+﻿@using CheckYourEligibility.Domain.Responses
+@model List<ApplicationSaveItemResponse>
 
 @{
     ViewData["Title"] = "Success - Children's details added";
@@ -19,11 +19,11 @@
         <h3 class="govuk-notification-banner__heading">
             Children's details added
         </h3>
-        <p class="govuk-body">You've successfully added details to the free school meals application record for @Model.ParentName</p>
+        <p class="govuk-body">You've successfully added details to the free school meals application record for @Model.First().Data.ParentFirstName @Model.First().Data.ParentLastName</p>
     </div>
 </div>
 
-<h1 class="govuk-heading-l">Application record for @Model.ParentName</h1>
+<h1 class="govuk-heading-l">Application record for @Model.First().Data.ParentFirstName @Model.First().Data.ParentLastName</h1>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -35,11 +35,11 @@
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
-                @foreach (var item in @Model.Children)
+                @foreach (var item in @Model)
                 {
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">@item.ChildName</td>
-                        <td class="govuk-table__cell">@item.Reference</td>
+                        <td class="govuk-table__cell">@item.Data.ChildFirstName @item.Data.ChildLastName</td>
+                        <td class="govuk-table__cell">@item.Data.Reference</td>
                     </tr>
                 }
             </tbody>

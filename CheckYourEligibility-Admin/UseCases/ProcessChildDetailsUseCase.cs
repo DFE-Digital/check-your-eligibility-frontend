@@ -1,14 +1,14 @@
-﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IAdminProcessChildDetailsUseCase
+    public interface IProcessChildDetailsUseCase
     {
         Task<FsmApplication> Execute(Children children, ISession session);
     }
 
-    public class AdminProcessChildDetailsUseCase : IAdminProcessChildDetailsUseCase
+    public class ProcessChildDetailsUseCase : IProcessChildDetailsUseCase
     {
         public Task<FsmApplication> Execute(Children children, ISession session)
         {

@@ -1,10 +1,10 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn.Models;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -13,19 +13,19 @@ using Moq;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class AdminProcessParentDetailsUseCaseTests
+    public class PerformEligibilityCheckUseCaseTests
     {
-        private AdminProcessParentDetailsUseCase _sut;
-        private Mock<ILogger<AdminProcessParentDetailsUseCase>> _loggerMock;
+        private PerformEligibilityCheckUseCase _sut;
+        private Mock<ILogger<PerformEligibilityCheckUseCase>> _loggerMock;
         private Mock<IEcsCheckService> _checkServiceMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminProcessParentDetailsUseCase>>();
+            _loggerMock = new Mock<ILogger<PerformEligibilityCheckUseCase>>();
             _checkServiceMock = new Mock<IEcsCheckService>();
-            _sut = new AdminProcessParentDetailsUseCase(_loggerMock.Object, _checkServiceMock.Object);
+            _sut = new PerformEligibilityCheckUseCase(_checkServiceMock.Object);
             _fixture = new Fixture();
         }
 

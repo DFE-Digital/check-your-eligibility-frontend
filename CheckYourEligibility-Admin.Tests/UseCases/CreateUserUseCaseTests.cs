@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -6,28 +6,28 @@ using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility.Domain.Responses;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Services;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
-namespace CheckYourEligibility_Admin.Tests.UseCases
+namespace CheckYourEligibility_.Tests.UseCases
 {
     [TestFixture]
-    public class AdminCreateUserUseCaseTests
+    public class CreateUserUseCaseTests
     {
-        private AdminCreateUserUseCase _sut;
-        private Mock<ILogger<AdminCreateUserUseCase>> _loggerMock;
+        private CreateUserUseCase _sut;
+        private Mock<ILogger<CreateUserUseCase>> _loggerMock;
         private Mock<IEcsServiceParent> _parentServiceMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminCreateUserUseCase>>();
+            _loggerMock = new Mock<ILogger<CreateUserUseCase>>();
             _parentServiceMock = new Mock<IEcsServiceParent>();
-            _sut = new AdminCreateUserUseCase(_loggerMock.Object, _parentServiceMock.Object);
+            _sut = new CreateUserUseCase(_loggerMock.Object, _parentServiceMock.Object);
             _fixture = new Fixture();
         }
 

@@ -1,22 +1,22 @@
-﻿using AutoFixture;
+using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CheckYourEligibility_Admin.Tests.UseCases
+namespace CheckYourEligibility_.Tests.UseCases
 {
     [TestFixture]
-    public class AdminRemoveChildUseCaseTests
+    public class RemoveChildUseCaseTests
     {
         private Fixture _fixture;
-        private AdminRemoveChildUseCase _sut;
+        private RemoveChildUseCase _sut;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _sut = new AdminRemoveChildUseCase();
+            _sut = new RemoveChildUseCase();
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
             var invalidIndex = children.ChildList.Count + 1;
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            Assert.ThrowsAsync<RemoveChildValidationException>(async () =>
                 await _sut.Execute(children, invalidIndex));
         }
 
@@ -125,7 +125,7 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
             var invalidIndex = -1;
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            Assert.ThrowsAsync<RemoveChildValidationException>(async () =>
                 await _sut.Execute(children, invalidIndex));
         }
 
@@ -140,7 +140,7 @@ namespace CheckYourEligibility_Admin.Tests.UseCases
             var indexToRemove = 0;
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            Assert.ThrowsAsync<RemoveChildValidationException>(async () =>
                 await _sut.Execute(children, indexToRemove));
         }
     }

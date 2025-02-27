@@ -1,19 +1,19 @@
-﻿using CheckYourEligibility_FrontEnd.Models;
+using CheckYourEligibility_FrontEnd.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IAdminInitializeCheckAnswersUseCase
+    public interface IInitializeCheckAnswersUseCase
     {
         Task<FsmApplication> Execute(string applicationJson);
     }
 
-    public class AdminInitializeCheckAnswersUseCase : IAdminInitializeCheckAnswersUseCase
+    public class InitializeCheckAnswersUseCase : IInitializeCheckAnswersUseCase
     {
-        private readonly ILogger<AdminInitializeCheckAnswersUseCase> _logger;
+        private readonly ILogger<InitializeCheckAnswersUseCase> _logger;
 
-        public AdminInitializeCheckAnswersUseCase(ILogger<AdminInitializeCheckAnswersUseCase> logger)
+        public InitializeCheckAnswersUseCase(ILogger<InitializeCheckAnswersUseCase> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

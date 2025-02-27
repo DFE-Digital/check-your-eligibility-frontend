@@ -1,42 +1,42 @@
-﻿using CheckYourEligibility.Domain.Requests;
+using CheckYourEligibility.Domain.Requests;
 using CheckYourEligibility_DfeSignIn;
 using CheckYourEligibility_FrontEnd.Services;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-namespace CheckYourEligibility_FrontEnd.UseCases.Admin
+namespace CheckYourEligibility_FrontEnd.UseCases
 {
-    public interface IAdminCreateUserUseCase
+    public interface ICreateUserUseCase
     {
         Task<string> Execute(IEnumerable<Claim> claims);
     }
 
-    public class AdminCreateUserResult
+    public class CreateUserResult
     {
         public bool IsSuccess { get; set; }
         public string? UserId { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public static AdminCreateUserResult Success(string userId) =>
+        public static CreateUserResult Success(string userId) =>
             new() { IsSuccess = true, UserId = userId };
 
-        public static AdminCreateUserResult Error(string message) =>
+        public static CreateUserResult Error(string message) =>
             new() { IsSuccess = false, ErrorMessage = message };
     }
 
     [Serializable]
-    public class AdminCreateUserException : Exception
+    public class CreateUserException : Exception
     {
-        public AdminCreateUserException(string message) : base(message) { }
+        public CreateUserException(string message) : base(message) { }
     }
 
-    public class AdminCreateUserUseCase : IAdminCreateUserUseCase
+    public class CreateUserUseCase : ICreateUserUseCase
     {
-        private readonly ILogger<AdminCreateUserUseCase> _logger;
+        private readonly ILogger<CreateUserUseCase> _logger;
         private readonly IEcsServiceParent _parentService;
 
-        public AdminCreateUserUseCase(
-            ILogger<AdminCreateUserUseCase> logger,
+        public CreateUserUseCase(
+            ILogger<CreateUserUseCase> logger,
             IEcsServiceParent parentService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,7 +50,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
                 var dfeClaims = DfeSignInExtensions.GetDfeClaims(claims);
                 if (dfeClaims?.User == null)
                 {
-                    throw new AdminCreateUserException("DFE user claims not found");
+                    throw new CreateUserException("DFE user claims not found");
                 }
 
                 var userRequest = new UserCreateRequest
@@ -67,7 +67,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
                 var response = await _parentService.CreateUser(userRequest);
                 if (response?.Data == null)
                 {
-                    throw new AdminCreateUserException("User creation response was null");
+                    throw new CreateUserException("User creation response was null");
                 }
 
                 return response.Data;
@@ -75,7 +75,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to create user");
-                throw new AdminCreateUserException($"Failed to create user: {ex.Message}");
+                throw new CreateUserException($"Failed to create user: {ex.Message}");
             }
         }
     }

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using AutoFixture;
 using CheckYourEligibility_FrontEnd.Models;
 using CheckYourEligibility_FrontEnd.ViewModels;
-using CheckYourEligibility_FrontEnd.UseCases.Admin;
+using CheckYourEligibility_FrontEnd.UseCases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -12,17 +12,17 @@ using NUnit.Framework;
 namespace CheckYourEligibility_Parent.Tests.UseCases
 {
     [TestFixture]
-    public class AdminRegistrationUseCaseTests
+    public class RegistrationUseCaseTests
     {
-        private AdminRegistrationUseCase _sut;
-        private Mock<ILogger<AdminRegistrationUseCase>> _loggerMock;
+        private RegistrationUseCase _sut;
+        private Mock<ILogger<RegistrationUseCase>> _loggerMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<AdminRegistrationUseCase>>();
-            _sut = new AdminRegistrationUseCase(_loggerMock.Object);
+            _loggerMock = new Mock<ILogger<RegistrationUseCase>>();
+            _sut = new RegistrationUseCase(_loggerMock.Object);
             _fixture = new Fixture();
         }
 
