@@ -4,6 +4,7 @@ using GovUk.OneLogin.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Microsoft.AspNetCore.Authentication;
 using CheckYourEligibility_FrontEnd.UseCases;
 
@@ -22,7 +23,14 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
     var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
     var kvUri = $"https://{keyVaultName}.vault.azure.net";
 
-    builder.Configuration.AddAzureKeyVault(new Uri(kvUri), new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(kvUri), 
+        new DefaultAzureCredential(),
+        new AzureKeyVaultConfigurationOptions()
+        {
+            ReloadInterval = TimeSpan.FromSeconds(60*10)
+        }
+    );
 }
 
 builder.Services.AddAuthentication(opt =>
