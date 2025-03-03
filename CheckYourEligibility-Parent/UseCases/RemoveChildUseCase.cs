@@ -4,7 +4,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IRemoveChildUseCase
     {
-        Task<Children> Execute(Children request, int index);
+        Children Execute(Children request, int index);
     }
     
     [Serializable]
@@ -25,7 +25,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task<Children> Execute(Children request, int index)
+        public Children Execute(Children request, int index)
         {
             if (request?.ChildList == null)
             {
@@ -41,7 +41,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             request.ChildList.Remove(child);
 
 
-            return Task.FromResult(request);
+            return request;
         }
     }
 }

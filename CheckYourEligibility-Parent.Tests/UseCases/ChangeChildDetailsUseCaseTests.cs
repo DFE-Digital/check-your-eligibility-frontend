@@ -35,7 +35,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var json = JsonConvert.SerializeObject(application);
 
             // Act
-            var result = await _sut.Execute(json);
+            var result = _sut.Execute(json);
 
             // Assert
             result.Should().BeEquivalentTo(children);
@@ -45,9 +45,9 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
         public async Task Execute_WithNullJson_ShouldReturnEmptyChildren()
         {
             // Act
-            await FluentActions.Invoking(() =>
+            FluentActions.Invoking(() =>
                     _sut.Execute(null))
-                .Should().ThrowAsync<Exception>()
+                .Should().Throw<Exception>()
                 .WithMessage("FSM Application JSON is null or empty");;
         }
 
@@ -59,9 +59,9 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             var invalidJson = "invalid json";
 
             // Act & Assert
-            await FluentActions.Invoking(() =>
+            FluentActions.Invoking(() =>
                 _sut.Execute(invalidJson))
-                .Should().ThrowAsync<JsonReaderException>();
+                .Should().Throw<JsonReaderException>();
         }
     }
 }

@@ -5,7 +5,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 {
     public interface IChangeChildDetailsUseCase
     {
-        Task<Children> Execute(string fsmApplicationJson);
+        Children Execute(string fsmApplicationJson);
     }
     
     [Serializable]
@@ -35,12 +35,11 @@ namespace CheckYourEligibility_FrontEnd.UseCases
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task<Children> Execute(string fsmApplicationJson)
+        public Children Execute(string fsmApplicationJson)
         {
             if (string.IsNullOrEmpty(fsmApplicationJson))
             {
                 throw new NoChildException("FSM Application JSON is null or empty");
-                return Task.FromResult(new Children { ChildList = new List<Child>() });
             }
 
             var application = JsonConvert.DeserializeObject<FsmApplication>(fsmApplicationJson);
@@ -49,7 +48,7 @@ namespace CheckYourEligibility_FrontEnd.UseCases
                 throw new JSONException("Failed to deserialize FSM Application or Children is null");
             }
 
-            return Task.FromResult(application.Children);
+            return application.Children;
         }
     }
 }
