@@ -3,6 +3,7 @@ using CheckYourEligibility_FrontEnd;
 using Azure.Identity;
 using CheckYourEligibility_DfeSignIn;
 using System.Text;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using CheckYourEligibility_FrontEnd.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,14 @@ if (Environment.GetEnvironmentVariable("KEY_VAULT_NAME")!=null)
     var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
     var kvUri = $"https://{keyVaultName}.vault.azure.net";
 
-    builder.Configuration.AddAzureKeyVault(new Uri(kvUri), new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(kvUri), 
+        new DefaultAzureCredential(),
+        new AzureKeyVaultConfigurationOptions()
+        {
+            ReloadInterval = TimeSpan.FromSeconds(60*10)
+        }
+    );
 }
 
 // Add services to the container.
