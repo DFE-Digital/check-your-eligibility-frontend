@@ -23,7 +23,7 @@ describe('After errors have been input initially a Parent with valid details can
         cy.contains('Save and continue').click();
         cy.url().should('include', '/Check/Loader');
 
-        cy.get('h1',{timeout: 60000}).should('include.text', 'Check your details and try again');
+        cy.get('h1',{timeout: 60000}).should('include.text', 'Apply for free school meals for your children');
 
 
 
