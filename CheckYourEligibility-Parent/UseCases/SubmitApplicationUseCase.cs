@@ -47,35 +47,30 @@ namespace CheckYourEligibility_FrontEnd.UseCases
 
             foreach (var child in request.Children.ChildList)
             {
-                var application = CreateApplicationRequest(request, child, userId, email);
+                var application = new ApplicationRequest
+                {
+                    Data = new ApplicationRequestData
+                    {
+                        Type = CheckEligibilityType.FreeSchoolMeals,
+                        ParentFirstName = request.ParentFirstName,
+                        ParentLastName = request.ParentLastName,
+                        ParentDateOfBirth = request.ParentDateOfBirth,
+                        ParentNationalInsuranceNumber = request.ParentNino,
+                        ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
+                        ChildFirstName = child.FirstName,
+                        ChildLastName = child.LastName,
+                        ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
+                        Establishment = int.Parse(child.School.URN),
+                        UserId = userId,
+                        ParentEmail = email
+                    }
+                };
                 var response = await _parentService.PostApplication_Fsm(application);
                 responses.Add(response);
             }
 
             _logger.LogInformation("Successfully processed {Count} applications", responses.Count);
             return responses;
-        }
-
-        private ApplicationRequest CreateApplicationRequest(FsmApplication request, ModelChild child, string userId, string email)
-        {
-            return new ApplicationRequest
-            {
-                Data = new ApplicationRequestData
-                {
-                    Type = CheckEligibilityType.FreeSchoolMeals,
-                    ParentFirstName = request.ParentFirstName,
-                    ParentLastName = request.ParentLastName,
-                    ParentDateOfBirth = request.ParentDateOfBirth,
-                    ParentNationalInsuranceNumber = request.ParentNino,
-                    ParentNationalAsylumSeekerServiceNumber = request.ParentNass,
-                    ChildFirstName = child.FirstName,
-                    ChildLastName = child.LastName,
-                    ChildDateOfBirth = new DateOnly(int.Parse(child.Year), int.Parse(child.Month), int.Parse(child.Day)).ToString("yyyy-MM-dd"),
-                    Establishment = int.Parse(child.School.URN),
-                    UserId = userId,
-                    ParentEmail = email
-                }
-            };
         }
     }
 }

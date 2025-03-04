@@ -336,7 +336,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _removeChildUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<Children>(), It.IsAny<int>()))
-                .ReturnsAsync(_children);
+                .Returns(_children);
 
             _submitApplicationUseCaseMock
                 .Setup(x => x.Execute(
@@ -348,7 +348,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _changeChildDetailsUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<string>()))
-                .ReturnsAsync(_children);
+                .Returns(_children);
         }
 
         [TearDown]
@@ -787,7 +787,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _removeChildUseCaseMock
                 .Setup(x => x.Execute(request, 0))
-                .ReturnsAsync(updatedChildren);
+                .Returns(updatedChildren);
 
             // Act
             var result = await _sut.Remove_Child(request, 0);
@@ -813,7 +813,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _removeChildUseCaseMock
                 .Setup(x => x.Execute(request, 1))
-                .ThrowsAsync(new RemoveChildValidationException("Invalid child index"));
+                .Throws(new RemoveChildValidationException("Invalid child index"));
 
             // Act
             var result = await _sut.Remove_Child(request, 1);
@@ -836,7 +836,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _removeChildUseCaseMock
                 .Setup(x => x.Execute(request, 0))
-                .ThrowsAsync(new Exception("Test exception"));
+                .Throws(new Exception("Test exception"));
 
             // Act & Assert
             await FluentActions.Invoking(() =>
@@ -859,7 +859,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
 
             _changeChildDetailsUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<string>()))
-                .ReturnsAsync( children);
+                .Returns( children);
 
             // Act
             var result = await _sut.ChangeChildDetails();
@@ -877,7 +877,7 @@ namespace CheckYourEligibility_Parent.Tests.Controllers
             // Arrange
             _changeChildDetailsUseCaseMock
                 .Setup(x => x.Execute(It.IsAny<string>()))
-                .ThrowsAsync(new Exception("Test exception"));
+                .Throws(new Exception("Test exception"));
 
             // Act & Assert
             await FluentActions.Invoking(() =>

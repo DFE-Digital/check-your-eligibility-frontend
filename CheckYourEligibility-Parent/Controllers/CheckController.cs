@@ -295,7 +295,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 TempData["IsChildAddOrRemove"] = true;
                 
-                var updatedChildren = await _removeChildUseCase.Execute(request, index);
+                var updatedChildren = _removeChildUseCase.Execute(request, index);
 
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
                 
@@ -376,7 +376,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             
             try
             {
-                model = await _changeChildDetailsUseCase.Execute(
+                model = _changeChildDetailsUseCase.Execute(
                     TempData["FsmApplication"] as string);
             }
             catch (JSONException e)

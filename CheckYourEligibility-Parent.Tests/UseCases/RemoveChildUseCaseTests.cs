@@ -33,7 +33,7 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            var result = await _sut.Execute(children, 0);
+            var result = _sut.Execute(children, 0);
 
             // Assert
             result.ChildList.Should().HaveCount(1);
@@ -53,16 +53,16 @@ namespace CheckYourEligibility_Parent.Tests.UseCases
             };
 
             // Act
-            await FluentActions.Invoking(() =>_sut.Execute(children, 1))
-                .Should().ThrowAsync<RemoveChildValidationException>("Invalid child index");
+            FluentActions.Invoking(() =>_sut.Execute(children, 1))
+                .Should().Throw<RemoveChildValidationException>("Invalid child index");
         }
 
         [Test]
         public async Task Execute_WithNullRequest_ShouldReturnError()
         {
             // Act
-            await FluentActions.Invoking(() =>_sut.Execute(null, 0))
-                .Should().ThrowAsync<RemoveChildValidationException>("Invalid request - no children list available");
+            FluentActions.Invoking(() =>_sut.Execute(null, 0))
+                .Should().Throw<RemoveChildValidationException>("Invalid request - no children list available");
         }
     }
 }
