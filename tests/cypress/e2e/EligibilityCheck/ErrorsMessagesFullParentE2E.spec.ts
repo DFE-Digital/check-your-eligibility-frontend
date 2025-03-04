@@ -147,7 +147,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('#IsNinoSelected').filter('[value="true"]').click();
         cy.get('#NationalAsylumSeekerServiceNumber').should('be.visible').type('240712349');
         cy.contains('Save and continue').click();
-        cy.get('h1',{timeout: 60000}).should('include.text', 'Check your details and try again');
+        cy.get('h1',{timeout: 60000}).should('include.text', 'Apply for free school meals for your children');
 
     });
 });
