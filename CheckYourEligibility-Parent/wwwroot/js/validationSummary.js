@@ -9,38 +9,37 @@
     function linkAndStyleErrors() {
         var href, element, parent;
 
-        for (let i = 0; i < links.length; i++) {
+        for (let i = 0; i < links?.length || 0; i++) {
             href = links[i].getAttribute("href");
             hrefs[i] = href;
 
             try {
-                element = document.querySelector(href)
-            } catch(error) {
-                if (element == null) {
-                    var hrefwithoutHash = href.replace("#", "")
-                    element = document.getElementById(hrefwithoutHash)
+                element = document.querySelector(href);
+            } catch {
+                if (!element) {
+                    var hrefwithoutHash = href.replace("#", "");
+                    element = document.getElementById(hrefwithoutHash);
                 }
             }
 
-            let dobElement = element.closest('.govuk-form-group[data-type="dob-input"]');
+            if (element) {
+                let dobElement = element.closest('.govuk-form-group[data-type="dob-input"]');
+                parent = dobElement ? dobElement.closest('.govuk-form-group[data-type="dob-form-group"]') : element.closest('.govuk-form-group');
 
-            parent = dobElement ? dobElement.closest('.govuk-form-group[data-type="dob-form-group"]') : element.closest('.govuk-form-group');
+                if (!parent) {
+                    parent = element.parentElement;
+                }
 
-            element = null;
-
-            if (!parent) {
-                parent = element.parentElement;
+                if (parent) {
+                    parent.classList.add("govuk-form-group--error");
+                    setErrorStyle(parent);
+                }
             }
-
-            parent.classList.add("govuk-form-group--error");
-
-            setErrorStyle(parent);
         }
     }
 
     function setErrorStyle(parent) {
         let input = parent.querySelector(".govuk-form-input");
-
         if (input !== null) {
             input.classList.add("govuk-form-input--error");
         }
@@ -64,5 +63,6 @@
     if (links) {
         linkAndStyleErrors();
     }
+
     setFocusOnSummary();
 })();
