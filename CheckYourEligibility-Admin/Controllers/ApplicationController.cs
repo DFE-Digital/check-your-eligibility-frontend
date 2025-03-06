@@ -71,7 +71,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToList());
                 TempData["Errors"] = JsonConvert.SerializeObject(errors);
-                return View();
+                return View(new SearchAllRecordsViewModel { ApplicationSearch = request });
             }
 
             _Claims = DfeSignInExtensions.GetDfeClaims(HttpContext.User.Claims);
@@ -88,15 +88,21 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                     {
                         DateFrom = request.DateRange.DateFrom,
                         DateTo = DateTime.Now
-                    } : null ,
+                    } : null,
                     Statuses = request.Status.Any() ? request.Status : null // Apply filter only if statuses are selected
-
                 }
             };
-                TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
 
-            return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false);
+            TempData["ApplicationSearch"] = JsonConvert.SerializeObject(request);
+
+            var viewModel = new SearchAllRecordsViewModel
+            {
+                ApplicationSearch = request
+            };
+
+            return await GetResultsForSearch(applicationSearch, "ApplicationDetail", false, false, false, viewModel);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ApplicationDetail(string id)
@@ -523,14 +529,14 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             return View(viewData);
         }
 
-        private async Task<IActionResult> GetResultsForSearch(ApplicationRequestSearch2? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob)
+        private async Task<IActionResult> GetResultsForSearch(ApplicationRequestSearch2? applicationSearch, string detailView, bool showSelector, bool showSchool, bool showParentDob, SearchAllRecordsViewModel viewModel)
         {
             var response = await _adminService.PostApplicationSearch(applicationSearch);
             response ??= new ApplicationSearchResponse() { Data = new List<ApplicationResponse>() };
             if (response.Data == null || !response.Data.Any() && detailView == "ApplicationDetail")
             {
                 TempData["Message"] = "There are no records matching your search.";
-                return View();
+                return View(viewModel);
             }
 
             var criteria = JsonConvert.SerializeObject(applicationSearch);
@@ -539,10 +545,6 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             ViewBag.TotalPages = response.TotalPages;
             ViewBag.TotalRecords = response.TotalRecords;
             ViewBag.RecordsPerPage = applicationSearch.PageSize;
-            if(applicationSearch.Data.DateRange?.DateFrom != null)
-            {
-                ViewBag.DateFrom = applicationSearch.Data.DateRange.DateFrom?.ToString("yyyy-MM-dd");
-            }
             if (applicationSearch.Data.Keyword != null)
             {
                 ViewBag.Keyword = applicationSearch.Data.Keyword;
@@ -551,18 +553,19 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             {
                 ViewBag.Status = applicationSearch.Data.Statuses;
             }
-            var viewModel = response.Data.Select(x => new SearchAllRecordsViewModel
+
+            viewModel.People = response.Data.Select(x => new SearchAllRecordsViewModel
             {
                 DetailView = detailView,
                 ShowSelectorCheck = showSelector,
                 Person = x,
                 ShowSchool = showSchool,
                 ShowParentDob = showParentDob
-            });
+            }).ToList();
 
-            var viewData = new SearchAllRecordsViewModel { People = viewModel.ToList() };
-            return View(viewData);
+            return View(viewModel);
         }
+
         private static ApplicationDetailViewModel GetViewData(ApplicationItemResponse response)
         {
             var viewData = new ApplicationDetailViewModel

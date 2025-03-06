@@ -9,10 +9,10 @@
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalRecords = ViewBag.TotalRecords ?? 0;
     int totalPages = (int)Math.Ceiling((double)totalRecords / recordsPerPage);
-    var firstDayOfCurrentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("yyyy-MM-dd");
-    var formattedThreeMonthsAgo = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd");
-    var formattedSixMonthsAgo = DateTime.Now.AddMonths(-6).ToString("yyyy-MM-dd");
-    var formattedTwelveMonthsAgo = DateTime.Now.AddMonths(-12).ToString("yyyy-MM-dd");
+    var firstDayOfCurrentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).Date.ToString("yyyy-MM-dd");
+    var formattedThreeMonthsAgo = DateTime.Now.AddMonths(-3).Date.ToString("yyyy-MM-dd");
+    var formattedSixMonthsAgo = DateTime.Now.AddMonths(-6).Date.ToString("yyyy-MM-dd");
+    var formattedTwelveMonthsAgo = DateTime.Now.AddMonths(-12).Date.ToString("yyyy-MM-dd");
 }
 
 <a class="govuk-back-link" href="@Url.Action("Index", "Home")" onclick="history.back(); return false;">Back</a>
@@ -52,6 +52,10 @@
     var applicationSearch = string.IsNullOrEmpty(applicationSearchJson) ? new ApplicationSearch() : JsonConvert.DeserializeObject<ApplicationSearch>(applicationSearchJson);
     var selectedStatus = applicationSearch.Status?.Select(s => s.ToString()).ToList() ?? new List<string>();
 }
+@{
+    var selectedDateFrom = applicationSearch.DateRange?.DateFrom?.Date.ToString("yyyy-MM-dd");
+    var selectedKeyword = applicationSearch?.Keyword;
+}
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -82,6 +86,46 @@
                                         </p>
                                     </div>
                                 </div>
+                                <!--   for  filters that arent null}
+                                go through these and show the filtered options are arent null
+                                e.g (Entitled status selected, so entitled status is shown in the filter section under status)
+                                                              -->
+                                @if (Model.ApplicationSearch.Keyword != null)
+                                {
+                                    <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Keywords</h3>
+                                    <ul class="moj-filter-tags">
+                                        <li>
+                                            <a class="moj-filter__tag" href="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                                <span class="govuk-visually-hidden">Remove this filter</span>@Model.ApplicationSearch.Keyword
+                                            </a>
+                                        </li>
+                                    </ul>
+                                }
+                                @if (Model.ApplicationSearch.DateRange?.DateFrom != null)
+                                {
+                                    <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Date Range</h3>
+                                    <ul class="moj-filter-tags">
+                                        <li>
+                                            <a class="moj-filter__tag" href="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                                <span class="govuk-visually-hidden">Remove this filter</span>@Model.ApplicationSearch.DateRange.DateFrom
+                                            </a>
+                                        </li>
+                                    </ul>
+                                }
+                                @if (selectedStatus.Count > 0)
+                                {
+                                    <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Status</h3>
+                                    foreach (string status in selectedStatus)
+                                    {
+                                        <ul class="moj-filter-tags">
+                                            <li>
+                                                <a class="moj-filter__tag" href="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                                    <span class="govuk-visually-hidden">Remove this filter</span>@status
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    }
+                                }
                             </div>
                             <div class="moj-filter__options">
                                 <div class="govuk-form-group">
@@ -105,25 +149,25 @@
                                         </legend>
                                         <div class="govuk-radios govuk-radios--small" data-module="govuk-radios" data-govuk-radios-init="">
                                             <div class="govuk-radios__item">
-                                                <input class="govuk-radios__input" id="DateRangeNow" name="DateRange.DateFrom" type="radio" value="@firstDayOfCurrentMonth" @(ViewBag.DateFrom == firstDayOfCurrentMonth ? "checked" : "")>
+                                                <input class="govuk-radios__input" id="DateRangeNow" name="DateRange.DateFrom" type="radio" value="@firstDayOfCurrentMonth" @(selectedDateFrom == firstDayOfCurrentMonth ? "checked" : "")>
                                                 <label class="govuk-label govuk-radios__label" for="date range">
                                                     Current month to date
                                                 </label>
                                             </div>
                                             <div class="govuk-radios__item">
-                                                <input class="govuk-radios__input" id="DateRange-3" name="DateRange.DateFrom" type="radio" value="@formattedThreeMonthsAgo" @(ViewBag.DateFrom == formattedThreeMonthsAgo ? "checked" : "")>
+                                                <input class="govuk-radios__input" id="DateRange-3" name="DateRange.DateFrom" type="radio" value="@formattedThreeMonthsAgo" @(selectedDateFrom == formattedThreeMonthsAgo ? "checked" : "")>
                                                 <label class="govuk-label govuk-radios__label" for="date range-2">
                                                     Last 3 months
                                                 </label>
                                             </div>
                                             <div class="govuk-radios__item">
-                                                <input class="govuk-radios__input" id="DateRange-6" name="DateRange.DateFrom" type="radio" value="@formattedSixMonthsAgo" @(ViewBag.DateFrom == formattedSixMonthsAgo ? "checked" : "")>
+                                                <input class="govuk-radios__input" id="DateRange-6" name="DateRange.DateFrom" type="radio" value="@formattedSixMonthsAgo" @(selectedDateFrom == formattedSixMonthsAgo ? "checked" : "")>
                                                 <label class="govuk-label govuk-radios__label" for="date range-3">
                                                     Last 6 months
                                                 </label>
                                             </div>
                                             <div class="govuk-radios__item">
-                                                <input class="govuk-radios__input" id="DateRange-12" name="DateRange.DateFrom" type="radio" value="@formattedTwelveMonthsAgo" @(ViewBag.DateFrom == formattedTwelveMonthsAgo ? "checked" : "")>
+                                                <input class="govuk-radios__input" id="DateRange-12" name="DateRange.DateFrom" type="radio" value="@formattedTwelveMonthsAgo" @(selectedDateFrom == formattedTwelveMonthsAgo ? "checked" : "")>
                                                 <label class="govuk-label govuk-radios__label" for="date range-3">
                                                     Last 12 months
                                                 </label>
@@ -216,7 +260,7 @@
                                                                     }
                                                                 </tbody>
                                                             </table>
-                                                            var paginationModel = new PaginationPartialViewModel { CurrentPage = ViewBag.CurrentPage, TotalPages = ViewBag.TotalPages, RecordsPerPage = ViewBag.RecordsPerPage, TotalRecords = ViewBag.TotalRecords, ControllerName = "SearchResults", Status = ViewBag.Status, Keyword = ViewBag.Keyword };
+                                                            var paginationModel = new PaginationPartialViewModel { CurrentPage = ViewBag.CurrentPage, TotalPages = ViewBag.TotalPages, RecordsPerPage = ViewBag.RecordsPerPage, TotalRecords = ViewBag.TotalRecords, ControllerName = "SearchResults", Status = ViewBag.Status, Keyword = selectedKeyword, DateFrom = selectedDateFrom };
                                                             @Html.Partial("PaginationPartial", paginationModel)
                                                         }
                                                     }

@@ -1,5 +1,6 @@
 
 using CheckYourEligibility.Domain.Enums;
+using CheckYourEligibility_FrontEnd.Models;
 
 namespace CheckYourEligibility_FrontEnd.ViewModels
 {
@@ -12,5 +13,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
         public string ControllerName { get; set; }
         public string? Keyword { get; set; }
         public IEnumerable<ApplicationStatus>? Status { get; set; }
+        public string? DateFrom { get; set; }
     }
 }
+
