@@ -25,9 +25,5 @@
       <HintPath>..\CheckYourEligibility-Admin\CheckYourEligibility.Domain.dll</HintPath>
     </Reference>
   </ItemGroup>
-	
-	<ItemGroup>
-		<Folder Include="Domain\" />
-	</ItemGroup>
 
 </Project>

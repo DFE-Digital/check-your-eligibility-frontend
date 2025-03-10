@@ -1,0 +1,14 @@
+{
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/CheckYourEligibility-Admin/CheckYourEligibility-Admin.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
