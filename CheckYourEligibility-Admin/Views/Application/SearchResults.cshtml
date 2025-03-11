@@ -2,6 +2,7 @@
 @using Newtonsoft.Json
 @model SearchAllRecordsViewModel;
 @using System.Collections.Generic;
+@using Microsoft.AspNetCore.Http.Extensions;
 @{
     ViewData["Title"] = "Search all records";
     ViewData["Layout"] = "full";
@@ -54,8 +55,32 @@
 }
 @{
     var selectedDateFrom = applicationSearch.DateRange?.DateFrom?.Date.ToString("yyyy-MM-dd");
+    var currentMonthLabel = "Current month to date";
+    var lastThreeMonthsLabel = "Last 3 months";
+    var lastSixMonthsLabel = "Last 6 months";
+    var lastTwelveMonthsLabel = "Last 12 months";
+    string selectedLabel = null;
+    switch (selectedDateFrom)
+    {
+        case var date when date == firstDayOfCurrentMonth:
+            selectedLabel = currentMonthLabel;
+            break;
+        case var date when date == formattedThreeMonthsAgo:
+            selectedLabel = lastThreeMonthsLabel;
+            break;
+        case var date when date == formattedSixMonthsAgo:
+            selectedLabel = lastSixMonthsLabel;
+            break;
+        case var date when date == formattedTwelveMonthsAgo:
+            selectedLabel = lastTwelveMonthsLabel;
+            break;
+        default:
+            selectedLabel = "Unknown date range";
+            break;
+    }
     var selectedKeyword = applicationSearch?.Keyword;
 }
+
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -65,7 +90,7 @@
     </div>
 </div>
 
-<form asp-controller="Application" asp-action="SearchResults" method="post" class="form">
+<form asp-controller="Application" asp-action="SearchResults" method="get">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div class="moj-filter-layout">
@@ -86,28 +111,24 @@
                                         </p>
                                     </div>
                                 </div>
-                                <!--   for  filters that arent null}
-                                go through these and show the filtered options are arent null
-                                e.g (Entitled status selected, so entitled status is shown in the filter section under status)
-                                                              -->
-                                @if (Model.ApplicationSearch.Keyword != null)
+                                @if (selectedKeyword != null)
                                 {
                                     <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Keywords</h3>
                                     <ul class="moj-filter-tags">
                                         <li>
-                                            <a class="moj-filter__tag" href="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                            <a class="moj-filter__tag" href="@Context.Request.GetDisplayUrl().ToString().Replace($"&Keyword={Model.ApplicationSearch.Keyword}", "" ).Replace($"?Keyword={Model.ApplicationSearch.Keyword}&", "?" ).Replace($"?Keyword={Model.ApplicationSearch.Keyword}","")" src="\wwwroot\assets\images\icon-tag-remove-cross.svg">
                                                 <span class="govuk-visually-hidden">Remove this filter</span>@Model.ApplicationSearch.Keyword
                                             </a>
                                         </li>
                                     </ul>
                                 }
-                                @if (Model.ApplicationSearch.DateRange?.DateFrom != null)
+                                @if (selectedDateFrom != null)
                                 {
                                     <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Date Range</h3>
                                     <ul class="moj-filter-tags">
                                         <li>
-                                            <a class="moj-filter__tag" href="\wwwroot\assets\images\icon-tag-remove-cross.svg">
-                                                <span class="govuk-visually-hidden">Remove this filter</span>@Model.ApplicationSearch.DateRange.DateFrom
+                                            <a class="moj-filter__tag" href="@Context.Request.GetDisplayUrl().ToString().Replace($"&DateRange.DateFrom={selectedDateFrom}", "" ).Replace($"?DateRange.DateFrom={selectedDateFrom}&", "?" ).Replace($"?DateRange.DateFrom={selectedDateFrom}","")" src="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                                <span class="govuk-visually-hidden">Remove this filter</span>@selectedLabel
                                             </a>
                                         </li>
                                     </ul>
@@ -119,7 +140,7 @@
                                     {
                                         <ul class="moj-filter-tags">
                                             <li>
-                                                <a class="moj-filter__tag" href="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                                <a class="moj-filter__tag" href="@Context.Request.GetDisplayUrl().ToString().Replace($"&Status={status}", "" ).Replace($"?Status={status}&", "?" ).Replace($"?Status={status}","")" src="\wwwroot\assets\images\icon-tag-remove-cross.svg">
                                                     <span class="govuk-visually-hidden">Remove this filter</span>@status
                                                 </a>
                                             </li>
