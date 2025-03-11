@@ -141,7 +141,7 @@
                                         <ul class="moj-filter-tags">
                                             <li>
                                                 <a class="moj-filter__tag" href="@Context.Request.GetDisplayUrl().ToString().Replace($"&Status={status}", "" ).Replace($"?Status={status}&", "?" ).Replace($"?Status={status}","")" src="\wwwroot\assets\images\icon-tag-remove-cross.svg">
-                                                    <span class="govuk-visually-hidden">Remove this filter</span>@status
+                                                    <span class="govuk-visually-hidden">Remove this filter</span>@statusName[status]
                                                 </a>
                                             </li>
                                         </ul>
@@ -158,7 +158,7 @@
                                         <p class="govuk-error-message">
                                             <span asp-validation-for="ApplicationSearch.Keyword"></span>
                                         </p>
-                                        <input id="Keyword" class="govuk-input @(ViewData.ModelState["Keyword"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" name="Keyword" value="@applicationSearch.Keyword">
+                                        <input id="Keyword" class="govuk-input @(ViewData.ModelState["Keyword"]?.Errors.Count > 0 ? "govuk-input--error" : "")" type="text" name="Keyword" value="@applicationSearch?.Keyword">
                                     </fieldset>
                                 </div>
                                 <div class="govuk-form-group">
