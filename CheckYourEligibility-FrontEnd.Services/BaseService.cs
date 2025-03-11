@@ -18,6 +18,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly HttpClient _httpClient;
         private readonly TelemetryClient _telemetry;
         protected readonly IConfiguration _configuration;
+        private DateTime _expiry;
 
         private static JwtAuthResponse _jwtAuthResponse;
 
@@ -38,15 +39,16 @@ namespace CheckYourEligibility_FrontEnd.Services
 
             try
             {
-                if (_jwtAuthResponse == null || _jwtAuthResponse.Expires < DateTime.UtcNow)
+                if (_expiry == null || _expiry < DateTime.UtcNow)
                 {
                     var formData = new SystemUser
                     {
-                        ClientId = _configuration["Api:AuthorisationUsername"],
-                        ClientSecret = _configuration["Api:AuthorisationPassword"]
+                        client_id = _configuration["Api:AuthorisationUsername"],
+                        client_secret = _configuration["Api:AuthorisationPassword"]
                     };
 
                     _jwtAuthResponse = await ApiDataPostFormDataAsynch(url, formData, new JwtAuthResponse());
+                    _expiry = DateTime.UtcNow.AddSeconds(_jwtAuthResponse.expires_in);
                 }
 
                 // Ensure we don't add duplicate headers
@@ -54,7 +56,7 @@ namespace CheckYourEligibility_FrontEnd.Services
                 {
                     _httpClient.DefaultRequestHeaders.Remove("Authorization");
                 }
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _jwtAuthResponse.Token);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _jwtAuthResponse.access_token);
             }
             catch (Exception ex)
             {

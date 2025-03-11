@@ -4,6 +4,6 @@ namespace CheckYourEligibility_FrontEnd.Services.Domain;
 
 public class JwtAuthResponse
 {
-    public string Token { get; set; }
-    public DateTime Expires { get; set; }
+    public string access_token { get; set; }
+    public int expires_in { get; set; }
 }
