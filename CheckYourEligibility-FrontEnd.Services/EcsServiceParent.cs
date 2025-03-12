@@ -16,20 +16,20 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _ApplicationUrl = "Application";
-            _schoolUrl = "Establishments";
+            _ApplicationUrl = "application";
+            _schoolUrl = "establishment";
         }
 
         public async Task<EstablishmentSearchResponse> GetSchool(string name)
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}", new EstablishmentSearchResponse());
+                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_schoolUrl}/search?query={name}", new EstablishmentSearchResponse());
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}");
+                _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/search?query={name}");
                 throw;
             }
         }
@@ -53,12 +53,12 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             try
             {
-                var response = await ApiDataPostAsynch("Users", requestBody, new UserSaveItemResponse());
+                var response = await ApiDataPostAsynch("user", requestBody, new UserSaveItemResponse());
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Create User failed. uri-{_httpClient.BaseAddress}Users");
+                _logger.LogError(ex, $"Create User failed. uri-{_httpClient.BaseAddress}user");
             }
 
             return null;

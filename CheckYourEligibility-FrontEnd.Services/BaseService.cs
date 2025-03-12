@@ -35,7 +35,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         [ExcludeFromCodeCoverage(Justification = "Mocked and partially covered by tests, but not fully required method in report for unit tests coverage")]
         public async Task Authorise()
         {
-            var url = $"{_httpClient.BaseAddress}api/Login";
+            var url = $"{_httpClient.BaseAddress}oauth2/token";
 
             try
             {
