@@ -4,7 +4,7 @@ namespace CheckYourEligibility_FrontEnd.ViewModels
 {
     public class SearchAllRecordsViewModel
     {
-        public Models.ApplicationSearch? ApplicationSearch { get; set; }
+        public Models.ApplicationSearch? ApplicationSearch { get; set; } = new Models.ApplicationSearch();
 
         public bool Selected { get; set; }
         public ApplicationResponse? Person { get; set; }
