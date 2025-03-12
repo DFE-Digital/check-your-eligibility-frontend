@@ -18,7 +18,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
             _FsmCheckUrl = "check/free-school-meals"; 
-            _FsmCheckBulkUploadUrl = "check/bulk/free-school-meals";
+            _FsmCheckBulkUploadUrl = "bulk-check/free-school-meals";
             
         }
 
@@ -41,7 +41,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/Status", new CheckEligibilityStatusResponse());
+                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/status", new CheckEligibilityStatusResponse());
                 return response;
             }
             catch (Exception ex)
