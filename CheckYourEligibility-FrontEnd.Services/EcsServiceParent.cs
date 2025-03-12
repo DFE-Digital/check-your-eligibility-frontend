@@ -17,8 +17,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _ApplicationUrl = "Application";
-            _schoolUrl = "Establishments";
+            _ApplicationUrl = "application";
+            _schoolUrl = "establishment";
         }
 
         public async Task<EstablishmentSearchResponse> GetSchool(string name)
@@ -29,7 +29,7 @@ namespace CheckYourEligibility_FrontEnd.Services
                                         .Replace("\n", "")
                                         .Replace("\r", "");
 
-                var requestUrl = $"{_schoolUrl}/Search?query={Uri.EscapeDataString(name)}";
+                var requestUrl = $"{_schoolUrl}/search?query={Uri.EscapeDataString(name)}";
                 var response = await ApiDataGetAsynch(requestUrl, new EstablishmentSearchResponse());
 
                 return response;
@@ -60,7 +60,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             try
             {
-                var response = await ApiDataPostAsynch("Users", requestBody, new UserSaveItemResponse());
+                var response = await ApiDataPostAsynch("user", requestBody, new UserSaveItemResponse());
                 return response;
             }
             catch (Exception ex)

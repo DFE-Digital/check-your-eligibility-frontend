@@ -11,8 +11,8 @@ namespace CheckYourEligibility_FrontEnd.Services
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
-        private readonly string _ApplicationSearchUrl = "Application/Search";
-        private readonly string _ApplicationUrl = "/Application";
+        private readonly string _ApplicationSearchUrl = "application/search";
+        private readonly string _ApplicationUrl = "/application";
 
         public EcsServiceAdmin(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
         {
