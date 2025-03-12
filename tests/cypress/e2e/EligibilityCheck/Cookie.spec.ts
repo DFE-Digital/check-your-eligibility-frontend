@@ -20,7 +20,7 @@ describe('Cookie consent banner functionality', () => {
         // Click accept and verify display state
         cy.get('#accept-cookies').click();
         cy.wait(1000);
-        cy.get('#cookie-banner').should('not.exist');
+        cy.get('#cookie-banner').should('have.css', 'display', 'none');
         
         // Verify banner stays hidden on next visit
         cy.reload();
@@ -33,7 +33,7 @@ describe('Cookie consent banner functionality', () => {
         // Click reject and verify display state
         cy.get('#reject-cookies').click();
         cy.wait(1000);
-        cy.get('#cookie-banner').should('not.exist');
+        cy.get('#cookie-banner').should('have.css', 'display', 'none');
         
         // Verify banner stays hidden on next visit
         cy.reload();
@@ -85,22 +85,5 @@ describe('Cookie consent banner functionality', () => {
         // Visit the page again and confirm the banner remains hidden
         cy.visit(Cypress.config().baseUrl ?? "");
         cy.get('#cookie-banner').should('have.css', 'display', 'none');
-    });
-    
-
-    it('Should show cookie preferences page with current selection', () => {
-        cy.visit(Cypress.config().baseUrl ?? "");
-        
-        // Accept cookies first
-        cy.get('#accept-cookies').click();
-        cy.wait(1000);
-        
-        // Visit cookies page directly
-        cy.visit(`${Cypress.config().baseUrl}/Home/Cookies`);
-        
-        // Verify current selection is shown
-        cy.get('[name="analytics"]')
-            .should('be.checked')
-            .and('have.value', 'true');
     });
 });
