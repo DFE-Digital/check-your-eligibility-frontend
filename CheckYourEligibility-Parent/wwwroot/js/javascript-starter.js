@@ -1,41 +1,70 @@
-const COOKIE_NAME = 'analytics-cookies-consent';
+document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
 
-function initCookieConsent() {
-    const hasChoice = cookie.read(COOKIE_NAME);
-    if (!hasChoice) {
-        document.getElementById('cookie-banner').style.display = 'block';
-    } else if (hasChoice === 'true') {
-        initializeClarity();
-    }
-}
-
-function acceptCookies() {
-    cookie.create(COOKIE_NAME, 'true', 365);
-    document.getElementById('cookie-banner').remove();
-    initializeClarity();
-}
-
-function rejectCookies() {
-    cookie.create(COOKIE_NAME, 'false', 365);
-    document.getElementById('cookie-banner').remove();
-    cookie.erase('_clarity');
-    cookie.erase('CLARITY_MASTERID');
-}
+import { initAll } from './govuk-frontend.min.js'
+initAll();
 
 function initializeClarity() {
-    const clarityId = document.body.getAttribute("data-clarity");
+    let clarityId = document.getElementsByTagName("body")[0].getAttribute("data-clarity");
     if (clarityId) {
         (function (c, l, a, r, i, t, y) {
-            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
-            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+            c[a] = c[a] || function () {
+                (c[a].q = c[a].q || []).push(arguments)
+            };
+            t = l.createElement(r);
+            t.async = 1;
+            t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0];
+            y.parentNode.insertBefore(t, y);
         })(window, document, "clarity", "script", clarityId);
     }
 }
 
-// Initialize on load
-window.onload = initCookieConsent;
+function initCookieConsent() {
+    const hasChoice = cookie.read("cookie");
+    if (hasChoice==="true") {
+        initializeClarity();
+    }
+    
+    else if (hasChoice !== "false") {
+        document.getElementById('cookie-banner').style.display = 'block';
+    }
+    
+    console.log(hasChoice);
+}
 
-// Button handlers
-document.getElementById('accept-cookies').onclick = acceptCookies;
-document.getElementById('reject-cookies').onclick = rejectCookies;
+document.getElementById('accept-cookies').onclick = function() {
+    cookie.create("cookie", "true", 365);
+    document.getElementById('cookie-banner').style.display = 'none';
+};
+document.getElementById('reject-cookies').onclick = function() {
+    cookie.create("cookie", "false", 365);
+    document.getElementById('cookie-banner').style.display = 'none';
+};
+
+var cookie = {
+    create: function (name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+    },
+
+    read: function (name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i].trim();
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+        }
+        return null;
+    },
+
+    erase: function (name) {
+        this.create(name, "", -1);
+    }
+};
+
+initCookieConsent();
