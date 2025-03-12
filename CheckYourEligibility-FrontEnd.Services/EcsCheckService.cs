@@ -18,7 +18,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
             _FsmCheckUrl = "check/free-school-meals"; 
-            _FsmCheckBulkUploadUrl = "check/bulk/free-school-meals";
+            _FsmCheckBulkUploadUrl = "bulk/free-school-meals";
             
         }
 
