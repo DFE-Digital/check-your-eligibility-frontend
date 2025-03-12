@@ -9,7 +9,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.contains('Start now').click()
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details');
 

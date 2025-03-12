@@ -6,7 +6,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start now').click();
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details')
         cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
@@ -32,7 +32,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start now').click();
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details')
         cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
@@ -58,7 +58,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start now').click();
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details')
         cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
@@ -83,7 +83,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start now').click();
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
@@ -108,7 +108,7 @@ describe('Parents journey when not eligible', () => {
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
         cy.contains('Start now').click();
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
