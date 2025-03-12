@@ -172,5 +172,26 @@ describe('Keyword search validation', () => {
             }
           })
     });
+    it('Returns the record when First and Last name of Parent are searched', () => {
+      cy.SignInSchool();
+      cy.visit(Cypress.config().baseUrl ?? "");
+      cy.wait(1);
+
+      cy.contains('Search all records').click();
+      cy.get("#Keyword").type(parentFirstName + " " + parentLastName);
+      cy.contains(".govuk-button", "Apply filters").click();
+      cy.wait(100);
+      cy.get('.govuk-table').find('tbody tr').each(($tr, i) => {
+          if (!found) {
+            cy.wrap($tr).find('td').each(($td) => {
+              if ($td.text().includes(referenceNumber)) {
+                found = true;
+                index = i;
+                return false;
+              }
+            });
+          }
+        })
+    });
 });
 
