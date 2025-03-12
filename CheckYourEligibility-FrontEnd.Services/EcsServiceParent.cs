@@ -5,14 +5,15 @@ using Microsoft.Extensions.Logging;
 
 namespace CheckYourEligibility_FrontEnd.Services
 {
-    public class EcsServiceParent : BaseService,  IEcsServiceParent
+    public class EcsServiceParent : BaseService, IEcsServiceParent
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly string _ApplicationUrl;
         private readonly string _schoolUrl;
 
-        public  EcsServiceParent(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
+        public EcsServiceParent(ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
+            : base("EcsService", logger, httpClient, configuration)
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
@@ -24,12 +25,18 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}", new EstablishmentSearchResponse());
+                var sanitizedQuery = name?.Replace(Environment.NewLine, "")
+                                        .Replace("\n", "")
+                                        .Replace("\r", "");
+
+                var requestUrl = $"{_schoolUrl}/Search?query={Uri.EscapeDataString(name)}";
+                var response = await ApiDataGetAsynch(requestUrl, new EstablishmentSearchResponse());
+
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Get School failed. uri-{_httpClient.BaseAddress}{_schoolUrl}/Search?query={name}");
+                _logger.LogError(ex, "School search failed");
                 throw;
             }
         }
@@ -44,7 +51,7 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Post Application failed. uri-{_httpClient.BaseAddress}{_ApplicationUrl}");
+                _logger.LogError(ex, "Post Application failed for FSM application");
                 throw;
             }
         }
@@ -58,9 +65,8 @@ namespace CheckYourEligibility_FrontEnd.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Create User failed. uri-{_httpClient.BaseAddress}Users");
+                _logger.LogError(ex, "Create User failed");
             }
-
             return null;
         }
     }

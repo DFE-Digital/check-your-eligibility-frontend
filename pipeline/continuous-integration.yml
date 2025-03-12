@@ -1,3 +1,6 @@
+pr:
+  - main
+
 pool:
   name: Azure Pipelines
   vmImage: 'windows-latest'
@@ -50,3 +53,80 @@ stages:
               publishWebProjects: True
               arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
               zipAfterPublish: True
+              
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: 'tests'
+              Contents: '**'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/tests'
+              
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'checkYourEligibility-Parent'
+
+  - stage: DeployAppCypress
+    displayName: Deploy App Cypress
+    jobs:
+      - deployment: cypressdeploy
+        displayName: Deploy App Cypress
+        pool:
+          name: Azure Pipelines
+          vmImage: 'ubuntu-latest'
+        environment: CYPRESS
+        strategy:
+          runOnce:
+            preDeploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: 'current'
+                    targetPath: '$(Pipeline.Workspace)'
+            deploy:
+              steps:
+                - task: AzureRmWebAppDeployment@4
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: 's203d.azdo.deployment'
+                    appType: 'webApp'
+                    WebAppName: 'ece-dev-as-cypress'
+                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                - task: Bash@3
+                  inputs:
+                    targetType: inline
+                    script: |
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      npm install
+                - task: Bash@3
+                  displayName: 'RunTests'
+                  inputs:
+                    targetType: inline
+                    script: |
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
+                      export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
+                      export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
+                      export CYPRESS_AUTH_PASSWORD="$(AUTH_PASSWORD)"
+                      export CYPRESS_ONEGOV_EMAIL="$(ONEGOV_EMAIL)"
+                      export CYPRESS_ONEGOV_PASSWORD="$(ONEGOV_PASSWORD)"
+                      npm run parentE2e:electron
+                - task: Bash@3
+                  condition: always()
+                  displayName: 'Generate report'
+                  inputs:
+                    targetType: inline
+                    script: |
+                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      npm run combine:reports
+                - task: PublishBuildArtifacts@1
+                  displayName: 'Publish Cypress Screenshot Files'
+                  condition: failed()
+                  inputs:
+                    PathtoPublish: '$(Pipeline.Workspace)/checkYourEligibility-Parent/tests/cypress/screenshots/'
+                    ArtifactName: 'screenshots'
+                - task: PublishTestResults@2
+                  condition: always()
+                  displayName: 'Publish test results'
+                  inputs:
+                    testResultsFiles: '**/combined-report.xml'
+                    searchFolder: '$(Pipeline.Workspace)/checkYourEligibility-Parent/tests'

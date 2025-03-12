@@ -8,9 +8,12 @@ describe('Parent with valid details can complete full Eligibility check and appl
         cy.get('h1').should('include.text', 'Check if your children can get free school meals');
 
         cy.contains('Start now').click()
+        cy.get('input.govuk-radios__input[value="true"]').check();
+        cy.get('button.govuk-button').click();
+
         cy.url().should('include', '/Check/Enter_Details');
 
-        cy.get('h1').should('include.text', 'Enter your details');
+        cy.get('h1').should('include.text', 'Run a check for one parent or guardian');
 
         cy.get('#FirstName').should('be.visible').type('Tim');
         cy.get('#LastName').should('be.visible').type(lastName);
@@ -65,7 +68,7 @@ describe('Parent with valid details can complete full Eligibility check and appl
 
         cy.get('[id="ChildList[0].FirstName"]').type('Timmy');
         cy.get('[id="ChildList[0].LastName"]').type('Smith');
-        cy.get('[id="school-search-0"]').type('Hinde House 2-16 Academy');
+        cy.get('[id="ChildList[0].School"]').type('Hinde House 2-16 Academy');
 
         cy.get('#schoolList0')
             .should('be.visible')

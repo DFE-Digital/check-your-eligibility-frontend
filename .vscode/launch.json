@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "type": "coreclr",
+            "request": "launch",
+            "name": "Launch CheckYourEligibility-Parent",
+            "program": "${workspaceFolder}/CheckYourEligibility-Parent/bin/Debug/net8.0/CheckYourEligibility-Parent.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/CheckYourEligibility-Parent",
+            "stopAtEntry": false,
+            "preLaunchTask": "build",
+            "env": {
+                "ASPNETCORE_URLS": "https://localhost:5115"
+            }
+        }
+    ]
+}
