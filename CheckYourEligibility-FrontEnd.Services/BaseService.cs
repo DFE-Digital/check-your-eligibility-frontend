@@ -1,4 +1,5 @@
-﻿using CheckYourEligibility.Domain;
+﻿// using CheckYourEligibility.Domain;
+using CheckYourEligibility_FrontEnd.Services.Domain;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ namespace CheckYourEligibility_FrontEnd.Services
         private readonly HttpClient _httpClient;
         private readonly TelemetryClient _telemetry;
         protected readonly IConfiguration _configuration;
+        private DateTime _expiry;
 
         private static JwtAuthResponse _jwtAuthResponse;
 
@@ -34,28 +36,32 @@ namespace CheckYourEligibility_FrontEnd.Services
         public async Task Authorise()
         {
             var url = $"{_httpClient.BaseAddress}api/Login";
-            var requestBody = new SystemUser
-            {
-                Username = _configuration["Api:AuthorisationUsername"],
-                Password = _configuration["Api:AuthorisationPassword"]
-            };
 
             try
             {
-                if (_jwtAuthResponse == null || _jwtAuthResponse.Expires < DateTime.UtcNow)
+                if (_expiry == null || _expiry < DateTime.UtcNow)
                 {
-                    _jwtAuthResponse = await ApiDataPostAsynch(url, requestBody, new JwtAuthResponse());
+                    var formData = new SystemUser
+                    {
+                        client_id = _configuration["Api:AuthorisationUsername"],
+                        client_secret = _configuration["Api:AuthorisationPassword"]
+                    };
+
+                    _jwtAuthResponse = await ApiDataPostFormDataAsynch(url, formData, new JwtAuthResponse());
+                    _expiry = DateTime.UtcNow.AddSeconds(_jwtAuthResponse.expires_in);
                 }
 
-                _httpClient.DefaultRequestHeaders
-                .Add("Authorization", "Bearer " + _jwtAuthResponse.Token);
-
+                // Ensure we don't add duplicate headers
+                if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                {
+                    _httpClient.DefaultRequestHeaders.Remove("Authorization");
+                }
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _jwtAuthResponse.access_token);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{url} content:-{JsonConvert.SerializeObject(requestBody)}");
+                _logger.LogError(ex, $"Post Check failed. uri:-{_httpClient.BaseAddress}{url}");
             }
-
         }
 
         protected async Task<T2> ApiDataPostAsynch<T1, T2>(string address, T1 data, T2 result)
@@ -80,6 +86,46 @@ namespace CheckYourEligibility_FrontEnd.Services
                     throw new UnauthorizedAccessException();
                 }
                 await LogApiError(task, method, uri, json);
+            }
+
+            return result;
+        }
+
+        protected async Task<T2> ApiDataPostFormDataAsynch<T1, T2>(string address, T1 data, T2 result)
+        {
+            string uri = address;
+
+            // Convert object properties to dictionary
+            var properties = data.GetType().GetProperties();
+            var formData = new Dictionary<string, string>();
+
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(data)?.ToString();
+                if (value != null)
+                {
+                    formData.Add(prop.Name, value);
+                }
+            }
+
+            // Create form content from dictionary
+            HttpContent content = new FormUrlEncodedContent(formData);
+
+            var task = await _httpClient.PostAsync(uri, content);
+            if (task.IsSuccessStatusCode)
+            {
+                var jsonString = await task.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<T2>(jsonString);
+            }
+            else
+            {
+                var method = "POST";
+
+                if (task.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+                await LogApiError(task, method, uri, string.Join("&", formData.Select(kv => $"{kv.Key}={kv.Value}")));
             }
 
             return result;
@@ -138,7 +184,7 @@ namespace CheckYourEligibility_FrontEnd.Services
                         return default;
                     }
                 }
-                
+
             }
 
             return result;

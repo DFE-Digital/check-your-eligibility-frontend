@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "type": "coreclr",
+            "request": "launch",
+            "name": "Launch CheckYourEligibility-Admin",
+            "program": "${workspaceFolder}/CheckYourEligibility-Admin/bin/Debug/net8.0/CheckYourEligibility-Admin.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/CheckYourEligibility-Admin",
+            "stopAtEntry": false,
+            "preLaunchTask": "build",
+            "env": {
+                "ASPNETCORE_URLS": "https://localhost:7228"
+            }
+        }
+    ]
+}
