@@ -17,8 +17,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             _logger = logger.CreateLogger("EcsService");
             _httpClient = httpClient;
-            _FsmCheckUrl = "EligibilityCheck/FreeSchoolMeals"; 
-            _FsmCheckBulkUploadUrl = "EligibilityCheck/FreeSchoolMeals/bulk";
+            _FsmCheckUrl = "check/free-school-meals"; 
+            _FsmCheckBulkUploadUrl = "bulk-check/free-school-meals";
             
         }
 
@@ -41,12 +41,12 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/Status", new CheckEligibilityStatusResponse());
+                var response = await ApiDataGetAsynch($"{responseBody.Links.Get_EligibilityCheck}/status", new CheckEligibilityStatusResponse());
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Get Status failed. uri:-{_httpClient.BaseAddress}{responseBody.Links.Get_EligibilityCheck}/Status");
+                _logger.LogError(ex, $"Get Status failed. uri:-{_httpClient.BaseAddress}{responseBody.Links.Get_EligibilityCheck}/status");
             }
             return null;
         }
