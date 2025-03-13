@@ -183,7 +183,7 @@ describe("Conditional content on ApplicationDetailAppeal page", () => {
             cy.wait(100);
             cy.scanPagesForValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
-            cy.get('a.govuk-button').click();
+            cy.contains('a.govuk-button').click();
             cy.get('a.govuk-button--primary').click();
             cy.visit("/Application/AppealsApplications?PageNumber=0");
             cy.wait(1000);
@@ -249,7 +249,7 @@ describe("Condtional content on ApplicationDetail page", () => {
             cy.wait(1000);
             cy.get('#Status_EvidenceNeeded').check();
             cy.wait(100);
-            cy.get('button.govuk-button').click();
+            cy.contains('button.govuk-button', 'Apply filters').click();
             cy.wait(100);
             cy.scanPagesForNewValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");

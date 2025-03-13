@@ -74,7 +74,7 @@ describe('Full journey of creating an application through school portal through 
         })
 
         cy.get('h1').should('contain', `${parentFirstName} ${parentLastName}`);
-        cy.get('.govuk-button').click();
+        cy.contains('.govuk-button', 'Finalise application').click();
 
         cy.url().should('contain', 'ApplicationDetailAppealConfirmation');
         cy.get('p').should('include.text', 'Send this record to the local authority?');
@@ -147,7 +147,7 @@ describe('Full journey of creating an application through school portal through 
 
         cy.get('#Keyword').type(referenceNumber);
 
-        cy.get('button.govuk-button').click(); //Apply filters
+        cy.contains('button.govuk-button', 'Apply filters').click(); //Apply filters
         cy.url().should('include', 'Application/SearchResults');
 
         cy.get('h2').should('contain.text', 'Showing 1 results');
