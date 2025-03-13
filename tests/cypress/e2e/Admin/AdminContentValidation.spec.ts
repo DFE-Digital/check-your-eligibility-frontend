@@ -259,7 +259,7 @@ describe("Condtional content on ApplicationDetail page", () => {
             cy.wait(1000);
             cy.get('#Status_SentForReview').check();
             cy.wait(100);
-            cy.get('button.govuk-button', 'Apply filters').click();
+            cy.contains('button.govuk-button', 'Apply filters').click();
             cy.wait(100);
             cy.scanPagesForNewValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:").should('not.exist');

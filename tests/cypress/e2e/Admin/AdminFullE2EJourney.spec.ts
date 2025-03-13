@@ -74,7 +74,7 @@ describe('Full journey of creating an application through school portal through 
         })
 
         cy.get('h1').should('contain', `${parentFirstName} ${parentLastName}`);
-        cy.contains('.govuk-button', 'Finalise application').click();
+        cy.contains('.govuk-button', 'Send for review').click();
 
         cy.url().should('contain', 'ApplicationDetailAppealConfirmation');
         cy.get('p').should('include.text', 'Send this record to the local authority?');
