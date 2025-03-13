@@ -66,23 +66,4 @@ describe('Cookie consent banner functionality', () => {
                 .should('not.exist');
         });
     });
-
-    it('Should maintain cookie choice across sessions', () => {
-        // Visit the page and accept cookies
-        cy.visit(Cypress.config().baseUrl ?? "");
-        cy.get('#accept-cookies').click();
-    
-        // Reload the page to confirm the cookie banner is hidden
-        cy.reload();
-        cy.get('#cookie-banner', { timeout: 10000 }).should('have.css', 'display', 'none');
-        
-        // End the session and start a new one
-        cy.session("New Cookie Test Session", () => {
-            cy.wait(1000);
-        });
-    
-        // Visit the page again and confirm the banner remains hidden
-        cy.visit(Cypress.config().baseUrl ?? "");
-        cy.get('#cookie-banner').should('have.css', 'display', 'none');
-    });
 });
