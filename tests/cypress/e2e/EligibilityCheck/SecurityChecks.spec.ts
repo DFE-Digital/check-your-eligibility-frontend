@@ -33,6 +33,8 @@ describe('Clarity', () => {
 
         cy.get('#accept-cookies').click();
 
+        cy.wait(1000);
+        
         cy.get('body')
             .invoke('attr', 'data-clarity')
             .then(($clarity) => {
@@ -47,6 +49,8 @@ describe('Clarity', () => {
         cy.visit("/");
 
         cy.get('#accept-cookies').click();
+        
+        cy.wait(1000);
         
         cy.get('body')
             .invoke('attr', 'data-clarity')

@@ -78,7 +78,6 @@ describe('Cookie consent banner functionality', () => {
         
         // End the session and start a new one
         cy.session("New Cookie Test Session", () => {
-            cy.SignInSchool();
             cy.wait(1000);
         });
     
