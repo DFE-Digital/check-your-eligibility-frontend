@@ -116,7 +116,7 @@
                                     <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Keywords</h3>
                                     <ul class="moj-filter-tags">
                                         <li>
-                                            <a class="moj-filter__tag" href="@Context.Request.GetDisplayUrl().ToString().Replace($"&Keyword={Model.ApplicationSearch.Keyword}", "" ).Replace($"?Keyword={Model.ApplicationSearch.Keyword}&", "?" ).Replace($"?Keyword={Model.ApplicationSearch.Keyword}","")" src="\wwwroot\assets\images\icon-tag-remove-cross.svg">
+                                            <a class="moj-filter__tag" href="@Context.Request.GetDisplayUrl().ToString().Replace($"&Keyword={Model.ApplicationSearch.Keyword.Replace(" ", "+")}", "" ).Replace($"?Keyword={Model.ApplicationSearch.Keyword.Replace(" ", "+")}&", "?" ).Replace($"?Keyword={Model.ApplicationSearch.Keyword.Replace(" ", "+")}", "")" src="\wwwroot\assets\images\icon-tag-remove-cross.svg">
                                                 <span class="govuk-visually-hidden">Remove this filter</span>@Model.ApplicationSearch.Keyword
                                             </a>
                                         </li>
