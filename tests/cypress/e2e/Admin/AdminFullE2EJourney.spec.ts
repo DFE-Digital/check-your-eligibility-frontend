@@ -40,6 +40,8 @@ describe('Full journey of creating an application through school portal through 
         cy.get('[id="ChildList[0].Day"]').type('01');
         cy.get('[id="ChildList[0].Month"]').type('01');
         cy.get('[id="ChildList[0].Year"]').type('2007');
+        cy.contains('button', 'Add another child').click();
+        cy.contains('button', 'Remove Child 2').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.get('h1').should('include.text', 'Check your answers before submitting');
