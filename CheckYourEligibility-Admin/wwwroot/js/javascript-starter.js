@@ -3,6 +3,21 @@ document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prot
 import { initAll } from './govuk-frontend.min.js'
 initAll();
 
+function escapeHtml(unsafe) {
+    return unsafe.replace(/[&<>"'`=\/]/g, function (s) {
+        return {
+            '&': '&amp;',
+           '<': '&lt;',
+           '>': '&gt;',
+           '"': '&quot;',
+           "'": '&#39;',
+           '/': '&#x2F;',
+           '`': '&#x60;',
+           '=': '&#x3D;'
+       }[s];
+   });
+}
+
 function initializeClarity() {
     let clarityId = document.getElementsByTagName("body")[0].getAttribute("data-clarity");
     if (clarityId) {
@@ -12,7 +27,7 @@ function initializeClarity() {
             };
             t = l.createElement(r);
             t.async = 1;
-            t.src = "https://www.clarity.ms/tag/" + i;
+            t.src = "https://www.clarity.ms/tag/" + escapeHtml(i);
             y = l.getElementsByTagName(r)[0];
             y.parentNode.insertBefore(t, y);
         })(window, document, "clarity", "script", clarityId);
