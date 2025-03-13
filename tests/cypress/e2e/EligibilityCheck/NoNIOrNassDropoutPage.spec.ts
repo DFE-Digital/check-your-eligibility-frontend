@@ -7,7 +7,7 @@ describe('Parent or Guardian without an NI or NASS will be redirected to correct
 
         cy.contains('Start now').click()
         cy.get('input.govuk-radios__input[value="true"]').check();
-        cy.get('button.govuk-button').click();
+        cy.contains('Continue').click();
 
         cy.url().should('include', '/Check/Enter_Details');
 

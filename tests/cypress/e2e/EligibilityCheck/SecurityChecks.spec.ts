@@ -31,6 +31,10 @@ describe('Clarity', () => {
     it('Loads Clarity when it is enabled', () => {
         cy.visit("/");
 
+        cy.get('#accept-cookies').click();
+
+        cy.wait(1000);
+        
         cy.get('body')
             .invoke('attr', 'data-clarity')
             .then(($clarity) => {
@@ -44,6 +48,10 @@ describe('Clarity', () => {
     it('Does not Clarity when it is disabled', () => {
         cy.visit("/");
 
+        cy.get('#accept-cookies').click();
+        
+        cy.wait(1000);
+        
         cy.get('body')
             .invoke('attr', 'data-clarity')
             .then(($clarity) => {
