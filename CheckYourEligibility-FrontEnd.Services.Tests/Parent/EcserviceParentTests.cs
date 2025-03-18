@@ -30,6 +30,7 @@ namespace CheckYourEligibility_FrontEnd.Services.Tests.Parent
             _configMock.Setup(x => x["Api:AuthorisationUsername"]).Returns("SomeValue");
             _configMock.Setup(x => x["Api:AuthorisationPassword"]).Returns("SomeValue");
             _configMock.Setup(x => x["Api:AuthorisationEmail"]).Returns("SomeValue");
+            _configMock.Setup(x => x["Api:AuthorisationScope"]).Returns("SomeValue");
 
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object)
