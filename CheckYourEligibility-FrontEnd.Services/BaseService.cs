@@ -44,7 +44,8 @@ namespace CheckYourEligibility_FrontEnd.Services
                     var formData = new SystemUser
                     {
                         client_id = _configuration["Api:AuthorisationUsername"],
-                        client_secret = _configuration["Api:AuthorisationPassword"]
+                        client_secret = _configuration["Api:AuthorisationPassword"],
+                        scope = _configuration["Api:AuthorisationScope"]
                     };
 
                     _jwtAuthResponse = await ApiDataPostFormDataAsynch(url, formData, new JwtAuthResponse());
