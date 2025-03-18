@@ -2,64 +2,66 @@
     ViewData["Title"] = "May not be eligible";
 }
 
-@* <a class="govuk-back-link" href="/Back" onclick="history.back(); return false;">Back</a> *@
-<a class="govuk-back-link-nolink"></a>
+<div class="govuk-grid-column-full">
+    @* <a class="govuk-back-link" href="/Back" onclick="history.back(); return false;">Back</a> *@
+    <a class="govuk-back-link-nolink"></a>
 
-<div id="content" data-type="Not_Eligible" class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" data-govuk-notification-banner-init="">
-            <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">@ViewData["Title"]</h2>
+    <div id="content" data-type="Not_Eligible" class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" data-govuk-notification-banner-init="">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">@ViewData["Title"]</h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <p class="govuk-notification-banner__heading">
+                        Your children may not be eligible for free school meals.
+                    </p>
+                    <p class="govuk-body">From the information you’ve provided, we cannot confirm if your children are eligible for free school meals.</p>
+                </div>
             </div>
-            <div class="govuk-notification-banner__content">
-                <p class="govuk-notification-banner__heading">
-                    Your children may not be eligible for free school meals.
-                </p>
-                <p class="govuk-body">From the information you’ve provided, we cannot confirm if your children are eligible for free school meals.</p>
-            </div>
+
+            <h1 class="govuk-heading-l">If you think your children are eligible</h1>
+            <p>If you think that they are eligible, you'll need to find supporting evidence.</p>
+
+            <ol>
+                <li>Find supporting evidence.</li>
+                <li>Contact your childrens school(s) and send them the evidence.</li>
+                <li>The school(s) will work with your local authority to review your free school meal eligibility, then let you know the result.</li>
+            </ol>
+
+            <details class="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                        Complete list of acceptable evidence
+                    </span>
+                </summary>
+                <div class="govuk-details__text">
+                    <p>To support your claim for free school meals, you can send:</p>
+                    <ul>
+                        <li>up to three of your latest Universal Credit statements </li>
+                        <li>
+                            your latest tax credit statement form TC602A (Award Notices) or TC603R (Auto Renewal), showing you are receiving Working Tax Credit run-on
+                        </li>
+                        <li>
+                            your latest tax credit statement form TC602A (Award Notices) or TC603R (Auto Renewal), showing you are receiving Child Tax Credit
+                        </li>
+                        <li>
+                            a letter of Entitlement for Income Support
+                        </li>
+                        <li>
+                            a letter of Entitlement for income-based Jobseeker’s Allowance
+                        </li>
+                        <li>
+                            a letter of Entitlement for the guaranteed element of Pension Credit
+                        </li>
+                        <li>documents showing you are receiving relevant support under part VI of the Immigration and Asylum Act 1999 </li>
+                    </ul>
+                </div>
+            </details>
+
+            <h2 class="govuk-heading-m">Further guidance</h2>
+            <p>More in-depth information on supporting evidence can be found in <a href="/Home/Parental_Guidance" class="govuk-link">the guidance notes for parents and guardians.</a></p>
+            <p><a href="/Home/Index">Return to start</a></p>
         </div>
-
-        <h1 class="govuk-heading-l">If you think your children are eligible</h1>
-        <p>If you think that they are eligible, you'll need to find supporting evidence.</p>
-
-        <ol>
-            <li>Find supporting evidence.</li>
-            <li>Contact your childrens school(s) and send them the evidence.</li>
-            <li>The school(s) will work with your local authority to review your free school meal eligibility, then let you know the result.</li>
-        </ol>
-
-        <details class="govuk-details">
-            <summary class="govuk-details__summary">
-                <span class="govuk-details__summary-text">
-                    Complete list of acceptable evidence
-                </span>
-            </summary>
-            <div class="govuk-details__text">
-                <p>To support your claim for free school meals, you can send:</p>
-                <ul>
-                    <li>up to three of your latest Universal Credit statements </li>
-                    <li>
-                        your latest tax credit statement form TC602A (Award Notices) or TC603R (Auto Renewal), showing you are receiving Working Tax Credit run-on
-                    </li>
-                    <li>
-                        your latest tax credit statement form TC602A (Award Notices) or TC603R (Auto Renewal), showing you are receiving Child Tax Credit
-                    </li>
-                    <li>
-                        a letter of Entitlement for Income Support
-                    </li>
-                    <li>
-                        a letter of Entitlement for income-based Jobseeker’s Allowance
-                    </li>
-                    <li>
-                        a letter of Entitlement for the guaranteed element of Pension Credit
-                    </li>
-                    <li>documents showing you are receiving relevant support under part VI of the Immigration and Asylum Act 1999 </li>
-                </ul>
-            </div>
-        </details>
-
-        <h2 class="govuk-heading-m">Further guidance</h2>
-        <p>More in-depth information on supporting evidence can be found in <a href="/Home/Parental_Guidance" class="govuk-link">the guidance notes for parents and guardians.</a></p>
-        <p><a href="/Home/Index">Return to start</a></p>
     </div>
 </div>
