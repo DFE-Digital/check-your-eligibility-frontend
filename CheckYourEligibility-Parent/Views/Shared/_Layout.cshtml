@@ -104,6 +104,12 @@
                         @RenderBody()
                     </div>
                 }
+                else if (ViewData["Layout"] != null && ViewData["Layout"].ToString() == "one_half")
+                {
+                    <div class="govuk-grid-column-one-half">
+                        @RenderBody()
+                    </div>
+                }
                 else //Default - ViewData["Layout"].ToString() == "full"
                 {
                     <div class="govuk-grid-column-full">
