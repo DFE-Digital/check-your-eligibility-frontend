@@ -14,8 +14,8 @@
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "parentE2e:electron": "cypress run --browser electron --spec 'cypress/e2e/EligibilityCheck'",
-    "adminE2e:electron": "cypress run --browser electron --spec 'cypress/e2e/Admin'",
+    "parentE2e:electron": "cypress run --browser electron --parallel --spec 'cypress/e2e/EligibilityCheck'",
+    "adminE2e:electron": "cypress run --browser electron --parallel --spec 'cypress/e2e/Admin'",
     "combine:reports": "jrm results/combined-report.xml \"results/*.xml\""
   }
 }
