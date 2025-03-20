@@ -113,18 +113,7 @@
                 </div>
             }
             <div class="govuk-grid-row">
-                @if (ViewData["Layout"] != null && ViewData["Layout"].ToString() == "two_thirds")
-                {
-                    <div class="govuk-grid-column-two-thirds">
-                        @RenderBody()
-                    </div>
-                }
-                else //Default - ViewData["Layout"].ToString() == "full"
-                {
-                    <div class="govuk-grid-column-full">
-                        @RenderBody()
-                    </div>
-                }
+                @RenderBody()
             </div>
         </main>
     </div>
