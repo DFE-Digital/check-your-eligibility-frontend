@@ -70,7 +70,7 @@ describe('Full journey of creating an application through school portal through 
 
             cy.contains('Process appeals').click();
 
-            cy.scanPagesForValue(referenceNumber);
+            cy.scanPagesForNewValue(referenceNumber);
 
             cy.contains(referenceNumber).click();
         })
