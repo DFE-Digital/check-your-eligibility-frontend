@@ -1,19 +1,20 @@
 ﻿@{
     ViewData["Title"] = "Finalise these applications?";
-    ViewData["Layout"] = "two_thirds";
 }
 
-@* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a> *@
-<a class="govuk-back-link-nolink"></a>
+<div class="govuk-grid-column-two-thirds">
+    @* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a> *@
+    <a class="govuk-back-link-nolink"></a>
 
-<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
-<div class="govuk-warning-text">
-    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-    <strong class="govuk-warning-text__text">
-        <span class="govuk-visually-hidden">Warning</span>
-        Applications should only be finalised after you've added the details to your own system.
-    </strong>
+    <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
+    <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">Warning</span>
+            Applications should only be finalised after you've added the details to your own system.
+        </strong>
+    </div>
+
+    @Html.ActionLink("Yes, finalise now", "ApplicationFinaliseSend", "application", null, new { @class = "govuk-button govuk-button--primary" })
+    @Html.ActionLink("No, return to table", "FinaliseApplications", "application", null, new { @class = "govuk-button govuk-button--secondary" })
 </div>
-
-@Html.ActionLink("Yes, finalise now", "ApplicationFinaliseSend", "application", null, new { @class = "govuk-button govuk-button--primary" })
-@Html.ActionLink("No, return to table", "FinaliseApplications", "application", null, new { @class = "govuk-button govuk-button--secondary" })
