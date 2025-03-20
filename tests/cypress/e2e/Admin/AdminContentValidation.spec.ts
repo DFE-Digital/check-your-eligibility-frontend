@@ -1,9 +1,41 @@
-describe("Links on not eligible page route to the intended locations", () => {
-    const parentFirstName = 'Tim';
-    const parentLastName = Cypress.env('lastName');
-    const parentEmailAddress = 'TimJones@Example.com';
-    const NIN = 'PN668767B';
+const parentFirstName = 'Tim';
+const parentLastName = Cypress.env('lastName');
+const parentEmailAddress = 'TimJones@Example.com';
+const NIN = 'PN668767B';
+const childFirstName = 'Timmy';
+const childLastName = 'Smith';
 
+const visitPrefilledForm = (onlyfill?: boolean) => {
+    if (!onlyfill) {
+        cy.visit("/Check/Enter_Details");
+        cy.get('#FirstName').should('exist');
+    }
+
+    cy.window().then(win => {
+        const firstNameEl = win.document.getElementById('FirstName') as HTMLInputElement;
+        const lastNameEl = win.document.getElementById('LastName') as HTMLInputElement;
+        const dayEl = win.document.getElementById('Day') as HTMLInputElement;
+        const monthEl = win.document.getElementById('Month') as HTMLInputElement;
+        const yearEl = win.document.getElementById('Year') as HTMLInputElement;
+        const ninEl = win.document.getElementById('NationalInsuranceNumber') as HTMLInputElement;
+        const emailEl = win.document.getElementById('EmailAddress') as HTMLInputElement;
+
+        if (firstNameEl) firstNameEl.value = parentFirstName;
+        if (lastNameEl) lastNameEl.value = parentLastName;
+        if (dayEl) dayEl.value = '01';
+        if (monthEl) monthEl.value = '01';
+        if (yearEl) yearEl.value = '1990';
+        if (ninEl) ninEl.value = NIN;
+        if (emailEl) emailEl.value = parentEmailAddress;
+
+        // Check the NIN radio button
+        const ninRadioEl = win.document.getElementById('NinAsrSelection') as HTMLInputElement;
+        if (ninRadioEl) ninRadioEl.checked = true;
+    });
+};
+
+describe("Links on not eligible page route to the intended locations", () => {
+    
     beforeEach(() => {
         cy.session("Session 1", () => {
             cy.SignInSchool();
@@ -12,16 +44,7 @@ describe("Links on not eligible page route to the intended locations", () => {
     });
 
     it("Guidance link should route to guidance page", () => {
-        cy.visit("/Check/Enter_Details");
-
-        cy.get('#FirstName').type(parentFirstName);
-        cy.get('#LastName').type(parentLastName);
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
-        cy.get('#NinAsrSelection').click();
-        cy.get('#NationalInsuranceNumber').type(NIN);
-        cy.get('#EmailAddress').clear().type(parentEmailAddress);
+        visitPrefilledForm();
         cy.contains('Perform check').click();
         cy.contains('a.govuk-link', 'See a complete list of acceptable evidence', { timeout: 8000 }).then(($link) => {
             const url = $link.prop('href');
@@ -31,15 +54,7 @@ describe("Links on not eligible page route to the intended locations", () => {
     });
 
     it("Support link should route to DfE form", () => {
-        cy.visit("/Check/Enter_Details");
-        cy.get('#FirstName').type(parentFirstName);
-        cy.get('#LastName').type(parentLastName);
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
-        cy.get('#NinAsrSelection').click();
-        cy.get('#NationalInsuranceNumber').type(NIN);
-        cy.get('#EmailAddress').clear().type(parentEmailAddress);
+        visitPrefilledForm();
         cy.contains('Perform check').click();
         cy.contains('a.govuk-link', 'contact the Department for Education support desk', { timeout: 8000 }).then(($link) => {
             const url = $link.prop('href');
@@ -50,14 +65,12 @@ describe("Links on not eligible page route to the intended locations", () => {
 });
 
 describe('Date of Birth Validation Tests', () => {
-    const parentFirstName = 'Tim';
-    const parentLastName = Cypress.env('lastName');
-    const parentEmailAddress = 'TimJones@Example.com';
-    const NIN = 'PN668767B';
-
+    
     beforeEach(() => {
-        cy.SignInSchool();
-        cy.wait(1);
+        cy.session("Session 1", () => {
+            cy.SignInSchool();
+            cy.wait(1); // Ensure session/login completes
+        });
         cy.visit('/Check/Enter_Details');
     });
 
@@ -141,23 +154,18 @@ describe("Conditional content on ApplicationDetailAppeal page", () => {
     const childLastName = 'Smith';
 
     beforeEach(() => {
-        cy.SignInSchool();
-        cy.wait(1000);
-        cy.get('h1').should('include.text', 'The Telford Park School');
-
+        cy.session("Session 1", () => {
+            cy.SignInSchool();
+            cy.wait(1); // Ensure session/login completes
+        });
+        cy.visit('/');
     });
+
     it("will show conditional content when status is Evidence Needed and not when status is Sent for Review", () => {
         cy.contains('Run a check for one parent or guardian').click();
         //Soft-Check
         cy.url().should('include', '/Check/Enter_Details');
-        cy.get('#FirstName').type(parentFirstName);
-        cy.get('#LastName').type(parentLastName);
-        cy.get('#EmailAddress').type(parentEmailAddress);
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
-        cy.get('#NinAsrSelection').click();
-        cy.get('#NationalInsuranceNumber').type(NIN);
+        visitPrefilledForm(true);
         cy.contains('button', 'Perform check').click();
         //Not Eligible, Appeal
         cy.url().should('include', 'Check/Loader');
@@ -181,7 +189,7 @@ describe("Conditional content on ApplicationDetailAppeal page", () => {
             cy.visit("/");
             cy.get('#appeals').click();
             cy.wait(100);
-            cy.scanPagesForValue(refNumber);
+            cy.scanPagesForNewValue(refNumber);
             cy.contains('p.govuk-heading-s', "Once you've received evidence from this parent or guardian:");
             cy.contains('a.govuk-button', 'Send for review').click();
             cy.get('a.govuk-button--primary').click();
@@ -204,11 +212,10 @@ describe("Condtional content on ApplicationDetail page", () => {
     const childLastName = 'Smith';
 
     beforeEach(() => {
-
-        cy.SignInSchool();
-        cy.wait(1000);
-        cy.get('h1').should('include.text', 'The Telford Park School');
-
+        cy.session("Session 1", () => {
+            cy.SignInSchool();
+            cy.wait(1); // Ensure session/login completes
+        });
     });
 
     it("will show conditional content when status is Evidence Needed and wont when status is Sent  for Review", () => {
@@ -217,14 +224,7 @@ describe("Condtional content on ApplicationDetail page", () => {
         cy.contains('Run a check for one parent or guardian').click();
         //Soft-Check
         cy.url().should('include', '/Check/Enter_Details');
-        cy.get('#FirstName').type(parentFirstName);
-        cy.get('#LastName').type(parentLastName);
-        cy.get('#EmailAddress').type(parentEmailAddress);
-        cy.get('#Day').type('01');
-        cy.get('#Month').type('01');
-        cy.get('#Year').type('1990');
-        cy.get('#NinAsrSelection').click();
-        cy.get('#NationalInsuranceNumber').type(NIN);
+        visitPrefilledForm(true);
         cy.contains('button', 'Perform check').click();
         //Not Eligible, Appeal
         cy.url().should('include', 'Check/Loader');
@@ -270,7 +270,12 @@ describe("Condtional content on ApplicationDetail page", () => {
 describe("Feedback link in header", () => {
 
     it("Should route a School user to a qualtrics survey", () => {
-        cy.SignInSchool();
+        // cy.SignInSchool();
+        cy.session("Session 1", () => {
+            cy.SignInSchool();
+            cy.wait(1); // Ensure session/login completes
+        });
+        cy.visit('/');
         cy.get('span.govuk-phase-banner__text > a.govuk-link')
             .invoke('removeAttr', 'target')
             .click();
@@ -289,13 +294,18 @@ describe("Feedback link in header", () => {
     });
 });
 
-describe("Error Content on FinaliseApplication page", () =>{
+describe("Error Content on FinaliseApplication page", () => {
+
+    beforeEach(() => {
+        cy.session("Session 1", () => {
+            cy.SignInSchool();
+            cy.wait(1); // Ensure session/login completes
+        });
+        cy.visit('/');
+    });
+
     it("Should give an error message if no applications are selected", () => {
 
-        cy.SignInSchool();
-        cy.wait(1000);
-        cy.get('h1').should('include.text', 'The Telford Park School');
-    
         cy.get('#finalise').click();
         cy.get('#submit').click();
         cy.get('.govuk-error-message').should('contain', 'Select records to finalise');

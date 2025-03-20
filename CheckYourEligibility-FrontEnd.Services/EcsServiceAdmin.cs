@@ -26,7 +26,8 @@ namespace CheckYourEligibility_FrontEnd.Services
         {
             try
             {
-                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_ApplicationUrl}/{id}", new ApplicationItemResponse());
+                // TODO: Check the first slash part of the _ApplicationUrl
+                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress?.OriginalString}{_ApplicationUrl}/{id}", new ApplicationItemResponse());
                 return response;
             }
             catch (Exception ex)

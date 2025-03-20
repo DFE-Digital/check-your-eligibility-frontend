@@ -7,14 +7,13 @@ using System.Text.RegularExpressions;
 
 public class EmailAddressAttribute : ValidationAttribute
 {
-    
 
-    private const string LocalPartPattern = @"^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$";
-    private const string DomainPartPattern = @"^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,63}$";
+    private const string LocalPartPattern = @"^[a-zA-Z0-9._'+-]+$";
+    private const string DomainPartPattern = @"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$";
 
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        // skip this validation if this is for searching application recordsS
+        // skip this validation if this is for searching application records
         var parentObject = validationContext.ObjectInstance.GetType().GetProperty(validationContext.MemberName)?.DeclaringType;
 
         if (parentObject == typeof(ApplicationSearch))
@@ -47,21 +46,70 @@ public class EmailAddressAttribute : ValidationAttribute
         string localPart = valueAsString.Substring(0, index);
         string domainPart = valueAsString.Substring(index + 1);
 
-        if (!IsValidLocalPart(localPart) || !IsValidDomainPart(domainPart))
+        if (localPart.Length > 64 || domainPart.Length > 255)
         {
             return new ValidationResult("Enter an email address in the correct format, like name@example.com");
         }
 
+        if (!IsValidLocalPart(localPart) || !IsValidDomainPart(domainPart))
+        {
+            if (ContainsUnicodeCharacters(domainPart))
+            {
+                if (!IsValidInternationalizedDomainPart(domainPart))
+                {
+                    return new ValidationResult("Enter an email address in the correct format, like name@example.com");
+                }
+            }
+            else
+            {
+                return new ValidationResult("Enter an email address in the correct format, like name@example.com");
+            }
+        }
         return ValidationResult.Success;
     }
 
     private bool IsValidLocalPart(string localPart)
     {
-        return Regex.IsMatch(localPart, LocalPartPattern);
+        if (!Regex.IsMatch(localPart, LocalPartPattern))
+            return false;
+
+        if (localPart.StartsWith(".") || localPart.EndsWith("."))
+            return false;
+
+        return true;
     }
 
     private bool IsValidDomainPart(string domainPart)
     {
-        return Regex.IsMatch(domainPart, DomainPartPattern);
+        if (!Regex.IsMatch(domainPart, DomainPartPattern))
+            return false;
+
+        if (domainPart.StartsWith(".") || domainPart.StartsWith("-") ||
+            domainPart.EndsWith(".") || domainPart.EndsWith("-"))
+            return false;
+
+        return true;
     }
+
+    private bool ContainsUnicodeCharacters(string text)
+    {
+        return text.Any(c => c > 127);
+    }
+
+    private bool IsValidInternationalizedDomainPart(string domainPart)
+    {
+        if (!domainPart.Contains("."))
+            return false;
+
+        if (domainPart.StartsWith(".") || domainPart.StartsWith("-") ||
+            domainPart.EndsWith(".") || domainPart.EndsWith("-"))
+            return false;
+
+        // Check for consecutive dots
+        if (domainPart.Contains(".."))
+            return false;
+
+        return true;
+    }
+
 }
