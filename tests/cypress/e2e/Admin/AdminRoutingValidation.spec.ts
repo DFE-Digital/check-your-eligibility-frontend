@@ -12,9 +12,9 @@ describe('Eligible and Not Eligible responses in LA and School portal will route
         cy.visit(Cypress.config().baseUrl ?? "");
         cy.wait(1);
         cy.get('h1').should('include.text', 'The Telford Park School');
-
         cy.contains('Run a check for one parent or guardian').click();
-
+        cy.get('#consent').check();
+        cy.get('#submitButton').click();
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
         cy.get('#LastName').type(parentLastName);
@@ -33,6 +33,8 @@ describe('Eligible and Not Eligible responses in LA and School portal will route
         cy.wait(1);
         cy.get('h1').should('include.text', 'The Telford Park School');
         cy.contains('Run a check for one parent or guardian').click();
+        cy.get('#consent').check();
+        cy.get('#submitButton').click();
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
         cy.get('#LastName').type(parentLastName);

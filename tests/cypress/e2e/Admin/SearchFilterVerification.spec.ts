@@ -27,6 +27,8 @@ describe('Keyword search validation', () => {
     // cy.get('h1').should('include.text', 'The Telford Park School');
 
     cy.contains('Run a check for one parent or guardian').click();
+    cy.get('#consent').check();
+    cy.get('#submitButton').click();
 
     cy.url().should('include', '/Check/Enter_Details');
     cy.get('#FirstName').type(parentFirstName);
