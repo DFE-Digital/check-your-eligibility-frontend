@@ -163,6 +163,9 @@ describe("Conditional content on ApplicationDetailAppeal page", () => {
 
     it("will show conditional content when status is Evidence Needed and not when status is Sent for Review", () => {
         cy.contains('Run a check for one parent or guardian').click();
+        cy.get('#consent').check();
+        cy.get('#submitButton').click();
+
         //Soft-Check
         cy.url().should('include', '/Check/Enter_Details');
         visitPrefilledForm(true);
@@ -222,6 +225,9 @@ describe("Condtional content on ApplicationDetail page", () => {
 
         cy.visit("/");
         cy.contains('Run a check for one parent or guardian').click();
+        cy.get('#consent').check();
+        cy.get('#submitButton').click();
+
         //Soft-Check
         cy.url().should('include', '/Check/Enter_Details');
         visitPrefilledForm(true);
