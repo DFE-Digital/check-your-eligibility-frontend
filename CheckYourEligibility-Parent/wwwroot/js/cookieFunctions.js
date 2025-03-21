@@ -20,27 +20,54 @@ function initializeClarity() {
 }
 
 function initCookieConsent() {
+    console.log("in innitCookieConsent");
     const hasChoice = cookie.read("cookie");
-    if (hasChoice==="true") {
+    if (hasChoice !== null) {
         initializeClarity();
-    }
-    
-    else if (hasChoice !== "false") {
+        document.getElementById('cookie-banner').style.display = 'none';
+        console.log("in innitCookieConsent - hasChoice not equal null");
+
+    } else {
         document.getElementById('cookie-banner').style.display = 'block';
+        console.log("in innitCookieConsent - hasChoice else");
     }
-    
-    console.log(hasChoice);
 }
 
-document.getElementById('accept-cookies').onclick = function() {
+document.getElementById('accept-cookies').onclick = function () {
     cookie.create("cookie", "true", 365);
     document.getElementById('cookie-banner').style.display = 'none';
     initializeClarity();
 };
-document.getElementById('reject-cookies').onclick = function() {
+document.getElementById('reject-cookies').onclick = function () {
     cookie.create("cookie", "false", 365);
     document.getElementById('cookie-banner').style.display = 'none';
 };
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cookieForm = document.getElementById('cookie-form');
+    if (cookieForm) {
+
+        const hasChoice = cookie.read("cookie");
+        if (hasChoice === "true") {
+            document.getElementById('cookies-analytics-yes').checked = true;
+        } else if (hasChoice === "false") {
+            document.getElementById('cookies-analytics-no').checked = true;
+        }
+
+        cookieForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const analyticsCookies = document.querySelector('input[name="cookies[analytics]"]:checked').value;
+            if (analyticsCookies) {
+                cookie.create("cookie", "true", 365);
+                initializeClarity();
+
+            } else {
+                cookie.create("cookie", "false", 365);
+            }
+            document.getElementById('cookie-banner').style.display = 'none';
+        });
+    }
+});
 
 var cookie = {
     create: function (name, value, days) {

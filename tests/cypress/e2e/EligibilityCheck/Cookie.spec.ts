@@ -40,11 +40,56 @@ describe('Cookie consent banner functionality', () => {
         cy.get('#cookie-banner').should('have.css', 'display', 'none');
     });
 
+    it('Should hide banner and set cookie when accepting analytics from the cookies page option', () => {
+        cy.visit('/');
+        cy.get('h1').should('include.text', 'Check if your children can get free school meals');
+        cy.contains('Start now').click()
+        cy.get('.govuk-footer__link[href="/Home/Cookies"]').click();
+        
+        // Select yes radio button and submit using Continue button then verify display state
+        cy.get('#cookies-analytics-yes').click();
+        cy.get('button.govuk-button').contains('Save cookie settings').click();
+
+        cy.get('#cookie-banner').should('have.css', 'display', 'none');
+        
+        // Verify banner stays hidden on next visit
+        cy.reload();
+        cy.get('#cookie-banner').should('have.css', 'display', 'none');
+    });
+
+    it('Should hide banner and set cookie when rejecting analytics from the cookies page option', () => {
+        cy.visit('/');
+        cy.get('h1').should('include.text', 'Check if your children can get free school meals');
+        cy.contains('Start now').click()
+        cy.get('.govuk-footer__link[href="/Home/Cookies"]').click();
+        
+        // Select no radio button and submit using Continue button then verify display state
+        cy.get('#cookies-analytics-no').click();
+        cy.get('button.govuk-button').contains('Save cookie settings').click();
+
+        cy.get('#cookie-banner').should('have.css', 'display', 'none');
+        
+        // Verify banner stays hidden on next visit
+        cy.reload();
+        cy.get('#cookie-banner').should('have.css', 'display', 'none');
+    });
+
     it('Should initialize Clarity when analytics are accepted', () => {
         cy.visit(Cypress.config().baseUrl ?? "");
     
         // Accept cookies
         cy.get('#accept-cookies').click();
+        cy.wait(1000);
+
+        // Verify Clarity script is added
+        cy.get('body')
+            .invoke('attr', 'data-clarity')
+            .then(($clarity) => {
+                    if($clarity) {
+                        cy.get('head script[src*="clarity"]');
+                    }
+                }
+            );
     });
 
     it('Should remove Clarity cookies when analytics are rejected', () => {
