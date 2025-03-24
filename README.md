@@ -6,7 +6,7 @@ This is a .NET 8 project - you'll need the latest .NET SDK etc to run it locally
 
 ### Config
 When you first clone the repo, you'll want to define your own config. You'll want to copy up the
-file [appsettings.json](CheckYourEligibility-Parent/appsettings.json), name the copy `appsettings.Developmnent.json`
+file [appsettings.json](CheckYourEligibility.FrontEnd/appsettings.json), name the copy `appsettings.Developmnent.json`
 in the same folder. Update the values in this new file as needed. This file should not be committed, nor will it with our .gitignore.
 
 ## How to run tests
@@ -15,7 +15,7 @@ We have two test-suites - one .NET NUnit for unit tests and one Cypress for inte
 ### .NET
 VisualStudio does most of this for you, there'll be a button in your UI. Correctly set up Rider too.
 `
-cd CheckYourEligibility-Parent.Tests
+cd CheckYourEligibility.FrontEnd.Tests
 dotnet test
 `
 

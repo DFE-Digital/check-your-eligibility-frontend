@@ -37,7 +37,7 @@ stages:
             inputs:
               platform: '$(buildPlatform)'
               configuration: '$(buildConfiguration)'
-              runSettingsFile: 'CheckYourEligibility-Parent.Tests/.runsettings'
+              runSettingsFile: 'CheckYourEligibility.FrontEnd.Tests/.runsettings'
               resultsFolder: '$(build.ArtifactStagingDirectory)/Test/Results'
               otherConsoleOptions: '/collect:"Code Coverage;Format=Cobertura"'  # <<<< this is the important bit
               codeCoverageEnabled: True
@@ -63,7 +63,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'checkYourEligibility-Parent'
+              artifactName: 'checkYourEligibilityFrontEnd'
 
   - stage: DeployAppCypress
     displayName: Deploy App Cypress
@@ -90,19 +90,19 @@ stages:
                     azureSubscription: 's203d.azdo.deployment'
                     appType: 'webApp'
                     WebAppName: 'ece-dev-as-cypress'
-                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/CheckYourEligibility.FrontEnd.zip'
                 - task: Bash@3
                   inputs:
                     targetType: inline
                     script: |
-                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      cd $(Pipeline.Workspace)/checkYourEligibilityFrontEnd/tests
                       npm install
                 - task: Bash@3
                   displayName: 'RunTests'
                   inputs:
                     targetType: inline
                     script: |
-                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      cd $(Pipeline.Workspace)/checkYourEligibilityFrontEnd/tests
                       export CYPRESS_BASE_URL="$(CYPRESS_BASE_URL_CYPRESS)"
                       export CYPRESS_AUTHORIZATION_HEADER="$(AUTHORIZATION_HEADER)"
                       export CYPRESS_AUTH_USERNAME="$(AUTH_USERNAME)"
@@ -116,17 +116,17 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      cd $(Pipeline.Workspace)/checkYourEligibility-Parent/tests
+                      cd $(Pipeline.Workspace)/checkYourEligibilityFrontEnd/tests
                       npm run combine:reports
                 - task: PublishBuildArtifacts@1
                   displayName: 'Publish Cypress Screenshot Files'
                   condition: failed()
                   inputs:
-                    PathtoPublish: '$(Pipeline.Workspace)/checkYourEligibility-Parent/tests/cypress/screenshots/'
+                    PathtoPublish: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/tests/cypress/screenshots/'
                     ArtifactName: 'screenshots'
                 - task: PublishTestResults@2
                   condition: always()
                   displayName: 'Publish test results'
                   inputs:
                     testResultsFiles: '**/combined-report.xml'
-                    searchFolder: '$(Pipeline.Workspace)/checkYourEligibility-Parent/tests'
+                    searchFolder: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/tests'
