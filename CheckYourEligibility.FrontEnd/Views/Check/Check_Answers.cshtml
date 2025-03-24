@@ -1,0 +1,167 @@
+﻿@using System.Globalization
+@model CheckYourEligibility.FrontEnd.Models.FsmApplication;
+
+@{
+    ViewData["Title"] = "Check your answers before sending";
+    DateTime parentDOB = DateTime.ParseExact(Model.ParentDateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    string formattedParentDOB = parentDOB.ToString("dd/MM/yyyy");
+}
+
+<div class="govuk-grid-column-two-thirds">
+    @* <a class="govuk-back-link" href="#" onclick="history.back(); return false;">Back</a> *@
+    <a class="govuk-back-link-nolink"></a>
+
+    <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
+
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+                Parent or guardian details
+            </h2>
+
+        </div>
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.ParentFirstName @Model.ParentLastName
+                    </dd>
+
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Date of birth
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @formattedParentDOB
+                    </dd>
+
+                </div>
+
+                @if (Model.ParentNino == null)
+                {
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Asylum support reference number
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.ParentNass
+                        </dd>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            National Insurance number
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.ParentNino
+                        </dd>
+
+                    </div>
+                }
+
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Email address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.Email
+                    </dd>
+
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- iterate child list and display data -->
+    @for (var i = 0; i < Model.Children.ChildList.Count; i++)
+    {
+        var child = Model.Children.ChildList[i];
+        string formattedChildDob = $"{child.Day.PadLeft(2, '0')}/{child.Month.PadLeft(2, '0')}/{child.Year}";
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Child @(@i + 1)
+                </h2>
+                <ul class="govuk-summary-card__actions">
+                    <li class="govuk-summary-card__action">
+                        @Html.ActionLink("Change", "ChangeChildDetails", new { child = i })
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.Children.ChildList[i].FirstName @Model.Children.ChildList[i].LastName
+                        </dd>
+
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            School
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.Children.ChildList[i].School.Name, @Model.Children.ChildList[i].School.Postcode, @Model.Children.ChildList[i].School.LA
+                        </dd>
+
+                    </div>
+
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Date of birth
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @formattedChildDob
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    }
+
+    <h2 class="govuk-heading-m">Confirm details and send to the school</h2>
+
+    <p class="govuk-body">By sending this information on to the school you confirm that, to the best of your knowledge, it is correct.</p>
+    <p>Your details are only used to apply for free school meals and will not be stored.</p>
+
+    <form asp-action="Check_Answers" asp-controller="Check" method="post" novalidate="">
+        <!-- Parent Details -->
+        <input type="hidden" asp-for="ParentFirstName" value="@Model.ParentFirstName" />
+        <input type="hidden" asp-for="ParentLastName" value="@Model.ParentLastName" />
+        <input type="hidden" asp-for="ParentNino" value="@Model.ParentNino" />
+        <input type="hidden" asp-for="ParentNass" value="@Model.ParentNass" />
+        <input type="hidden" asp-for="ParentDateOfBirth" value="@Model.ParentDateOfBirth" />
+
+        <!-- Child details -->
+        @for (var i = 0; i < Model.Children.ChildList.Count; i++)
+        {
+            <input type="hidden" asp-for="Children.ChildList[i].FirstName" />
+            <input type="hidden" asp-for="Children.ChildList[i].LastName" />
+            <input type="hidden" asp-for="Children.ChildList[i].Day" />
+            <input type="hidden" asp-for="Children.ChildList[i].Month" />
+            <input type="hidden" asp-for="Children.ChildList[i].Year" />
+            <input type="hidden" asp-for="Children.ChildList[i].School.URN" />
+            <input type="hidden" asp-for="Children.ChildList[i].School.Name" />
+            <input type="hidden" asp-for="Children.ChildList[i].School.LA" />
+        }
+
+        <button type="submit" class="govuk-button govuk-!-margin-top-5" data-module="govuk-button">
+            Send to the school
+        </button>
+    </form>
+</div>
+
+<script src="/js/validationSummary.js"></script>
