@@ -39,7 +39,7 @@ stages:
             inputs:
               platform: '$(buildPlatform)'
               configuration: '$(buildConfiguration)'
-              runSettingsFile: 'CheckYourEligibility-Parent.Tests/.runsettings'
+              runSettingsFile: 'CheckYourEligibility.FrontEnd.Tests/.runsettings'
               resultsFolder: '$(build.ArtifactStagingDirectory)/Test/Results'
               otherConsoleOptions: '/collect:"Code Coverage;Format=Cobertura"'  # <<<< this is the important bit
               codeCoverageEnabled: True
@@ -59,7 +59,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'checkYourEligibility-Parent'
+              artifactName: 'checkYourEligibilityFrontEnd'
 
   - stage: DeployAppDev
     displayName: Deploy App Dev
@@ -86,7 +86,7 @@ stages:
                 azureSubscription: 's203d.azdo.deployment'
                 appType: 'webApp'
                 WebAppName: 'ece-dev-as-frontend'
-                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/CheckYourEligibility.FrontEnd.zip'
   - stage: RunCypressTestsDevEnv
     displayName: Run Cypress Tests On Dev Env
     jobs:
@@ -160,7 +160,7 @@ stages:
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
                 WebAppName: 'ece-test-as-frontend'
-                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/CheckYourEligibility.FrontEnd.zip'
   - stage: RunCypressTestsTestEnv
     displayName: Run Cypress Tests On Test Env
     jobs:
@@ -235,7 +235,7 @@ stages:
                 azureSubscription: 's203t.azdo.deployment'
                 appType: 'webApp'
                 WebAppName: 'ece-pp-as-frontend'
-                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/CheckYourEligibility.FrontEnd.zip'
 
   - stage: RunCypressTestsPpEnv
     displayName: Run Cypress Tests On Pre-Prod Env
@@ -310,4 +310,4 @@ stages:
                     azureSubscription: 's203p.azdo.deployment'
                     appType: 'webApp'
                     WebAppName: 'ece-as-frontend'
-                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibility-Parent/CheckYourEligibility-Parent.zip'
+                    packageForLinux: '$(Pipeline.Workspace)/checkYourEligibilityFrontEnd/CheckYourEligibility.FrontEnd.zip'

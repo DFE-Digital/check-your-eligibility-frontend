@@ -1,13 +1,6 @@
 pr:
   - main
 
-trigger: none
-
-pr:
-  autoCancel: false
-  branches: 
-    includes: main
-
 pool:
   name: Azure Pipelines
   vmImage: 'windows-latest'
