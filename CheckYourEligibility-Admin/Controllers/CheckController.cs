@@ -64,6 +64,25 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Consent_Declaration()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Consent_Declaration_Approval(string consent)
+        {
+            if (consent == "checked")
+            {
+                return RedirectToAction("Enter_Details");
+            }
+            else
+            {
+                return View("Consent_Declaration", true);
+            }
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Enter_Details()
         {
             var (parent, validationErrors) = await _loadParentDetailsUseCase.Execute(
@@ -101,7 +120,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             TempData["Response"] = JsonConvert.SerializeObject(response);
 
             return RedirectToAction("Loader");
-            
+
         }
 
         public async Task<IActionResult> Loader()
@@ -120,16 +139,16 @@ namespace CheckYourEligibility_FrontEnd.Controllers
                 }
 
                 _logger.LogError(outcome);
-                
+
                 bool isLA = _Claims?.Organisation?.Category?.Name == Constants.CategoryTypeLA; //false=school
                 switch (outcome)
                 {
                     case "eligible":
-                        return View(isLA?"Outcome/Eligible_LA":"Outcome/Eligible");
+                        return View(isLA ? "Outcome/Eligible_LA" : "Outcome/Eligible");
                         break;
 
                     case "notEligible":
-                        return View(isLA?"Outcome/Not_Eligible_LA":"Outcome/Not_Eligible");
+                        return View(isLA ? "Outcome/Not_Eligible_LA" : "Outcome/Not_Eligible");
                         break;
 
                     case "parentNotFound":
@@ -158,7 +177,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             var childrenModel = _enterChildDetailsUseCase.Execute(
                 TempData["ChildList"] as string,
                 TempData["IsChildAddOrRemove"] as bool?);
-            
+
 
             return View(childrenModel);
         }
@@ -188,7 +207,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             try
             {
                 TempData["IsChildAddOrRemove"] = true;
-                
+
                 Children updatedChildren = _addChildUseCase.Execute(request);
 
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
@@ -207,11 +226,11 @@ namespace CheckYourEligibility_FrontEnd.Controllers
             try
             {
                 TempData["IsChildAddOrRemove"] = true;
-                
+
                 var updatedChildren = await _removeChildUseCase.Execute(request, index);
 
                 TempData["ChildList"] = JsonConvert.SerializeObject(updatedChildren.ChildList);
-                
+
                 return RedirectToAction("Enter_Child_Details");
             }
 
@@ -251,7 +270,7 @@ namespace CheckYourEligibility_FrontEnd.Controllers
         {
             TempData["IsRedirect"] = true;
             Children model = new Children { ChildList = new List<Child>() };
-            
+
             try
             {
                 model = _changeChildDetailsUseCase.Execute(

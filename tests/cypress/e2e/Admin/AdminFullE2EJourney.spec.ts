@@ -16,6 +16,8 @@ describe('Full journey of creating an application through school portal through 
         cy.get('h1').should('include.text', 'The Telford Park School');
 
         cy.contains('Run a check for one parent or guardian').click();
+        cy.get('#consent').check();
+        cy.get('#submitButton').click();
 
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
@@ -70,7 +72,7 @@ describe('Full journey of creating an application through school portal through 
 
             cy.contains('Process appeals').click();
 
-            cy.scanPagesForValue(referenceNumber);
+            cy.scanPagesForNewValue(referenceNumber);
 
             cy.contains(referenceNumber).click();
         })
@@ -91,6 +93,8 @@ describe('Full journey of creating an application through school portal through 
         cy.get('h1').should('include.text', 'The Telford Park School');
 
         cy.contains('Run a check for one parent or guardian').click();
+        cy.get('#consent').check();
+        cy.get('#submitButton').click();
 
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('#FirstName').type(parentFirstName);
