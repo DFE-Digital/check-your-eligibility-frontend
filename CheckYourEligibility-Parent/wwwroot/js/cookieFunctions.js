@@ -3,6 +3,8 @@ document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prot
 import { initAll } from './govuk-frontend.min.js'
 initAll();
 
+const cookieForm = document.getElementById('cookie-form');
+
 function initializeClarity() {
     let clarityId = document.getElementsByTagName("body")[0].getAttribute("data-clarity");
     if (clarityId) {
@@ -20,16 +22,21 @@ function initializeClarity() {
 }
 
 function initCookieConsent() {
-    console.log("in innitCookieConsent");
     const hasChoice = cookie.read("cookie");
     if (hasChoice !== null) {
-        initializeClarity();
         document.getElementById('cookie-banner').style.display = 'none';
-        console.log("in innitCookieConsent - hasChoice not equal null");
-
+        if (hasChoice === "true") {
+            if (cookieForm) {
+                document.getElementById('cookies-analytics-yes').checked = true;
+            }
+            initializeClarity();
+        } else if (hasChoice === "false") {
+            if (cookieForm) {
+                document.getElementById('cookies-analytics-no').checked = true;
+            }
+        }
     } else {
         document.getElementById('cookie-banner').style.display = 'block';
-        console.log("in innitCookieConsent - hasChoice else");
     }
 }
 
@@ -43,31 +50,19 @@ document.getElementById('reject-cookies').onclick = function () {
     document.getElementById('cookie-banner').style.display = 'none';
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-    const cookieForm = document.getElementById('cookie-form');
-    if (cookieForm) {
-
-        const hasChoice = cookie.read("cookie");
-        if (hasChoice === "true") {
-            document.getElementById('cookies-analytics-yes').checked = true;
-        } else if (hasChoice === "false") {
-            document.getElementById('cookies-analytics-no').checked = true;
+if (cookieForm) {
+    cookieForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const analyticsCookies = document.querySelector('input[name="cookies[analytics]"]:checked').value;
+        if (analyticsCookies === "yes") {
+            cookie.create("cookie", "true", 365);
+            initializeClarity();
+        } else {
+            cookie.create("cookie", "false", 365);
         }
-
-        cookieForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const analyticsCookies = document.querySelector('input[name="cookies[analytics]"]:checked').value;
-            if (analyticsCookies) {
-                cookie.create("cookie", "true", 365);
-                initializeClarity();
-
-            } else {
-                cookie.create("cookie", "false", 365);
-            }
-            document.getElementById('cookie-banner').style.display = 'none';
-        });
-    }
-});
+        document.getElementById('cookie-banner').style.display = 'none';
+    });
+}
 
 var cookie = {
     create: function (name, value, days) {
