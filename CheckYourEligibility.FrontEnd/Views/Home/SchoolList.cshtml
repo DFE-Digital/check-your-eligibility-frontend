@@ -9,7 +9,7 @@
     @if (!ViewData.ModelState.IsValid)
     {
         ViewData["Title"] = "Error: School List";
-        <partial name="_ValidationSummary" model="ViewData.ModelState" />
+        <partial name="_ValidationSummary" model="ViewData.ModelState"/>
     }
 
     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title"
@@ -31,7 +31,7 @@
     <h1 class="govuk-heading-l">Schools included in this test service</h1>
 
     <ul class="govuk-list govuk-list--bullet">
-        @for (int i = 0; i < Model.Schools.Count; i++)
+        @for (var i = 0; i < Model.Schools.Count; i++)
         {
             <li>@Model.Schools[i].Name (@Model.Schools[i].La, @Model.Schools[i].Postcode)</li>
         }

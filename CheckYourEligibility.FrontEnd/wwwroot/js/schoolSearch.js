@@ -42,7 +42,7 @@ function selectSchool(school, urn, la, postcode, index) {
     var schoolURN = `ChildList[${index}].School.URN`;
     var schoolPostcode = `ChildList[${index}].School.Postcode`;
     var schoolLA = `ChildList[${index}].School.LA`;
-    var schoolSearch = `ChildList[${index}].School` 
+    var schoolSearch = `ChildList[${index}].School`
     // set values
     document.getElementById(schoolName).value = school;
     document.getElementById(schoolURN).value = urn;

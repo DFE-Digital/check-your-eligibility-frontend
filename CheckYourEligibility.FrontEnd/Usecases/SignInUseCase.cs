@@ -1,26 +1,24 @@
-﻿using GovUk.OneLogin.AspNetCore;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 
-namespace CheckYourEligibility.FrontEnd.UseCases
+namespace CheckYourEligibility.FrontEnd.UseCases;
+
+public interface ISignInUseCase
 {
-    public interface ISignInUseCase
-    {
-        Task<AuthenticationProperties> Execute(string redirectUri);
-    }
+    Task<AuthenticationProperties> Execute(string redirectUri);
+}
 
-    public class SignInUseCase : ISignInUseCase
+public class SignInUseCase : ISignInUseCase
+{
+    public Task<AuthenticationProperties> Execute(string redirectUri)
     {
-        public Task<AuthenticationProperties> Execute(string redirectUri)
+        var properties = new AuthenticationProperties
         {
-            var properties = new AuthenticationProperties
-            {
-                RedirectUri = redirectUri
-            };
+            RedirectUri = redirectUri
+        };
 
-            // Setting the vector_of_trust directly in the Items dictionary
-            properties.Items["vector_of_trust"] = @"[""Cl""]";
+        // Setting the vector_of_trust directly in the Items dictionary
+        properties.Items["vector_of_trust"] = @"[""Cl""]";
 
-            return Task.FromResult(properties);
-        }
+        return Task.FromResult(properties);
     }
 }

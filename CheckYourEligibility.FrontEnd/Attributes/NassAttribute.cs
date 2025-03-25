@@ -1,32 +1,26 @@
-﻿using CheckYourEligibility.FrontEnd.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using CheckYourEligibility.FrontEnd.Models;
 
-namespace CheckYourEligibility.FrontEnd.Attributes
+namespace CheckYourEligibility.FrontEnd.Attributes;
+
+public class NassAttribute : ValidationAttribute
 {
-    public class NassAttribute : ValidationAttribute
+    private static readonly string NassPattern = @"^[0-9]{2}(0[1-9]|1[0-2])[0-9]{5,6}$";
+    private static readonly Regex regex = new(NassPattern);
+
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        private static readonly string NassPattern = @"^[0-9]{2}(0[1-9]|1[0-2])[0-9]{5,6}$";
-        private static readonly Regex regex = new Regex(NassPattern);
+        var model = (Parent)validationContext.ObjectInstance;
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        if (model.IsNassSelected == true)
         {
-            var model = (Parent)validationContext.ObjectInstance;
+            if (value == null || value == "") return new ValidationResult("Nass is required");
 
-            if (model.IsNassSelected == true)
-            {
-                if (value == null || value == "")
-                {
-                    return new ValidationResult("Nass is required");
-                }
-
-                if (!regex.IsMatch(value.ToString()))
-                {
-                    return new ValidationResult("Nass field contains an invalid character");
-                }
-            }
-
-            return ValidationResult.Success;
+            if (!regex.IsMatch(value.ToString()))
+                return new ValidationResult("Nass field contains an invalid character");
         }
+
+        return ValidationResult.Success;
     }
 }

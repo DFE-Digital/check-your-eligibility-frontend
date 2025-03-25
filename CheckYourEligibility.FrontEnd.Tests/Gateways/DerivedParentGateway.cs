@@ -1,30 +1,28 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CheckYourEligibility.FrontEnd.Gateways;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using CheckYourEligibility.FrontEnd.Gateways;
 
-namespace CheckYourEligibility.FrontEnd.Services.Tests.Parent
+namespace CheckYourEligibility.FrontEnd.Services.Tests.Parent;
+
+public class EcsServiceParentTest : ParentGateway
 {
-    public class EcsServiceParentTest : ParentGateway
+    public EcsServiceParentTest(ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
+        : base(logger, httpClient, configuration)
     {
-        public int apiErrorCount { get; private set; }
+        apiErrorCount = 0;
+    }
 
-        public EcsServiceParentTest(ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration)
-            : base(logger, httpClient, configuration)
-        {
-            apiErrorCount = 0;
-        }
+    public int apiErrorCount { get; private set; }
 
-        protected override Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri, string data)
-        {
-            apiErrorCount++;
-            return Task.CompletedTask;
-        }
+    protected override Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri, string data)
+    {
+        apiErrorCount++;
+        return Task.CompletedTask;
+    }
 
-        protected override Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri)
-        {
-            apiErrorCount++;
-            return Task.CompletedTask;
-        }
+    protected override Task LogApiErrorInternal(HttpResponseMessage task, string method, string uri)
+    {
+        apiErrorCount++;
+        return Task.CompletedTask;
     }
 }

@@ -1,4 +1,4 @@
-﻿@model CheckYourEligibility.FrontEnd.Models.Parent
+﻿@model Parent
 
 @{
     ViewData["Title"] = "Run a check for one parent or guardian";
@@ -11,12 +11,13 @@
     @if (!ViewData.ModelState.IsValid)
     {
         ViewData["Title"] = "Error: Run a check for one parent or guardian";
-        <partial name="_ValidationSummary" model="ViewData.ModelState" />
+        <partial name="_ValidationSummary" model="ViewData.ModelState"/>
     }
 
     <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
 
-    <p>The information you provide will be compared with other government departments records to check for your eligibility.</p>
+    <p>The information you provide will be compared with other government departments records to check for your
+        eligibility.</p>
     <p>For further information, please check our <a href="@Url.Action("Privacy", "Home")">Privacy statement</a>.</p>
 
     <div class="govuk-warning-text">
@@ -40,7 +41,9 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="FirstName"></span>
                 </p>
-                <input class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState["FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="FirstName" type="text" aria-label="Your first name">
+                <input
+                    class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState["FirstName"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                    asp-for="FirstName" type="text" aria-label="Your first name">
             </div>
 
             <div class="govuk-form-group">
@@ -50,7 +53,9 @@
                 <p class="govuk-error-message">
                     <span asp-validation-for="LastName"></span>
                 </p>
-                <input class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState["LastName"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="LastName" type="text" aria-label="Your last name">
+                <input
+                    class="govuk-input govuk-!-width-two-thirds @(ViewData.ModelState["LastName"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                    asp-for="LastName" type="text" aria-label="Your last name">
             </div>
         </fieldset>
 
@@ -72,7 +77,10 @@
                             <label class="govuk-label govuk-date-input__label" for="Day">
                                 Day
                             </label>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState["DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Day" id="DateOfBirth.Day" type="text" inputmode="numeric" maxlength="2" aria-label="Day" />
+                            <input
+                                class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState["DateOfBirth.Day"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                                asp-for="Day" id="DateOfBirth.Day" type="text" inputmode="numeric" maxlength="2"
+                                aria-label="Day"/>
                         </div>
                     </div>
 
@@ -81,7 +89,10 @@
                             <label class="govuk-label govuk-date-input__label" for="Month">
                                 Month
                             </label>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState["DateOfBirth.Month"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Month" id="DateOfBirth.Month" type="text" inputmode="numeric" maxlength="2" aria-label="Month" />
+                            <input
+                                class="govuk-input govuk-date-input__input govuk-input--width-2 @(ViewData.ModelState["DateOfBirth.Month"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                                asp-for="Month" id="DateOfBirth.Month" type="text" inputmode="numeric" maxlength="2"
+                                aria-label="Month"/>
                         </div>
                     </div>
 
@@ -90,7 +101,10 @@
                             <label class="govuk-label govuk-date-input__label" for="Year">
                                 Year
                             </label>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-4 @(ViewData.ModelState["DateOfBirth.Year"]?.Errors.Count > 0 && ViewData.ModelState["DateOfBirth"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-for="Year" id="DateOfBirth.Year" type="text" inputmode="numeric" maxlength="4" aria-label="Year" />
+                            <input
+                                class="govuk-input govuk-date-input__input govuk-input--width-4 @(ViewData.ModelState["DateOfBirth.Year"]?.Errors.Count > 0 && ViewData.ModelState["DateOfBirth"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                                asp-for="Year" id="DateOfBirth.Year" type="text" inputmode="numeric" maxlength="4"
+                                aria-label="Year"/>
                         </div>
                     </div>
                 </div>
@@ -110,7 +124,8 @@
                 <span asp-validation-for="IsNinoSelected" class="govuk-error-message"></span>
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" asp-for="IsNinoSelected" type="radio" value="true" aria-controls="conditional-ni-number" aria-expanded="false" aria-label="Yes">
+                        <input class="govuk-radios__input" asp-for="IsNinoSelected" type="radio" value="true"
+                               aria-controls="conditional-ni-number" aria-expanded="false" aria-label="Yes">
                         <label class="govuk-label govuk-radios__label" for="NationalInsuranceNumber">
                             Yes
                         </label>
@@ -128,11 +143,16 @@
                             <p class="govuk-error-message">
                                 <span asp-validation-for="NationalInsuranceNumber"></span>
                             </p>
-                            <input class="govuk-input govuk-!-width-one-third @(ViewData.ModelState["NationalInsuranceNumber"]?.Errors.Count > 0 ? "govuk-input--error" : "")" asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false" aria-describedby="ni-number-entered-hint" autocomplete="text" aria-label="Your National Insurance Number">
+                            <input
+                                class="govuk-input govuk-!-width-one-third @(ViewData.ModelState["NationalInsuranceNumber"]?.Errors.Count > 0 ? "govuk-input--error" : "")"
+                                asp-controller="Check" asp-for="NationalInsuranceNumber" type="text" spellcheck="false"
+                                aria-describedby="ni-number-entered-hint" autocomplete="text"
+                                aria-label="Your National Insurance Number">
                         </div>
                     </div>
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" asp-for="IsNinoSelected" type="radio" value="false" aria-label="No, I do not have one">
+                        <input class="govuk-radios__input" asp-for="IsNinoSelected" type="radio" value="false"
+                               aria-label="No, I do not have one">
                         <label class="govuk-label govuk-radios__label" for="ni-number-2">
                             No, I do not have one
                         </label>

@@ -1,40 +1,39 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace CheckYourEligibility.FrontEnd.Attributes
+namespace CheckYourEligibility.FrontEnd.Attributes;
+
+public class NameAttribute : ValidationAttribute
 {
-    public class NameAttribute : ValidationAttribute
+    private static readonly string UnicodeOnlyPattern = @"^[\p{L}\-']+$";
+
+    private static readonly Regex regex = new(UnicodeOnlyPattern);
+
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        private static readonly string UnicodeOnlyPattern = @"^[\p{L}\-']+$";
+        var model = validationContext.ObjectInstance;
 
-        private static readonly Regex regex = new Regex(UnicodeOnlyPattern);
+        var firstName = model.GetType().GetProperty("FirstName").GetValue(model);
+        var lastName = model.GetType().GetProperty("LastName").GetValue(model);
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        if (firstName == value)
         {
-            var model = validationContext.ObjectInstance;
+            if (value == null || value == "")
+                return ValidationResult.Success;
 
-            var firstName = model.GetType().GetProperty("FirstName").GetValue(model);
-            var lastName = model.GetType().GetProperty("LastName").GetValue(model);
-
-            if (firstName == value)
-            {
-                if (value == null || value == "")
-                    return ValidationResult.Success;
-
-                if (!regex.IsMatch(value.ToString()))
-                    return new ValidationResult("Enter a first name with valid characters");
-            }
-
-            if (lastName == value)
-            {
-                if (value == null || value == "")
-                    return ValidationResult.Success;
-
-                if (!regex.IsMatch(value.ToString()))
-                    return new ValidationResult("Enter a last name with valid characters");
-            }       
-
-            return ValidationResult.Success;
+            if (!regex.IsMatch(value.ToString()))
+                return new ValidationResult("Enter a first name with valid characters");
         }
+
+        if (lastName == value)
+        {
+            if (value == null || value == "")
+                return ValidationResult.Success;
+
+            if (!regex.IsMatch(value.ToString()))
+                return new ValidationResult("Enter a last name with valid characters");
+        }
+
+        return ValidationResult.Success;
     }
 }

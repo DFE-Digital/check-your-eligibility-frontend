@@ -1,59 +1,45 @@
-﻿using CheckYourEligibility.FrontEnd.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using CheckYourEligibility.FrontEnd.Models;
 
-namespace CheckYourEligibility.FrontEnd.Attributes
+namespace CheckYourEligibility.FrontEnd.Attributes;
+
+public class NinoAttribute : ValidationAttribute
 {
-    public class NinoAttribute : ValidationAttribute
+    private static readonly string FirstLetterPattern = "[ABCEGHJKLMNOPRSTWXYZ]";
+    private static readonly string SecondLetterPattern = "[ABCEGHJKLMNPRSTWXYZ]";
+    private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TN|ZZ)";
+    private static readonly string NumericPattern = "[0-9]{6}";
+    private static readonly string LastLetterPattern = "[ABCD]";
+
+    private static readonly string Pattern = DisallowedPrefixesPattern + FirstLetterPattern + SecondLetterPattern +
+                                             NumericPattern + LastLetterPattern;
+
+    private static readonly Regex regex = new(Pattern);
+
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        private static readonly string FirstLetterPattern = "[ABCEGHJKLMNOPRSTWXYZ]";
-        private static readonly string SecondLetterPattern = "[ABCEGHJKLMNPRSTWXYZ]";
-        private static readonly string DisallowedPrefixesPattern = "^(?!BG|GB|KN|NK|NT|TN|ZZ)";
-        private static readonly string NumericPattern = "[0-9]{6}";
-        private static readonly string LastLetterPattern = "[ABCD]";
+        var model = (Parent)validationContext.ObjectInstance;
 
-        private static readonly string Pattern = DisallowedPrefixesPattern + FirstLetterPattern + SecondLetterPattern + NumericPattern + LastLetterPattern;
+        if (model.IsNinoSelected == null && value == null) return ValidationResult.Success;
 
-        private static readonly Regex regex = new Regex(Pattern);
+        if (model.IsNinoSelected == false) return ValidationResult.Success;
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        {
-            var model = (Parent)validationContext.ObjectInstance;
+        if (model.IsNinoSelected == true && value == null)
+            return new ValidationResult("National Insurance number is required");
 
-            if (model.IsNinoSelected == null && value == null)
-            {
-                return ValidationResult.Success;
-            }
+        var nino = value.ToString().ToUpper();
+        nino = string.Concat(nino
+            .Where(ch => char.IsLetterOrDigit(ch)));
 
-            if (model.IsNinoSelected == false)
-            {
-                return ValidationResult.Success;
-            }
+        if (nino.Length > 9)
+            return new ValidationResult(
+                "National Insurance number should contain no more than 9 alphanumeric characters");
 
-            if (model.IsNinoSelected == true && value == null)
-            {
-                return new ValidationResult("National Insurance number is required");
-            }
+        if (!regex.IsMatch(nino)) return new ValidationResult("Invalid National Insurance number format");
 
-            string nino = value.ToString().ToUpper();
-            nino = String.Concat(nino
-                .Where(ch => Char.IsLetterOrDigit(ch)));
+        model.NationalInsuranceNumber = nino;
 
-            if (nino.Length > 9)
-            {
-                return new ValidationResult("National Insurance number should contain no more than 9 alphanumeric characters");
-            }
-
-            if (!regex.IsMatch(nino))
-            {
-                return new ValidationResult("Invalid National Insurance number format");
-            }
-            else
-            {
-                model.NationalInsuranceNumber = nino;
-            }
-
-            return ValidationResult.Success;
-        }
+        return ValidationResult.Success;
     }
 }

@@ -1,10 +1,11 @@
-﻿@using Newtonsoft.Json
-@model CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse
+﻿@using CheckYourEligibility.FrontEnd.Boundary.Responses
+@using Newtonsoft.Json
+@model CheckYourEligibility.FrontEnd.Boundary.Responses.ApplicationSaveItemResponse
 
 @{
     ViewData["Title"] = "Application complete";
     var responseJson = TempData["FsmApplicationResponses"] as string;
-    var responses = JsonConvert.DeserializeObject<List<CheckYourEligibility.Domain.Responses.ApplicationSaveItemResponse>>(responseJson);
+    var responses = JsonConvert.DeserializeObject<List<ApplicationSaveItemResponse>>(responseJson);
 }
 
 <div class="govuk-grid-column-full">
@@ -27,23 +28,24 @@
             We have sent details for:
         </caption>
         <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header app-custom-class">Name</th>
-                <th scope="col" class="govuk-table__header app-custom-class">School</th>
-                <th scope="col" class="govuk-table__header app-custom-class">
-                    Reference
-                </th>
-            </tr>
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header app-custom-class">Name</th>
+            <th scope="col" class="govuk-table__header app-custom-class">School</th>
+            <th scope="col" class="govuk-table__header app-custom-class">
+                Reference
+            </th>
+        </tr>
         </thead>
         <tbody class="govuk-table__body">
-            @foreach (var response in responses)
-            {
-                <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header">@response.Data.ChildFirstName @response.Data.ChildLastName</th>
-                    <td class="govuk-table__cell">@response.Data.Establishment.Name</td>
-                    <td class="govuk-table__cell">@response.Data.Reference</td>
-                </tr>
-            }
+        @foreach (var response in responses)
+        {
+            <tr class="govuk-table__row">
+                <th scope="row"
+                    class="govuk-table__header">@response.Data.ChildFirstName @response.Data.ChildLastName</th>
+                <td class="govuk-table__cell">@response.Data.Establishment.Name</td>
+                <td class="govuk-table__cell">@response.Data.Reference</td>
+            </tr>
+        }
         </tbody>
     </table>
 

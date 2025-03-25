@@ -73,9 +73,9 @@ table {
     text-decoration: none;
 }
 
-    #content-header .dfe-header__action-links a:hover {
-        text-decoration: underline;
-    }
+#content-header .dfe-header__action-links a:hover {
+    text-decoration: underline;
+}
 
 .govuk-pagination {
     justify-content: center;
@@ -108,9 +108,10 @@ table {
     width: auto;
 }
 
-    .moj-button-menu__item:last-child {
-        margin-right: 0;
-    }
+.moj-button-menu__item:last-child {
+    margin-right: 0;
+}
+
 /* END MENU ITEM */
 
 
@@ -177,6 +178,7 @@ img, svg {
         max-width: 100%;
     }
 }
+
 /*END - Header overrides */
 
 

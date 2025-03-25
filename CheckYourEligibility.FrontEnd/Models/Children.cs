@@ -1,13 +1,6 @@
-﻿namespace CheckYourEligibility.FrontEnd.Models
+﻿namespace CheckYourEligibility.FrontEnd.Models;
+
+public class Children
 {
-    public class Children
-    {
-        public List<Child> ChildList { get; set; }
-
-
-        public Children()
-        {
-            
-        }
-    }
+    public List<Child> ChildList { get; set; }
 }

@@ -1,37 +1,28 @@
-﻿using CheckYourEligibility.FrontEnd.Models;
-using FluentValidation;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata;
+﻿using System.ComponentModel.DataAnnotations;
+using CheckYourEligibility.FrontEnd.Models;
 
-namespace CheckYourEligibility.FrontEnd.Attributes
+namespace CheckYourEligibility.FrontEnd.Attributes;
+
+public class SchoolAttribute : ValidationAttribute
 {
-    public class SchoolAttribute : ValidationAttribute
+    private readonly string _childIndexPropertyName;
+
+    public SchoolAttribute(string childIndexPropertyName)
     {
-        private readonly string _childIndexPropertyName; 
-        public SchoolAttribute(string childIndexPropertyName)
-        {
-            _childIndexPropertyName = childIndexPropertyName;
-        }
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        {
-            var school = validationContext.ObjectInstance as School;
-            var childIndex = school.ChildIndex;
+        _childIndexPropertyName = childIndexPropertyName;
+    }
 
-            if (school == null)
-            {
-                return new ValidationResult("Invalid school instance.");
-            }
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        var school = validationContext.ObjectInstance as School;
+        var childIndex = school.ChildIndex;
 
-            if (childIndex == null)
-            {
-                return new ValidationResult("ChildIndex value cannot be null or empty.");
-            }
+        if (school == null) return new ValidationResult("Invalid school instance.");
 
-            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
-            {
-                return new ValidationResult($"Select a school for child {childIndex}");
-            }
-            return ValidationResult.Success;
-        }
+        if (childIndex == null) return new ValidationResult("ChildIndex value cannot be null or empty.");
+
+        if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+            return new ValidationResult($"Select a school for child {childIndex}");
+        return ValidationResult.Success;
     }
 }

@@ -1,36 +1,32 @@
 ﻿using CheckYourEligibility.FrontEnd.Models;
 using Newtonsoft.Json;
 
-namespace CheckYourEligibility.FrontEnd.UseCases
+namespace CheckYourEligibility.FrontEnd.UseCases;
+
+public interface IEnterChildDetailsUseCase
 {
-    public interface IEnterChildDetailsUseCase
+    Children Execute(string childListJson, bool? isChildAddOrRemove);
+}
+
+public class EnterChildDetailsUseCase : IEnterChildDetailsUseCase
+{
+    private readonly ILogger<EnterChildDetailsUseCase> _logger;
+
+    public EnterChildDetailsUseCase(ILogger<EnterChildDetailsUseCase> logger)
     {
-        Children Execute(string childListJson, bool? isChildAddOrRemove);
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public class EnterChildDetailsUseCase : IEnterChildDetailsUseCase
+    public Children Execute(string childListJson, bool? isChildAddOrRemove)
     {
-        private readonly ILogger<EnterChildDetailsUseCase> _logger;
+        var children = new Children { ChildList = new List<Child> { new() } };
 
-        public EnterChildDetailsUseCase(ILogger<EnterChildDetailsUseCase> logger)
+        if (isChildAddOrRemove == true && !string.IsNullOrEmpty(childListJson))
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var deserializedChildren = JsonConvert.DeserializeObject<List<Child>>(childListJson);
+            if (deserializedChildren != null) children.ChildList = deserializedChildren;
         }
 
-        public Children Execute(string childListJson, bool? isChildAddOrRemove)
-        {
-            var children = new Children { ChildList = new List<Child> { new Child() } };
-
-            if (isChildAddOrRemove == true && !string.IsNullOrEmpty(childListJson))
-            {
-                var deserializedChildren = JsonConvert.DeserializeObject<List<Child>>(childListJson);
-                if (deserializedChildren != null)
-                {
-                    children.ChildList = deserializedChildren;
-                }
-            }
-
-            return children;
-        }
+        return children;
     }
 }

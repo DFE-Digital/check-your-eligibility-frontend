@@ -1,75 +1,74 @@
-﻿using CheckYourEligibility.Domain.Enums;
-using CheckYourEligibility.Domain.Requests;
-using CheckYourEligibility.Domain.Responses;
+﻿using CheckYourEligibility.FrontEnd.Boundary.Requests;
+using CheckYourEligibility.FrontEnd.Boundary.Responses;
+using CheckYourEligibility.FrontEnd.Domain.Enums;
 using CheckYourEligibility.FrontEnd.Gateways.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace CheckYourEligibility.FrontEnd.Gateways
+namespace CheckYourEligibility.FrontEnd.Gateways;
+
+public class AdminGateway : BaseGateway, IAdminGateway
 {
-    public class AdminGateway : BaseGateway,  IAdminGateway
+    private readonly string _ApplicationSearchUrl = "application/search";
+    private readonly string _ApplicationUrl = "/application";
+    private readonly HttpClient _httpClient;
+    private readonly ILogger _logger;
+
+    public AdminGateway(ILoggerFactory logger, HttpClient httpClient, IConfiguration configuration) : base("EcsService",
+        logger, httpClient, configuration)
     {
-        private readonly ILogger _logger;
-        private readonly HttpClient _httpClient;
-        private readonly string _ApplicationSearchUrl = "application/search";
-        private readonly string _ApplicationUrl = "/application";
+        _logger = logger.CreateLogger("EcsService");
+        _httpClient = httpClient;
+    }
 
-        public AdminGateway(ILoggerFactory logger, HttpClient httpClient,IConfiguration configuration): base("EcsService", logger, httpClient, configuration)
+
+    public async Task<ApplicationItemResponse> GetApplication(string id)
+    {
+        try
         {
-            _logger = logger.CreateLogger("EcsService");
-            _httpClient = httpClient;       
+            var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_ApplicationUrl}/{id}",
+                new ApplicationItemResponse());
+            return response;
         }
-
-       
-        public async Task<ApplicationItemResponse> GetApplication(string id)
+        catch (Exception ex)
         {
-            try
-            {
-                var response = await ApiDataGetAsynch($"{_httpClient.BaseAddress}{_ApplicationUrl}/{id}", new ApplicationItemResponse());
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Get failed. uri-{_httpClient.BaseAddress}{_ApplicationUrl}/{id}");
-                throw;
-            }
+            _logger.LogError(ex, $"Get failed. uri-{_httpClient.BaseAddress}{_ApplicationUrl}/{id}");
+            throw;
         }
+    }
 
-        public async Task<ApplicationSearchResponse> PostApplicationSearch(ApplicationRequestSearch requestBody)
+    public async Task<ApplicationSearchResponse> PostApplicationSearch(ApplicationRequestSearch requestBody)
+    {
+        try
         {
-            try
-            {
-                var result = await ApiDataPostAsynch(_ApplicationSearchUrl, requestBody, new ApplicationSearchResponse());
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Post failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
-                throw;
-            }
+            var result = await ApiDataPostAsynch(_ApplicationSearchUrl, requestBody, new ApplicationSearchResponse());
+            return result;
         }
-
-        public async Task<ApplicationStatusUpdateResponse> PatchApplicationStatus(string id, ApplicationStatus status)
+        catch (Exception ex)
         {
-            var url = $"{_ApplicationUrl}/{id}";
-            var request = new ApplicationStatusUpdateRequest
-            {
-                Data = new ApplicationStatusData { Status = status }
-            };
-            try
-            {    
-                var result = await ApiDataPatchAsynch(url,request,new ApplicationStatusUpdateResponse());
-                if (result.Data.Status != status.ToString()) {
-                    throw new Exception("Failed to update status");
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Post failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(request)}");
-                throw;
-            }
+            _logger.LogError(ex,
+                $"Post failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(requestBody)}");
+            throw;
+        }
+    }
+
+    public async Task<ApplicationStatusUpdateResponse> PatchApplicationStatus(string id, ApplicationStatus status)
+    {
+        var url = $"{_ApplicationUrl}/{id}";
+        var request = new ApplicationStatusUpdateRequest
+        {
+            Data = new ApplicationStatusData { Status = status }
+        };
+        try
+        {
+            var result = await ApiDataPatchAsynch(url, request, new ApplicationStatusUpdateResponse());
+            if (result.Data.Status != status.ToString()) throw new Exception("Failed to update status");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                $"Post failed. uri:-{_httpClient.BaseAddress}{_ApplicationSearchUrl} content:-{JsonConvert.SerializeObject(request)}");
+            throw;
         }
     }
 }

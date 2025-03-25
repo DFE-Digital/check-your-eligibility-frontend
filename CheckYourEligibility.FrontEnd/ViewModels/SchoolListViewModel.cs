@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CheckYourEligibility.FrontEnd.Boundary.Responses;
 
-namespace CheckYourEligibility.FrontEnd.ViewModels
+namespace CheckYourEligibility.FrontEnd.ViewModels;
+
+public class SchoolListViewModel
 {
-    public class SchoolListViewModel
-    {
-        public List<CheckYourEligibility.Domain.Responses.Establishment>? Schools { get; set; }
+    public List<Establishment>? Schools { get; set; }
 
-        [Required(ErrorMessage = "Select yes if any of your children go to these schools")]
-        public bool? IsRadioSelected { get; set; }
-    }
-
+    [Required(ErrorMessage = "Select yes if any of your children go to these schools")]
+    public bool? IsRadioSelected { get; set; }
 }

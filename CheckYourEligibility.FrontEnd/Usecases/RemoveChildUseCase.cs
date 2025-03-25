@@ -1,47 +1,41 @@
 ﻿using CheckYourEligibility.FrontEnd.Models;
 
-namespace CheckYourEligibility.FrontEnd.UseCases
+namespace CheckYourEligibility.FrontEnd.UseCases;
+
+public interface IRemoveChildUseCase
 {
-    public interface IRemoveChildUseCase
+    Children Execute(Children request, int index);
+}
+
+[Serializable]
+public class RemoveChildValidationException : Exception
+{
+    public RemoveChildValidationException(string message) : base(message)
     {
-        Children Execute(Children request, int index);
     }
-    
-    [Serializable]
-    public class RemoveChildValidationException : Exception
+}
+
+public class RemoveChildUseCase : IRemoveChildUseCase
+{
+    private readonly ILogger<RemoveChildUseCase> _logger;
+
+    public RemoveChildUseCase(ILogger<RemoveChildUseCase> logger)
     {
-        
-        public RemoveChildValidationException(string message) : base (message)
-        {
-        }
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public class RemoveChildUseCase : IRemoveChildUseCase
+    public Children Execute(Children request, int index)
     {
-        private readonly ILogger<RemoveChildUseCase> _logger;
+        if (request?.ChildList == null)
+            throw new RemoveChildValidationException("Invalid request - no children list available");
 
-        public RemoveChildUseCase(ILogger<RemoveChildUseCase> logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        if (index < 0 || index >= request.ChildList.Count)
+            throw new RemoveChildValidationException("Invalid child index");
 
-        public Children Execute(Children request, int index)
-        {
-            if (request?.ChildList == null)
-            {
-                throw new RemoveChildValidationException("Invalid request - no children list available");
-            }
-
-            if (index < 0 || index >= request.ChildList.Count)
-            {
-                throw new RemoveChildValidationException("Invalid child index");
-            }
-
-            var child = request.ChildList[index];
-            request.ChildList.Remove(child);
+        var child = request.ChildList[index];
+        request.ChildList.Remove(child);
 
 
-            return request;
-        }
+        return request;
     }
 }
