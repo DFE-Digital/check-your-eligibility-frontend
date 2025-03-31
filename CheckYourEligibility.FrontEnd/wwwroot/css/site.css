@@ -200,3 +200,11 @@ body.js-enabled .noJsShow, body:not(.js-enabled) input.noJsRemove {
 .centerer {
     text-align: center;
 }
+
+/*BEGIN - Force thumbnail container width on Home/FSMFormDownload to avoid text overlap on page resize */
+
+.fsm-image {
+    min-width: 175px;
+}
+
+/*END - Force thumbnail container width on Home/FSMFormDownload to avoid text overlap on page resize */
