@@ -115,7 +115,7 @@
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <p id="file-upload-1-error" class="govuk-error-message">
-                    @errorMessage
+                    <span class="govuk-visually-hidden">Error:</span>@errorMessage
                 </p>
             }
             <div class="govuk-drop-zone" data-module="govuk-file-upload">
