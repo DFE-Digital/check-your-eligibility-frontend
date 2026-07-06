@@ -6,16 +6,16 @@
     var errorMessage = TempData["ErrorMessage"] as string;
 
     var safeModel = Model ?? new FsmApplication
-            {
-                ParentFirstName = "",
-                ParentLastName = "",
-                ParentNass = "",
-                ParentNino = "",
-                ParentDateOfBirth = "",
-                Email = "",
-                Children = new Children { ChildList = new List<Child>() },
-                Evidence = new Evidences { EvidenceList = new List<EvidenceFile>() }
-            };
+    {
+        ParentFirstName = "",
+        ParentLastName = "",
+        ParentNass = "",
+        ParentNino = "",
+        ParentDateOfBirth = "",
+        Email = "",
+        Children = new Children { ChildList = new List<Child>() },
+        Evidence = new Evidences { EvidenceList = new List<EvidenceFile>() }
+    };
 }
 
 <div class="govuk-grid-column-two-thirds">
@@ -120,8 +120,7 @@
                 </label>
                 <div class="govuk-drop-zone" data-module="govuk-file-upload">
                     <input class="govuk-file-upload @(string.IsNullOrEmpty(errorMessage) ? "" : "govuk-file-upload--error")"
-                           id="fileUploadDropZone" name="fileUpload" type="file" accept=".csv"
-                           aria-describedby="file-upload-1-error" />
+                           id="fileUploadDropZone" name="EvidenceFiles" type="file" accept=".jpg,.jpeg,.heic,.heif,.bmp,.tif,.png,.pdf" aria-describedby="file-upload-1-error" multiple />
                 </div>
             </div>
         </div>
@@ -132,10 +131,10 @@
             <li>smaller than 10MB</li>
         </ul>
 
-        <button type="submit" asp-action="UploadEvidence" class="govuk-button" data-module="govuk-button">
+        <button class="govuk-button" data-module="govuk-button">
             Upload and continue
         </button>
-
+        
         <div class="govuk-inset-text">
             If you have problems uploading your evidence, you can <a asp-action="Upload_Evidence_Type" class="govuk-link">choose to take it into your children's schools instead</a>.
         </div>
