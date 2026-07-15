@@ -9,7 +9,6 @@
 
     @if (!ViewData.ModelState.IsValid)
     {
-        ViewData["Title"] = "Error: Enter your details";
         <partial name="_ValidationSummaryParent" model="ViewData.ModelState" />
     }
 
@@ -133,9 +132,9 @@
                 <span asp-validation-for="IsNinoSelected" class="govuk-error-message"></span>
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="IsNinoSelectedYes" asp-for="IsNinoSelected" type="radio" value="true"
+                        <input class="govuk-radios__input" id="IsNinoSelected" asp-for="IsNinoSelected" type="radio" value="true"
                                aria-controls="conditional-ni-number" aria-label="Yes">
-                        <label class="govuk-label govuk-radios__label" for="IsNinoSelectedYes">
+                        <label class="govuk-label govuk-radios__label" for="IsNinoSelected">
                             Yes
                         </label>
                     </div>

@@ -509,6 +509,15 @@ public class CheckController : Controller
     [HttpPost]
     public IActionResult Upload_Evidence_Type(FsmApplication request, string evidenceType)
     {
+        //Handle no evidence files selected
+        if (evidenceType == null)
+        {
+            ModelState.AddModelError("evidenceType", $"Select how you want to send your evidence");
+            TempData["ErrorMessage"] = "Select how you want to send your evidence";
+
+            return View("Upload_Evidence_Type", request);
+        }
+
         if (evidenceType == "digital")
         {
             return RedirectToAction("Upload_Guidance_Digital");
