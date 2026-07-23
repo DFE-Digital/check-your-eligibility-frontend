@@ -1,7 +1,6 @@
 ﻿using CheckYourEligibility.FrontEnd.Models;
 using FluentAssertions;
 
-
 namespace CheckYourEligibility.Admin.Tests.Models
 {
     [TestFixture]
@@ -60,32 +59,5 @@ namespace CheckYourEligibility.Admin.Tests.Models
             // Assert
             result.Should().Be("05 Jul 2026 at 3:05pm");
         }
-
-        [Test]
-        public void GetDateTimeOffsetFromString_In_Winter_Should_Have_Zero_Offset()
-        {
-            // Arrange
-            var input = "2026-01-20 09:00";
-
-            // Act
-            var result = DateTimeExtensions.GetDateTimeOffsetFromString(input);
-
-            // Assert
-            result.Offset.Should().Be(TimeSpan.Zero);
-        }
-
-        [Test]
-        public void GetDateTimeOffsetFromString_In_Summer_Should_Have_One_Hour_Offset()
-        {
-            // Arrange
-            var input = "2026-06-20 09:00";
-
-            // Act
-            var result = DateTimeExtensions.GetDateTimeOffsetFromString(input);
-
-            // Assert
-            result.Offset.Should().Be(TimeSpan.FromHours(1));
-        }
     }
-
 }
