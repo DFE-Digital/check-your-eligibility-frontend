@@ -1,7 +1,7 @@
 ﻿using CheckYourEligibility.FrontEnd.Models;
 using FluentAssertions;
 
-namespace CheckYourEligibility.Admin.Tests.Models
+namespace CheckYourEligibility.FrontEnd.Tests.Models
 {
     [TestFixture]
     public class DateTimeExtensionsTests
