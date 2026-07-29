@@ -5,8 +5,6 @@ let schoolApprovedForPrivateBetaSearchString = "Kilmorie Primary";
 
 describe('Test that approved accented characters are accepted in name input fields', () => {
 
-    let lastName = Cypress.env('lastName');
-
     it('Parent first and last names on Enter_Details should accept approved accented characters', () => {
         //Setup - Get to Enter_Details page to perform test
         cy.visit('/');
@@ -23,39 +21,44 @@ describe('Test that approved accented characters are accepted in name input fiel
         cy.get('h1').should('include.text', 'You can use this test service');
         cy.contains('Check your eligibility').click();
 
-        //First and Last name fields should accept
-        // [("OBrien", "plain letters")]
-        // [("O'Brien", "straight apostrophe (U+0027)")]
-        // [("O\u2019Brien", "right curly apostrophe (U+2019)")]
-        // [("O\u2018Brien", "left curly apostrophe (U+2018)")]
-        // [("Smith-Jones", "hyphen")]
-        // [("St. Claire", "period and space")]
-        // [("van den Berg", "spaces")]
-        // [("ÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹź", "acute")]
-        // [("ÀàÈèÌìÒòÙùẀẁỲỳ", "grave")]
-        // [("ÂâÊêÎîÔôÛûĈĉĜĝĤĥĴĵŜŝŴŵŶŷ", "circumflex")]
-        // [("ÃãÑñÕõĨĩŨũẼẽỸỹ", "tilde")]
-        // [("ÄäËëÏïÖöÜüŸÿ", "umlaut or diaeresis")]
-        // [("ÇçĢģĶķĻļŅņŖŗŞşŢţ", "cedilla")]
-        // [("ÅåŮů", "ring")]
-        // [("ĀāĒēĪīŌōŪūȲȳ", "macron")]
-        // [("ĂăĔĕĞğĬĭŎŏŬŭ", "breve")]
-        // [("ĊċĖėĠġİẊẋŻż", "dot above")]
-        // [("ĄąĘęĮįŲų", "ogonek")]
-        // [("ŐőŰű", "double acute")]
-
         cy.url().should('include', '/Check/Enter_Details');
         cy.get('h1').should('include.text', 'Enter your details');
-        cy.get('#FirstName').should('be.visible').type('OBrienO\'BrienO\u2019BrienO\u2018BrienSmith-JonesSt. Clairevan den BergÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹźÀàÈèÌìÒòÙùẀẁỲỳÀàÈèÌìÒòÙùẀẁỲỳÃãÑñÕõĨĩŨũẼẽỸỹÄäËëÏïÖöÜüŸÿÇçĢģĶķĻļŅņŖŗŞşŢţÅåŮůĀāĒēĪīŌōŪūȲȳĂăĔĕĞğĬĭŎŏŬŭĊċĖėĠġİẊẋŻżĄąĘęĮįŲųŐőŰű');
-        cy.get('#LastName').should('be.visible').type('OBrienO\'BrienO\u2019BrienO\u2018BrienSmith-JonesSt. Clairevan den BergÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹźÀàÈèÌìÒòÙùẀẁỲỳÀàÈèÌìÒòÙùẀẁỲỳÃãÑñÕõĨĩŨũẼẽỸỹÄäËëÏïÖöÜüŸÿÇçĢģĶķĻļŅņŖŗŞşŢţÅåŮůĀāĒēĪīŌōŪūȲȳĂăĔĕĞğĬĭŎŏŬŭĊċĖėĠġİẊẋŻżĄąĘęĮįŲųŐőŰű');
+
+        let approvedChars = "OBrien" + //plain letters
+            "O'Brien" + //straight apostrophe (U+0027)
+            "O\u2019Brien" + //right curly apostrophe (U+2019)
+            "O\u2018Brien" + //left curly apostrophe (U+2018)
+            "Smith-Jones" + //hyphen
+            "St. Claire" + //period and space
+            "van den Berg" + //spaces
+            "ÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹź" + //acute
+            "ÀàÈèÌìÒòÙùẀẁỲỳ" + //grave
+            "ÂâÊêÎîÔôÛûĈĉĜĝĤĥĴĵŜŝŴŵŶŷ" + //circumflex
+            "ÃãÑñÕõĨĩŨũẼẽỸỹ" + //tilde
+            "ÄäËëÏïÖöÜüŸÿ" + //umlaut or diaeresis
+            "ÇçĢģĶķĻļŅņŖŗŞşŢţ" + //cedilla
+            "ÅåŮů" + //ring
+            "ĀāĒēĪīŌōŪūȲȳ" + //macron
+            "ĂăĔĕĞğĬĭŎŏŬŭ" + //breve
+            "ĊċĖėĠġİẊẋŻż" + //dot above
+            "ĄąĘęĮįŲų" + //ogonek
+            "ŐőŰű"; //double acute
+
+        // Test the validation for First name and Last name accept the DWP predefined list of approved characters 
+        cy.get('#FirstName').should('be.visible').type(approvedChars);
+        cy.get('#LastName').should('be.visible').type(approvedChars);
+
         cy.contains('Save and continue').click();
         cy.get('#error-summary')
             .should('not.contain.text', 'Enter a first name with valid characters')
             .and('not.contain.text', 'Enter a last name with valid characters');
+        //Verify that we did successfully submit the form because we received validation errors for the two unfilled inputs
+        cy.get('#error-summary')
+            .should('contain.text', 'Enter a date of birth')
+            .and('contain.text', 'Select yes if you have a National Insurance number');
 
         //Continue to Add_Child_Details to check the Child Name validation with valid Parent Details
-
-        cy.get('#FirstName').should('be.visible').clear().type('Tim');
+        //Replace Last name as we need to use 'Tester' for the check to proceed.
         cy.get('#LastName').should('be.visible').clear().type('TESTER');
         cy.get('#DateOfBirth\\.Day').should('be.visible').type('01');
         cy.get('#DateOfBirth\\.Month').should('be.visible').type('01');
@@ -113,8 +116,8 @@ describe('Test that approved accented characters are accepted in name input fiel
         cy.get('h1').should('include.text', 'Add details of your children');
 
 
-        cy.get('[id="ChildList[0].FirstName"]').type('OBrienO\'BrienO\u2019BrienO\u2018BrienSmith-JonesSt. Clairevan den BergÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹźÀàÈèÌìÒòÙùẀẁỲỳÀàÈèÌìÒòÙùẀẁỲỳÃãÑñÕõĨĩŨũẼẽỸỹÄäËëÏïÖöÜüŸÿÇçĢģĶķĻļŅņŖŗŞşŢţÅåŮůĀāĒēĪīŌōŪūȲȳĂăĔĕĞğĬĭŎŏŬŭĊċĖėĠġİẊẋŻżĄąĘęĮįŲųŐőŰű');
-        cy.get('[id="ChildList[0].LastName"]').type('OBrienO\'BrienO\u2019BrienO\u2018BrienSmith-JonesSt. Clairevan den BergÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹźÀàÈèÌìÒòÙùẀẁỲỳÀàÈèÌìÒòÙùẀẁỲỳÃãÑñÕõĨĩŨũẼẽỸỹÄäËëÏïÖöÜüŸÿÇçĢģĶķĻļŅņŖŗŞşŢţÅåŮůĀāĒēĪīŌōŪūȲȳĂăĔĕĞğĬĭŎŏŬŭĊċĖėĠġİẊẋŻżĄąĘęĮįŲųŐőŰű');
+        cy.get('[id="ChildList[0].FirstName"]').type(approvedChars);
+        cy.get('[id="ChildList[0].LastName"]').type(approvedChars);
         cy.get('[id="ChildList[0].School"]').type(schoolApprovedForPrivateBetaSearchString);
         cy.get('#schoolList0')
             .contains(schoolApprovedForPrivateBeta)
@@ -125,6 +128,7 @@ describe('Test that approved accented characters are accepted in name input fiel
         cy.contains('Save and continue').click();
 
         cy.get('h1', { timeout: 15000 }).should('contain.text', 'Check your answers before sending');
-        cy.CheckValuesInSummaryCard('Child 1', 'Name', 'OBrienO\'BrienO\u2019BrienO\u2018BrienSmith-JonesSt. Clairevan den BergÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹźÀàÈèÌìÒòÙùẀẁỲỳÀàÈèÌìÒòÙùẀẁỲỳÃãÑñÕõĨĩŨũẼẽỸỹÄäËëÏïÖöÜüŸÿÇçĢģĶķĻļŅņŖŗŞşŢţÅåŮůĀāĒēĪīŌōŪūȲȳĂăĔĕĞğĬĭŎŏŬŭĊċĖėĠġİẊẋŻżĄąĘęĮįŲųŐőŰű OBrienO\'BrienO\u2019BrienO\u2018BrienSmith-JonesSt. Clairevan den BergÁáÉéÍíÓóÚúÝýĆćĹĺŃńŔŕŚśŹźÀàÈèÌìÒòÙùẀẁỲỳÀàÈèÌìÒòÙùẀẁỲỳÃãÑñÕõĨĩŨũẼẽỸỹÄäËëÏïÖöÜüŸÿÇçĢģĶķĻļŅņŖŗŞşŢţÅåŮůĀāĒēĪīŌōŪūȲȳĂăĔĕĞğĬĭŎŏŬŭĊċĖėĠġİẊẋŻżĄąĘęĮįŲųŐőŰű');
+        cy.CheckValuesInSummaryCard('Parent or guardian details', 'Name', approvedChars);
+        cy.CheckValuesInSummaryCard('Child 1', 'Name', approvedChars);
     });
 });
