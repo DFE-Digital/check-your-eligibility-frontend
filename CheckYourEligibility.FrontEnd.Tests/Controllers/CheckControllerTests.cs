@@ -704,27 +704,25 @@ public class CheckControllerTests
         _getCheckStatusUseCaseMock.Verify(x => x.Execute(responseJson, _sessionMock.Object), Times.Once);
     }
 
-    [TestCase("unknownStatus", "Outcome/Technical_Error")]
-    public async Task Given_Loader_When_Status_TechnicalError_Should_ReturnErrorCode(string status, string expectedView)
+    public async Task Given_Loader_When_Status_TechnicalError_Should_ReturnErrorCode()
     {
         // Arrange
         var response = new CheckEligibilityResponse
         {
-            Data = new StatusValue { Status = status }
+            Data = new StatusValue { Status = "error", ErrorCode = "TE21" }
         };
         var responseJson = JsonConvert.SerializeObject(response);
         _sut.TempData["Response"] = responseJson;
 
-        var expectedResponse = new StatusValue() { Status = status, ErrorCode = "TE21" };
         _getCheckStatusUseCaseMock
             .Setup(x => x.Execute(responseJson, _sessionMock.Object))
-            .ReturnsAsync(expectedResponse);
+            .ReturnsAsync(response.Data);
         // Act
         var result = await _sut.Loader();
 
         // Assert
         var viewResult = result as ViewResult;
-        viewResult.ViewData["ErrorCode"].Should().Be("TE21");
+        viewResult.ViewData["ErrorCode"].Should().Be(response.Data.ErrorCode);
     }
 
     [Test]

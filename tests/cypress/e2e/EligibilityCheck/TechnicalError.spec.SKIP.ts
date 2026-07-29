@@ -1,7 +1,7 @@
-//Test set as Redacted due to the length of time a tech error response takes to return, so we do not want to
+//Test set as SKIP due to the length of time a tech error response takes to return, so we do not want to
 //  include this in regular test runs. The timeout is set to how long it will keep checking rather than a 
 // fixed wait, but our intention is to see if we can generate the response faster before including
-// this test more permanently.
+// this test more permanently. Then just remove SKIP from filename to re-enable it.
 
 import { GOV_UK_ONE_LOGIN_SITE, GOV_UK_ONE_LOGIN_URL } from "../../support/constants";
 
