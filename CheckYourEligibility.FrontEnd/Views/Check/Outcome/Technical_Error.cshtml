@@ -1,6 +1,6 @@
 @{
     ViewData["Title"] = "Check failed";
-    string correlationID = ViewData["CorellationID"]?.ToString();
+    string correlationID = ViewData["CorrelationID"]?.ToString();
     string errorCode = ViewData["ErrorCode"]?.ToString();
 }
 
@@ -27,7 +27,7 @@
 
             <h2>How to report this error</h2>
             <p>Copy the following details and send them to our team using the <a target="_blank" href="https://customerhelpportal.education.gov.uk/">Customer Help Portal</a>.</p>
-            @if (correlationID != null)
+            @if (!string.IsNullOrEmpty(correlationID))
             {
                 <p>Correlation ID: @correlationID</p>
             }
