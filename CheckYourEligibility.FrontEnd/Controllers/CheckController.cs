@@ -174,13 +174,13 @@ public class CheckController : Controller
         {
             var outcome = await _getCheckStatusUseCase.Execute(responseJson, HttpContext.Session);
 
-            if (outcome == "queuedForProcessing")
+            if (outcome.Status == "queuedForProcessing")
                 // Save the response back to TempData for the next poll
                 TempData["Response"] = responseJson;
 
-            _logger.LogError(outcome);
+            _logger.LogError(outcome.Status);
 
-            switch (outcome)
+            switch (outcome.Status)
             {
                 case "eligible":
                     return View("Outcome/Eligible");
@@ -199,6 +199,8 @@ public class CheckController : Controller
                     break;
 
                 default:
+                    ViewData["CorrelationID"] = outcome.CorrelationID;
+                    ViewData["ErrorCode"] = outcome.ErrorCode;
                     return View("Outcome/Technical_Error");
             }
         }

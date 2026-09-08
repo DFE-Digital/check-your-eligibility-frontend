@@ -295,7 +295,7 @@ public class CheckControllerTests
                 {
                     Id = 10002,
                     LocalAuthority = new ApplicationResponse.ApplicationEstablishment.EstablishmentLocalAuthority
-                        { Id = 123 }
+                    { Id = 123 }
                 },
                 Reference = ""
             },
@@ -616,9 +616,10 @@ public class CheckControllerTests
         var responseJson = JsonConvert.SerializeObject(response);
         _sut.TempData["Response"] = responseJson;
 
+        var expectedResponse = new StatusValue() { Status = "queuedForProcessing" };
         _getCheckStatusUseCaseMock
             .Setup(x => x.Execute(responseJson, _sessionMock.Object))
-            .ReturnsAsync("queuedForProcessing");
+            .ReturnsAsync(expectedResponse);
 
         // Act
         var result = await _sut.Loader();
@@ -689,10 +690,10 @@ public class CheckControllerTests
         var responseJson = JsonConvert.SerializeObject(response);
         _sut.TempData["Response"] = responseJson;
 
+        var expectedResponse = new StatusValue() { Status = status };
         _getCheckStatusUseCaseMock
             .Setup(x => x.Execute(responseJson, _sessionMock.Object))
-            .ReturnsAsync(status);
-
+            .ReturnsAsync(expectedResponse);
         // Act
         var result = await _sut.Loader();
 
@@ -703,6 +704,34 @@ public class CheckControllerTests
         _getCheckStatusUseCaseMock.Verify(x => x.Execute(responseJson, _sessionMock.Object), Times.Once);
     }
 
+    [Test]
+    public async Task Given_Loader_When_Status_TechnicalError_Should_ReturnErrorCode()
+    {
+        // Arrange
+        var response = new CheckEligibilityResponse
+        {
+            Data = new StatusValue
+            {
+                Status = "error",
+                ErrorCode = "TE21",
+                CorrelationID = "TEST-CORRELATION-ID"
+            }
+        };
+        var responseJson = JsonConvert.SerializeObject(response);
+        _sut.TempData["Response"] = responseJson;
+
+        _getCheckStatusUseCaseMock
+            .Setup(x => x.Execute(responseJson, _sessionMock.Object))
+            .ReturnsAsync(response.Data);
+        // Act
+        var result = await _sut.Loader();
+
+        // Assert
+        var viewResult = result as ViewResult;
+        viewResult.ViewName.Should().Be("Outcome/Technical_Error");
+        viewResult.ViewData["ErrorCode"].Should().Be(response.Data.ErrorCode);
+        viewResult.ViewData["CorrelationID"].Should().Be(response.Data.CorrelationID);
+    }
 
     [Test]
     public async Task Given_CheckAnswers_When_LoadingPage_Should_LoadCheckAnswersPage()
@@ -770,7 +799,7 @@ public class CheckControllerTests
     //    // Setup application response - ensure it has email and reference
     //    _applicationSaveItemResponse.Data.ParentEmail = email;
     //    _applicationSaveItemResponse.Data.Reference = "TEST001";
-        
+
     //    var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
     //    _submitApplicationUseCaseMock
     //        .Setup(x => x.Execute(_fsmApplication, checkResult, userId, email))
@@ -843,7 +872,7 @@ public class CheckControllerTests
 
     //    // Verify notification was attempted
     //    _sendNotificationUseCaseMock.Verify(x => x.Execute(It.IsAny<NotificationRequest>()), Times.Once);
-        
+
     //    // Verify the process continued despite notification failure
     //    _sut.TempData.Should().ContainKey("FsmApplicationResponses");
     //}
@@ -952,7 +981,7 @@ public class CheckControllerTests
         var email = "test@example.com";
         var checkResult = CheckEligibilityStatus.eligible.ToString();
         var reference = "FSM123456";
-        
+
         NotificationRequest capturedRequest = null;
 
         // Setup session with TryGetValue instead of extension method
@@ -976,7 +1005,7 @@ public class CheckControllerTests
         _applicationSaveItemResponse.Data.Reference = reference;
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
-        
+
         _submitApplicationUseCaseMock
             .Setup(x => x.Execute(_fsmApplication, checkResult, userId, email))
             .ReturnsAsync(applicationResponses);
@@ -1649,7 +1678,7 @@ public class CheckControllerTests
     public async Task UploadEvidence_Post_When_Existing_Evidence_In_TempData_Should_Preserve_It()
     {
         // Arrange
-        var request = new FsmApplication(); 
+        var request = new FsmApplication();
         request.EvidenceFiles = new List<IFormFile>();
 
         // Create existing evidence in TempData
