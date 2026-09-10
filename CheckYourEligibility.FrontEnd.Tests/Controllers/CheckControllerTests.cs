@@ -974,6 +974,7 @@ public class CheckControllerTests
         // Add email and reference to application
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
+        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.eligible.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
         
@@ -1042,6 +1043,7 @@ public class CheckControllerTests
 
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
+        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.notEligible.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
 
@@ -1098,6 +1100,7 @@ public class CheckControllerTests
 
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
+        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.notEligible.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
 
@@ -1124,6 +1127,59 @@ public class CheckControllerTests
         capturedRequest.Data.Personalisation["reference"].Should().Be(reference);
         capturedRequest.Data.Personalisation.Should().ContainKey("parentFirstName");
         capturedRequest.Data.Personalisation["parentFirstName"].Should().Be(_fsmApplication.ParentFirstName);
+    }
+
+    [Test]
+    public async Task CheckAnswers_WhenSavedApplicationIsNotEligibleWithNoEvidence_ShouldNotFallThroughToSuccessfulNotification()
+    {
+        // Arrange
+        var userId = "testUserId";
+        var email = "test@example.com";
+        var checkResult = CheckEligibilityStatus.notEligible.ToString();
+        var reference = "FSM123456";
+
+        NotificationRequest capturedRequest = null;
+
+        var sessionStorage = new Dictionary<string, byte[]>
+        {
+            ["UserId"] = Encoding.UTF8.GetBytes(userId),
+            ["Email"] = Encoding.UTF8.GetBytes(email),
+            ["CheckResult"] = Encoding.UTF8.GetBytes(checkResult)
+        };
+
+        _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+            .Returns((string key, out byte[] value) =>
+            {
+                var result = sessionStorage.TryGetValue(key, out var storedValue);
+                value = storedValue;
+                return result;
+            });
+
+        // No evidence uploaded and no "take it into school" choice recorded - the edge case AC1 must not leak through
+        _applicationSaveItemResponse.Data.ParentEmail = email;
+        _applicationSaveItemResponse.Data.Reference = reference;
+        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.notEligible.ToString();
+
+        var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
+
+        _submitApplicationUseCaseMock
+            .Setup(x => x.Execute(_fsmApplication, checkResult, userId, email))
+            .ReturnsAsync(applicationResponses);
+
+        _sendNotificationUseCaseMock
+            .Setup(x => x.Execute(It.IsAny<NotificationRequest>()))
+            .Callback<NotificationRequest>(req => capturedRequest = req)
+            .ReturnsAsync(new NotificationItemResponse { Data = new NotificationResponse { Status = "sent" } });
+
+        var finishedConfirmation = "finishedConfirmationChecked";
+
+        // Act
+        var result = await _sut.Check_Answers_Post(_fsmApplication, finishedConfirmation);
+
+        // Assert
+        capturedRequest.Should().NotBeNull();
+        capturedRequest.Data.Type.Should().NotBe(NotificationType.ParentApplicationSuccessful);
+        capturedRequest.Data.Type.Should().Be(NotificationType.ParentApplicationUnsuccessful);
     }
 
     [Test]

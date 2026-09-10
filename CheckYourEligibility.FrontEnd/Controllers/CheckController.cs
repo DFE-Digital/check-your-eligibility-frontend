@@ -84,8 +84,14 @@ public class CheckController : Controller
         _logger.LogInformation("controller log info");
     }
 
-    private static NotificationType GetNotificationType(FsmApplication request, string evidenceChoice)
+    private static NotificationType GetNotificationType(FsmApplication request, string evidenceChoice, string savedStatus)
     {
+        // AC1: eligible applications need no evidence and are always successful
+        if (string.Equals(savedStatus, CheckEligibilityStatus.eligible.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            return NotificationType.ParentApplicationSuccessful;
+        }
+
         if (request.Evidence?.EvidenceList?.Any() == true)
         {
             return NotificationType.ParentApplicationEvidenceSent;
@@ -96,7 +102,7 @@ public class CheckController : Controller
             return NotificationType.ParentApplicationEvidenceToTakeToSchool;
         }
 
-        return NotificationType.ParentApplicationSuccessful;
+        return NotificationType.ParentApplicationUnsuccessful;
     }
 
     [HttpGet]
@@ -414,13 +420,13 @@ public class CheckController : Controller
         var responses = await _submitApplicationUseCase.Execute(
             request, currentStatus, userId, email);
 
-        var notificationType = GetNotificationType(request, evidenceChoice);
-
         // for each response send a notification
         foreach (var response in responses)
         {
             try
             {
+                var notificationType = GetNotificationType(request, evidenceChoice, response.Data.Status);
+
                 var notificationRequest = new NotificationRequest
                 {
                     Data = new NotificationRequestData
