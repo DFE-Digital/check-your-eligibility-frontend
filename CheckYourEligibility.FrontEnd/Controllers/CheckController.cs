@@ -84,10 +84,11 @@ public class CheckController : Controller
         _logger.LogInformation("controller log info");
     }
 
-    private static NotificationType GetNotificationType(FsmApplication request, string evidenceChoice, string savedStatus)
+    private static NotificationType? GetNotificationType(FsmApplication request, string evidenceChoice, string savedStatus)
     {
-        // AC1: eligible applications need no evidence and are always successful
-        if (string.Equals(savedStatus, CheckEligibilityStatus.eligible.ToString(), StringComparison.OrdinalIgnoreCase))
+        // AC1: eligible applications need no evidence and are always successful.
+        // PostApplication only ever saves Status as ApplicationStatus.Entitled or .SentForReview - never CheckEligibilityStatus values.
+        if (string.Equals(savedStatus, ApplicationStatus.Entitled.ToString(), StringComparison.OrdinalIgnoreCase))
         {
             return NotificationType.ParentApplicationSuccessful;
         }
@@ -102,7 +103,8 @@ public class CheckController : Controller
             return NotificationType.ParentApplicationEvidenceToTakeToSchool;
         }
 
-        return NotificationType.ParentApplicationUnsuccessful;
+        // Not covered by ELIG-3580: missing evidence/choice isn't proof of a declined application
+        return null;
     }
 
     [HttpGet]
@@ -427,12 +429,20 @@ public class CheckController : Controller
             {
                 var notificationType = GetNotificationType(request, evidenceChoice, response.Data.Status);
 
+                if (notificationType == null)
+                {
+                    _logger.LogWarning(
+                        "Skipping notification for application reference: {Reference} - unrecognised combination of saved status '{Status}' and evidence choice '{EvidenceChoice}'",
+                        response.Data.Reference, response.Data.Status, evidenceChoice);
+                    continue;
+                }
+
                 var notificationRequest = new NotificationRequest
                 {
                     Data = new NotificationRequestData
                     {
                         Email = response.Data.ParentEmail,
-                        Type = notificationType,
+                        Type = notificationType.Value,
                         Personalisation = new Dictionary<string, object>
                     {
                         { "reference", $"{response.Data.Reference}" },

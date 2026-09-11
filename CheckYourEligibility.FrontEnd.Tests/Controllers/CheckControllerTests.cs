@@ -974,7 +974,7 @@ public class CheckControllerTests
         // Add email and reference to application
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
-        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.eligible.ToString();
+        _applicationSaveItemResponse.Data.Status = ApplicationStatus.Entitled.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
         
@@ -1043,7 +1043,7 @@ public class CheckControllerTests
 
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
-        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.notEligible.ToString();
+        _applicationSaveItemResponse.Data.Status = ApplicationStatus.SentForReview.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
 
@@ -1100,7 +1100,7 @@ public class CheckControllerTests
 
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
-        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.notEligible.ToString();
+        _applicationSaveItemResponse.Data.Status = ApplicationStatus.SentForReview.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
 
@@ -1130,7 +1130,7 @@ public class CheckControllerTests
     }
 
     [Test]
-    public async Task CheckAnswers_WhenSavedApplicationIsNotEligibleWithNoEvidence_ShouldNotFallThroughToSuccessfulNotification()
+    public async Task CheckAnswers_WhenSavedApplicationIsNotEligibleWithNoEvidence_ShouldSkipNotificationWithoutFallingThroughToSuccessful()
     {
         // Arrange
         var userId = "testUserId";
@@ -1158,7 +1158,7 @@ public class CheckControllerTests
         // No evidence uploaded and no "take it into school" choice recorded - the edge case AC1 must not leak through
         _applicationSaveItemResponse.Data.ParentEmail = email;
         _applicationSaveItemResponse.Data.Reference = reference;
-        _applicationSaveItemResponse.Data.Status = CheckEligibilityStatus.notEligible.ToString();
+        _applicationSaveItemResponse.Data.Status = ApplicationStatus.SentForReview.ToString();
 
         var applicationResponses = new List<ApplicationSaveItemResponse> { _applicationSaveItemResponse };
 
@@ -1176,10 +1176,9 @@ public class CheckControllerTests
         // Act
         var result = await _sut.Check_Answers_Post(_fsmApplication, finishedConfirmation);
 
-        // Assert
-        capturedRequest.Should().NotBeNull();
-        capturedRequest.Data.Type.Should().NotBe(NotificationType.ParentApplicationSuccessful);
-        capturedRequest.Data.Type.Should().Be(NotificationType.ParentApplicationUnsuccessful);
+        // Assert - unrecognised combination is skipped, not sent as a rejection
+        capturedRequest.Should().BeNull();
+        _sendNotificationUseCaseMock.Verify(x => x.Execute(It.IsAny<NotificationRequest>()), Times.Never);
     }
 
     [Test]
