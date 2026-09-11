@@ -84,6 +84,29 @@ public class CheckController : Controller
         _logger.LogInformation("controller log info");
     }
 
+    private static NotificationType? GetNotificationType(FsmApplication request, string evidenceChoice, string savedStatus)
+    {
+        // AC1: eligible applications need no evidence and are always successful.
+        // PostApplication only ever saves Status as ApplicationStatus.Entitled or .SentForReview - never CheckEligibilityStatus values.
+        if (string.Equals(savedStatus, ApplicationStatus.Entitled.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            return NotificationType.ParentApplicationSuccessful;
+        }
+
+        if (request.Evidence?.EvidenceList?.Any() == true)
+        {
+            return NotificationType.ParentApplicationEvidenceSent;
+        }
+
+        if (evidenceChoice == "none")
+        {
+            return NotificationType.ParentApplicationEvidenceToTakeToSchool;
+        }
+
+        // Not covered by ELIG-3580: missing evidence/choice isn't proof of a declined application
+        return null;
+    }
+
     [HttpGet]
     public async Task<IActionResult> Enter_Details()
     {
@@ -396,6 +419,7 @@ public class CheckController : Controller
         var currentStatus = HttpContext.Session.GetString("CheckResult");
         var userId = HttpContext.Session.GetString("UserId");
         var email = HttpContext.Session.GetString("Email");
+        var evidenceChoice = TempData["EvidenceType"]?.ToString();
 
         var responses = await _submitApplicationUseCase.Execute(
             request, currentStatus, userId, email);
@@ -405,12 +429,22 @@ public class CheckController : Controller
         {
             try
             {
+                var notificationType = GetNotificationType(request, evidenceChoice, response.Data.Status);
+
+                if (notificationType == null)
+                {
+                    _logger.LogWarning(
+                        "Skipping notification for application reference: {Reference} - unrecognised combination of saved status '{Status}' and evidence choice '{EvidenceChoice}'",
+                        response.Data.Reference, response.Data.Status, evidenceChoice);
+                    continue;
+                }
+
                 var notificationRequest = new NotificationRequest
                 {
                     Data = new NotificationRequestData
                     {
                         Email = response.Data.ParentEmail,
-                        Type = NotificationType.ParentApplicationSuccessful,
+                        Type = notificationType.Value,
                         Personalisation = new Dictionary<string, object>
                     {
                         { "reference", $"{response.Data.Reference}" },
@@ -522,14 +556,17 @@ public class CheckController : Controller
 
         if (evidenceType == "digital")
         {
+            TempData["EvidenceType"] = "digital";
             return RedirectToAction("Upload_Guidance_Digital");
         }
         else if (evidenceType == "paper")
         {
+            TempData["EvidenceType"] = "paper";
             return RedirectToAction("Upload_Guidance_Paper");
         }
         else if (evidenceType == "none")
         {
+            TempData["EvidenceType"] = "none";
             return RedirectToAction("Check_Answers");
         }
 
